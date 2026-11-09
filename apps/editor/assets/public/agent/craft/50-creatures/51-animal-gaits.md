@@ -1,79 +1,29 @@
 # Animal gaits
 
-A quadruped walk drawn as "two humans glued together" slides, rows, or moves its
-legs in an order no animal uses. Each gait has its own footfall order and its own
-flight phase; get those wrong and the sprite reads as drunk, as a table on wheels,
-or as a human in a costume. This file gives the four-beat walk, the trot, the canter
-and the gallop as frame tables and key poses, with joint behaviour, bob, timing and
-looping. Anatomy and proportions are `craft/50-creatures/50-quadrupeds.md`; the two-legged version
-is `craft/40-animation/42-walk-and-run.md`; general timing is `craft/40-animation/40-timing-and-spacing.md`.
+A quadruped walk drawn as "two humans glued together" slides, rows, or moves its legs in an order no animal uses. Each gait has its own footfall order and its own flight phase; get those wrong and the sprite reads as drunk, as a table on wheels, or as a human in a costume. This file gives the four-beat walk, the trot, the canter and the gallop as frame tables and key poses, with joint behaviour, bob, timing and looping. Anatomy and proportions are `50-quadrupeds`; the two-legged version is `42-walk-and-run`; general timing is `40-timing-and-spacing`.
 
 ## Rules
 
-1. **A gait is a footfall order plus a flight phase.** Walk: four beats in lateral
-   sequence, 2–3 feet always down. Trot: two beats, diagonal pairs, flight between.
-   Canter: three beats with a lead, flight after. Gallop: four beats, then a long flight.
-   Pick the gait first; the poses follow from the chart below.
-2. **Walk order: near hind → near fore → far hind → far fore.** Each foot lands a
-   quarter-cycle after the previous one; after a fore foot the diagonal hind lands next.
-   Decision: Williams's "front leg twins with the opposite back leg" is his own comic
-   donkey walk, not the animal's, and Saint11's "trot" demo lands one foot every two frames
-   in walk order. Use the lateral order for walks and diagonal pairs only for trots; keep
-   the wrong order for drunk, dying or puppet animals (Thomas & Johnston).
-3. **Model it as two bipeds with a time offset.** Hind pair and front pair each walk like
-   a two-legged walk; the front pair is one quarter-cycle behind the hind pair on the same
-   side. Draw one near leg through the whole cycle, copy it to the far leg shifted by half
-   a cycle, then do the other pair at a quarter-cycle offset (`craft/00-core/06-layers-and-rigging.md`).
-4. **Front and hind paws travel the same distance.** If the front stride is longer than the
-   hind stride the body stretches and shrinks like an accordion. The sweep of a planted paw
-   against the body is about 0.5 H (6 px at H = 12 in the templates); the body advances about
-   1 H per full cycle at a walk (Goldfinger's estimate, not measured).
-5. **A planted paw must move back at the ground speed.** Body advance per cycle = sweep ×
-   frames ÷ stance frames. Sweep 6 px, 8 frames, 5 stance frames → 9.6 px per cycle, i.e.
-   1.2 px per frame (derived). Any other engine speed and the feet skate.
-6. **Leg cycle: contact → drag → rise → swing.** The paw is planted and slides back
-   relative to the body (drag), lifts, then arcs forward and drops. The swing foot follows an
-   arc, never a straight slide: lift ≈ 25–30 % of leg length (Hultgren, deer), 1–2 px at
-   H = 12, 2–3 px at H = 20.
-7. **Joints move in a fixed pattern.** Front leg: shoulder swings steadily, the elbow moves fast
-   at contact and release, the paw snaps at release. Hind leg: hip steady, the stifle lifts
-   the foot, the paw lags. **Stifle and hock fold together** (never flex one without the other
-   in the same frame); the fetlock folds with the carpus; the carpus folds backward, the
-   hock folds the foot up toward the buttock.
-8. **Flex ranges for clamps** (horse plates, ±10–15 %): elbow 150° → 35°, carpus 180° → 30°,
-   stifle 130° → 50°, hock 150° → 40°, hip 120° flexed → 170° extended. A joint outside its
-   range is a pose the animal cannot make.
-9. **Weight moves the spine.** Williams's two dog extremes: A, pelvis up on the hind pass while
-   the chest drops on the front contact; B, pelvis down on the hind contact while the chest and
-   shoulders rise. Shoulders and hips tilt opposite ways by 1 px each step. Bob (peak to peak):
-   1 px up to 24 px wide, 2 px at 32, 3 px at 64 (derived from Williams, Blair).
-10. **Head and tail are late.** Head 1 frame behind the chest; the nose follows the chest up
-    and down. Tail and ears lag 1–2 frames with decaying swing (3, 2, 1 px) on their own layers
-    (`craft/40-animation/45-secondary-motion.md`).
-11. **Trot: diagonal pairs and a flight.** Near fore + far hind land together, then near hind +
-    far fore. Between pairs every foot is off the ground for 1 frame (8-frame loop); the body is
-    1 px higher in flight and 1 px lower at contact (derived). No flight frame is acceptable at 16 px.
-12. **Canter: three beats and a lead.** One hind alone, then the other hind with its diagonal
-    fore, then the leading fore, then flight. The leading fore reaches farthest. The body rocks
-    forward and back along a rolling wave; the head nods on each beat.
-13. **Gallop: two extremes.** Extended: spine flat, fore legs reaching forward, hind legs thrown
-    back, belly raised 1–2 px, torso 10–15 % longer (dog, cat, cheetah; horses and cattle stay the
-    same length). Gathered: spine arched, all four feet bunched under the belly. Decision: photographs
-    show the flight phase gathered, cartoon charts show it stretched (Blair). Use the gathered pose for
-    realism and the stretched one for cartoon speed; in both, keep one frame near contact with a foot down.
-14. **Heavy animals bounce less.** Bears, bulldogs, rhinos: low bounce, large head swing, squash on
-    landing, long contact holds (Blair). Light animals (cats, deer, rabbits) get higher arcs.
-15. **Cycles must not look like cycles.** Loop the legs on the cycle length, but give the tail, head
-    or mane a different period (legs 8 frames, tail 12) so the repeat disappears. The last frame must
-    lead into the first.
-16. **Sneak and sprint are walks with different holds.** Sneak: body low, belly 1–2 px from the
-    ground, contact frames held 1.5–2× longer, other frames fast. Sprint: trot or gallop with the
-    stride lengthened, not the frame rate raised.
+1. **A gait is a footfall order plus a flight phase.** Walk: four beats in lateral sequence, 2–3 feet always down. Trot: two beats, diagonal pairs, flight between. Canter: three beats with a lead, flight after. Gallop: four beats, then a long flight. Pick the gait first; the poses follow from the chart below.
+2. **Walk order: near hind → near fore → far hind → far fore.** Each foot lands a quarter-cycle after the previous one; after a fore foot the diagonal hind lands next. Decision: Williams's "front leg twins with the opposite back leg" is his own comic donkey walk, not the animal's, and Saint11's "trot" demo lands one foot every two frames in walk order. Use the lateral order for walks and diagonal pairs only for trots; keep the wrong order for drunk, dying or puppet animals (Thomas & Johnston).
+3. **Model it as two bipeds with a time offset.** Hind pair and front pair each walk like a two-legged walk; the front pair is one quarter-cycle behind the hind pair on the same side. Draw one near leg through the whole cycle, copy it to the far leg shifted by half a cycle, then do the other pair at a quarter-cycle offset (`06-layers-and-rigging`).
+4. **Front and hind paws travel the same distance.** If the front stride is longer than the hind stride the body stretches and shrinks like an accordion. The sweep of a planted paw against the body is about 0.5 H (6 px at H = 12 in the templates); the body advances about 1 H per full cycle at a walk (Goldfinger's estimate, not measured).
+5. **A planted paw must move back at the ground speed.** Body advance per cycle = sweep × frames ÷ stance frames. Sweep 6 px, 8 frames, 5 stance frames → 9.6 px per cycle, i.e. 1.2 px per frame (derived). Any other engine speed and the feet skate.
+6. **Leg cycle: contact → drag → rise → swing.** The paw is planted and slides back relative to the body (drag), lifts, then arcs forward and drops. The swing foot follows an arc, never a straight slide: lift ≈ 25–30 % of leg length (Hultgren, deer), 1–2 px at H = 12, 2–3 px at H = 20.
+7. **Joints move in a fixed pattern.** Front leg: shoulder swings steadily, the elbow moves fast at contact and release, the paw snaps at release. Hind leg: hip steady, the stifle lifts the foot, the paw lags. **Stifle and hock fold together** (never flex one without the other in the same frame); the fetlock folds with the carpus; the carpus folds backward, the hock folds the foot up toward the buttock.
+8. **Flex ranges for clamps** (horse plates, ±10–15 %): elbow 150° → 35°, carpus 180° → 30°, stifle 130° → 50°, hock 150° → 40°, hip 120° flexed → 170° extended. A joint outside its range is a pose the animal cannot make.
+9. **Weight moves the spine.** Williams's two dog extremes: A, pelvis up on the hind pass while the chest drops on the front contact; B, pelvis down on the hind contact while the chest and shoulders rise. Shoulders and hips tilt opposite ways by 1 px each step. Bob (peak to peak): 1 px up to 24 px wide, 2 px at 32, 3 px at 64 (derived from Williams, Blair).
+10. **Head and tail are late.** Head 1 frame behind the chest; the nose follows the chest up and down. Tail and ears lag 1–2 frames with decaying swing (3, 2, 1 px) on their own layers (`45-secondary-motion`).
+11. **Trot: diagonal pairs and a flight.** Near fore + far hind land together, then near hind + far fore. Between pairs every foot is off the ground for 1 frame (8-frame loop); the body is 1 px higher in flight and 1 px lower at contact (derived). No flight frame is acceptable at 16 px.
+12. **Canter: three beats and a lead.** One hind alone, then the other hind with its diagonal fore, then the leading fore, then flight. The leading fore reaches farthest. The body rocks forward and back along a rolling wave; the head nods on each beat.
+13. **Gallop: two extremes.** Extended: spine flat, fore legs reaching forward, hind legs thrown back, belly raised 1–2 px, torso 10–15 % longer (dog, cat, cheetah; horses and cattle stay the same length). Gathered: spine arched, all four feet bunched under the belly. Decision: photographs show the flight phase gathered, cartoon charts show it stretched (Blair). Use the gathered pose for realism and the stretched one for cartoon speed; in both, keep one frame near contact with a foot down.
+14. **Heavy animals bounce less.** Bears, bulldogs, rhinos: low bounce, large head swing, squash on landing, long contact holds (Blair). Light animals (cats, deer, rabbits) get higher arcs.
+15. **Cycles must not look like cycles.** Loop the legs on the cycle length, but give the tail, head or mane a different period (legs 8 frames, tail 12) so the repeat disappears. The last frame must lead into the first.
+16. **Sneak and sprint are walks with different holds.** Sneak: body low, belly 1–2 px from the ground, contact frames held 1.5–2× longer, other frames fast. Sprint: trot or gallop with the stride lengthened, not the frame rate raised.
 
 ## Footfall charts
 
-Eight time steps per stride; `#` = foot on the ground. Schematic (derived from published
-footfall sequences), not measured. NH near hind, NF near fore, FH far hind, FF far fore.
+Eight time steps per stride; `#` = foot on the ground. Schematic (derived from published footfall sequences), not measured. NH near hind, NF near fore, FH far hind, FF far fore.
 
 ```
 WALK                          TROT                           CANTER (far hind leads)
@@ -93,9 +43,7 @@ NF   . . . # # . . .
 flight at 5, 6, 7
 ```
 
-Frame mapping: an 8-frame walk puts a foot contact on frames 0, 2, 4, 6 (NH, NF, FH, FF);
-frames 1, 3, 5, 7 are the passings. A 4-frame walk is exactly those four contacts at
-150–170 ms; add the passings when you have room.
+Frame mapping: an 8-frame walk puts a foot contact on frames 0, 2, 4, 6 (NH, NF, FH, FF); frames 1, 3, 5, 7 are the passings. A 4-frame walk is exactly those four contacts at 150–170 ms; add the passings when you have room.
 
 ## By size
 
@@ -117,18 +65,11 @@ frames 1, 3, 5, 7 are the passings. A 4-frame walk is exactly those four contact
 | Gallop | 8 | 70 ms | 0.56 s | Zagrobelna |
 | Gallop | 11 | ≈ 50 ms | ≈ 0.55 s | LPC horse (11 frames, ≈ 20 fps) |
 
-Hold the contact frames 20–40 ms longer than the passings and the gather frame 1 tick
-longer than the extend frame; never use one duration for the whole cycle
-(`craft/00-core/05-animation.md`). A fast gait raises the step rate, it does not shrink the frames below 50 ms.
+Hold the contact frames 20–40 ms longer than the passings and the gather frame 1 tick longer than the extend frame; never use one duration for the whole cycle (`05-animation`). A fast gait raises the step rate, it does not shrink the frames below 50 ms.
 
 ## Templates
 
-Four contact frames of an 8-frame walk. Same dog and same body in every frame, far legs one ramp
-step darker; the 1 px bob (chest up, pelvis down on the hind contacts, the reverse on the fore
-contacts) and the late head are added per frame in the animation, not baked into these key poses.
-Frame 1: near hind lands; frame 2: near fore; frame 3: far hind; frame 4: far fore. Each leg is one
-articulated chain (upper segment, bent middle joint, paw); the planted paws touch the same ground row.
-Paste each into its own frame and fill the passings between them.
+Four contact frames of an 8-frame walk. Same dog and same body in every frame, far legs one ramp step darker; the 1 px bob (chest up, pelvis down on the hind contacts, the reverse on the fore contacts) and the late head are added per frame in the animation, not baked into these key poses. Frame 1: near hind lands; frame 2: near fore; frame 3: far hind; frame 4: far fore. Each leg is one articulated chain (upper segment, bent middle joint, paw); the planted paws touch the same ground row. Paste each into its own frame and fill the passings between them.
 
 ```grid gait-walk-1
 O = outline        #2b1d2e
@@ -430,22 +371,13 @@ S = coat-shadow    #8a5a3a
 
 ## Procedure
 
-1. Choose the gait and the frame count from the By size and Timing tables. Write the stance windows
-   from the footfall chart for each leg.
-2. Rig the animal on layers: `tail`, `leg-far-hind`, `leg-far-front`, `body`, `head`, `leg-near-hind`,
-   `leg-near-front` (`addLayer` ops in one `applyBatch`).
-3. `addFrame` for the full frame count. Draw the near hind leg on every frame: contact, drag,
-   rise, swing, with the stifle and hock folding together. Use the body with its bob only as a guide.
-4. Copy the near hind leg to `leg-far-hind` and rotate the frames by half a cycle (`copyCel` then
-   `translate`). Draw the near front leg and copy it to `leg-far-front` the same way. Offset the front pair by a
-   quarter cycle from the hind pair.
-5. Move the body per frame: pelvis and chest by their offsets (rule 9), head one frame late, tail and ears
-   with delay and decay. Do this with `translate`, not by redrawing.
-6. `render` `filmstrip`: are 2–3 feet down on every walk frame, are the contacts evenly spaced, does the
-   silhouette change between consecutive frames by at least 2 px somewhere? `render` `onionSkin` on each
-   passing: the swing foot should clear the ground in an arc.
-7. `setFrameDuration` `durations` with the ms array from Timing, `addTag` the cycle (`walk`, `trot`, `gallop`), loop
-   check: does the last frame lead into the first? `validate` for timing and orphan pixels.
+1. Choose the gait and the frame count from the By size and Timing tables. Write the stance windows from the footfall chart for each leg.
+2. Rig the animal on layers: `tail`, `leg-far-hind`, `leg-far-front`, `body`, `head`, `leg-near-hind`, `leg-near-front` (`addLayer` ops in one `applyBatch`).
+3. `addFrame` for the full frame count. Draw the near hind leg on every frame: contact, drag, rise, swing, with the stifle and hock folding together. Use the body with its bob only as a guide.
+4. Copy the near hind leg to `leg-far-hind` and rotate the frames by half a cycle (`copyCel` then `translate`). Draw the near front leg and copy it to `leg-far-front` the same way. Offset the front pair by a quarter cycle from the hind pair.
+5. Move the body per frame: pelvis and chest by their offsets (rule 9), head one frame late, tail and ears with delay and decay. Do this with `translate`, not by redrawing.
+6. `render` `filmstrip`: are 2–3 feet down on every walk frame, are the contacts evenly spaced, does the silhouette change between consecutive frames by at least 2 px somewhere? `render` `onionSkin` on each passing: the swing foot should clear the ground in an arc.
+7. `setFrameDuration` `durations` with the ms array from Timing, `addTag` the cycle (`walk`, `trot`, `gallop`), loop check: does the last frame lead into the first? `validate` for timing and orphan pixels.
 
 ## Mistakes
 
@@ -471,7 +403,7 @@ S = coat-shadow    #8a5a3a
 - Stifle and hock fold together; no joint outside the flex ranges; segment lengths constant.
 - Body bob and spine alternate with the legs; head and tail are one to two frames late.
 - Far legs darker and behind; no tangents between near and far legs.
-- Frame durations vary; the cycle is tagged and loops cleanly (`craft/00-core/07-review-checklist.md`).
+- Frame durations vary; the cycle is tagged and loops cleanly (`07-review-checklist`).
 
 ## Sources
 

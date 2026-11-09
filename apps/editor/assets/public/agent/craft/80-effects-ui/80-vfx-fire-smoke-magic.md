@@ -1,57 +1,25 @@
 # VFX: fire, smoke, explosions and magic
 
-Effects are judged by motion alone, and agents draw them as stills: a flame with a black
-outline, smoke as a grey ball, an explosion as one orange frame. Each effect has a fixed
-layer order, colour order and frame skeleton; this file gives them. Hit timing and shake
-are in `craft/80-effects-ui/81-impacts-and-game-feel.md`, falling things in `craft/80-effects-ui/82-particles-and-weather.md`,
-light cast on the scene in `craft/20-color/24-lighting-scenarios.md`.
+Effects are judged by motion alone, and agents draw them as stills: a flame with a black outline, smoke as a grey ball, an explosion as one orange frame. Each effect has a fixed layer order, colour order and frame skeleton; this file gives them. Hit timing and shake are in `81-impacts-and-game-feel`, falling things in `82-particles-and-weather`, light cast on the scene in `24-lighting-scenarios`.
 
 ## Rules
 
-1. **One layer at a time.** An explosion is flash, blast, fire, smoke, debris: draw and
-   animate each as its own pass (its own layer), then judge the stack. One drawing per frame
-   comes out muddy.
-2. **Light sources get no black outline.** The outer ring of a flame or blast is the darkest
-   *fire* colour, then orange, yellow, white. An outline turns glow into a sticker. Contrast
-   comes from a dark disc *behind* the effect on frame 1 (rule 9).
-3. **Fire ramp, hottest at the base:** `#ac3232` dark red, `#df7126` orange, `#fbf236` yellow,
-   `#ffffff` white (add `#3f2832` as a darkest step). White is 1–3 pixels at the root of a flame
-   or centre of a blast, never a fill. The tip is the coolest part.
-4. **A flame is one connected body plus a few detached bits.** The body changes outline every
-   frame but keeps its area; embers (1 px) break off the tip and rise. Yellow stays inside
-   orange. Measured torch at 32 px: 9–12 wide, 15–20 tall, tip height ±3–4 px between frames.
-5. **Fire loops in 6–8 frames at 80–120 ms with uneven durations** (e.g. 100/80/120/100).
-   Start a new "wave" every 2–3 frames; the last frame must lead into the first. At ≤16 px
-   4 frames suffice. *Conflict:* the Saint11 reference fire is 30 frames at 100 ms; at ≤32 px
-   the extra frames are indistinguishable, so use 6–8. Equal frames and durations strobe.
+1. **One layer at a time.** An explosion is flash, blast, fire, smoke, debris: draw and animate each as its own pass (its own layer), then judge the stack. One drawing per frame comes out muddy.
+2. **Light sources get no black outline.** The outer ring of a flame or blast is the darkest *fire* colour, then orange, yellow, white. An outline turns glow into a sticker. Contrast comes from a dark disc *behind* the effect on frame 1 (rule 9).
+3. **Fire ramp, hottest at the base:** `#ac3232` dark red, `#df7126` orange, `#fbf236` yellow, `#ffffff` white (add `#3f2832` as a darkest step). White is 1–3 pixels at the root of a flame or centre of a blast, never a fill. The tip is the coolest part.
+4. **A flame is one connected body plus a few detached bits.** The body changes outline every frame but keeps its area; embers (1 px) break off the tip and rise. Yellow stays inside orange. Measured torch at 32 px: 9–12 wide, 15–20 tall, tip height ±3–4 px between frames.
+5. **Fire loops in 6–8 frames at 80–120 ms with uneven durations** (e.g. 100/80/120/100). Start a new "wave" every 2–3 frames; the last frame must lead into the first. At ≤16 px 4 frames suffice. *Conflict:* the Saint11 reference fire is 30 frames at 100 ms; at ≤32 px the extra frames are indistinguishable, so use 6–8. Equal frames and durations strobe.
 6. **Wind leans the tip, not the base:** shift the top 2–3 rows by 1 px, keep the bottom.
-7. **Smoke dies by shrinking, not transparency.** Each frame rise 2–3 px, widen, lighten toward
-   the background (3 → 2 colours), and finally break into 2–4 clusters. Break late; early
-   breakup reads as noise. Violet-grey, never neutral (`craft/20-color/20-color-for-pixel-art.md`).
-8. **Smoke puffs are lobed discs:** light crescent upper-left, one dark crescent lower-right,
-   bumps on top. No pillow shading (`craft/10-technique/11-clusters-and-noise.md`).
-9. **Explosion: at least 4 frames, in order:** (1) contrast — a dark disc, so the next frame
-   feels brighter; (2) white flash; (3) sharp blast, hard angles, no noise; (4+) fade — fire
-   leaves fast, smoke slowly. Draw the *force shape* first: sphere in open air, half-dome on
-   a wall, quarter-dome in a corner.
-10. **Expansion is fast, then slows;** in a 6-frame, 32 px blast the radius gains about
-    +4, +3, +2, +1, +1 px (derived). Colour runs white → yellow → orange → brown/grey, so the
-    last frames carry no yellow.
+7. **Smoke dies by shrinking, not transparency.** Each frame rise 2–3 px, widen, lighten toward the background (3 → 2 colours), and finally break into 2–4 clusters. Break late; early breakup reads as noise. Violet-grey, never neutral (`20-color-for-pixel-art`).
+8. **Smoke puffs are lobed discs:** light crescent upper-left, one dark crescent lower-right, bumps on top. No pillow shading (`11-clusters-and-noise`).
+9. **Explosion: at least 4 frames, in order:** (1) contrast — a dark disc, so the next frame feels brighter; (2) white flash; (3) sharp blast, hard angles, no noise; (4+) fade — fire leaves fast, smoke slowly. Draw the *force shape* first: sphere in open air, half-dome on a wall, quarter-dome in a corner.
+10. **Expansion is fast, then slows;** in a 6-frame, 32 px blast the radius gains about +4, +3, +2, +1, +1 px (derived). Colour runs white → yellow → orange → brown/grey, so the last frames carry no yellow.
 11. **Debris follows gravity and lands.** Nothing hangs mid-air; fragments rest on the last frame.
-12. **Electricity flickers:** shock (sharp zig-zag) → brighter frame with a *different* shape →
-    empty → faded echo of the first → empty → 2-frame fade. Blank frames are part of it.
-13. **Beams: white core, 1 px coloured fringe;** pulse thickness 1 → 3 → 5 → 3 → 1 px, with a
-    charge ball at the muzzle first.
-14. **Glow is concentric rings, not alpha:** core → light → mid → dark, 1–2 px per ring, outer
-    ring dithered (`craft/10-technique/13-dithering-and-texture.md`). Light it casts drops about 2 ramp steps
-    per doubling of distance (`craft/20-color/24-lighting-scenarios.md`).
-15. **Pick the magic palette by the feeling.** Dark magic: complementary pair (lime `#99e550`
-    against purple `#c327ff`), lit from below, sharp shapes, spiral smoke, black disc behind.
-    Holy magic: analogous and bright (cyan, white, yellow), lit from above, rounded shapes,
-    sparks that fall slowly or rise, no smoke, no spikes.
-16. **Projectile cores are warm and bright, borders cool and dark:** orange `#fee761 #feae34
-    #f77622 #9e2835`; cyan `#ffffff #2ce8f5 #0095e9 #124e89`; green `#fee761 #63c74d #3e8948
-    #265c42`. Fast bullets: fewer details, stretched along travel.
+12. **Electricity flickers:** shock (sharp zig-zag) → brighter frame with a *different* shape → empty → faded echo of the first → empty → 2-frame fade. Blank frames are part of it.
+13. **Beams: white core, 1 px coloured fringe;** pulse thickness 1 → 3 → 5 → 3 → 1 px, with a charge ball at the muzzle first.
+14. **Glow is concentric rings, not alpha:** core → light → mid → dark, 1–2 px per ring, outer ring dithered (`13-dithering-and-texture`). Light it casts drops about 2 ramp steps per doubling of distance (`24-lighting-scenarios`).
+15. **Pick the magic palette by the feeling.** Dark magic: complementary pair (lime `#99e550` against purple `#c327ff`), lit from below, sharp shapes, spiral smoke, black disc behind. Holy magic: analogous and bright (cyan, white, yellow), lit from above, rounded shapes, sparks that fall slowly or rise, no smoke, no spikes.
+16. **Projectile cores are warm and bright, borders cool and dark:** orange `#fee761 #feae34 #f77622 #9e2835`; cyan `#ffffff #2ce8f5 #0095e9 #124e89`; green `#fee761 #63c74d #3e8948 #265c42`. Fast bullets: fewer details, stretched along travel.
 
 ## By size
 
@@ -66,12 +34,9 @@ Budget at 16 px: ≤ 70 filled pixels and ≤ 2 detached per flame frame; ≤ 3 
 
 ## Templates
 
-All frames share one canvas size per effect so they stack in one sprite; colours are
-roles — map them to your palette (`craft/20-color/21-limited-and-platform-palettes.md`).
+All frames share one canvas size per effect so they stack in one sprite; colours are roles — map them to your palette (`21-limited-and-platform-palettes`).
 
-**Torch flame, 3 frames (9×12).** Upright, lean-right, short with a detached spark.
-For a lean-left frame mirror `vfx-flame-2` (`flip`) and shift the yellow
-core sliver by 1 px. Play with uneven durations.
+**Torch flame, 3 frames (9×12).** Upright, lean-right, short with a detached spark. For a lean-left frame mirror `vfx-flame-2` (`flip`) and shift the yellow core sliver by 1 px. Play with uneven durations.
 
 ```grid vfx-flame-1
 R = fire-dark   #ac3232
@@ -133,9 +98,7 @@ W = fire-core   #ffffff
 ...RRR...
 ```
 
-**Smoke puff, 4-frame cycle (12×16), frames 1–3 drawn.** One puff rising from the bottom
-edge: forms, swells, turns ragged and light. Frame 4 is 3–4 clusters of 2–3 px (`M`/`L`
-only) over the top 6 rows; only the last frame may hold lone pixels. Same origin for all.
+**Smoke puff, 4-frame cycle (12×16), frames 1–3 drawn.** One puff rising from the bottom edge: forms, swells, turns ragged and light. Frame 4 is 3–4 clusters of 2–3 px (`M`/`L` only) over the top 6 rows; only the last frame may hold lone pixels. Same origin for all.
 
 ```grid vfx-smoke-1
 D = smoke-dark  #5a5266
@@ -207,9 +170,7 @@ LLLLLLLMML..
 ............
 ```
 
-**Explosion, 4 frames (13×13).** Frame 0 (not drawn here) is a dark disc of about
-7 px, `#222034`, via `applyBatch` `fillEllipse` (filled disc). Then flash, sharp blast, fireball, fade.
-Hold flash and blast for 1 tick each (40–60 ms), fireball 80 ms, fade 100–120 ms (derived).
+**Explosion, 4 frames (13×13).** Frame 0 (not drawn here) is a dark disc of about 7 px, `#222034`, via `applyBatch` `fillEllipse` (filled disc). Then flash, sharp blast, fireball, fade. Hold flash and blast for 1 tick each (40–60 ms), fireball 80 ms, fade 100–120 ms (derived).
 
 ```grid vfx-explosion-1
 W = flash-white  #ffffff
@@ -293,8 +254,7 @@ R = fire-dark   #ac3232
 .............
 ```
 
-**Magic orb (11×11).** Ring glow: one frame, or pulse by swapping the ring colours
-one step outward each frame. Dither the outer `N` ring for a soft edge.
+**Magic orb (11×11).** Ring glow: one frame, or pulse by swapping the ring colours one step outward each frame. Dither the outer `N` ring for a soft edge.
 
 ```grid vfx-orb-glow
 W = glow-core   #ffffff
@@ -315,8 +275,7 @@ NBBCCCCCBBN
 ...NNNNN...
 ```
 
-**Lightning bolt, 2 frames (9×12).** Frame 1 thin and sharp (2 px segments on 1:1 diagonals joined by horizontal kinks); frame 2 a white core in a
-halo, mirrored so the shape changes. Order: 1, 2, empty, 1 at half the colour, empty, gone.
+**Lightning bolt, 2 frames (9×12).** Frame 1 thin and sharp (2 px segments on 1:1 diagonals joined by horizontal kinks); frame 2 a white core in a halo, mirrored so the shape changes. Order: 1, 2, empty, 1 at half the colour, empty, gone.
 
 ```grid vfx-bolt-1
 C = bolt-main  #5fcde4
@@ -355,16 +314,12 @@ C = bolt-halo  #5fcde4
 
 ## Procedure
 
-1. Fix the feeling and the ramp: `palette` op `set` with the 4–5 role colours, or `palette` op
-   `ramp` from `#df7126` if the project palette lacks a fire ramp.
+1. Fix the feeling and the ramp: `palette` op `set` with the 4–5 role colours, or `palette` op `ramp` from `#df7126` if the project palette lacks a fire ramp.
 2. Make a transparent `fx` layer (`addLayer`); `addFrame` to the frame count.
 3. Draw each frame with `applyBatch` `grid` from a template, same origin on every frame.
-4. `render` `filmstrip`, then `render` `onionSkin` on middle frames: the body keeps its
-   volume and the tip travels, not teleports.
-5. `setFrameDuration` `durations` with uneven values; `addTag` the loop (`fire-loop`) or
-   one-shot (`explosion`).
-6. `validate` flags single-pixel sparks as orphans: expected on embers and last-frame debris;
-   anything else is a defect.
+4. `render` `filmstrip`, then `render` `onionSkin` on middle frames: the body keeps its volume and the tip travels, not teleports.
+5. `setFrameDuration` `durations` with uneven values; `addTag` the loop (`fire-loop`) or one-shot (`explosion`).
+6. `validate` flags single-pixel sparks as orphans: expected on embers and last-frame debris; anything else is a defect.
 
 ## Mistakes
 

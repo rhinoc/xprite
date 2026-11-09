@@ -4,6 +4,8 @@ import type { AsepriteTagDirection } from "$/import-export/aseprite/model";
 export enum BatchEditKind {
   Stroke = "stroke",
   Line = "line",
+  Polygon = "polygon",
+  FillPolygon = "fillPolygon",
   Rectangle = "rectangle",
   FillRect = "fillRect",
   Ellipse = "ellipse",
@@ -75,6 +77,14 @@ interface PaintTarget extends RasterTarget {
 type BatchEditOperationBase =
   | (PaintTarget & { type: BatchEditKind.Stroke; points: readonly Point[] })
   | (PaintTarget & { type: BatchEditKind.Line; start: Point; end: Point })
+  | (PaintTarget & { type: BatchEditKind.Polygon; points: readonly Point[] })
+  | (RasterTarget & {
+      type: BatchEditKind.FillPolygon;
+      points: readonly Point[];
+      color: Rgba | string;
+      /** Optional one-pixel closed border, painted after the fill. */
+      outlineColor?: Rgba | string;
+    })
   | (PaintTarget & {
       type:
         | BatchEditKind.Rectangle

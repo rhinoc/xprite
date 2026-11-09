@@ -1,74 +1,37 @@
 # Trees and foliage
 
-A tree drawn leaf by leaf becomes noise, and a tree shaded with one smooth radial gradient becomes a
-pillow with a dark ring. Both read as "generated". Real foliage is a few lit volumes with ragged edges
-and quiet interiors, and conifers, palms and background trees each obey a different recipe. This file
-covers the crown, trunk and tree types; ground cover and rocks are `craft/60-environments/65-ground-rocks-grass.md`,
-leaves in the wind `craft/40-animation/45-secondary-motion.md`, falling leaves `craft/80-effects-ui/82-particles-and-weather.md`.
+A tree drawn leaf by leaf becomes noise, and a tree shaded with one smooth radial gradient becomes a pillow with a dark ring. Both read as "generated". Real foliage is a few lit volumes with ragged edges and quiet interiors, and conifers, palms and background trees each obey a different recipe. This file covers the crown, trunk and tree types; ground cover and rocks are `65-ground-rocks-grass`, leaves in the wind `45-secondary-motion`, falling leaves `82-particles-and-weather`.
 
 ## Rules
 
 **Shape and light**
 
-1. Order: silhouette → light → detail. The silhouette must read as a tree when filled flat black. Light
-   must show volume with the fewest colours. Detail comes last and only on borders.
-2. A crown is a handful of spheres glued together, not thousands of leaves. Treat the mass as one
-   volume: light cluster on the upper left, core shadow band, reflected light along the bottom edge, then cut
-   the silhouette with notches. Squint: you should see big light and shadow masses.
-3. No pillow shading: no concentric rings, no dark outline ring, no smooth dome gradient. Shade each bundle
-   once (rim, body, shade). Where bundles meet, the contrast between neighbours replaces outlines
-   (Tsugumo's tree: where one sphere's shadow side ends, the next one's lit side begins).
-4. Nearly half of the crown gradient is the light green, so the eye has resting areas. Highlights are
-   8–10 blob-shaped patches 3–6 px wide on the upper half, never a smooth fade. The dark rim is thick on the
-   lower right and thin on the lit side; the darkest entry sits only along the bottom edge.
-5. Warm light, cold shadow. The ramp travels about 165° of hue from violet-blue shadow to yellow-green
-   highlight (measured: `#181425 #262b44 #193c3e #265c42 #3e8948 #63c74d #a5de5f`). A working crown uses the
-   last 4–5. Shadows are dark blue-green or purple-green, never yellow (`craft/20-color/20-color-for-pixel-art.md`).
-6. Edges: ragged 1–3 px notches, never a smooth ellipse. Detail the borders, keep the interior clean, no orphan
-   pixels, one leaf pattern for the whole tree, and repeated arrangements instead of random ones. Too much
-   variation is noise.
-7. Backlit foliage glows: saturation 80–95, hue 70–85° yellow-green, value 65–90, more saturated than the same
-   leaf lit from the front. Front-lit waxy leaves are lighter and less saturated, with 1-px glints.
-8. Gaps in the canopy show sky slightly darker than the open sky (fine twigs cross the gap): 1–3 px notches
-   one value step down, sizes 1×1, 2×1, 2×2, rarely 3×3, never in a regular pattern. Dense summer crowns have
-   few gaps, early spring crowns many.
+1. Order: silhouette → light → detail. The silhouette must read as a tree when filled flat black. Light must show volume with the fewest colours. Detail comes last and only on borders.
+2. A crown is a handful of spheres glued together, not thousands of leaves. Treat the mass as one volume: light cluster on the upper left, core shadow band, reflected light along the bottom edge, then cut the silhouette with notches. Squint: you should see big light and shadow masses.
+3. No pillow shading: no concentric rings, no dark outline ring, no smooth dome gradient. Shade each bundle once (rim, body, shade). Where bundles meet, the contrast between neighbours replaces outlines (Tsugumo's tree: where one sphere's shadow side ends, the next one's lit side begins).
+4. Nearly half of the crown gradient is the light green, so the eye has resting areas. Highlights are 8–10 blob-shaped patches 3–6 px wide on the upper half, never a smooth fade. The dark rim is thick on the lower right and thin on the lit side; the darkest entry sits only along the bottom edge.
+5. Warm light, cold shadow. The ramp travels about 165° of hue from violet-blue shadow to yellow-green highlight (measured: `#181425 #262b44 #193c3e #265c42 #3e8948 #63c74d #a5de5f`). A working crown uses the last 4–5. Shadows are dark blue-green or purple-green, never yellow (`20-color-for-pixel-art`).
+6. Edges: ragged 1–3 px notches, never a smooth ellipse. Detail the borders, keep the interior clean, no orphan pixels, one leaf pattern for the whole tree, and repeated arrangements instead of random ones. Too much variation is noise.
+7. Backlit foliage glows: saturation 80–95, hue 70–85° yellow-green, value 65–90, more saturated than the same leaf lit from the front. Front-lit waxy leaves are lighter and less saturated, with 1-px glints.
+8. Gaps in the canopy show sky slightly darker than the open sky (fine twigs cross the gap): 1–3 px notches one value step down, sizes 1×1, 2×1, 2×2, rarely 3×3, never in a regular pattern. Dense summer crowns have few gaps, early spring crowns many.
 
 **Modular crowns**
 
-9. Build one **bundle** (a round leaf cluster) and stack copies as light / mid / dark by shifting every
-   colour one notch up or down the shared ramp. Light goes on top-left, dark bottom-right. Each bundle:
-   ball-like outline, 4–5 colours, leaf clusters equal in shape, size and spacing. One odd cluster reveals the
-   repetition; if the stack fails, redesign the bundle.
-10. Pick one leaf unit per tree: 2×2 squares that touch but do not overlap, oriented trapezoid leaves (up at the
-    crown's top, rotating downward), or circles. Do not mix.
+9. Build one **bundle** (a round leaf cluster) and stack copies as light / mid / dark by shifting every colour one notch up or down the shared ramp. Light goes on top-left, dark bottom-right. Each bundle: ball-like outline, 4–5 colours, leaf clusters equal in shape, size and spacing. One odd cluster reveals the repetition; if the stack fails, redesign the bundle.
+10. Pick one leaf unit per tree: 2×2 squares that touch but do not overlap, oriented trapezoid leaves (up at the crown's top, rotating downward), or circles. Do not mix.
 
 **Tree types**
 
-11. **Deciduous**: bundles on a trunk, ragged lower edge, a few sky gaps. Trunk is a cylinder with vertical
-    bark striping (widest stripe in the centre), a root flare, cracks and a knot placed by hand. Shade the
-    trunk light/dark first, cracks second, light points last.
-12. **Conifer**: not repeatable bundles; every tier is unique. Stick guide → tiers top to bottom (upper tiers
-    overlap lower ones, so start at the top) → one fill and one edge colour → mirror the side branches →
-    shade as light / medium / dark groups. Each tier casts a shadow on the one below. Trees from gradient-filled
-    cones look like shiny paper. Conifers read as austere or dangerous, deciduous crowns as open.
-13. **Palm**: a leaning, slightly curved trunk with ring marks every 2–3 rows, tapering at the top; 5–7 fronds
-    radiating from one point as arcs that rise then droop, 2–3 px thick with a light top edge, a ragged
-    underside; 1–2 dark px of coconuts at the crown; fronds overlap the trunk at the top.
+11. **Deciduous**: bundles on a trunk, ragged lower edge, a few sky gaps. Trunk is a cylinder with vertical bark striping (widest stripe in the centre), a root flare, cracks and a knot placed by hand. Shade the trunk light/dark first, cracks second, light points last.
+12. **Conifer**: not repeatable bundles; every tier is unique. Stick guide → tiers top to bottom (upper tiers overlap lower ones, so start at the top) → one fill and one edge colour → mirror the side branches → shade as light / medium / dark groups. Each tier casts a shadow on the one below. Trees from gradient-filled cones look like shiny paper. Conifers read as austere or dangerous, deciduous crowns as open.
+13. **Palm**: a leaning, slightly curved trunk with ring marks every 2–3 rows, tapering at the top; 5–7 fronds radiating from one point as arcs that rise then droop, 2–3 px thick with a light top edge, a ragged underside; 1–2 dark px of coconuts at the crown; fronds overlap the trunk at the top.
 
 **Distance, stands, tiles**
 
-14. Background trees are blobs: a dark blob with a lighter highlight reads as a tree at any distance. Leaf detail
-    only on foreground trees; the farthest trees are one or two light blue-green entries
-    (`craft/60-environments/60-skies-and-atmosphere.md` 14–19). In a stand, draw three foreground trees in full and suggest the forest
-    with a flat two-value mass behind: no individual trunks. One unusual tree in a regular forest is the focal
-    point.
-15. In tile maps trees are multi-tile objects (16×16 pieces). Author extra tiles holding parts of two trees so
-    stands pack without gaps; round symmetric trees stagger into a dense forest, asymmetric ones mark points of
-    interest, colour swaps give variety. Shift tree-line tiles so no tree is cut at a seam.
-16. Cast shadow: short, one side (down-right for upper-left light), baked into the sprite when it fits the frame,
-    a separate shadow tile otherwise.
-17. Wind (`craft/40-animation/45-secondary-motion.md`): waving = each leaf ball up-right 1 px, down 1 px, left 1 px, back, in
-    sequence along the wind, 0.2 s per frame; rustling = 4 frames, each leaf in 2–4 positions.
+14. Background trees are blobs: a dark blob with a lighter highlight reads as a tree at any distance. Leaf detail only on foreground trees; the farthest trees are one or two light blue-green entries (`60-skies-and-atmosphere` 14–19). In a stand, draw three foreground trees in full and suggest the forest with a flat two-value mass behind: no individual trunks. One unusual tree in a regular forest is the focal point.
+15. In tile maps trees are multi-tile objects (16×16 pieces). Author extra tiles holding parts of two trees so stands pack without gaps; round symmetric trees stagger into a dense forest, asymmetric ones mark points of interest, colour swaps give variety. Shift tree-line tiles so no tree is cut at a seam.
+16. Cast shadow: short, one side (down-right for upper-left light), baked into the sprite when it fits the frame, a separate shadow tile otherwise.
+17. Wind (`45-secondary-motion`): waving = each leaf ball up-right 1 px, down 1 px, left 1 px, back, in sequence along the wind, 0.2 s per frame; rustling = 4 frames, each leaf in 2–4 positions.
 
 ## By size
 
@@ -81,8 +44,7 @@ leaves in the wind `craft/40-animation/45-secondary-motion.md`, falling leaves `
 
 ## Templates
 
-Three bundles stacked light (front, top-left) / mid / dark (behind, right): each bundle is rim + body + shade
-with a notched edge. Use as a bush, or stack more for a crown.
+Three bundles stacked light (front, top-left) / mid / dark (behind, right): each bundle is rim + body + shade with a notched edge. Use as a bush, or stack more for a crown.
 
 ```grid trees-canopy-stack-30
 H = leaf-highlight #a5de5f
@@ -359,17 +321,13 @@ g = ground-shadow  #1f4e3a
 
 ## Procedure
 
-1. `getContext`; pick the projection (side, top-down, iso), size and light side. Palette: a 4–5 step leaf ramp with
-   hue travel (`palette` op `ramp`), a trunk ramp of 3, and a ground-shadow entry.
+1. `getContext`; pick the projection (side, top-down, iso), size and light side. Palette: a 4–5 step leaf ramp with hue travel (`palette` op `ramp`), a trunk ramp of 3, and a ground-shadow entry.
 2. Layers: `shadow`, `trunk`, `crown`. Crown goes above the trunk so branches read as inside it.
-3. Silhouette: draw a bundle or the crown with `applyBatch` `fillEllipse`/`stroke` in the mid green. Check the black-fill
-   read with `render`.
-4. Light: add the upper-left rim and highlight patches (rule 4) with `applyBatch` `pixels`, then the shade band, then the
-   darkest entry on the bottom edge only. Use `adjustHsl` for the second and third bundle copies.
+3. Silhouette: draw a bundle or the crown with `applyBatch` `fillEllipse`/`stroke` in the mid green. Check the black-fill read with `render`.
+4. Light: add the upper-left rim and highlight patches (rule 4) with `applyBatch` `pixels`, then the shade band, then the darkest entry on the bottom edge only. Use `adjustHsl` for the second and third bundle copies.
 5. Notches along the edge, sky gaps, one leaf pattern on the borders (rules 6, 8). Trunk: stripes, cracks, flare.
 6. Conifers and palms: follow rules 12 and 13, draw tiers and fronds top to bottom.
-7. `render` and `readPixels` `format:"grid"`; `effect` `hue-saturation` on a copy to check value order; `validate` for strays.
-   For stands, tile the tree 3×3 and `render` to check the seam.
+7. `render` and `readPixels` `format:"grid"`; `effect` `hue-saturation` on a copy to check value order; `validate` for strays. For stands, tile the tree 3×3 and `render` to check the seam.
 
 ## Mistakes
 

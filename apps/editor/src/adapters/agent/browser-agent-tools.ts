@@ -12,9 +12,13 @@ import {
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import type { CellColorPicker, PixelationMethod, PixelateOptions } from "@xprite/pixelate";
+import { createArtifactRasterText } from "@xprite/site-shell/browser";
 
 const BASE64_CHUNK_BYTES = 8192;
 const REGISTRATION_ERROR_EVENT = "xprite-agent-registration-error";
+const AGENT_DOCS_BASE = "agent/craft";
+const AGENT_DOC_INDEX_PATH = `${AGENT_DOCS_BASE}/README.md`;
+const AGENT_DOC_LINE = /- `([0-9a-z][0-9a-z-]*)` — (.+)/g;
 
 declare global {
   interface Window {
@@ -40,6 +44,14 @@ export function createBrowserAgentToolsPort(): AgentToolsPort {
   const previewDirectory = sharedAgentPreviewDirectory();
   let pixelateWorker: ImageImportWorkerClient | undefined;
   return {
+    rasterText: createArtifactRasterText(),
+    artifacts: {
+      create: (bytes, mimeType, filename) =>
+        URL.createObjectURL(
+          new File([bytes.slice().buffer as ArrayBuffer], filename, { type: mimeType }),
+        ),
+      revoke: (url) => URL.revokeObjectURL(url),
+    },
     encodePng: async (pixels) => new Uint8Array(await (await encodePngBlob(pixels)).arrayBuffer()),
     encodeBase64: (bytes) => {
       let binary = "";
@@ -62,6 +74,30 @@ export function createBrowserAgentToolsPort(): AgentToolsPort {
       return bytes;
     },
     decodeImage: async (bytes) => decodeImageBlob(new Blob([bytes.buffer as ArrayBuffer])),
+    agentDocs: {
+      list: async () => {
+        const response = await fetch(`${import.meta.env.BASE_URL}${AGENT_DOC_INDEX_PATH}`, {
+          credentials: "same-origin",
+        });
+        if (!response.ok) throw new Error(`agent doc index fetch failed: ${response.status}`);
+        const markdown = await response.text();
+        const docs: { id: string; title: string }[] = [
+          { id: "index", title: "Craft handbook index" },
+        ];
+        for (const match of markdown.matchAll(AGENT_DOC_LINE)) {
+          docs.push({ id: match[1], title: match[2].trim() });
+        }
+        return docs;
+      },
+      read: async (path) => {
+        const response = await fetch(`${import.meta.env.BASE_URL}${AGENT_DOCS_BASE}/${path}`, {
+          credentials: "same-origin",
+        });
+        if (response.status === 404) return null;
+        if (!response.ok) throw new Error(`agent doc fetch failed: ${response.status}`);
+        return response.text();
+      },
+    },
     pixelate: (pixels: PixelBuffer, options: AgentPixelateOptions) => {
       const worker = (pixelateWorker ??= new ImageImportWorkerClient());
       const request: PixelateOptions = {};

@@ -16,7 +16,7 @@ Head count is the first decision in a figure and the one most often made by acci
 10. **Outlines cost room.** At ≤ 24 px outline only the outer silhouette and separate interior parts by colour; a full outline on a 24 px figure makes it stumpy.
 11. **Limb width at 16 px.** Two sources disagree (arm 1 px vs ≥ 2 px). Rule: the arm is 2 px *including* its outline column; from 24 px up it is 2 px of colour inside the outline.
 12. **Parity decides the centre.** Odd widths give one centre column (symmetric head, legs, buckle); even widths give two. Choose head and torso parity together so the shoulder width matches the head's centre column.
-13. **A new size is a redraw.** The same character at world / battle / portrait size is drawn three times. When shrinking, keep silhouette, ground contacts and the biggest accessory, drop the rest (see `craft/10-technique/14-readability-and-scale.md`).
+13. **A new size is a redraw.** The same character at world / battle / portrait size is drawn three times. When shrinking, keep silhouette, ground contacts and the biggest accessory, drop the rest (see `14-readability-and-scale`).
 
 ## By size
 
@@ -202,8 +202,8 @@ J.TTTTT.J......LLL.LLL...........LLLL.LLLL.....
 2. `getContext` to confirm the canvas; `addLayer` "dummy". Draw the matching mannequin with `applyBatch` `grid` (feet on the bottom row), or lay a guide line with `applyBatch` `line` at every head unit.
 3. `render` at 1× next to the ladder for the read; `readPixels` `format:"grid"` to verify landmark rows against Table B.
 4. Adjust one segment at a time: `applyBatch` `blit` the region to its new x/y, then `applyBatch` `clear` the old one, comparing against the other segments (`translate` moves a whole cel only). Fix proportions before any colour.
-5. Dress the dummy (`craft/30-characters/35-hair-and-clothing.md`); keep tight clothing first so anatomy is not hidden.
-6. Hide the dummy, run `validate`, then `render` again. Check silhouette against `craft/00-core/03-silhouette-and-form.md`.
+5. Dress the dummy (`35-hair-and-clothing`); keep tight clothing first so anatomy is not hidden.
+6. Hide the dummy, run `validate`, then `render` again. Check silhouette against `03-silhouette-and-form`.
 
 ## Mistakes
 

@@ -1,7 +1,6 @@
 # Review checklist
 
-Run this before telling anyone a sprite is finished. `validate` covers the
-mechanical half; the rest needs you to actually look.
+Run this before telling anyone a sprite is finished. `validate` covers the mechanical half; the rest needs you to actually look.
 
 ## Mechanical — run `validate`
 
@@ -25,8 +24,7 @@ mechanical half; the rest needs you to actually look.
 
 ## By eye — run `readPixels` `format:"grid"` when something looks subtly off
 
-The text grid is where you find the pixel that is one row too low, the run of
-3 in a line of 2s, the stray colour that survived a snap.
+The text grid is where you find the pixel that is one row too low, the run of 3 in a line of 2s, the stray colour that survived a snap.
 
 ## For animation — run `render` `filmstrip`
 
@@ -47,7 +45,4 @@ The text grid is where you find the pixel that is one row too low, the run of
 
 ## Reporting
 
-Say what you checked and what you found, not "done". If something is a
-compromise — a colour that had to move a long way, a pose you could not fit in
-the pixel budget — say that too. A user can fix a stated compromise; they cannot
-fix one you hid.
+Say what you checked and what you found, not "done". If something is a compromise — a colour that had to move a long way, a pose you could not fit in the pixel budget — say that too. A user can fix a stated compromise; they cannot fix one you hid.

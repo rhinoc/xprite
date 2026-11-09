@@ -1,74 +1,27 @@
 # Quadrupeds
 
-Four legs bolted under a blob read as a table. A dog, a horse and a cow drawn
-from one body plan read as the same animal in three costumes. A hind leg drawn as
-a straight pole reads as a toy. This file gives the construction (three masses,
-four chains), the per-species proportions and joint heights, and side-view
-templates for horse, dog, cat, deer and cow. Movement is `craft/50-creatures/51-animal-gaits.md`;
-fur and coat texture is `craft/20-color/23-materials-soft.md`; the silhouette test itself is
-`craft/00-core/03-silhouette-and-form.md`.
+Four legs bolted under a blob read as a table. A dog, a horse and a cow drawn from one body plan read as the same animal in three costumes. A hind leg drawn as a straight pole reads as a toy. This file gives the construction (three masses, four chains), the per-species proportions and joint heights, and side-view templates for horse, dog, cat, deer and cow. Movement is `51-animal-gaits`; fur and coat texture is `23-materials-soft`; the silhouette test itself is `03-silhouette-and-form`.
 
 ## Rules
 
-1. **Three masses, four chains.** Every quadruped is forequarters + barrel +
-   hindquarters on one spine line, with a front chain under the shoulder and a hind
-   chain under the pelvis. Draw the spine as a 1 px guide on a `sketch` layer, hang
-   three overlapping ovals from it, then add legs. Never start from the outline
-   (Hultgren, Goldfinger).
-2. **Fix one unit first: H, the withers height** (ground to the top of the shoulder
-   blade). Everything below is a fraction of H. Choose H, derive the rest, round to
-   whole pixels, and write the joint rows down before drawing.
-3. **Place six anchor pixels before any fill:** point of shoulder, elbow, hip,
-   buttock, stifle, hock. Draw each leg as straight segments between its joint
-   pixels, then give the segments width. A leg built this way keeps its length in
-   every animation frame (±1 px).
-4. **The front leg is a near-vertical column; the hind leg is a zig-zag.** Front:
-   shoulder → elbow (just behind and below) → straight down. Hind: hip (high) →
-   stifle (forward, hidden in the flank) → hock (back, sharp) → foot (down, forward).
-   That asymmetry is most of why a sprite looks like an animal.
-5. **The backward "knee" on a hind leg is the hock, not a knee.** Dogs, cats, horses,
-   deer and cattle all walk on their toes (digitigrade); the visible kink is the
-   ankle, 1 px sharp at 16–24 px. The true knee (stifle) stays inside the flank.
-   Bears and primates stand on the whole sole (plantigrade): heel on the ground,
-   no high hock.
-6. **Hip and shoulder behave differently.** The front limb is slung from the ribs by
-   muscle, so the shoulder may ride 1 px up or down on the chest as the animal walks.
-   The hind limb is bolted to the pelvis, so the hip never slides against the rump.
-7. **The belly is the free edge.** Bone sets the chest and the rump; the belly line
-   between them is soft. Lower it by 1 px for a gathered or heavy pose, raise it by
-   1–2 px and lengthen the torso for a stretched one. A flat belly line plus a straight
-   back is a plank.
-8. **Topline tells the species.** Horse and cattle: flat, with a small croup bump. Dog:
-   high withers sloping to a low rump. Cat: horizontal log with 1+ px of curve that can
-   flex 2–3 px; the shoulder blades peak 1–2 px above the spine when it walks low.
-   Giraffe, hyena, bison: withers far above the rump.
-9. **Head construction.** A cranium egg plus a muzzle tube. Eye, ear base and nostril
-   lie within 1 px of one line. Prey animals (horse, deer, cow, rabbit): eye on the side of the
-   head, high, in the back third; ears upright at the back-top corner. Predators (dog,
-   cat, bear): eye forward and low, both eyes visible in 3/4, ears on top (dog) or
-   wide-set (cat). One bright eye pixel (or 2×1) per head at ≤ 32 px.
-10. **Feet are one block or a rounded cluster, never five toes.** Horse: one hoof
-    block, 1 row darker. Cattle and deer: one block with a 1 px split. Dog: oval paw,
-    one dark px per toe tip, claws on the ground. Cat: oval paw with **no claw pixels**
-    while walking (they retract); add one claw pixel only for swat or climb frames.
-11. **One feature is oversize.** Horse: head length (0.4 H) and thin legs. Cow: body mass
-    against short legs. Cat: round head and tail length. Dog: snout. Deer: legs and
-    antlers. Change 1–2 ratios and the species flips (long body + short legs = dachshund,
-    raised withers = hyena).
-12. **Far legs are one ramp step darker and sit on their own layers.** Leave a 1 px gap
-    between near and far leg wherever they separate, and between the tail and the hind
-    leg. Two limbs whose outlines touch fuse into one blob (`craft/00-core/03-silhouette-and-form.md`).
-13. **Light from the upper left.** Highlight the top row of the back and neck; put a
-    belly band of shadow (2 rows at ≥ 24 px, 1 row at 16) under the barrel; keep the
-    chest front and forehead lit. Shade from the form, not from the outline inward
-    (`craft/00-core/02-shading-and-light.md`).
-14. **Cute shifts the numbers, not the plan.** Foal, pup, kitten: head ≥ 40 % of height,
-    eyes in the lower half of the head, muzzle 1–2 px, legs 0.3 H (Hultgren, Goldfinger).
+1. **Three masses, four chains.** Every quadruped is forequarters + barrel + hindquarters on one spine line, with a front chain under the shoulder and a hind chain under the pelvis. Draw the spine as a 1 px guide on a `sketch` layer, hang three overlapping ovals from it, then add legs. Never start from the outline (Hultgren, Goldfinger).
+2. **Fix one unit first: H, the withers height** (ground to the top of the shoulder blade). Everything below is a fraction of H. Choose H, derive the rest, round to whole pixels, and write the joint rows down before drawing.
+3. **Place six anchor pixels before any fill:** point of shoulder, elbow, hip, buttock, stifle, hock. Draw each leg as straight segments between its joint pixels, then give the segments width. A leg built this way keeps its length in every animation frame (±1 px).
+4. **The front leg is a near-vertical column; the hind leg is a zig-zag.** Front: shoulder → elbow (just behind and below) → straight down. Hind: hip (high) → stifle (forward, hidden in the flank) → hock (back, sharp) → foot (down, forward). That asymmetry is most of why a sprite looks like an animal.
+5. **The backward "knee" on a hind leg is the hock, not a knee.** Dogs, cats, horses, deer and cattle all walk on their toes (digitigrade); the visible kink is the ankle, 1 px sharp at 16–24 px. The true knee (stifle) stays inside the flank. Bears and primates stand on the whole sole (plantigrade): heel on the ground, no high hock.
+6. **Hip and shoulder behave differently.** The front limb is slung from the ribs by muscle, so the shoulder may ride 1 px up or down on the chest as the animal walks. The hind limb is bolted to the pelvis, so the hip never slides against the rump.
+7. **The belly is the free edge.** Bone sets the chest and the rump; the belly line between them is soft. Lower it by 1 px for a gathered or heavy pose, raise it by 1–2 px and lengthen the torso for a stretched one. A flat belly line plus a straight back is a plank.
+8. **Topline tells the species.** Horse and cattle: flat, with a small croup bump. Dog: high withers sloping to a low rump. Cat: horizontal log with 1+ px of curve that can flex 2–3 px; the shoulder blades peak 1–2 px above the spine when it walks low. Giraffe, hyena, bison: withers far above the rump.
+9. **Head construction.** A cranium egg plus a muzzle tube. Eye, ear base and nostril lie within 1 px of one line. Prey animals (horse, deer, cow, rabbit): eye on the side of the head, high, in the back third; ears upright at the back-top corner. Predators (dog, cat, bear): eye forward and low, both eyes visible in 3/4, ears on top (dog) or wide-set (cat). One bright eye pixel (or 2×1) per head at ≤ 32 px.
+10. **Feet are one block or a rounded cluster, never five toes.** Horse: one hoof block, 1 row darker. Cattle and deer: one block with a 1 px split. Dog: oval paw, one dark px per toe tip, claws on the ground. Cat: oval paw with **no claw pixels** while walking (they retract); add one claw pixel only for swat or climb frames.
+11. **One feature is oversize.** Horse: head length (0.4 H) and thin legs. Cow: body mass against short legs. Cat: round head and tail length. Dog: snout. Deer: legs and antlers. Change 1–2 ratios and the species flips (long body + short legs = dachshund, raised withers = hyena).
+12. **Far legs are one ramp step darker and sit on their own layers.** Leave a 1 px gap between near and far leg wherever they separate, and between the tail and the hind leg. Two limbs whose outlines touch fuse into one blob (`03-silhouette-and-form`).
+13. **Light from the upper left.** Highlight the top row of the back and neck; put a belly band of shadow (2 rows at ≥ 24 px, 1 row at 16) under the barrel; keep the chest front and forehead lit. Shade from the form, not from the outline inward (`02-shading-and-light`).
+14. **Cute shifts the numbers, not the plan.** Foal, pup, kitten: head ≥ 40 % of height, eyes in the lower half of the head, muzzle 1–2 px, legs 0.3 H (Hultgren, Goldfinger).
 
 ## Proportions
 
-Measured from the skeleton and silhouette plates of one anatomy text; treat as
-starting values with ±10–15 % error, then verify on the canvas. All fractions are of H.
+Measured from the skeleton and silhouette plates of one anatomy text; treat as starting values with ±10–15 % error, then verify on the canvas. All fractions are of H.
 
 | | Body length ÷ H | Head ÷ H | Belly clearance ÷ H | Elbow | Carpus | Stifle | Hock | Hip |
 |---|---|---|---|---|---|---|---|---|
@@ -81,19 +34,11 @@ starting values with ±10–15 % error, then verify on the canvas. All fractions
 | Bear | 1.3–1.4 | 0.35 | 0.35 | – | – | – | 0.15 | – |
 | Elephant | 1.1–1.2 | 0.6 (+ trunk) | 0.4 | straight columns, no visible bend | | | | |
 
-Other numbers worth keeping: dachshund length 1.8–2.0 H with clearance 0.25 H;
-greyhound length 1.0 H, belly tucked up to the groin; fox length 1.5 H with a brush
-tail 0.7 of the body; lion tail ≈ body length; giraffe neck 0.7–0.9 H above the
-withers; rabbit ears ≥ 0.5 of head + body.
+Other numbers worth keeping: dachshund length 1.8–2.0 H with clearance 0.25 H; greyhound length 1.0 H, belly tucked up to the groin; fox length 1.5 H with a brush tail 0.7 of the body; lion tail ≈ body length; giraffe neck 0.7–0.9 H above the withers; rabbit ears ≥ 0.5 of head + body.
 
-**Worked examples (derived).** Rows counted up from the ground, H = 20 horse: elbow 11,
-carpus 6, fetlock 2–3, stifle 11, hock 9, hip 16. H = 12 dog: elbow 6, carpus 2, stifle 5,
-hock 3, hip 8, belly row 5–6. When two joints land on the same row at small H, merge them
-and keep the one that changes the silhouette (hock, then elbow).
+**Worked examples (derived).** Rows counted up from the ground, H = 20 horse: elbow 11, carpus 6, fetlock 2–3, stifle 11, hock 9, hip 16. H = 12 dog: elbow 6, carpus 2, stifle 5, hock 3, hip 8, belly row 5–6. When two joints land on the same row at small H, merge them and keep the one that changes the silhouette (hock, then elbow).
 
-**Head ratios.** Muzzle ÷ cranium: cat 0.5, lion 0.7, bear 0.9, dog 1.0, wolf 1.2, ox 1.2,
-deer 1.2, pig 1.2, greyhound 1.5, horse 2.0. Eye position from the muzzle tip (0 = tip,
-1 = back of skull): cat 0.4, dog 0.55, ox 0.6, deer 0.65, horse 0.7.
+**Head ratios.** Muzzle ÷ cranium: cat 0.5, lion 0.7, bear 0.9, dog 1.0, wolf 1.2, ox 1.2, deer 1.2, pig 1.2, greyhound 1.5, horse 2.0. Eye position from the muzzle tip (0 = tip, 1 = back of skull): cat 0.4, dog 0.55, ox 0.6, deer 0.65, horse 0.7.
 
 ## By size
 
@@ -104,13 +49,11 @@ deer 1.2, pig 1.2, greyhound 1.5, horse 2.0. Eye position from the muzzle tip (0
 | 32 (about 30–36 wide) | 18–22 | Hock, carpus, fetlock, hoof 3×2, ear, mane/tail strands, split hoof on cattle and deer. | Head 8, body 22, leg clearance 10, cannon 2 px |
 | 64 | 36–44 | Elbow point, stifle bump, 2–3 muscle planes, nostril and eye 2 px, individual antler tines. | Detail budget limited by consistent cluster size, not scarcity |
 
-Keep, in order, as the sprite shrinks: head + neck + body mass, leg count and ground
-contact, tail, ears/horns/antlers, hock, toes. Muscles go first.
+Keep, in order, as the sprite shrinks: head + neck + body mass, leg count and ground contact, tail, ears/horns/antlers, hock, toes. Muscles go first.
 
 ## Templates
 
-Side view, facing left; flip with `flip` for right. Roles map onto your
-palette. Legs of the same species keep the same glyphs (`F` is the far leg).
+Side view, facing left; flip with `flip` for right. Roles map onto your palette. Legs of the same species keep the same glyphs (`F` is the far leg).
 
 `quad-horse-35`: the 32-class horse, long wedge head, flat back, mane and tail strip; front leg shows knee and fetlock, hind leg shows stifle, a hock bump behind the buttock line and a cannon that slants forward, far legs a ramp step darker.
 
@@ -443,20 +386,13 @@ OPPPOOSSBBBBBBBBBBBBBBBBBBSSMO.
 
 ## Procedure
 
-1. Write down the species, H, facing, light (upper left) and palette. `palette` op `ramp`
-   for one coat ramp (3 tones), then one dark for mane/tail, one for far legs, one hoof/paw.
-2. `addLayer` ops in one `applyBatch`: `sketch`, `tail`, `leg-far-hind`, `leg-far-front`,
-   `body`, `head`, `leg-near-hind`, `leg-near-front` (`craft/00-core/06-layers-and-rigging.md`).
-3. On `sketch`, `applyBatch` the spine as a 1 px `line` and the three masses as `ellipse` ops.
-   Mark the six anchors from the table with `pixels`.
-4. Transcribe the nearest template with `applyBatch` `grid` onto `body`, or build the legs as
-   `stroke` segments between the anchors. Do the far legs a ramp step darker.
-5. Silhouette test: `render`, then squint. Species must read in one flat colour.
-   If it does not, change a ratio (oversize feature), not the shading.
-6. Head, then eye and nostril pixels. Add mane/tail on their own layers so
-   `craft/40-animation/45-secondary-motion.md` can move them later.
-7. Shade: top row light, belly band dark, far legs a step darker. `validate` for off-palette
-   pixels, orphans and doubled outlines; `readPixels` `format:"grid"` on the legs to count rows.
+1. Write down the species, H, facing, light (upper left) and palette. `palette` op `ramp` for one coat ramp (3 tones), then one dark for mane/tail, one for far legs, one hoof/paw.
+2. `addLayer` ops in one `applyBatch`: `sketch`, `tail`, `leg-far-hind`, `leg-far-front`, `body`, `head`, `leg-near-hind`, `leg-near-front` (`06-layers-and-rigging`).
+3. On `sketch`, `applyBatch` the spine as a 1 px `line` and the three masses as `ellipse` ops. Mark the six anchors from the table with `pixels`.
+4. Transcribe the nearest template with `applyBatch` `grid` onto `body`, or build the legs as `stroke` segments between the anchors. Do the far legs a ramp step darker.
+5. Silhouette test: `render`, then squint. Species must read in one flat colour. If it does not, change a ratio (oversize feature), not the shading.
+6. Head, then eye and nostril pixels. Add mane/tail on their own layers so `45-secondary-motion` can move them later.
+7. Shade: top row light, belly band dark, far legs a step darker. `validate` for off-palette pixels, orphans and doubled outlines; `readPixels` `format:"grid"` on the legs to count rows.
 
 ## Mistakes
 

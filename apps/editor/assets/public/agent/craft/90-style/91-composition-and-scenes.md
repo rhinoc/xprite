@@ -5,10 +5,10 @@ A scene is a decision about where the eye goes. Without it an agent renders ever
 ## Rules
 
 1. **One sentence of purpose first.** "This image makes the viewer feel X / learn Y." Any cluster that does not serve it gets deleted. Then classify: a *gameplay* scene (platformer, shmup) wants a muted, simple background so sprites read; an *RPG / adventure* scene can afford rich scenery.
-2. **Canvas from the platform.** Pick a base that integer-scales (`craft/90-style/90-platform-styles.md`): 192×144 (4:3, fits inside 256×224 with a UI border, divides cleanly for pixel-perfect parallax), 256×224, 320×180. Do not resize later.
+2. **Canvas from the platform.** Pick a base that integer-scales (`90-platform-styles`): 192×144 (4:3, fits inside 256×224 with a UI border, divides cleanly for pixel-perfect parallax), 256×224, 320×180. Do not resize later.
 3. **Thumbnail before colour.** At 1⁄6–1⁄10 scale (32×24 for 192×144, 32×18 for 320×180) block three value masses with `applyBatch` `grid`. Look with `render`. Fix the layout here; recolouring a bad layout is repainting.
 4. **Horizon at 33–45% from the top** for open land, **55–65%** when the sky is the drama. Never exactly 50%. (Three finished landscapes in the sources sit at 35–44%.)
-5. **Subject on the centre line or a third line**, with at least one subject-width of calm around it. Subject height: 27–49% of canvas in a scenic piece; 10–16% of screen height for a platformer hero (`craft/30-characters/30-proportions-by-size.md`).
+5. **Subject on the centre line or a third line**, with at least one subject-width of calm around it. Subject height: 27–49% of canvas in a scenic piece; 10–16% of screen height for a platformer hero (`30-proportions-by-size`).
 6. **One focal point.** It gets the strongest value contrast, the sharpest detail and the one accent hue, usually the complement of its surroundings (warm red mane on cool blue-green; cool blue beetle on warm orange sand). Everything else is subordinate.
 7. **Three planes at most** (far / middle / near). Each starts as a flat silhouette; if the planes merge when reduced to flat shapes, texture will not separate them. Build bands first: solid horizontal colour bars fix horizon and plane order, because colour does most of the depth work.
 8. **Atmospheric perspective.** Nearest plane: most saturated, strongest light/shadow contrast. Each receding plane: less saturated, lighter (daylight), hue pulled toward the sky colour. Backlit forest reverses it: near dark and blue-tinted, far warm yellow-cream. To compute a plane's colour, blend toward the haze colour by roughly 0 / 25 / 50 / 75 / 90% per plane, re-picking the nearest ramp entry (derived).
@@ -16,7 +16,7 @@ A scene is a decision about where the eye goes. Without it an agent renders ever
 10. **Reuse palette entries across planes.** Distant shadow = a sky-band colour, far cloud tint baked into the sky. Target ≤16 colours at 192×144 (three finished scenes used 15).
 11. **The interactive layer outranks the background.** Player, pickups, hazards and solid edges get more saturation, more value contrast and more ramp steps than scenery. Keep at least two value steps between a character and the background directly behind it (derived). Background contrast drops near gameplay objects before you reach for outlines.
 12. **Mark the play lane first** (the ground line the player must read) and keep it calm and firm. Hazards and pickups are isolated bright accents; a decorative edge never competes with them.
-13. **Design quiet zones.** Decide where nothing happens. Texture only inside planes, scaled by distance. A scene with equal detail everywhere flattens and reads as machine-made (`craft/90-style/92-generated-art-tells.md`).
+13. **Design quiet zones.** Decide where nothing happens. Texture only inside planes, scaled by distance. A scene with equal detail everywhere flattens and reads as machine-made (`92-generated-art-tells`).
 14. **Lines lead the eye.** Aim 2–3 physical lines (road, trunk row, shadow, ridge) and any gaze at the focal point. Curves read calm, diagonals dynamic, orthogonals still. Put the vanishing point at the focal object, not in empty sky.
 15. **No accidental tangents.** A branch tip touching a head, a horizon through a neck, a foot on a tile seam: overlap clearly or leave a gap of ≥2 px.
 16. **Look room.** Leave space in front of a face or direction of travel. A hero facing the edge with 8 px of space reads trapped. Left-to-right motion reads as progress; keep it constant across a sequence unless you mean a reversal.
@@ -202,7 +202,7 @@ uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
 
 ## Procedure
 
-1. Write the purpose sentence and the scene class (gameplay / scenery). `createDocument` at the canvas from rule 2, one layer per plane: sky, far, middle, near, subject, effects. Separate layers let you fix one plane without touching the others (`craft/00-core/06-layers-and-rigging.md`).
+1. Write the purpose sentence and the scene class (gameplay / scenery). `createDocument` at the canvas from rule 2, one layer per plane: sky, far, middle, near, subject, effects. Separate layers let you fix one plane without touching the others (`06-layers-and-rigging`).
 2. Thumbnail: a 32-wide scratch sprite, `applyBatch` `grid` with the nearest template above. `render`; judge the masses before anything else.
 3. Palette: `palette` op `set`, ≤16 entries for 192×144, ramps from `palette` op `ramp`. Assign plane colours by rule 8 (blend toward the haze), reusing entries across planes.
 4. Bands: fill sky and ground bands with `applyBatch` ops `rect` / `gradient` (steps only, `dither` only at band edges). Mountains and clouds as flat silhouettes.

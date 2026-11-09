@@ -6,6 +6,8 @@ import {
   paintLine,
   paintRectangle,
   paintStroke,
+  polygon,
+  lineStrokePoints,
   pixelWriter,
   BLEND_MODES,
   type RasterOptions,
@@ -92,6 +94,7 @@ import {
 const HEX_COLOR = /^#[\da-f]{6}(?:[\da-f]{2})?$/i;
 const HEX_RADIX = 16;
 const HEX_CHANNEL_LENGTH = 2;
+const MIN_POLYGON_POINTS = 3;
 
 function batchInteger(value: unknown, name: string, min: number, max: number): number {
   if (typeof value !== "number" || !Number.isSafeInteger(value) || value < min || value > max)
@@ -1729,6 +1732,35 @@ export function applyDocumentBatch(
               options,
             );
             break;
+          case BatchEditKind.Polygon:
+          case BatchEditKind.FillPolygon: {
+            if (
+              !Array.isArray(op.points) ||
+              op.points.length < MIN_POLYGON_POINTS ||
+              op.points.length > BATCH_EDIT_LIMITS.points
+            )
+              throw new BatchEditError(
+                BatchEditErrorCode.InvalidInput,
+                "Invalid polygon point count",
+              );
+            const vertices = op.points.map((p: Point) => local(point(p, doc)));
+            const closed = [...vertices, vertices[0]];
+            if (op.type === BatchEditKind.Polygon) {
+              raster = paintStroke(image, closed, options);
+            } else {
+              const outline = op.outlineColor === undefined ? undefined : color(op.outlineColor);
+              if (outline && isBackgroundLayer(layer) && outline[3] !== UINT8_MAX)
+                throw new BatchEditError(
+                  BatchEditErrorCode.NotEditable,
+                  "Background pixels must be opaque",
+                );
+              polygon(vertices, (x, y, end) => {
+                for (let px = x; px <= end; px++) write(px, y);
+              });
+              if (outline) for (const p of lineStrokePoints(closed)) write(p.x, p.y, outline);
+            }
+            break;
+          }
           case BatchEditKind.Line:
             raster = paintLine(
               image,

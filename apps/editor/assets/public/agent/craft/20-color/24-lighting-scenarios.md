@@ -1,9 +1,6 @@
 # Lighting scenarios
 
-Without a stated light, pixel art shades every form from its own outline inward: concentric bands, pillow shading, shadows that are just "darker".
-This file fixes the vocabulary of a lit form, then gives numbers for the common set-ups — sun, overcast, window, fire, night, rim, back-light,
-two sources, light from below — and the shadow rules that go with them. General ramp theory is in `craft/20-color/20-color-for-pixel-art.md`, the
-basic shading order in `craft/00-core/02-shading-and-light.md`, flame and glow *effects* in `craft/80-effects-ui/80-vfx-fire-smoke-magic.md`.
+Without a stated light, pixel art shades every form from its own outline inward: concentric bands, pillow shading, shadows that are just "darker". This file fixes the vocabulary of a lit form, then gives numbers for the common set-ups — sun, overcast, window, fire, night, rim, back-light, two sources, light from below — and the shadow rules that go with them. General ramp theory is in `20-color-for-pixel-art`, the basic shading order in `02-shading-and-light`, flame and glow *effects* in `80-vfx-fire-smoke-magic`.
 
 ## Rules
 

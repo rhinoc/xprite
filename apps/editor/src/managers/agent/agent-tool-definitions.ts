@@ -1,5 +1,10 @@
-import { AgentToolName, type AgentToolDefinition } from "$/managers/ports/agent-tools";
-import { BatchEditKind, BATCH_EDIT_LIMITS } from "@xprite/editor-core";
+import {
+  AgentToolName,
+  AgentOutput,
+  AgentPreviewBackground,
+  type AgentToolDefinition,
+} from "$/managers/ports/agent-tools";
+import { AnimationIntent, BatchEditKind, BATCH_EDIT_LIMITS } from "@xprite/editor-core";
 
 const integer = { type: "integer", minimum: 0 };
 const id = { type: "string", minLength: 1, maxLength: BATCH_EDIT_LIMITS.nameLength };
@@ -64,6 +69,24 @@ const operations = {
       "start",
       "end",
     ]),
+    operation(
+      BatchEditKind.Polygon,
+      {
+        ...paint,
+        points: { type: "array", items: point, minItems: 3, maxItems: BATCH_EDIT_LIMITS.points },
+      },
+      [...paintedRequired, "points"],
+    ),
+    operation(
+      BatchEditKind.FillPolygon,
+      {
+        ...target,
+        color,
+        outlineColor: color,
+        points: { type: "array", items: point, minItems: 3, maxItems: BATCH_EDIT_LIMITS.points },
+      },
+      [...paintedRequired, "points"],
+    ),
     ...[
       BatchEditKind.Rectangle,
       BatchEditKind.FillRect,
@@ -576,30 +599,57 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.GetContext,
     readOnly: true,
     description:
-      "Read Xprite's open documents, active document, content revisions, layers, zero-based frames, selection, palette, tilesets and editing limits. Read before editing; document pixels remain in this browser.",
-    inputSchema: object({}),
+      "Read before editing. By default returns detailed activeDocument plus a compact documents inventory. Pass documentId to return only that document as data.document. includePalette and includeInkBounds opt into palette entries and per-layer pixel scans; both default false. Revisions, layers, zero-based frames, tags, selection, tilesets and editing limits remain available. Pixels stay in this browser.",
+    inputSchema: object(
+      {
+        documentId: id,
+        includePalette: { type: "boolean" },
+        includeInkBounds: { type: "boolean" },
+      },
+      [],
+    ),
   },
   {
     name: AgentToolName.Render,
     readOnly: true,
     description:
-      'Render a document frame or region as an sRGB PNG data URL, independent of viewport zoom. frameIndex is zero-based and defaults to the active frame; rect defaults to the whole sprite. filmstrip composites every listed frame into one PNG (layout "strip" or "grid", integer scale) and returns frameRects mapping each region back to a frameIndex — the only reliable way to review an animation. onionSkin renders the target frame at full alpha over ghosted neighboring frames (prev/next frame counts, alpha 0-1, optional layerId), oldest first, to check in-betweens without stepping frames.',
+      'Review sRGB pixels without changing the document. background is transparent (default), checkerboard, or #RRGGBB. scale enlarges with nearest-neighbor; compareNative shows 1x alongside it. labels draws zero-based frame numbers and durations outside the artwork. filmstrip packs frames into a strip/grid and returns frameRects (including duration and optional nativeRect). animation:true returns a looping GIF with document timing, optionally limited by tag or frameRange. onionSkin ghosts neighboring frames. Choose only one of filmstrip, animation or onionSkin. output:"url" returns a browser-local file URL; default output:"dataUrl" returns inline bytes. Release URLs with releaseArtifact. Review both native size and enlargement; technical validation does not assess visual quality.',
     inputSchema: object(
       {
         ...document,
         frameIndex: integer,
         rect,
-        filmstrip: object({
-          frames: { type: "array", items: integer, minItems: 1 },
-          layout: { type: "string", enum: ["strip", "grid"] },
-          scale: { type: "integer", minimum: 1, maximum: 16 },
-        }),
-        onionSkin: object({
-          prev: { type: "integer", minimum: 0, maximum: 64 },
-          next: { type: "integer", minimum: 0, maximum: 64 },
-          alpha: { type: "number", minimum: 0, maximum: 1 },
-          layerId: id,
-        }),
+        scale: { type: "integer", minimum: 1, maximum: 16 },
+        background: {
+          anyOf: [
+            { type: "string", enum: Object.values(AgentPreviewBackground) },
+            { type: "string", pattern: "^#[0-9a-fA-F]{6}$" },
+          ],
+        },
+        labels: { type: "boolean" },
+        compareNative: { type: "boolean" },
+        animation: { type: "boolean" },
+        tag: id,
+        frameRange: { type: "array", items: integer, minItems: 2, maxItems: 2 },
+        output: { type: "string", enum: [AgentOutput.DataUrl, AgentOutput.Url] },
+        filmstrip: object(
+          {
+            frames: { type: "array", items: integer, minItems: 1 },
+            layout: { type: "string", enum: ["strip", "grid"] },
+            scale: { type: "integer", minimum: 1, maximum: 16 },
+            labels: { type: "boolean" },
+          },
+          [],
+        ),
+        onionSkin: object(
+          {
+            prev: { type: "integer", minimum: 0, maximum: 64 },
+            next: { type: "integer", minimum: 0, maximum: 64 },
+            alpha: { type: "number", minimum: 0, maximum: 1 },
+            layerId: id,
+          },
+          [],
+        ),
       },
       ["documentId"],
     ),
@@ -636,7 +686,7 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.Validate,
     readOnly: true,
     description:
-      "Lint a document against pixel-art rules and report concrete, located problems. checks limits the run to a subset (omit for all): off-palette and near-duplicate colours (palette), orphan pixels (strays), broken outlines (outline), banding, semi-transparent pixels (antialiasing), empty layers (layers), untagged frames and uniform frame timing (animation), empty document (export_readiness). strict treats warnings as failures. expect runs independently of checks whenever given: layerFrames maps layerId to zero-based [from,to] frame ranges that must hold ink; mustNotOverlap lists [layerId, layerId] pairs whose opaque pixels must never intersect on a frame. Returns passed, score 0-100, findings with check/severity/message/layerId/frameIndex/at/count, and a summary. Frame indices are zero-based.",
+      "Lint a document against pixel-art rules and report concrete, located problems. checks limits the run to a subset (omit for all): off-palette and near-duplicate colours (palette), orphan pixels (strays), broken outlines (outline), banding, semi-transparent pixels (antialiasing), empty layers (layers), untagged frames and optional character timing review (animation), empty document (export_readiness). strict treats warnings as failures. expect runs independently of checks whenever given: layerFrames maps layerId to zero-based [from,to] frame ranges that must hold ink; mustNotOverlap lists [layerId, layerId] pairs whose opaque pixels must never intersect on a frame. Returns passed, checksRun, counts (errors/warnings/notes), findings categorized as technical or visual_review, and a summary. Isolated pixels and edge heuristics are review suggestions, not certain errors. visualReviewRequired is always true; this is not an artwork quality assessment. animationIntent is unspecified (default), character, ambient or mechanical; only character asks for expressive timing review. Frame indices are zero-based.",
     inputSchema: object(
       {
         ...document,
@@ -657,6 +707,7 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
           },
         },
         strict: { type: "boolean" },
+        animationIntent: { type: "string", enum: Object.values(AnimationIntent) },
         expect: {
           type: "object",
           properties: {
@@ -805,10 +856,11 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.ExportDocument,
     readOnly: true,
     description:
-      'Return PNG (one frame), Aseprite (complete project), animated GIF or sprite-sheet PNG as base64 file bytes. Does not download, open a file picker, mark saved or upload. Requires no pending edit. PNG defaults to the active frame. gif encodes every frame, frameRange [from,to], or the named tag\'s range, honoring each frame\'s duration; scale is an integer enlargement. spritesheet packs the same frame selection horizontally (layout "strip", the default) or near-square ("grid") and adds frameRects to the result. tag is a shorthand: {format:"tag", tag:"name"} exports that tag\'s range as a GIF when it has more than one frame, PNG otherwise.',
+      'Return PNG (one frame), Aseprite (complete project), animated GIF or sprite-sheet PNG as base64 file bytes by default; output:"url" returns a browser-local file URL instead. URLs live until releaseArtifact or editor shutdown, with at most 32 files / 64 MiB retained. Does not download, open a file picker, mark saved or upload. Requires no pending edit. PNG defaults to the active frame. gif encodes every frame, frameRange [from,to], or the named tag\'s range, honoring each frame\'s duration; scale is an integer enlargement. spritesheet packs the same frame selection horizontally (layout "strip", the default) or near-square ("grid") and adds frameRects to the result. tag is a shorthand: {format:"tag", tag:"name"} exports that tag\'s range as a GIF when it has more than one frame, PNG otherwise.',
     inputSchema: object(
       {
         ...document,
+        output: { type: "string", enum: [AgentOutput.Base64, AgentOutput.Url] },
         format: { type: "string", enum: ["png", "aseprite", "gif", "spritesheet", "tag"] },
         frameIndex: integer,
         frameRange: { type: "array", items: integer, minItems: 2, maxItems: 2 },
@@ -855,5 +907,28 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
       },
       ["documentId"],
     ),
+  },
+  {
+    name: AgentToolName.ListDocs,
+    readOnly: true,
+    description:
+      "List the pixel-art handbook's documents as {id, title} pairs. Call first, then readDoc with a chosen id.",
+    inputSchema: object({}),
+  },
+  {
+    name: AgentToolName.ReadDoc,
+    readOnly: true,
+    description:
+      'Read a pixel-art handbook page as markdown. Omit id (or pass "index") for the README index; otherwise pass a document id like "00-core-principles" or "42-walk-and-run" — the leading digit selects the band. Call listDocs for the full catalog.',
+    inputSchema: object({
+      id: { type: "string", minLength: 1, maxLength: BATCH_EDIT_LIMITS.nameLength },
+    }),
+  },
+  {
+    name: AgentToolName.ReleaseArtifact,
+    readOnly: true,
+    description:
+      "Release a browser-local file URL previously returned by render or exportDocument. Returns released:false for an unknown/already released URL. Never revokes URLs owned by other features. URLs are also released when the editor interface shuts down.",
+    inputSchema: object({ url: { type: "string", minLength: 1 } }),
   },
 ];

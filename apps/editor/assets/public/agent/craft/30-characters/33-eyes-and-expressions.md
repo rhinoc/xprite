@@ -1,66 +1,26 @@
 # Eyes and expressions
 
-At sprite scale a face is 20–60 pixels and emotion lives in three channels — eye openness,
-brow slope, mouth shape — each 1–3 px. One pixel the wrong way and surprise reads as anger,
-or the face reads as nothing. This file gives the eye ladder per head size, gaze, blinks, mouth
-shapes and seven expressions at 16 and 32 px heads. Where features sit on the head:
-`craft/30-characters/32-heads-and-faces.md`. Bust portraits: `craft/30-characters/38-portraits.md`. Idle and blink timing:
-`craft/40-animation/41-idle-and-breathing.md`, `craft/40-animation/40-timing-and-spacing.md`.
+At sprite scale a face is 20–60 pixels and emotion lives in three channels — eye openness, brow slope, mouth shape — each 1–3 px. One pixel the wrong way and surprise reads as anger, or the face reads as nothing. This file gives the eye ladder per head size, gaze, blinks, mouth shapes and seven expressions at 16 and 32 px heads. Where features sit on the head: `32-heads-and-faces`. Bust portraits: `38-portraits`. Idle and blink timing: `41-idle-and-breathing`, `40-timing-and-spacing`.
 
 ## Rules
 
-1. **Eyes get their pixels first** and are never the thing you cut — cut brows, nose, ears.
-   With no room for even 1 px, imply the eye area with a shadow instead of a sub-pixel eye.
-2. **Keep the eye ladder to head height, not canvas size:** 8 px head 1×1 or none; 12 px
-   1×2; 16 px 2×2; 24 px 3×3; 32 px 5×4; 48 px 7×5; 64 px 11×6. (Pixnote and Sandro put 2×2
-   at "32 px" — that is a 32 px *sprite* with an 8–10 px head, which this ladder agrees with.)
-3. **Orientation reads as age:** a 1×2 vertical eye is young and alert, a 2×1 horizontal one
-   old or disinterested. Pick one per character.
-4. **Whites are not white.** Use the lightest skin tone or a pale grey-blue. Skip whites
-   unless each eye is ≥3 px wide; with whites, keep a 2×2 pupil off the outline or the eyes
-   read as ears (the SMB3 frog fix).
-5. **One catch-light:** a single white pixel at the pupil's upper left, in the same place on
-   both eyes. Cute and heroic faces get it, villains and blank stares do not. Keep lid,
-   pupil and highlight off one shared row or column (banding).
-6. **Pupil position is the gaze** (Thomas & Johnston): pupil touching the lid or rim = a
-   definite look; moved in from the rim = the look changes; white all round with a small pupil
-   = shock or vagueness; a smaller pupil = dazed. Centred on a camera-facing face reads as a
-   dead stare: set it 1 px off centre or low. In 3/4 the pupil never touches the top in one eye
-   and the bottom in the other (cross-eyed); both look the same way.
-7. **Brows carry the emotion with 1 px of tilt.** Inner end down = angry; inner end up =
-   sad/worried; level = neutral; raised with wide eyes = surprise; one brow 1 px higher =
-   puzzled or thinking. Leave a 1-px gap between brow and eye — touching reads as a thicker
-   eye — except for anger and determination, where touching is the point.
-8. **Three controls, in this order:** brows, lower lid and cheek (a smile pushes the lower lid
-   up), pupils (up/side = thinking, down = sad). Change only these on one base face so
-   identity holds, and keep eye spacing constant.
-9. **The whole head acts.** Raise a shoulder row 1 px = tense, drop it = defeated; tilt the
-   head; on animals ears are a channel. A body that contradicts the face cancels the face
-   (`craft/30-characters/31-anatomy-and-pose.md`).
-10. **Break symmetry by one pixel** — one brow a row higher, one eye wider. A perfectly
-    symmetric expression reads as a mask. Exceptions: surprise and the squeezed hurt eye.
-11. **Do not take the logical midpoint between expressions.** Go A → X → B: insert a blink or
-    a brow-only frame. Never change expression during a broad, fast move: switch one pose
-    before or after it (Williams).
-12. **Mouth: 3 speech shapes at 16 px (8 with the mood mouths), 5–9 at 32 px.** Closed (M B
-    P), small open (most vowels), wide open (A, shouts); at 32 px add round (O), pucker (U W),
-    teeth grin (C D S T Z) and teeth-on-lip (F V). Swap on beats, not letters; hold each ≥2 frames (≥80–100 ms); give M B
-    P F V a closed frame of ≥2 frames or they vanish. The jaw drops, the upper features stay:
-    open the lower half, never only the lip.
-13. **Blink = closed lid darker than skin.** 16 px and below: open → closed (1 frame, 80–100
-    ms). 24 px and up: half → closed → half (50/80/50 ms). The 7-drawing blink of animation
-    books (290–580 ms) is for ≥48 px. Blink every 2–4 s, on a different period from the
-    breathing loop, and on gaze changes and at the end of a hold. Lids keep their thickness and
-    never wobble (T&J).
-14. **Eyes never jitter.** No eye pixel moves unless intended. Swap whole eyes between frames
-    and keep lid lines on fixed rows.
-15. **Eye shape speaks:** round, big, low = cute; big dark pupil + catch-light = baby; heavy
-    lids = tired or lazy; slanted, narrow, small pupil = sly or hostile.
-16. **If 16 px cannot show the emotion, change the size, not the pixels:** head ≥40% of the
-    sprite height, eyes ≥2 px, or exaggerate the brows (Mario's shocked face is lost under his
-    moustache).
-17. **Contrast:** the eye strip is the strongest contrast on the head, doubly so under a helmet
-    or headband. Tears and sweat are 1-px light-blue accents.
+1. **Eyes get their pixels first** and are never the thing you cut — cut brows, nose, ears. With no room for even 1 px, imply the eye area with a shadow instead of a sub-pixel eye.
+2. **Keep the eye ladder to head height, not canvas size:** 8 px head 1×1 or none; 12 px 1×2; 16 px 2×2; 24 px 3×3; 32 px 5×4; 48 px 7×5; 64 px 11×6. (Pixnote and Sandro put 2×2 at "32 px" — that is a 32 px *sprite* with an 8–10 px head, which this ladder agrees with.)
+3. **Orientation reads as age:** a 1×2 vertical eye is young and alert, a 2×1 horizontal one old or disinterested. Pick one per character.
+4. **Whites are not white.** Use the lightest skin tone or a pale grey-blue. Skip whites unless each eye is ≥3 px wide; with whites, keep a 2×2 pupil off the outline or the eyes read as ears (the SMB3 frog fix).
+5. **One catch-light:** a single white pixel at the pupil's upper left, in the same place on both eyes. Cute and heroic faces get it, villains and blank stares do not. Keep lid, pupil and highlight off one shared row or column (banding).
+6. **Pupil position is the gaze** (Thomas & Johnston): pupil touching the lid or rim = a definite look; moved in from the rim = the look changes; white all round with a small pupil = shock or vagueness; a smaller pupil = dazed. Centred on a camera-facing face reads as a dead stare: set it 1 px off centre or low. In 3/4 the pupil never touches the top in one eye and the bottom in the other (cross-eyed); both look the same way.
+7. **Brows carry the emotion with 1 px of tilt.** Inner end down = angry; inner end up = sad/worried; level = neutral; raised with wide eyes = surprise; one brow 1 px higher = puzzled or thinking. Leave a 1-px gap between brow and eye — touching reads as a thicker eye — except for anger and determination, where touching is the point.
+8. **Three controls, in this order:** brows, lower lid and cheek (a smile pushes the lower lid up), pupils (up/side = thinking, down = sad). Change only these on one base face so identity holds, and keep eye spacing constant.
+9. **The whole head acts.** Raise a shoulder row 1 px = tense, drop it = defeated; tilt the head; on animals ears are a channel. A body that contradicts the face cancels the face (`31-anatomy-and-pose`).
+10. **Break symmetry by one pixel** — one brow a row higher, one eye wider. A perfectly symmetric expression reads as a mask. Exceptions: surprise and the squeezed hurt eye.
+11. **Do not take the logical midpoint between expressions.** Go A → X → B: insert a blink or a brow-only frame. Never change expression during a broad, fast move: switch one pose before or after it (Williams).
+12. **Mouth: 3 speech shapes at 16 px (8 with the mood mouths), 5–9 at 32 px.** Closed (M B P), small open (most vowels), wide open (A, shouts); at 32 px add round (O), pucker (U W), teeth grin (C D S T Z) and teeth-on-lip (F V). Swap on beats, not letters; hold each ≥2 frames (≥80–100 ms); give M B P F V a closed frame of ≥2 frames or they vanish. The jaw drops, the upper features stay: open the lower half, never only the lip.
+13. **Blink = closed lid darker than skin.** 16 px and below: open → closed (1 frame, 80–100 ms). 24 px and up: half → closed → half (50/80/50 ms). The 7-drawing blink of animation books (290–580 ms) is for ≥48 px. Blink every 2–4 s, on a different period from the breathing loop, and on gaze changes and at the end of a hold. Lids keep their thickness and never wobble (T&J).
+14. **Eyes never jitter.** No eye pixel moves unless intended. Swap whole eyes between frames and keep lid lines on fixed rows.
+15. **Eye shape speaks:** round, big, low = cute; big dark pupil + catch-light = baby; heavy lids = tired or lazy; slanted, narrow, small pupil = sly or hostile.
+16. **If 16 px cannot show the emotion, change the size, not the pixels:** head ≥40% of the sprite height, eyes ≥2 px, or exaggerate the brows (Mario's shocked face is lost under his moustache).
+17. **Contrast:** the eye strip is the strongest contrast on the head, doubly so under a helmet or headband. Tears and sweat are 1-px light-blue accents.
 
 ## By size
 
@@ -90,8 +50,7 @@ Brow positions assume the neutral brow at row 6 (16 px) and row 13 (32 px).
 
 ## Templates
 
-Eye ladder — each eye sits on a skin tile with its brow. 8 / 12 px, the 2×1 "old" eye,
-16 px with catch-light, and a flat 2×2 for masks and monsters:
+Eye ladder — each eye sits on a skin tile with its brow. 8 / 12 px, the 2×1 "old" eye, 16 px with catch-light, and a flat 2×2 for masks and monsters:
 
 Tiles 7×6, left to right: 8 px head, 12 px head, horizontal 2×1, 16 px head, flat 2×2.
 
@@ -247,11 +206,7 @@ SSSSSSSSSSS.SSSSSSSSSSS.SSSMMMMMSSS.SSSSMMMSSSS.SSSSMMMSSSS.SSSSSSSSSSS.SSSSSSSS
 SSSSSSSSSSS.SSSSSSSSSSS.SSSSSSSSSSS.SSSSSSSSSSS.SSSSSSSSSSS.SSSSSSSSSSS.SSSSSSSSSSS.SSSSSSSSSSS.SSSSSSSSSSS
 ```
 
-Expression sets: one base head per size, only brows, eyes and mouth change. 16 px: full heads
-(x offsets 0, 15, 30, 45 — each block 14 wide, 1 px gap), same rows as `heads-front-16` in
-`craft/30-characters/32-heads-and-faces.md`. 32 px: the face window only — 21×17, x offsets 0, 22, 44, 66 —
-stamped at x 5, y 12 of `heads-front-32`; the rest of the head is unchanged.
-Order: neutral, happy, angry, sad / surprised, hurt, determined.
+Expression sets: one base head per size, only brows, eyes and mouth change. 16 px: full heads (x offsets 0, 15, 30, 45 — each block 14 wide, 1 px gap), same rows as `heads-front-16` in `32-heads-and-faces`. 32 px: the face window only — 21×17, x offsets 0, 22, 44, 66 — stamped at x 5, y 12 of `heads-front-32`; the rest of the head is unchanged. Order: neutral, happy, angry, sad / surprised, hurt, determined.
 
 16 px heads: neutral, happy, angry, sad.
 
@@ -399,20 +354,13 @@ OSSSSSSSMmmmMSSSSSSSO.OSSSSSMTTTTTTTMSSSSSO.OSSSSSSSMMMMMSSSSSSSO
 
 ## Procedure
 
-1. Draw the base head with no eyes, brows or mouth (`craft/30-characters/32-heads-and-faces.md`).
-2. Put the face on its own layer (`addLayer` "face", `craft/00-core/06-layers-and-rigging.md`)
-   so an expression is a swap, not a repaint.
-3. Pick the eye size from the ladder; `applyBatch` `grid` the entry at the eye line — once per
-   eye, the second at the mirrored x, catch-light on the same side in both.
-4. One expression per frame: `copyFrame`, clear the face cel region
-   (`applyBatch` `clear`), stamp brows, eyes, mouth from the recipe table; `addTag` per
-   expression name.
-5. `render` `filmstrip`: each expression must be told apart by brows plus mouth alone. Cover
-   the eyes with a thumb — if two faces become identical, fix the mouth; cover the mouth —
-   same test for the brows.
+1. Draw the base head with no eyes, brows or mouth (`32-heads-and-faces`).
+2. Put the face on its own layer (`addLayer` "face", `06-layers-and-rigging`) so an expression is a swap, not a repaint.
+3. Pick the eye size from the ladder; `applyBatch` `grid` the entry at the eye line — once per eye, the second at the mirrored x, catch-light on the same side in both.
+4. One expression per frame: `copyFrame`, clear the face cel region (`applyBatch` `clear`), stamp brows, eyes, mouth from the recipe table; `addTag` per expression name.
+5. `render` `filmstrip`: each expression must be told apart by brows plus mouth alone. Cover the eyes with a thumb — if two faces become identical, fix the mouth; cover the mouth — same test for the brows.
 6. `readPixels` `mode:"diff"` between neutral and each frame: only brow, eye and mouth cells may change.
-7. Blink: duplicate the idle frame, stamp the half and closed eyes, `setFrameDuration` `durations`
-   (closed 80–100 ms; or 50/80/50), `render` `onionSkin` to check the lids sit on the same rows.
+7. Blink: duplicate the idle frame, stamp the half and closed eyes, `setFrameDuration` `durations` (closed 80–100 ms; or 50/80/50), `render` `onionSkin` to check the lids sit on the same rows.
 8. Talk: swap among ≤3 mouths (16 px) or ≤6 (32 px) on `addTag` "talk"; `validate`.
 
 ## Mistakes

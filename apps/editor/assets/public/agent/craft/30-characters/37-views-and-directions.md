@@ -13,12 +13,12 @@ Most direction failures are consistency failures: a head that grows between faci
 7. **Never draw a face on the back of a head.** The N view is hair, nape and shoulders (and whatever is on the back: cape, strap, tail). Hair mass, collar and shoulder line must match the front outline.
 8. **Side view needs help.** It is the weakest silhouette: push the spine curve, nose or chin, clothing and hair. Put one limb in shadow (or use two tones) so near and far limbs separate; leave 1 px between arm and torso or use an inner shade line.
 9. **Top-down (≈ 45° camera).** You see the top of the head: hair and shoulders take up more of the sprite than the face, and the torso overlaps the legs; N is almost all hair and shoulders. Draw feet behind legs, legs behind torso, torso behind head. At small sizes head = ⅓–½ of sprite height. Sprite size follows the tile: 16×16, 16×32 (one wide, two tall) or 32×32. Objects lower on screen are nearer: y-sort by foot position. True 90° top views (shooters) lose depth; avoid for characters.
-10. **Isometric.** The ground footprint is the 2:1 diamond; the body is not a projected cube. Rotate the pelvis and shoulder lines against the head's cross-line to show facing; draw on a tile so the feet read, then delete the tile (`craft/70-objects/71-isometric.md`).
+10. **Isometric.** The ground footprint is the 2:1 diamond; the body is not a projected cube. Rotate the pelvis and shoulder lines against the head's cross-line to show facing; draw on a tile so the feet read, then delete the tile (`71-isometric`).
 11. **One canvas for all frames.** Same pixel scale, palette, outline logic and transparent margin (room for sword swings) in every direction; same canvas size per sheet; one row per direction in playback order (down, left, right, up is the usual sheet order). Cast shadow on its own layer under every direction.
-12. **Halves of cycles mirror.** Top-down 6-frame walk = 3 frames + the same 3 flipped; run 4 frames = 2 + flipped, except hair, scarf and asymmetries redrawn (`craft/40-animation/47-top-down-animation.md`, `craft/40-animation/42-walk-and-run.md`). Back view moves torso and head less than front.
+12. **Halves of cycles mirror.** Top-down 6-frame walk = 3 frames + the same 3 flipped; run 4 frames = 2 + flipped, except hair, scarf and asymmetries redrawn (`47-top-down-animation`, `42-walk-and-run`). Back view moves torso and head less than front.
 13. **Screen direction means something.** Facing right reads as progress for left-to-right readers: heroes face right, threats push in facing left. Keep it in cutscenes and key art.
-14. **You cannot rotate pixel art.** Each facing is redrawn; `rotate90` only helps at 90° steps and never on characters (`craft/70-objects/75-rotation-and-turnarounds.md`).
-15. **Recognition from one angle.** Check that the object or character is still recognisable at its default facing; an aircraft that reads as a tower is fixed by flipping or changing the angle, not by detail (`craft/70-objects/70-perspective.md`).
+14. **You cannot rotate pixel art.** Each facing is redrawn; `rotate90` only helps at 90° steps and never on characters (`75-rotation-and-turnarounds`).
+15. **Recognition from one angle.** Check that the object or character is still recognisable at its default facing; an aircraft that reads as a tower is fixed by flipping or changing the angle, not by detail (`70-perspective`).
 
 ## By size
 
@@ -153,7 +153,7 @@ OSOlTTTtOsO..OSOlTTtOsO...OlSTTtO.....OlTTTTtO..OlOTTTTTOtO
 3. Draw E (profile) with `applyBatch` `grid`, then the hero view (S or SE) at the same rows. `readPixels` `format:"grid"` to verify rows match the guides.
 4. Derive N from S: copy with `applyBatch` `blit`, remove face, extend hair, keep collar and shoulders. Derive diagonals by shifting the face block (rule 6) and the torso centre line (rule 5).
 5. Mirror E to W with `applyBatch` `blit` then `flip` on the copy; then repair asymmetric items and re-shade for the light direction.
-6. `render` of all directions side by side at 1×, then `render` `filmstrip` if frames exist. Silhouette test each (`craft/00-core/03-silhouette-and-form.md`).
+6. `render` of all directions side by side at 1×, then `render` `filmstrip` if frames exist. Silhouette test each (`03-silhouette-and-form`).
 7. `validate`; check the same number of body rows and the same feet row in every view.
 
 ## Mistakes

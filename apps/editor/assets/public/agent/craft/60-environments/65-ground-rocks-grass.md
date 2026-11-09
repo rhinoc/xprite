@@ -1,6 +1,6 @@
 # Ground, rocks and grass
 
-Ground is most of the screen, so it is where generated scenes fail first: grass with a blade on every pixel, "dirt" in nine near-identical browns, a lone rock that becomes a visible grid the moment the tile repeats, rocks shaded like pillows. This file builds ground that stays quiet behind the characters and still reads as grass, dirt or stone. Seams, edges and autotile sets live in `craft/60-environments/66-tiles-and-autotiling.md`; walls and floors made of bricks in `craft/60-environments/67-architecture-and-interiors.md`.
+Ground is most of the screen, so it is where generated scenes fail first: grass with a blade on every pixel, "dirt" in nine near-identical browns, a lone rock that becomes a visible grid the moment the tile repeats, rocks shaded like pillows. This file builds ground that stays quiet behind the characters and still reads as grass, dirt or stone. Seams, edges and autotile sets live in `66-tiles-and-autotiling`; walls and floors made of bricks in `67-architecture-and-interiors`.
 
 ## Rules
 
@@ -8,20 +8,20 @@ Ground is most of the screen, so it is where generated scenes fail first: grass 
 2. **Three colours per natural surface, one of them dominant.** Grass = dark/mid/light, dirt = dark/mid/light (a 4th only for sand or cracked earth). Mid covers most of the tile: 75 % in `ground-grass-16`, 87 % in `ground-dirt-16` (derived). A 4th green adds noise, not richness.
 3. **Texture is made of clusters, not specks.** A cluster is 2+ same-colour pixels that read as one thing: a blade pair, a dark patch, a pebble, a crack dash. No isolated single pixels. Define 3–5 key clusters per material and repeat them with small variation.
 4. **Key clusters never touch.** Leave at least 1 px of base colour between two clusters. Corner-to-corner contact is allowed. Touching clusters clump into blobs that read as stains.
-5. **Dark means roots, valleys and shadow; light means blade tips and lit surfaces.** Short dark vertical strokes imply blades without drawing any. Never draw every blade: grass is bunches. Light from upper-left, as everywhere (`craft/00-core/02-shading-and-light.md`).
+5. **Dark means roots, valleys and shadow; light means blade tips and lit surfaces.** Short dark vertical strokes imply blades without drawing any. Never draw every blade: grass is bunches. Light from upper-left, as everywhere (`02-shading-and-light`).
 6. **Spread detail, keep negative space.** Detail in islands with calm base between them; a crowded half beside an empty half looks wrong. Never centre the detail. Clusters cross the tile edge and continue on the opposite edge.
 7. **Every ground gets a busy tile and a quiet tile.** Busy ≈ 13 clusters per 16×16, quiet 4–6 (derived). Fill wide plains with quiet, mix busy in at roughly 1 : 3. A colour-swapped copy of one texture does not count as a variant: scrolling by tile shows only the colour change.
 8. **Unique features never live in the repeating tile.** A lone rock, puddle or flower in a tile is stamped everywhere. Put it on an overlay layer, transparent background, placed sparsely by hand.
 9. **Flowers** = 3×3 plus (4 petals, 1 centre) in one petal colour, on the quiet tile, ≤ 3 per 16×16. A second petal colour is a free variant. Add a 1 px shadow only when the flower is an overlay.
 10. **Dirt**: pebble = light pair upper-left + dark pair lower-right (5 px), crack dash = 2–3 dark px, fleck = light pair. Darkest brown sits only next to other darks. Its hue must be related to nearby rock and sand hues; a grey rock on orange dirt looks pasted.
-11. **Stone floor**: lay the mortar first so the tile wraps, then stones, 1 px mortar, 2 stone tones, highlight on top and left edge only. Flagstone and brick share one method: `craft/60-environments/67-architecture-and-interiors.md`.
+11. **Stone floor**: lay the mortar first so the tile wraps, then stones, 1 px mortar, 2 stone tones, highlight on top and left edge only. Flagstone and brick share one method: `67-architecture-and-interiors`.
 12. **Sand**: long S-shaped strokes with a hard edge, hard shadow on the lee side, warm light and cool shadow. Colour is grey-green-yellow, not cartoon yellow; wet sand is darker. Too many joined wiggles read as noodles.
 13. **Pick a rock family per area.** Sedimentary = layered, tan/orange, big soft highlights. Metamorphic = blue-grey, large clean planes, hard highlights. Igneous = near-black purple, rounded, pitted, soft highlights. Grey stone in a red canyon is wrong.
 14. **Build a rock from three planes**: top (lit, rim highlight upper-left), front (mid), right/underside (shade, one dark edge). Plane boundaries are hard and straight, slopes from the 2:1 family. Concentric bands from a lit centre are pillow shading and are wrong here.
 15. **Silhouette first, angular and asymmetric.** From 7 px up, give it one flat run of 3+ pixels and a side that is not a mirror of the other. No outline at ≤ 7 px; at ≥ 10 px add one 3–4 px diagonal crack in the darkest tone.
 16. **Rocks in odd groups** (1, 3, 5) of different sizes, never evenly spaced; a rock may straddle two tiles. Size ladder at 8 px tiles: 1 px → 2×2 → 3×3 → 5×5; at 16 px see the table.
 17. **Ground contact.** A rock ≥ 7 px wide gets a 1 px flat shadow row in a dark ground colour, short (never longer than a tile) and cast the same way everywhere. Keep shadows on their own layer when one rock sits on several surfaces.
-18. **Side-view strip** = four bands: highlight, base, shadow, dirt, with the grass lip overhanging the dirt. The overhang is visual; collision starts below it (`craft/60-environments/66-tiles-and-autotiling.md`).
+18. **Side-view strip** = four bands: highlight, base, shadow, dirt, with the grass lip overhanging the dirt. The overhang is visual; collision starts below it (`66-tiles-and-autotiling`).
 19. **Lead the eye.** Stones and flowers laid in a line become a path; a faint second path of the other grass tile hides a secret. Do it with overlays, not by editing the base tile.
 
 ## By size
@@ -206,7 +206,7 @@ mmmmmmmmkmmmmmmsssk.
 
 ## Procedure
 
-1. Fix tile size and palette first. `palette` op `ramp` once per material, 3 steps, small `spread`; darks lean toward blue-teal, lights toward yellow (`craft/20-color/20-color-for-pixel-art.md`).
+1. Fix tile size and palette first. `palette` op `ramp` once per material, 3 steps, small `spread`; darks lean toward blue-teal, lights toward yellow (`20-color-for-pixel-art`).
 2. Layers: `ground` (base tile), `overlay` (tufts, flowers, rocks), `shadow` (contact and cast shadows).
 3. Transcribe the nearest template with `applyBatch` kind `grid`, mapping each legend role to your palette. Re-place clusters by editing the rows, not by redrawing: `readPixels` `format:"grid"` with `rulers=false`, edit, resend at the same x/y.
 4. Wrap check: `applyBatch` `blit` the tile into its eight neighbours on a scratch 48×48 layer (`src` on the scratch layer, `dest` offsets ±16), then `render`. Hunt for rows or columns of aligned pixels, a cluster that touches only one side, a repeated bright pixel.
@@ -219,7 +219,7 @@ mmmmmmmmkmmmmmmsssk.
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Reads as a metal plate with dots | Few 1 px specks on flat green | 2–3 px strokes, dark under light, `craft/10-technique/11-clusters-and-noise.md` |
+| Reads as a metal plate with dots | Few 1 px specks on flat green | 2–3 px strokes, dark under light, `11-clusters-and-noise` |
 | Grid visible when tiled | Detail centred, one big or high-contrast cluster | Offset the tile, spread clusters, cut contrast |
 | Gaps repeat across the map | Random spray with no balance | Place by hand into islands with calm base between |
 | Rock looks like a potato | Concentric shading from a lit centre | Three flat planes, hard boundaries |

@@ -1,56 +1,32 @@
 # Lines and curves
 
-A pixel line is a staircase, and the eye reads its rhythm before the shape. One run shorter or longer than its
-neighbours shows at 1× as a bump (a "jaggy"); a 2×2 lump on a 1 px line shows as a blob. Every colour boundary is a
-line too, so this covers outlines, shading edges and outline-free art. Outline *style* is
-`craft/00-core/04-outlines-and-edges.md`; this file is about the pixels.
+A pixel line is a staircase, and the eye reads its rhythm before the shape. One run shorter or longer than its neighbours shows at 1× as a bump (a "jaggy"); a 2×2 lump on a 1 px line shows as a blob. Every colour boundary is a line too, so this covers outlines, shading edges and outline-free art. Outline *style* is `04-outlines-and-edges`; this file is about the pixels.
 
 ## Rules
 
-A **run** is consecutive pixels in one row (shallow part of a line) or one column (steep part). `N:1` means N pixels
-across per 1 up; `1:N` means 1 across per N up.
+A **run** is consecutive pixels in one row (shallow part of a line) or one column (steep part). `N:1` means N pixels across per 1 up; `1:N` means 1 across per N up.
 
-1. **One weight, 1 px.** Keep one line weight per sprite. A 2 px outline eats ~12% of a 16 px canvas; it is a
-   style choice for large sprites, never a way to hide bad lines.
-2. **No elbows.** Each pixel touches the next at a corner or at the end of a run. A pixel with line neighbours both
-   across and up/down is an elbow (an L); it thickens the line at that spot. Test: if deleting a pixel leaves the
-   line still connected corner to corner, delete it. The opposite "square-line" style (add an elbow at every join)
-   is allowed only as a deliberate, sprite-wide choice.
+1. **One weight, 1 px.** Keep one line weight per sprite. A 2 px outline eats ~12% of a 16 px canvas; it is a style choice for large sprites, never a way to hide bad lines.
+2. **No elbows.** Each pixel touches the next at a corner or at the end of a run. A pixel with line neighbours both across and up/down is an elbow (an L); it thickens the line at that spot. Test: if deleting a pixel leaves the line still connected corner to corner, delete it. The opposite "square-line" style (add an elbow at every join) is allowed only as a deliberate, sprite-wide choice.
 3. **Straight lines use a clean ratio**, and a clean ratio has exactly one run length:
 
    | Ratio | Angle (derived) | Run | Notes |
    |-------|-----------------|-----|-------|
    | 1:1 | 45° | 1 | Sharpest diagonal. Needs no AA. |
-   | 2:1 | 26.6° | 2 | The isometric line (`craft/70-objects/71-isometric.md`). |
+   | 2:1 | 26.6° | 2 | The isometric line (`71-isometric`). |
    | 3:1, 4:1 | 18.4°, 14.0° | 3, 4 | Shallow rails, horizons, roof edges. |
    | 1:2, 1:3, 1:4 | 63.4°, 71.6°, 76.0° | 2, 3, 4 (vertical) | Steep sides, blades, trunks. |
 
-4. **Never edit one step.** A 1-run inside a line of 2-runs is a jaggy. Redraw the whole segment at its ratio;
-   endpoints may move 1 px. Patching a single step only moves the wobble.
-5. **Off-ratio angles alternate exactly two adjacent run lengths in a fixed period**: 2,1 (3:2) · 3,2 (5:2) ·
-   2,2,1 (5:3) · 3,2,2 (7:3). Never three different lengths, never a random mix (2,1,3,1,2). At 8–16 px, snap to
-   the nearest clean ratio instead.
-6. **Curves: run lengths change monotonically.** From the tangent end they shrink to the 45° point, then grow
-   mirrored: `6,2,1,2,6`. Any up–down–up (2,1,2 or 3,5,3) is a jaggy. Write the run list from a `readPixels` `format:"grid"`
-   read; fix by moving **one** end pixel of a run to its neighbour — the pixel count stays the same.
-7. **No lone wolves.** A pixel that sticks out of the imagined smooth curve, or falls short of it, is the error.
-   The cure is usually deleting 1–2 pixels, not re-stroking the curve. A re-stroke brings new jaggies.
-8. **Circles and ellipses.** `applyBatch` `ellipse` draws the canonical row widths for
-   D=4–16 (`craft/72-3d-forms.md` has the table; D=3 comes out a square, so stamp it).
-   For a hand-drawn curve, draw one quadrant and mirror it with `applyBatch` `flip`/`blit`
-   (`flip` `direction: "horizontal"` / `"vertical"`) — symmetry is then exact. Odd diameters share one
-   centre row and column between the halves; copy the half, not a second centre.
-9. **Colour edges are lines.** The boundary between two fills obeys rules 3–7 exactly. Cel-shading edges are where
-   most jaggies hide, because nobody outlines them.
+4. **Never edit one step.** A 1-run inside a line of 2-runs is a jaggy. Redraw the whole segment at its ratio; endpoints may move 1 px. Patching a single step only moves the wobble.
+5. **Off-ratio angles alternate exactly two adjacent run lengths in a fixed period**: 2,1 (3:2) · 3,2 (5:2) · 2,2,1 (5:3) · 3,2,2 (7:3). Never three different lengths, never a random mix (2,1,3,1,2). At 8–16 px, snap to the nearest clean ratio instead.
+6. **Curves: run lengths change monotonically.** From the tangent end they shrink to the 45° point, then grow mirrored: `6,2,1,2,6`. Any up–down–up (2,1,2 or 3,5,3) is a jaggy. Write the run list from a `readPixels` `format:"grid"` read; fix by moving **one** end pixel of a run to its neighbour — the pixel count stays the same.
+7. **No lone wolves.** A pixel that sticks out of the imagined smooth curve, or falls short of it, is the error. The cure is usually deleting 1–2 pixels, not re-stroking the curve. A re-stroke brings new jaggies.
+8. **Circles and ellipses.** `applyBatch` `ellipse` draws the canonical row widths for D=4–16 (`72-3d-forms` has the table; D=3 comes out a square, so stamp it). For a hand-drawn curve, draw one quadrant and mirror it with `applyBatch` `flip`/`blit` (`flip` `direction: "horizontal"` / `"vertical"`) — symmetry is then exact. Odd diameters share one centre row and column between the halves; copy the half, not a second centre.
+9. **Colour edges are lines.** The boundary between two fills obeys rules 3–7 exactly. Cel-shading edges are where most jaggies hide, because nobody outlines them.
 10. **Corners are a decision.** One missing corner pixel = soft; a 45° cut = bevel; a curve = round. One style per sprite.
-11. **Points.** A tip whose sides are `1:N` has an angle of 2·atan(1/N): 90°, 53°, 37°, 28° for N = 1…4. Use the
-    single 45° pixel as the tip of blades, thorns, flame tips and wings; keep both sides on the same ratio.
-12. **Line family sets mood.** Long 1:1 / 2:1 diagonals and zigzags read dynamic; long horizontals, verticals and
-    arcs read calm. Pick one dominant family per asset. Front and back contours of a body step in opposite
-    directions (chest out, back straight; knee forward, calf back); a 1 px straight column head to feet is a failure.
-    For converging lines, fix the vanishing point so the main edges land on clean ratios; round run lengths, never endpoints.
-13. **Use the line op, then check the ends.** `applyBatch` `line` is even for clean ratios; for other angles verify
-    the period, and trim or lengthen a half-length first or last run by 1 px. Hand-placed `pixels` is where runs go wrong.
+11. **Points.** A tip whose sides are `1:N` has an angle of 2·atan(1/N): 90°, 53°, 37°, 28° for N = 1…4. Use the single 45° pixel as the tip of blades, thorns, flame tips and wings; keep both sides on the same ratio.
+12. **Line family sets mood.** Long 1:1 / 2:1 diagonals and zigzags read dynamic; long horizontals, verticals and arcs read calm. Pick one dominant family per asset. Front and back contours of a body step in opposite directions (chest out, back straight; knee forward, calf back); a 1 px straight column head to feet is a failure. For converging lines, fix the vanishing point so the main edges land on clean ratios; round run lengths, never endpoints.
+13. **Use the line op, then check the ends.** `applyBatch` `line` is even for clean ratios; for other angles verify the period, and trim or lengthen a half-length first or last run by 1 px. Hand-placed `pixels` is where runs go wrong.
 
 ### Circle row widths (derived: one choice per diameter that keeps the edge runs monotone)
 
@@ -73,13 +49,12 @@ Row widths from the top row to the middle; the lower half mirrors. *Edge runs* =
 |------|--------------------|
 | 8 | Only 1:1 and 2:1. Circles Ø3–8 as filled discs. A curve is ≤ 4 runs. No AA. |
 | 16 | Clean ratios only; off-ratio angles snap to one. Circles to Ø16; an arc has ≤ 6 runs (`6,2,1,2,6`). |
-| 32 | Periodic two-length lines (2,1 / 3,2) are fine. Curves of 6–8 runs. AA only on steps ≥ 3 (`craft/10-technique/12-anti-aliasing.md`). |
+| 32 | Periodic two-length lines (2,1 / 3,2) are fine. Curves of 6–8 runs. AA only on steps ≥ 3 (`12-anti-aliasing`). |
 | 64 | Long arcs (Ø20, Ø24 in the table). A 2 px outline is possible. Hunt jaggies at 1× *and* 2×. |
 
 ## Templates
 
-**`lines-slopes-shallow`** — the clean shallow ladder, left to right 1:1, 2:1, 3:1, 4:1, six steps each. Copy a
-line's run length, not its pixels.
+**`lines-slopes-shallow`** — the clean shallow ladder, left to right 1:1, 2:1, 3:1, 4:1, six steps each. Copy a line's run length, not its pixels.
 ```grid lines-slopes-shallow
 O = line       #2b1d2e
 ---
@@ -125,8 +100,7 @@ O = line       #2b1d2e
 ..O...........OO..............OO................OO................
 OO.........OOO..............OO...............OOO..................
 ```
-**`lines-slope-broken` → `lines-slope-fixed`** — a 2:1 line with one 1-run (red) and the same line redrawn at one
-ratio. The fix costs one pixel of length.
+**`lines-slope-broken` → `lines-slope-fixed`** — a 2:1 line with one 1-run (red) and the same line redrawn at one ratio. The fix costs one pixel of length.
 ```grid lines-slope-broken
 O = line       #2b1d2e
 X = flaw       #e8365a
@@ -148,8 +122,7 @@ O = line       #2b1d2e
 ..OO.........
 OO...........
 ```
-**`lines-arc-bad` → `lines-arc-good`** — jaggy and fix on the same 10×10 quarter arc. Bad runs `4,1,2,1,3,3`
-(red runs break the shrink-then-grow order); good runs `4,2,1,1,2,4`. Same box, same pixel count.
+**`lines-arc-bad` → `lines-arc-good`** — jaggy and fix on the same 10×10 quarter arc. Bad runs `4,1,2,1,3,3` (red runs break the shrink-then-grow order); good runs `4,2,1,1,2,4`. Same box, same pixel count.
 ```grid lines-arc-bad
 O = line       #2b1d2e
 X = flaw       #e8365a
@@ -230,8 +203,7 @@ O...........O...O..........O....O...........O....O............O.
 ..OO.....OO.......OO....OO........OO.....OO........OO......OO...
 ....OOOOO...........OOOO............OOOOO............OOOOOO.....
 ```
-**`lines-diamond-elbows` → `lines-diamond-clean`** — the double fix: red elbows thicken every 1:1 step; delete
-them and the diamond is four single-pixel diagonals.
+**`lines-diamond-elbows` → `lines-diamond-clean`** — the double fix: red elbows thicken every 1:1 step; delete them and the diamond is four single-pixel diagonals.
 ```grid lines-diamond-elbows
 O = line       #2b1d2e
 X = flaw       #e8365a
@@ -293,13 +265,10 @@ FFFFFFFFFFFFFFF..FFFFFFFFF..FFFFF..FFFFF
 1. Decide the dominant line family and the clean ratios you will use before the first pixel.
 2. Block the shape with `applyBatch` ops `line` / `ellipse` / `stroke` as a draft, or transcribe a template with op `grid`.
 3. `readPixels` `format:"grid"` with a `rect` crop; write the run list of every curve and slope.
-4. Fix in this order: elbows (rule 2), then jaggies (rule 6), then lone wolves (7). Removing elbows creates new
-   jaggies, so this is two passes. Delete one pixel with `applyBatch` `clear` on a 1×1 `rect`; move one with
-   `pixels`; re-lay a whole straight segment with `line`.
+4. Fix in this order: elbows (rule 2), then jaggies (rule 6), then lone wolves (7). Removing elbows creates new jaggies, so this is two passes. Delete one pixel with `applyBatch` `clear` on a 1×1 `rect`; move one with `pixels`; re-lay a whole straight segment with `line`.
 5. Mirror symmetric shapes with `applyBatch` `flip`/`blit` instead of drawing both halves.
 6. `render` the sprite and again after `exportDocument` `scale` enlargement (or a scratch `resizeSprite` 2×) — flaws visible at one size are invisible at the other.
-7. `validate`: it has no jaggy or elbow check. `strays` only reports pixels with no opaque 4-neighbour, `outline`
-   only gaps in the edge colour. Run lengths are by-eye work.
+7. `validate`: it has no jaggy or elbow check. `strays` only reports pixels with no opaque 4-neighbour, `outline` only gaps in the edge colour. Run lengths are by-eye work.
 
 ## Mistakes
 

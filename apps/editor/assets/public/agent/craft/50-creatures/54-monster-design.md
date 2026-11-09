@@ -1,71 +1,25 @@
 # Monster design
 
-A generated monster is usually a pile of scary parts: four animals' worth of horns, claws,
-eyes and teeth on a body with no shape. It reads as noise at 1×, and no two of them look
-different in silhouette. This file gives a way to decide what the creature is, shape language
-that makes it read in one glance, a build order (silhouette → colour blocks → finish),
-slime, undead and dragon rules, size by game role, and templates for each. General character
-silhouette is `craft/30-characters/36-character-design.md`; animal anatomy is `craft/50-creatures/50-quadrupeds.md`; small
-animals are `craft/50-creatures/53-small-creatures.md`.
+A generated monster is usually a pile of scary parts: four animals' worth of horns, claws, eyes and teeth on a body with no shape. It reads as noise at 1×, and no two of them look different in silhouette. This file gives a way to decide what the creature is, shape language that makes it read in one glance, a build order (silhouette → colour blocks → finish), slime, undead and dragon rules, size by game role, and templates for each. General character silhouette is `36-character-design`; animal anatomy is `50-quadrupeds`; small animals are `53-small-creatures`.
 
 ## Rules
 
-1. **Answer five questions in one line before drawing.** Animal, vegetable or mineral? Its goal?
-   Its strength and its weakness? Proud or shy? Beast of burden or conqueror? (Bancroft). The
-   weakness becomes a visible target (an exposed eye, a soft belly, a slow wind-up).
-2. **Pick one dominant shape and let the silhouette say it.** Circle: friendly, safe, soft. Square:
-   strong, stable, a brute. Triangle and spike: aggressive, dynamic, dangerous. Irregular organic:
-   unpredictable. Put it in the whole outline first, then echo it in the eyes, mouth and limbs
-   (Solarski, Saint11). A round creature in a spiky world reads as vulnerable; a spiky creature in
-   a round world reads as the aggressor (`craft/90-style/91-composition-and-scenes.md`).
-3. **Danger vocabulary lives at the extremities.** People instinctively dislike snake-like and
-   spider-like shapes, long thin limbs, spikes and complicated sharp shapes (Saint11). Put them in
-   horns, claws and tail, not in the core: a spiky core plus spiky limbs is a hedgehog of noise.
-4. **Give it one identifying element.** A flat head, tank treads, a single huge eye, one broken
-   horn. The element survives the silhouette test and every recolour (Saint11, Dawe: "charm points").
-5. **Shake and bake, but only 2–3 sources.** Assign each source animal or object a body region: head
-   from one, limbs from another, tail from a third (cow ears, snake body, chicken feet, lizard tail
-   → dragon). More than three look like noise; keep the head and body balanced so the head is not
-   stuck on (Bancroft).
-6. **Heavy brute formula.** Small head sunk between the shoulders, huge jaw, barrel chest, tiny
-   hips, short legs, long heavy arms with big fists: the weight sits high, which reads as menace
-   (Blair). Invert it for speed: narrow shoulders, long legs, small fists (derived).
-7. **Build in three passes, each readable alone.** (a) Silhouette in one flat colour: can you name
-   it and its pose? (b) Colour-coded blocks per part (head, torso, arms, legs, wings, tail), so parts can
-   be moved independently. (c) Final palette with light and shadow; detail "just far enough until the
-   mind fills in the rest" (Slynyrd). Imaginative monsters skip the anatomy dummy; blob the design in
-   three flat colours, then recolour and refine.
-8. **Size is a role.** Minion 12–16 px (about half the hero), hero 24–32, boss 64–128 (2–4× the hero),
-   final boss 128–256. A size ratio is part of the silhouette; heuristics, not standards.
-9. **Eyes first.** Cute: big, low in the head, wide-set, round. Menace: slit or angled, close-set,
-   heavy brow. One huge eye or many small ones = alien. At 16 px an eye is 2×2 or 1×2 px. A fang or tusk is
-   one white pixel against a dark mouth.
-10. **One signature hue per creature.** Keep it out of the rest of the cast's dominant colours. Villains
-    lean dark, cool or heavy (purple, deep red, cold grey) against a warm hero; red reads as energy and
-    menace. Pull the creature's colours from 3–4 hue families of its environment so it sits in the scene;
-    one complementary accent (eyes, horns). A ramp is 5–8 swatches (`craft/20-color/20-color-for-pixel-art.md`).
-11. **Slime and goo.** A squash and stretch toy: neutral, squash (about 1.3× wide, 0.8× high), stretch
-    (0.7× wide, 1.45× high), with the pixel area roughly constant (derived: 138–144 px). Silber's
-    example goes to 2× wide and ½ high for a cartoon extreme. Four tones (Saint11): hard small specular, base,
-    reflection, shadow; at 20 px drop the reflection and keep specular, base, shadow. Avoid sharp corners; the body is a dome with a
-    flat base and a 1 px wet edge. A drip starts wide and asymmetric and gets taller and thinner every
-    frame; thick goo hangs longer, bubbles are heavy and slow, thick slime forms bridges and holes
-    (Saint11 *Goo*). Breathing is sub-pixel (`craft/40-animation/46-subpixel-animation.md`).
-12. **Dragons: three families.** Western: heavy four-legged, bat wings, long spade tail, red with
-    gold. Eastern: serpentine body, four short legs, no wings, green. Wyvern: two hind legs, the wings are
-    the forelimbs with claws, a tail stinger, blue or purple. Each gets a 4–6 swatch palette (Slynyrd).
-    A wing is an arm: draw the bone structure first, then the membrane (`craft/50-creatures/52-birds-and-flight.md`).
-13. **Undead.** Skulls: eye sockets and nose carry the read (2×2 sockets, 1–2 px nose); ribs are
-    alternating bone and gap rows; joints are delayed in motion. Bone piles are noisy, irregular shapes
-    with the brighter, more detailed skulls on the border. Ghosts without alpha: one cold monochrome
-    ramp, detail only in eyes, mouth and outline, a wavy hem, a sine bob on y (Saint11 *Holograms*).
-14. **Tail as counterweight.** A big tail or arm swings opposite the torso so the creature balances
-    (Blair, crocodile); a heavy creature gets a slow wind-up (`craft/40-animation/44-attacks-and-impacts.md`).
-15. **Ground it.** A small dithered elliptical shadow under the creature seats it on the ground;
-    flyers get the shadow offset below them (derived).
-16. **Bestiary sets must differ in silhouette.** Give each creature in a set a different dominant
-    shape (circle, wedge, bar, triangle) and mass distribution (low and wide vs chest-heavy vs top-heavy)
-    (Hultgren). Contrast fat vs thin and tall vs short so each reads against the others.
+1. **Answer five questions in one line before drawing.** Animal, vegetable or mineral? Its goal? Its strength and its weakness? Proud or shy? Beast of burden or conqueror? (Bancroft). The weakness becomes a visible target (an exposed eye, a soft belly, a slow wind-up).
+2. **Pick one dominant shape and let the silhouette say it.** Circle: friendly, safe, soft. Square: strong, stable, a brute. Triangle and spike: aggressive, dynamic, dangerous. Irregular organic: unpredictable. Put it in the whole outline first, then echo it in the eyes, mouth and limbs (Solarski, Saint11). A round creature in a spiky world reads as vulnerable; a spiky creature in a round world reads as the aggressor (`91-composition-and-scenes`).
+3. **Danger vocabulary lives at the extremities.** People instinctively dislike snake-like and spider-like shapes, long thin limbs, spikes and complicated sharp shapes (Saint11). Put them in horns, claws and tail, not in the core: a spiky core plus spiky limbs is a hedgehog of noise.
+4. **Give it one identifying element.** A flat head, tank treads, a single huge eye, one broken horn. The element survives the silhouette test and every recolour (Saint11, Dawe: "charm points").
+5. **Shake and bake, but only 2–3 sources.** Assign each source animal or object a body region: head from one, limbs from another, tail from a third (cow ears, snake body, chicken feet, lizard tail → dragon). More than three look like noise; keep the head and body balanced so the head is not stuck on (Bancroft).
+6. **Heavy brute formula.** Small head sunk between the shoulders, huge jaw, barrel chest, tiny hips, short legs, long heavy arms with big fists: the weight sits high, which reads as menace (Blair). Invert it for speed: narrow shoulders, long legs, small fists (derived).
+7. **Build in three passes, each readable alone.** (a) Silhouette in one flat colour: can you name it and its pose? (b) Colour-coded blocks per part (head, torso, arms, legs, wings, tail), so parts can be moved independently. (c) Final palette with light and shadow; detail "just far enough until the mind fills in the rest" (Slynyrd). Imaginative monsters skip the anatomy dummy; blob the design in three flat colours, then recolour and refine.
+8. **Size is a role.** Minion 12–16 px (about half the hero), hero 24–32, boss 64–128 (2–4× the hero), final boss 128–256. A size ratio is part of the silhouette; heuristics, not standards.
+9. **Eyes first.** Cute: big, low in the head, wide-set, round. Menace: slit or angled, close-set, heavy brow. One huge eye or many small ones = alien. At 16 px an eye is 2×2 or 1×2 px. A fang or tusk is one white pixel against a dark mouth.
+10. **One signature hue per creature.** Keep it out of the rest of the cast's dominant colours. Villains lean dark, cool or heavy (purple, deep red, cold grey) against a warm hero; red reads as energy and menace. Pull the creature's colours from 3–4 hue families of its environment so it sits in the scene; one complementary accent (eyes, horns). A ramp is 5–8 swatches (`20-color-for-pixel-art`).
+11. **Slime and goo.** A squash and stretch toy: neutral, squash (about 1.3× wide, 0.8× high), stretch (0.7× wide, 1.45× high), with the pixel area roughly constant (derived: 138–144 px). Silber's example goes to 2× wide and ½ high for a cartoon extreme. Four tones (Saint11): hard small specular, base, reflection, shadow; at 20 px drop the reflection and keep specular, base, shadow. Avoid sharp corners; the body is a dome with a flat base and a 1 px wet edge. A drip starts wide and asymmetric and gets taller and thinner every frame; thick goo hangs longer, bubbles are heavy and slow, thick slime forms bridges and holes (Saint11 *Goo*). Breathing is sub-pixel (`46-subpixel-animation`).
+12. **Dragons: three families.** Western: heavy four-legged, bat wings, long spade tail, red with gold. Eastern: serpentine body, four short legs, no wings, green. Wyvern: two hind legs, the wings are the forelimbs with claws, a tail stinger, blue or purple. Each gets a 4–6 swatch palette (Slynyrd). A wing is an arm: draw the bone structure first, then the membrane (`52-birds-and-flight`).
+13. **Undead.** Skulls: eye sockets and nose carry the read (2×2 sockets, 1–2 px nose); ribs are alternating bone and gap rows; joints are delayed in motion. Bone piles are noisy, irregular shapes with the brighter, more detailed skulls on the border. Ghosts without alpha: one cold monochrome ramp, detail only in eyes, mouth and outline, a wavy hem, a sine bob on y (Saint11 *Holograms*).
+14. **Tail as counterweight.** A big tail or arm swings opposite the torso so the creature balances (Blair, crocodile); a heavy creature gets a slow wind-up (`44-attacks-and-impacts`).
+15. **Ground it.** A small dithered elliptical shadow under the creature seats it on the ground; flyers get the shadow offset below them (derived).
+16. **Bestiary sets must differ in silhouette.** Give each creature in a set a different dominant shape (circle, wedge, bar, triangle) and mass distribution (low and wide vs chest-heavy vs top-heavy) (Hultgren). Contrast fat vs thin and tall vs short so each reads against the others.
 
 ## By size
 
@@ -555,18 +509,12 @@ OYYYYYYBBBBBO.............ODDMMMMMMMMMMMDDMMMMMMOOO
 
 ## Procedure
 
-1. Write the five-question line (rule 1), the dominant shape (rule 2), the size from the role (rule 8) and
-   the palette plan: signature hue, 2–3 supporting hues from the environment, one accent.
-2. `addLayer` ops in one `applyBatch` for the build stages: `sketch`, `tail`, `wing-far`, `leg-far`, `torso`, `head`,
-   `arm-near`, `wing-near` (`craft/00-core/06-layers-and-rigging.md`).
-3. Pass 1: `applyBatch` the whole creature in one flat colour; `render` and `readPixels` `format:"grid"` at 1×. Reject until the
-   silhouette names the creature and its pose; change the shape, never the shading.
-4. Pass 2: recolour each part to its own flat colour with `replaceColor`; check that no part merges with a neighbour.
-   Fix tangents (touching limbs and horns) by 1 px.
-5. Pass 3: merge to the final palette (`palette` op `ramp` for the body), light from the upper left, shade by
-   plane, add eyes, fangs, bones, spikes after the outline pass. Place the dithered ground shadow on its own layer.
-6. Animate: idle = 2–4 frames of breathing or squash and stretch; attack = slow anticipation, fast strike
-   (`craft/40-animation/44-attacks-and-impacts.md`). `render` `filmstrip`, `setFrameDuration` with uneven holds, `addTag`.
+1. Write the five-question line (rule 1), the dominant shape (rule 2), the size from the role (rule 8) and the palette plan: signature hue, 2–3 supporting hues from the environment, one accent.
+2. `addLayer` ops in one `applyBatch` for the build stages: `sketch`, `tail`, `wing-far`, `leg-far`, `torso`, `head`, `arm-near`, `wing-near` (`06-layers-and-rigging`).
+3. Pass 1: `applyBatch` the whole creature in one flat colour; `render` and `readPixels` `format:"grid"` at 1×. Reject until the silhouette names the creature and its pose; change the shape, never the shading.
+4. Pass 2: recolour each part to its own flat colour with `replaceColor`; check that no part merges with a neighbour. Fix tangents (touching limbs and horns) by 1 px.
+5. Pass 3: merge to the final palette (`palette` op `ramp` for the body), light from the upper left, shade by plane, add eyes, fangs, bones, spikes after the outline pass. Place the dithered ground shadow on its own layer.
+6. Animate: idle = 2–4 frames of breathing or squash and stretch; attack = slow anticipation, fast strike (`44-attacks-and-impacts`). `render` `filmstrip`, `setFrameDuration` with uneven holds, `addTag`.
 7. `validate`; then lay the creature next to the rest of the bestiary at 1× and check rule 16.
 
 ## Mistakes

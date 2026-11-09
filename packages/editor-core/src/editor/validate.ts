@@ -23,9 +23,22 @@ export type ValidateCheck = (typeof VALIDATE_CHECKS)[number];
 
 export type ValidateSeverity = "error" | "warning" | "note";
 
+export enum AnimationIntent {
+  Unspecified = "unspecified",
+  Character = "character",
+  Ambient = "ambient",
+  Mechanical = "mechanical",
+}
+
+export enum ValidationCategory {
+  Technical = "technical",
+  VisualReview = "visual_review",
+}
+
 export interface ValidateFinding {
   check: string;
   severity: ValidateSeverity;
+  category: ValidationCategory;
   message: string;
   layerId?: string;
   frameIndex?: number;
@@ -36,6 +49,7 @@ export interface ValidateFinding {
 export interface ValidateOptions {
   checks?: readonly string[];
   strict?: boolean;
+  animationIntent?: AnimationIntent;
   expect?: {
     /** Per layerId, zero-based [from,to] frame ranges (inclusive) that must hold ink. */
     layerFrames?: Record<string, readonly (readonly [number, number])[]>;
@@ -46,13 +60,14 @@ export interface ValidateOptions {
 
 export interface ValidateResult {
   passed: boolean;
-  score: number;
+  checksRun: readonly ValidateCheck[];
+  counts: { errors: number; warnings: number; notes: number };
+  visualReviewRequired: true;
   findings: ValidateFinding[];
   summary: string;
 }
 
 const CHANNELS = 4;
-const STRAYS_ERROR_THRESHOLD = 3;
 const OUTLINE_OWNER_SHARE = 0.6;
 const NEAR_DUPLICATE_DELTA_E = 3;
 const NEAR_DUPLICATE_COLOR_LIMIT = 512;
@@ -60,8 +75,6 @@ const NEAR_DUPLICATE_REPORT_LIMIT = 8;
 const LARGE_PALETTE_NOTE = 64;
 const UNIFORM_DURATION_MIN_FRAMES = 4;
 const BANDING_MIN_RUN = 8;
-const ERROR_SCORE_COST = 15;
-const WARNING_SCORE_COST = 5;
 
 const DIRECTIONS = [
   [1, 0],
@@ -152,13 +165,27 @@ export function validateDocument(
   const t = doc.timeline;
   if (!t) throw new BatchEditError(BatchEditErrorCode.Unsupported, "Document has no timeline");
   const wanted = wantedChecks(options);
+  const animationIntent = options.animationIntent ?? AnimationIntent.Unspecified;
+  if (!Object.values(AnimationIntent).includes(animationIntent))
+    throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Invalid animationIntent");
   const findings: ValidateFinding[] = [];
   const add = (
     check: string,
     severity: ValidateSeverity,
     message: string,
-    extra: Omit<ValidateFinding, "check" | "severity" | "message"> = {},
-  ) => findings.push({ check, severity, message, ...extra });
+    extra: Omit<ValidateFinding, "check" | "severity" | "message" | "category"> & {
+      category?: ValidationCategory;
+    } = {},
+  ) =>
+    findings.push({
+      check,
+      severity,
+      message,
+      category: ["strays", "outline", "banding"].includes(check)
+        ? ValidationCategory.VisualReview
+        : ValidationCategory.Technical,
+      ...extra,
+    });
 
   const imageLayers = t.layers
     .map((layer, index) => ({ layer, index }))
@@ -208,8 +235,8 @@ export function validateDocument(
         add(
           "palette",
           "note",
-          `${palette.length} palette entries. Most sprites read better under 32 — a large palette usually means ramps that were never merged.`,
-          { count: palette.length },
+          `${palette.length} palette entries. Review color ramps if a limited palette is part of the brief.`,
+          { count: palette.length, category: ValidationCategory.VisualReview },
         );
     }
     if (counts.size > 1 && counts.size <= NEAR_DUPLICATE_COLOR_LIMIT) {
@@ -229,6 +256,7 @@ export function validateDocument(
           "palette",
           "note",
           `Near-duplicate colours ${toHex(pair.a)} and ${toHex(pair.b)} (deltaE ${pair.distance.toFixed(1)}). Merge them unless the subtle ramp is deliberate.`,
+          { category: ValidationCategory.VisualReview },
         );
       }
     }
@@ -276,8 +304,8 @@ export function validateDocument(
         if (strays > 0)
           add(
             "strays",
-            strays > STRAYS_ERROR_THRESHOLD ? "error" : "warning",
-            `${strays} isolated pixel(s) with no neighbour on '${layer.name}' frame ${f}. These read as noise at 1x.`,
+            "warning",
+            `${strays} isolated pixel(s) with no orthogonal neighbour on '${layer.name}' frame ${f}. Review at 1x; particles, rain and highlights may intentionally use isolated pixels.`,
             { layerId: layer.id, frameIndex: f, at: first, count: strays },
           );
       }
@@ -296,7 +324,7 @@ export function validateDocument(
           add(
             "antialiasing",
             "warning",
-            `${semi} semi-transparent pixel(s) on '${layer.name}' frame ${f}. Partial alpha usually comes from a soft brush or a resize and reads as blur.`,
+            `${semi} semi-transparent pixel(s) on '${layer.name}' frame ${f}. Check whether partial alpha is intended; review against light and dark backgrounds.`,
             { layerId: layer.id, frameIndex: f, at: first, count: semi },
           );
       }
@@ -335,7 +363,7 @@ export function validateDocument(
             add(
               "outline",
               "warning",
-              `Outline is ${Math.round(share * 100)}% '${best}' but ${edge.length - bestCount} edge pixel(s) use a different colour on '${layer.name}' frame ${f}. A broken outline reads as a hole in the silhouette.`,
+              `Outline is ${Math.round(share * 100)}% '${best}' but ${edge.length - bestCount} edge pixel(s) use a different colour on '${layer.name}' frame ${f}. Review the silhouette; selective colored edges may be intentional.`,
               { layerId: layer.id, frameIndex: f, at: first, count: edge.length - bestCount },
             );
           } else if (share < OUTLINE_OWNER_SHARE)
@@ -381,7 +409,7 @@ export function validateDocument(
           add(
             "banding",
             "note",
-            `A ${worst}-pixel straight boundary between ${worstPair[0]} and ${worstPair[1]} on '${layer.name}' frame ${f}. Let the edge wander, or dither part of it, so it reads as a surface rather than a contour line.`,
+            `A ${worst}-pixel straight boundary between ${worstPair[0]} and ${worstPair[1]} on '${layer.name}' frame ${f}. Review the form; straight edges are often intentional in buildings and UI.`,
             { layerId: layer.id, frameIndex: f, at: worstAt, count: worst },
           );
       }
@@ -397,11 +425,16 @@ export function validateDocument(
         { count: t.frames.length },
       );
     const durations = new Set(t.frames.map((frame) => frame.duration));
-    if (durations.size === 1 && t.frames.length >= UNIFORM_DURATION_MIN_FRAMES)
+    if (
+      animationIntent === AnimationIntent.Character &&
+      durations.size === 1 &&
+      t.frames.length >= UNIFORM_DURATION_MIN_FRAMES
+    )
       add(
         "animation",
         "note",
-        "Every frame has the same duration. Uniform timing reads mechanical; hold contact poses longer than pass poses.",
+        "This character cycle uses uniform timing. Review its anticipation, holds and recovery in playback; equal durations may still be intentional.",
+        { category: ValidationCategory.VisualReview },
       );
   }
 
@@ -499,9 +532,14 @@ export function validateDocument(
   const warnings = findings.filter((finding) => finding.severity === "warning").length;
   const strict = options.strict === true;
   const passed = errors === 0 && (!strict || warnings === 0);
-  const score = Math.max(0, 100 - errors * ERROR_SCORE_COST - warnings * WARNING_SCORE_COST);
-  const summary = passed
-    ? `Clean${warnings > 0 ? ` (${warnings} style note(s))` : ""}.`
-    : `${errors} error(s), ${warnings} warning(s). Fix the errors before calling this done.`;
-  return { passed, score, findings, summary };
+  const notes = findings.filter((finding) => finding.severity === "note").length;
+  const summary = `Checks ${passed ? "passed" : "failed"}: ${errors} error(s), ${warnings} warning(s), ${notes} note(s). Visual review is still required.`;
+  return {
+    passed,
+    checksRun: [...wanted],
+    counts: { errors, warnings, notes },
+    visualReviewRequired: true,
+    findings,
+    summary,
+  };
 }

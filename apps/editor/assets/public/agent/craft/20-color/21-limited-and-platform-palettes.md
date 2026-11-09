@@ -1,25 +1,18 @@
 # Limited and platform palettes
 
-A palette limit is a design tool, not a handicap: it forces harmony and fast decisions. But "retro" without the real limits is
-just a costume — a NES sprite with eight colours, a Game Boy sprite with a fifth shade. This file gives the numbers per platform,
-the budget per sprite size, how to cut a palette without losing the read, and ready-to-load hex lists.
-Era *style* (outlines, dither habits, tile conventions) is in `craft/90-style/90-platform-styles.md`; ramp theory in `craft/20-color/20-color-for-pixel-art.md`.
+A palette limit is a design tool, not a handicap: it forces harmony and fast decisions. But "retro" without the real limits is just a costume — a NES sprite with eight colours, a Game Boy sprite with a fifth shade. This file gives the numbers per platform, the budget per sprite size, how to cut a palette without losing the read, and ready-to-load hex lists. Era *style* (outlines, dither habits, tile conventions) is in `90-platform-styles`; ramp theory in `20-color-for-pixel-art`.
 
 ## Rules
 
 1. **Choose palette and budget before the first pixel, and say them back.** Counts include transparency: a "16-colour" sprite is 15 + transparent.
 2. **"8-bit" and "16-bit" name the CPU, not the palette.** NES, C64, Master System and ZX Spectrum have four different palettes. Use the table below; GIF is 256 (8 bpp).
-3. **The per-tile / per-sprite limit binds harder than the total.** NES: 3 colours + transparent per sprite, and per 16×16 background cell. Game Boy and GBC sprites: 3 + transparent.
-   SNES, Genesis, GBA: 15 + transparent per tile or sprite. Honour it inside every 8×8 block even when the Aseprite palette is larger.
-4. **Default sizes when the user has no preference.** "Retro/8-bit" → PICO-8 (16, forgiving). "Game Boy" → 4 shades. "NES-like" → 3 colours + transparent per sprite, ≈ 25 on screen.
-   "SNES/GBA/Genesis-like" → 15 per sprite from short hue-shifted ramps. Named game → `palette` `extract`.
-5. **Reduction ladder (a 24-colour sprite, measured).** 24 → 20: swap greys for skin tones, drop the barely visible darkest teal. → 15: fuse skin with brown hair, share one highlight between green and teal, drop orange AA.
-   → 10: reuse a skin tone for the shirt highlight, recolour the greens onto the teal ramp, fuse the darkest shades. Below ≈ 10 *that* sprite collapsed; 16 is the usual ceiling. No universal number — cut in this order, `render` after each cut.
+3. **The per-tile / per-sprite limit binds harder than the total.** NES: 3 colours + transparent per sprite, and per 16×16 background cell. Game Boy and GBC sprites: 3 + transparent. SNES, Genesis, GBA: 15 + transparent per tile or sprite. Honour it inside every 8×8 block even when the Aseprite palette is larger.
+4. **Default sizes when the user has no preference.** "Retro/8-bit" → PICO-8 (16, forgiving). "Game Boy" → 4 shades. "NES-like" → 3 colours + transparent per sprite, ≈ 25 on screen. "SNES/GBA/Genesis-like" → 15 per sprite from short hue-shifted ramps. Named game → `palette` `extract`.
+5. **Reduction ladder (a 24-colour sprite, measured).** 24 → 20: swap greys for skin tones, drop the barely visible darkest teal. → 15: fuse skin with brown hair, share one highlight between green and teal, drop orange AA. → 10: reuse a skin tone for the shirt highlight, recolour the greens onto the teal ramp, fuse the darkest shades. Below ≈ 10 *that* sprite collapsed; 16 is the usual ceiling. No universal number — cut in this order, `render` after each cut.
 6. **Reuse swatches across unrelated objects, never across touching ones.** Hair red = bed red = night-stand red is good; hair against a wall of the same red merges. Give touching objects different colours.
-7. **4 shades (Game Boy / 4-colour):** value only. Keep darkest and lightest far apart and let the two mids do the shading. No mid-to-mid border thinner than 1 px (it vanishes on LCD ghosting, derived). Use maximum anti-aliasing: these sprites sit on pale backgrounds.
-   On GBC/GBA-style LCDs keep the darkest tone clearly above black (low intensities crush). If it does not work in 4 colours, more colours will not save it.
+7. **4 shades (Game Boy / 4-colour):** value only. Keep darkest and lightest far apart and let the two mids do the shading. No mid-to-mid border thinner than 1 px (it vanishes on LCD ghosting, derived). Use maximum anti-aliasing: these sprites sit on pale backgrounds. On GBC/GBA-style LCDs keep the darkest tone clearly above black (low intensities crush). If it does not work in 4 colours, more colours will not save it.
 8. **1-bit:** lines, a few solid blocks and dither; build the icon on the single most recognisable feature; outline may be black, white, or both (double line); compensate with fluid animation.
-9. **Dither multiplies a palette, with discipline.** A checker between two colours adds one tone: 4 colours + dither of the 4 = ≈ 10 tones (≈ 22 with a second pattern). Never a 2×1 "wide" dither pixel; keep dithered colours adjacent in the ramp; keep pair contrast low. Details in `craft/10-technique/13-dithering-and-texture.md`.
+9. **Dither multiplies a palette, with discipline.** A checker between two colours adds one tone: 4 colours + dither of the 4 = ≈ 10 tones (≈ 22 with a second pattern). Never a 2×1 "wide" dither pixel; keep dithered colours adjacent in the ramp; keep pair contrast low. Details in `13-dithering-and-texture`.
 10. **Heavy dither means the palette lacks the right colours** (C64 art is often dithery for that reason): first try a different swatch, then dither.
 11. **PICO-8:** 2–3 palette entries per material at 8×8, 4–5 at 16×16, rarely > 7 at 32×32. `#ff004d`, `#ffa300`, `#00e436` are 100 % saturated — accents, not areas. Photo-converter confetti (stray green/blue/yellow dots) is a generated-art tell.
 12. **Walk, don't hunt.** Palettes built from hue-shifted adjacent ramps (Resurrect 64, AAP-64, Apollo, Endesga 64) are used by clicking a ramp and walking it. Tiny ones (PICO-8, Sweetie 16, DB16) are assembled across families and accept 30–60° hue jumps per step.
@@ -48,8 +41,7 @@ Era *style* (outlines, dither habits, tile conventions) is in `craft/90-style/90
 | PICO-8 | 16 fixed (+16 hidden via remap) | 128×128, transparent is a flag | native dither fill patterns |
 | GIF | 256 | — | counts transparency |
 
-Fighting-game sprites: ≤ 16 per sprite (15 + transparent) even on late arcade hardware; selective outline adds ≈ 4 (→ 19), so cap early.
-The NES master palette is not bundled: rebuild it with `palette` `set` from the published hex list, do not eyeball hex.
+Fighting-game sprites: ≤ 16 per sprite (15 + transparent) even on late arcade hardware; selective outline adds ≈ 4 (→ 19), so cap early. The NES master palette is not bundled: rebuild it with `palette` `set` from the published hex list, do not eyeball hex.
 
 ## By size
 
@@ -78,10 +70,7 @@ Endesga 32         be4a2f d77643 ead4aa e4a672 b86f50 733e39 3e2731 a22633 e43b4
 Game Boy (BGB)     081820 346856 88c070 e0f8d0
 ```
 
-No preset loader — set named palettes with `palette` `set` from their hex lists; classics include `pico8`, `gameboy`, `gameboy-pocket`, `cga`, `1bit`, `grayscale-8`, plus Lospec's most-downloaded, among them `resurrect-64`, `aap-64`, `endesga-32`, `endesga-64`, `apollo`, `sweetie-16`, `dawnbringer-16`, `dawnbringer-32`, `arq4`, `aap-micro12`, `nintendo-entertainment-system`. Palettes from other sources come in through `set` (hex list) or `extract` (a `.png`).
-Ramp chains that already work: PICO-8 hot `1D2B53 → 7E2553 → FF004D → FFA300 → FFEC27 → FFF1E8`, skin `AB5236 → FFCCAA` (+ `FF77A8` blush), cool `1D2B53 → 29ADFF → C2C3C7 → FFF1E8`;
-Endesga 32 skin `733e39 → b86f50 → c28569 → e4a672 → e8b796 → ead4aa`, blue-grey `181425 → 262b44 → 3a4466 → 5a6988 → 8b9bb4 → c0cbdc`, green `193c3e → 265c42 → 3e8948 → 63c74d`.
-Starters by task: 4 colours ARQ4 (first exercise), 12 AAP-Micro12 (small sprite), 32 DB32 (100×64 scene), 64 AAP-64 (48–64 px studies). PICO-8 has pure black but no pure white, 3 near-greys; DB16 has no pure black or white.
+No preset loader — set named palettes with `palette` `set` from their hex lists; classics include `pico8`, `gameboy`, `gameboy-pocket`, `cga`, `1bit`, `grayscale-8`, plus Lospec's most-downloaded, among them `resurrect-64`, `aap-64`, `endesga-32`, `endesga-64`, `apollo`, `sweetie-16`, `dawnbringer-16`, `dawnbringer-32`, `arq4`, `aap-micro12`, `nintendo-entertainment-system`. Palettes from other sources come in through `set` (hex list) or `extract` (a `.png`). Ramp chains that already work: PICO-8 hot `1D2B53 → 7E2553 → FF004D → FFA300 → FFEC27 → FFF1E8`, skin `AB5236 → FFCCAA` (+ `FF77A8` blush), cool `1D2B53 → 29ADFF → C2C3C7 → FFF1E8`; Endesga 32 skin `733e39 → b86f50 → c28569 → e4a672 → e8b796 → ead4aa`, blue-grey `181425 → 262b44 → 3a4466 → 5a6988 → 8b9bb4 → c0cbdc`, green `193c3e → 265c42 → 3e8948 → 63c74d`. Starters by task: 4 colours ARQ4 (first exercise), 12 AAP-Micro12 (small sprite), 32 DB32 (100×64 scene), 64 AAP-64 (48–64 px studies). PICO-8 has pure black but no pure white, 3 near-greys; DB16 has no pure black or white.
 
 ## Templates
 
@@ -190,12 +179,12 @@ Seven tones from four shades: solid / checker / solid …, each checker 2×2 min
 
 ## Procedure
 
-1. Name the platform, per-sprite colour count, tile size, and whether dither and selective outline are allowed (`craft/90-style/90-platform-styles.md`).
+1. Name the platform, per-sprite colour count, tile size, and whether dither and selective outline are allowed (`90-platform-styles`).
 2. Load the palette: `palette` `set` with a hex list from this file, or `extract` for a `.png`. Order ramps adjacent; slot 0 transparent; unused slots magenta while working.
 3. Build ramps by walking the palette (rule 12); write the colours per material on one line before painting.
 4. Paint with `applyBatch`; keep to the loaded palette. Count distinct colours per 8×8 block by eye with `readPixels` `format:"grid"` and compare with rule 3.
 5. Over budget → apply the reduction ladder (rule 5), one cut at a time, `render` after each.
-6. `palette` op `analyze` (near-duplicates, off-palette), `validate`. Export only at integer scales (`craft/10-technique/14-readability-and-scale.md`).
+6. `palette` op `analyze` (near-duplicates, off-palette), `validate`. Export only at integer scales (`14-readability-and-scale`).
 
 ## Mistakes
 

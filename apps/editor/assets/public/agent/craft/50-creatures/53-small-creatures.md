@@ -1,63 +1,21 @@
 # Small creatures
 
-Fish, bugs, frogs and snakes get drawn as miniature mammals: a fish with a head and
-shoulders, an insect with four legs and a face, a snake as a stiff tube. Each group
-has a short list of parts that must be present and a movement that is unlike a
-mammal's. This file gives part counts, proportions and templates for fish, insects and
-spiders, frogs and snakes, and the cheapest animation that sells each. Blob monsters
-(slimes) and big creatures are `craft/50-creatures/54-monster-design.md`; wings are
-`craft/50-creatures/52-birds-and-flight.md`; quadrupeds are `craft/50-creatures/50-quadrupeds.md`.
+Fish, bugs, frogs and snakes get drawn as miniature mammals: a fish with a head and shoulders, an insect with four legs and a face, a snake as a stiff tube. Each group has a short list of parts that must be present and a movement that is unlike a mammal's. This file gives part counts, proportions and templates for fish, insects and spiders, frogs and snakes, and the cheapest animation that sells each. Blob monsters (slimes) and big creatures are `54-monster-design`; wings are `52-birds-and-flight`; quadrupeds are `50-quadrupeds`.
 
 ## Rules
 
-1. **Count the parts before you draw.** Fish: body, tail, dorsal fin, belly fin, pectoral
-   fin, gill arc, eye. Insect: 3 body segments (head, thorax, abdomen), 6 legs (3 pairs on
-   the thorax), 2 antennae, 0 or 2–4 wings on the thorax. Spider: 2 body segments, 8 legs,
-   no antennae. Frog: head with raised eyes, body, 2 big folded hind legs, 2 short arms,
-   no tail. Snake: a tube with a wedge head, no limbs. A sprite missing one of its parts
-   reads as a different animal.
-2. **One idea per sprite at 8 px, one accent pixel.** 8 px: silhouette plus an eye or a
-   colour dot. 12–16 px is the minion size (about half the hero's height); keep to 2–3
-   colours, a main body colour plus a contrasting accent (a green fish with yellow lips and
-   fins), and let colour, not outlines, separate fins from the body (Pixel Logic).
-3. **Fish: tail fan = a quarter to a third of body length (derived).** Dorsal fin on the top
-   third, belly fin below the mid-line, eye in the front third, large and high, gill arc one
-   body-height behind the eye. Countershade: dark back, light belly. Stripes and bands follow
-   the body curve; straight vertical stripes look like a sticker.
-4. **Swim by waving, not by sliding.** A fish moves as an S wave from head to tail with the
-   tail lagging; the tail's trailing edge wavers 1–2 px, half object colour and half background
-   (Ferrari, fish tails and corals). Four frames: tail up 1 px, tail centre, tail down 1 px,
-   tail centre; body tilts 1 px opposite to the tail; fins flutter on a different period
-   (`craft/40-animation/45-secondary-motion.md`).
-5. **Water changes colour.** Deeper means bluer and less saturated: red goes first, then
-   orange and yellow (Gurney: red is gone within about 10 ft / 3 m, orange and yellow by about
-   25 ft / 7.6 m). A deep-water fish keeps its warm accent small or darkens it.
-6. **Insects: tripod legs.** Three legs per side, each 2 segments with the knee outward and up;
-   when walking, three legs (front and hind on one side, middle on the other) move together
-   and the other three plant (derived from standard insect gait). Antennae are 2–3 px dark
-   lines, never outlined.
-7. **Wings are pale, not transparent.** No alpha: draw wings as a pale blue-white tone with 1–2
-   vein pixels, drawn behind the thorax. Fast wings (bee, fly) use 2 frames or a second wing copy as
-   blur, not a full flap (`craft/50-creatures/52-birds-and-flight.md`, Saint11 *Wings*).
-8. **Beetle vs bee vs spider silhouettes.** Beetle: one oval shell split down the middle, head a
-   darker cap, 6 legs poking out. Bee or wasp: the three segments visible, striped abdomen, wings up. Spider:
-   small round body, 8 thin legs with raised knees; people instinctively fear the thin, long, angular
-   shapes, so use them for threats (Saint11).
-9. **Frog: coil, stretch, land.** Sit: big thigh mass, arms short, eye bumps on top of the head, mouth a
-   single 1 px line across the face. Hop = a bouncing ball: squash on the ground (coiled), full stretch with the
-   hind legs extended in the air, landing squash with the front hands first (Blair). Rabbit-style hops
-   drop all detail in the fast frames: stretched oval, compact ball at the apex, stretched landing
-   (Thomas & Johnston).
-10. **Snake: head leads, body follows the path.** Every body segment follows the track of the head, with a
-    constant wave amplitude; the wave travels from head to tail. Each frame shifts the wave by about a quarter of
-    its length (derived). Head wedge wider than the neck; a 1–2 px forked tongue on the flick frames; belly
-    scutes lighter than the back.
-11. **Turtle, crab and shells.** Shell is a dome with the head and legs as small separate pieces that can
-    withdraw (Blair); the head retracts by hiding behind the shell outline, not by shrinking. Crab: wide
-    flat body, 2 claws, 6 small legs, eyes on stalks.
-12. **Small things move in jerks.** A mouse or beetle runs in starts and stops, not a smooth cycle; use a 2-frame
-    idle, a 4-frame walk and hold lengths (80 / 80 / 120 / 80 ms) instead of more drawings (Thomas & Johnston,
-    Bambi's mouse; Sprite Fusion notes). Squash and stretch ≤ 1 px at 16 px (`craft/00-core/05-animation.md`).
+1. **Count the parts before you draw.** Fish: body, tail, dorsal fin, belly fin, pectoral fin, gill arc, eye. Insect: 3 body segments (head, thorax, abdomen), 6 legs (3 pairs on the thorax), 2 antennae, 0 or 2–4 wings on the thorax. Spider: 2 body segments, 8 legs, no antennae. Frog: head with raised eyes, body, 2 big folded hind legs, 2 short arms, no tail. Snake: a tube with a wedge head, no limbs. A sprite missing one of its parts reads as a different animal.
+2. **One idea per sprite at 8 px, one accent pixel.** 8 px: silhouette plus an eye or a colour dot. 12–16 px is the minion size (about half the hero's height); keep to 2–3 colours, a main body colour plus a contrasting accent (a green fish with yellow lips and fins), and let colour, not outlines, separate fins from the body (Pixel Logic).
+3. **Fish: tail fan = a quarter to a third of body length (derived).** Dorsal fin on the top third, belly fin below the mid-line, eye in the front third, large and high, gill arc one body-height behind the eye. Countershade: dark back, light belly. Stripes and bands follow the body curve; straight vertical stripes look like a sticker.
+4. **Swim by waving, not by sliding.** A fish moves as an S wave from head to tail with the tail lagging; the tail's trailing edge wavers 1–2 px, half object colour and half background (Ferrari, fish tails and corals). Four frames: tail up 1 px, tail centre, tail down 1 px, tail centre; body tilts 1 px opposite to the tail; fins flutter on a different period (`45-secondary-motion`).
+5. **Water changes colour.** Deeper means bluer and less saturated: red goes first, then orange and yellow (Gurney: red is gone within about 10 ft / 3 m, orange and yellow by about 25 ft / 7.6 m). A deep-water fish keeps its warm accent small or darkens it.
+6. **Insects: tripod legs.** Three legs per side, each 2 segments with the knee outward and up; when walking, three legs (front and hind on one side, middle on the other) move together and the other three plant (derived from standard insect gait). Antennae are 2–3 px dark lines, never outlined.
+7. **Wings are pale, not transparent.** No alpha: draw wings as a pale blue-white tone with 1–2 vein pixels, drawn behind the thorax. Fast wings (bee, fly) use 2 frames or a second wing copy as blur, not a full flap (`52-birds-and-flight`, Saint11 *Wings*).
+8. **Beetle vs bee vs spider silhouettes.** Beetle: one oval shell split down the middle, head a darker cap, 6 legs poking out. Bee or wasp: the three segments visible, striped abdomen, wings up. Spider: small round body, 8 thin legs with raised knees; people instinctively fear the thin, long, angular shapes, so use them for threats (Saint11).
+9. **Frog: coil, stretch, land.** Sit: big thigh mass, arms short, eye bumps on top of the head, mouth a single 1 px line across the face. Hop = a bouncing ball: squash on the ground (coiled), full stretch with the hind legs extended in the air, landing squash with the front hands first (Blair). Rabbit-style hops drop all detail in the fast frames: stretched oval, compact ball at the apex, stretched landing (Thomas & Johnston).
+10. **Snake: head leads, body follows the path.** Every body segment follows the track of the head, with a constant wave amplitude; the wave travels from head to tail. Each frame shifts the wave by about a quarter of its length (derived). Head wedge wider than the neck; a 1–2 px forked tongue on the flick frames; belly scutes lighter than the back.
+11. **Turtle, crab and shells.** Shell is a dome with the head and legs as small separate pieces that can withdraw (Blair); the head retracts by hiding behind the shell outline, not by shrinking. Crab: wide flat body, 2 claws, 6 small legs, eyes on stalks.
+12. **Small things move in jerks.** A mouse or beetle runs in starts and stops, not a smooth cycle; use a 2-frame idle, a 4-frame walk and hold lengths (80 / 80 / 120 / 80 ms) instead of more drawings (Thomas & Johnston, Bambi's mouse; Sprite Fusion notes). Squash and stretch ≤ 1 px at 16 px (`05-animation`).
 
 ## By size
 
@@ -316,16 +274,11 @@ OBBBNEBBBSOOOSSBDBLO...........OLSOO.
 
 ## Procedure
 
-1. Write the part list (rule 1) and the colour plan: main body ramp (3 tones), one accent, one belly tone.
-   `palette` op `ramp` for the body.
-2. Block in the main mass with `ellipse` or `stroke` ops on one layer; add the secondary mass (fin, shell, thigh).
-   Check the silhouette: `render` at 1× and in one flat colour.
-3. Add parts in order of size: tail or legs, fins or wings, eye, the one accent. Place legs, antennae and 1 px
-   details **after** the outline pass so they stay single-pixel.
+1. Write the part list (rule 1) and the colour plan: main body ramp (3 tones), one accent, one belly tone. `palette` op `ramp` for the body.
+2. Block in the main mass with `ellipse` or `stroke` ops on one layer; add the secondary mass (fin, shell, thigh). Check the silhouette: `render` at 1× and in one flat colour.
+3. Add parts in order of size: tail or legs, fins or wings, eye, the one accent. Place legs, antennae and 1 px details **after** the outline pass so they stay single-pixel.
 4. Shade from the upper left (top lighter, belly or underside darker); keep stripes on the form.
-5. For animation: split fins, tail, wings or legs onto layers (`craft/00-core/06-layers-and-rigging.md`), draw the two extremes
-   (tail up / down, squash / stretch, wave phase 0 / ½), then the in-betweens. `render` `filmstrip`,
-   `setFrameDuration` with uneven holds, `addTag` the loop.
+5. For animation: split fins, tail, wings or legs onto layers (`06-layers-and-rigging`), draw the two extremes (tail up / down, squash / stretch, wave phase 0 / ½), then the in-betweens. `render` `filmstrip`, `setFrameDuration` with uneven holds, `addTag` the loop.
 6. `validate`: orphan pixels are allowed only for an eye, a vein or a leg tip that is a single deliberate pixel.
 
 ## Mistakes

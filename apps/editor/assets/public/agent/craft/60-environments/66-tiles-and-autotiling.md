@@ -1,6 +1,6 @@
 # Tiles and autotiling
 
-A tile is drawn once and shown a thousand times, so every flaw is multiplied: a lone rock becomes wallpaper, a seam becomes a grid, an edge set without inner corners breaks on the first L-shaped patch. And an autotile set authored in the wrong order exports a wangset that picks the wrong tile everywhere. This file is the method for seamless tiles, terrain transitions and the standard autotile layouts, and how the tilemap ops drive it. Ground textures: `craft/60-environments/65-ground-rocks-grass.md`; brick, doors, windows: `craft/60-environments/67-architecture-and-interiors.md`.
+A tile is drawn once and shown a thousand times, so every flaw is multiplied: a lone rock becomes wallpaper, a seam becomes a grid, an edge set without inner corners breaks on the first L-shaped patch. And an autotile set authored in the wrong order exports a wangset that picks the wrong tile everywhere. This file is the method for seamless tiles, terrain transitions and the standard autotile layouts, and how the tilemap ops drive it. Ground textures: `65-ground-rocks-grass`; brick, doors, windows: `67-architecture-and-interiors`.
 
 ## Rules
 
@@ -255,7 +255,7 @@ Edge contract: draw edges per minitile, not per tile. The right edge of every to
 
 ## Procedure
 
-1. Fix the tile size and palette (`craft/20-color/21-limited-and-platform-palettes.md` for platform sets). Make the canvas a whole number of tiles.
+1. Fix the tile size and palette (`21-limited-and-platform-palettes` for platform sets). Make the canvas a whole number of tiles.
 2. Master tile: draw it, blit the four quadrants swapped to move the seam to the middle (`translate` does not wrap), rework, swap back.
 3. Wrap test: `applyBatch` `blit` the tile into its eight neighbours on a scratch layer, `render`, then `readPixels` `format:"grid"` the first and last columns and rows and check they continue each other.
 4. Transitions: composite A and B through the mask, then the boundary pass (rule 12). One edge, one outer corner, one inner corner cover all four sides once flipped and re-lit.

@@ -1,13 +1,11 @@
 # Soft materials: cloth, skin, hair, fur, leather, scales, slime
 
-Soft materials fail by being drawn like metal: sharp bands, a highlight on everything, texture as noise. They shade gradually, shine little or
-not at all, and are told mostly by their *edge* and by where the darks sit. Hard materials are in `craft/20-color/22-materials-hard.md`; hair and clothing
-*shapes* in `craft/30-characters/35-hair-and-clothing.md`; faces in `craft/30-characters/32-heads-and-faces.md`; ramp numbers in `craft/20-color/20-color-for-pixel-art.md`.
+Soft materials fail by being drawn like metal: sharp bands, a highlight on everything, texture as noise. They shade gradually, shine little or not at all, and are told mostly by their *edge* and by where the darks sit. Hard materials are in `22-materials-hard`; hair and clothing *shapes* in `35-hair-and-clothing`; faces in `32-heads-and-faces`; ramp numbers in `20-color-for-pixel-art`.
 
 ## Rules
 
 1. **Soft = low contrast, gradual steps, little or no specular.** Soft flesh stretches over hard bone: soft forms get gradual steps, bone landmarks (cheekbone, knuckle, kneecap, collarbone) get abrupt light/shadow steps. Without landmarks a figure reads as a blob.
-2. **Texture is not a gradient.** A hand-placed patch or a restrained dither describes a material without any light-to-dark ramp. Put texture in the half-tone band only; keep highlight and core flat (`craft/10-technique/13-dithering-and-texture.md`).
+2. **Texture is not a gradient.** A hand-placed patch or a restrained dither describes a material without any light-to-dark ramp. Put texture in the half-tone band only; keep highlight and core flat (`13-dithering-and-texture`).
 3. **The silhouette says the material first:** zig-zag edge = fur, soft scallop = cloth hem, smooth round = slime or skin, repeated arcs = scales.
 4. **Cloth takes soft shadows and no highlight.** Exception: a 1 px edge catch on satin or leather. Three tones — lit, shadow, fold crease — hue-shifted cool (derived ramp below: H 262 → 250 → 238, V 78 → 58 → 40). Dark regions get less detail.
 5. **Folds.** Parallel where tension is high; radiating from a compression point (elbow, clasp, pinch); perpendicular where tension is low. A fold shadows the cloth beside it. Shade the body underneath first — cloth respects the anatomy. Prints and emblems are displaced by folds. Too many folds = noise: 2–3 at 16 px. Wind moves cloth as a sine wave offset along the wind; light and shadow travel away from the source.
@@ -237,7 +235,7 @@ Slime: hard 2-px specular upper-left, reflected patch lower-right, coloured dark
 
 ## Procedure
 
-1. Choose the material row from the table and set its ramp with `palette` op `set`; decide the light (`craft/20-color/24-lighting-scenarios.md`).
+1. Choose the material row from the table and set its ramp with `palette` op `set`; decide the light (`24-lighting-scenarios`).
 2. Draw the silhouette with the material's edge signature (rule 3); `render`.
 3. Fill the base tone; add *one* shadow step in the shadow side; for skin make that step the terminator (rule 7).
 4. Add the material's structure: folds (cloth), highlight band (hair), tuft notches (fur), stitch row (leather), scale cells (scales), spec + reflected patch (slime). Draw with `applyBatch` ops `stroke`/`pixels`, or transcribe a template with op `grid`.

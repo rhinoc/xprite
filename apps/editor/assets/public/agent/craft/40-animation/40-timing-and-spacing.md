@@ -1,46 +1,24 @@
 # Timing and spacing
 
-A sprite has 4–12 drawings, so *when* each one shows and *how far apart* they sit does more than any single drawing.
-Equal durations and even spacing read as a slideshow of good poses; the same poses with held extremes and eased gaps
-read as weight. This file maps the twelve principles onto pixels and milliseconds and holds the shared tables.
-Cycles live in `craft/40-animation/42-walk-and-run.md`, `craft/40-animation/41-idle-and-breathing.md`, `craft/40-animation/43-jump-fall-land.md`.
+A sprite has 4–12 drawings, so *when* each one shows and *how far apart* they sit does more than any single drawing. Equal durations and even spacing read as a slideshow of good poses; the same poses with held extremes and eased gaps read as weight. This file maps the twelve principles onto pixels and milliseconds and holds the shared tables. Cycles live in `42-walk-and-run`, `41-idle-and-breathing`, `43-jump-fall-land`.
 
 ## Rules
 
-1. **Timing is when, spacing is how far.** Fix the beat first ("impact lands on frame 4 of 8"), then choose per-frame
-   offsets. Offsets MUST sum to the travel distance. Spacing is the rarer skill; test it with a plain dot before drawing.
-2. **Author on a tick ladder.** Williams' film rate gives ones 42 ms, twos 83, threes 125, fours 167; a 60 Hz game
-   gives multiples of 16.7 (33, 50, 67, 83, 100, 117, 133, 167). Pick one base tick per animation and use multiples.
-   Default sprite rate: 100 ms (twos). Use 42–50 ms only for a smear, impact or snap frame.
-3. **Ease with spacing, not with frame count.** Gaps close to the key pose, wide in the middle. 6 frames over 12 px:
-   1,2,3,3,2,1 (in and out); ease-out leaves fast and cushions in (33 / 25 / 17 / 12 / 8 / 4 % of travel, as in the ladder). Linear spacing
-   is for machines. Below 1 px a gap is a hold or a sub-pixel (`craft/40-animation/46-subpixel-animation.md`).
-4. **Weight lives in holds and recovery.** Shape: long start, very short action, medium settle (150 / 40 / 40 / 170 /
-   75 ms in a shipped heavy swing). A heavy hit is heavy because recovery is long, not because windup is.
-5. **A pose meant to be read stays ≥ 83 ms.** Two frames at 60 Hz (33 ms) is invisible (derived); an accent needs ≥ 2
-   film frames (83 ms) and a read-hold ≥ 4 (≈ 170 ms). A smear, snap or "pop" frame (42–50 ms, one drawing) is subliminal on purpose.
-6. **Anticipation budget.** Player-controlled actions: none, or one frame ≤ 50 ms in the opposite direction;
-   any extra is input lag. Enemies, bosses, cutscenes and fighters' attacks: 2–3 frames at 100–125 ms, pulling 2–4 px
-   opposite. Conflict resolved: books preach anticipation, game tutorials forbid it for the player; both are right per actor.
-7. **Frames between keys are personality.** Same two poses: 0–1 in-betweens = violent snap; 2–4 sharp, alert; 5–8
-   casual; 9+ slow, heavy. Change the count, not the art, to change the mood.
-8. **Mass is constant under squash and stretch.** Widen by N, lower by about N. Rigid things do not deform (a coin with
-   good spacing already reads). One squash drawing at contact; a second makes a frog hop.
-9. **Arcs, not lines.** Plot head, hand and weapon tip as dots on a guide layer; each frame's pivot sits on the curve.
-   Three collinear frames only where intended (short, fast, powerful moves).
-10. **Leader first, followers late.** Hair, cape, tail, weapon tip trail 1–2 frames and decay 3 → 2 → 1 → 0 px; a
-    1 px overshoot is "felt" even when unseen (`craft/40-animation/45-secondary-motion.md`).
-11. **Cut the in-between to hit harder.** Skip the frame where fist meets face: show the fist past the target and the
-    target displaced 2–4 px, held 2–3 frames. Fewer drawings over the same distance feel faster than eight.
-12. **Ones for accents, twos for everything else.** Character and scrolling background share one rate, or the
-    mismatch strobes. Never time one object on two clocks unless it is a deliberate smear.
-13. **Minimum frame counts.** 2 frames = flicker, no arc; 3 = A, breakdown, B; 3–4 frame loops may reuse a frame
-    (1-2-3-2). A wheel needs ≥ 3 positions to rotate. Adjacent keys in a fast cycle differ by ≥ 3 px in silhouette,
-    or the eye strobes.
-14. **Vary at least two durations in any loop of 4+ frames** (`validate` flags uniform timing). Offset loop lengths
-    of parts (feet 8, arms 16, hair 12) so a cycle does not look like one.
-15. **Held longer than ~1 s, something must drift** (moving hold: a second drawing pushed 1 px past the first,
-    blink or sway).
+1. **Timing is when, spacing is how far.** Fix the beat first ("impact lands on frame 4 of 8"), then choose per-frame offsets. Offsets MUST sum to the travel distance. Spacing is the rarer skill; test it with a plain dot before drawing.
+2. **Author on a tick ladder.** Williams' film rate gives ones 42 ms, twos 83, threes 125, fours 167; a 60 Hz game gives multiples of 16.7 (33, 50, 67, 83, 100, 117, 133, 167). Pick one base tick per animation and use multiples. Default sprite rate: 100 ms (twos). Use 42–50 ms only for a smear, impact or snap frame.
+3. **Ease with spacing, not with frame count.** Gaps close to the key pose, wide in the middle. 6 frames over 12 px: 1,2,3,3,2,1 (in and out); ease-out leaves fast and cushions in (33 / 25 / 17 / 12 / 8 / 4 % of travel, as in the ladder). Linear spacing is for machines. Below 1 px a gap is a hold or a sub-pixel (`46-subpixel-animation`).
+4. **Weight lives in holds and recovery.** Shape: long start, very short action, medium settle (150 / 40 / 40 / 170 / 75 ms in a shipped heavy swing). A heavy hit is heavy because recovery is long, not because windup is.
+5. **A pose meant to be read stays ≥ 83 ms.** Two frames at 60 Hz (33 ms) is invisible (derived); an accent needs ≥ 2 film frames (83 ms) and a read-hold ≥ 4 (≈ 170 ms). A smear, snap or "pop" frame (42–50 ms, one drawing) is subliminal on purpose.
+6. **Anticipation budget.** Player-controlled actions: none, or one frame ≤ 50 ms in the opposite direction; any extra is input lag. Enemies, bosses, cutscenes and fighters' attacks: 2–3 frames at 100–125 ms, pulling 2–4 px opposite. Conflict resolved: books preach anticipation, game tutorials forbid it for the player; both are right per actor.
+7. **Frames between keys are personality.** Same two poses: 0–1 in-betweens = violent snap; 2–4 sharp, alert; 5–8 casual; 9+ slow, heavy. Change the count, not the art, to change the mood.
+8. **Mass is constant under squash and stretch.** Widen by N, lower by about N. Rigid things do not deform (a coin with good spacing already reads). One squash drawing at contact; a second makes a frog hop.
+9. **Arcs, not lines.** Plot head, hand and weapon tip as dots on a guide layer; each frame's pivot sits on the curve. Three collinear frames only where intended (short, fast, powerful moves).
+10. **Leader first, followers late.** Hair, cape, tail, weapon tip trail 1–2 frames and decay 3 → 2 → 1 → 0 px; a 1 px overshoot is "felt" even when unseen (`45-secondary-motion`).
+11. **Cut the in-between to hit harder.** Skip the frame where fist meets face: show the fist past the target and the target displaced 2–4 px, held 2–3 frames. Fewer drawings over the same distance feel faster than eight.
+12. **Ones for accents, twos for everything else.** Character and scrolling background share one rate, or the mismatch strobes. Never time one object on two clocks unless it is a deliberate smear.
+13. **Minimum frame counts.** 2 frames = flicker, no arc; 3 = A, breakdown, B; 3–4 frame loops may reuse a frame (1-2-3-2). A wheel needs ≥ 3 positions to rotate. Adjacent keys in a fast cycle differ by ≥ 3 px in silhouette, or the eye strobes.
+14. **Vary at least two durations in any loop of 4+ frames** (`validate` flags uniform timing). Offset loop lengths of parts (feet 8, arms 16, hair 12) so a cycle does not look like one.
+15. **Held longer than ~1 s, something must drift** (moving hold: a second drawing pushed 1 px past the first, blink or sway).
 
 ### The twelve principles at sprite scale
 
@@ -48,7 +26,7 @@ Cycles live in `craft/40-animation/42-walk-and-run.md`, `craft/40-animation/41-i
 |-----------|-----------|
 | Squash & stretch | area ±5 %; 8×8 ball ↔ 10×6 / 6×10; ≤ 16 px: 1–2 px; 32: 2–3; 64: 2–4; stretch is also the cheap smoother for fast moves |
 | Anticipation | opposite move 2–4 px; 0–1 frame for player, 2–3 for enemies; 1-frame 42 ms "invisible" snap before fast actions |
-| Staging | one idea per frame; the acting limb in the clear of the body; flat-fill silhouette test per pose (`craft/00-core/03-silhouette-and-form.md`) |
+| Staging | one idea per frame; the acting limb in the clear of the body; flat-fill silhouette test per pose (`03-silhouette-and-form`) |
 | Straight ahead / pose to pose | keys at final quality first, breakdowns, fills; straight ahead only for flame, cloth, particles |
 | Follow-through & overlap | leader first; followers 1–2 frames late; settle in 2–4 frames |
 | Slow in / slow out | gaps 1,2,3,3,2,1; or keep the extremes and cut the middle drawing |
@@ -70,9 +48,7 @@ Cycles live in `craft/40-animation/42-walk-and-run.md`, `craft/40-animation/41-i
 
 At 8–16 px use hold lengths (80 / 80 / 120 / 80) instead of more drawings; 8 walk frames cannot be told apart at 16 px.
 
-Tempo (Williams, frames per step at 24 fps → ms): 4 → 167 very fast run; 6 → 250 run; 8 → 333 cartoon walk / slow run;
-12 → 500 brisk walk; 16 → 667 stroll; 20 → 833 tired; 24 → 1000 slow; 32 → 1333 very slow. At twos halve the drawing
-count. Cadence per sprite frame: `craft/40-animation/42-walk-and-run.md`.
+Tempo (Williams, frames per step at 24 fps → ms): 4 → 167 very fast run; 6 → 250 run; 8 → 333 cartoon walk / slow run; 12 → 500 brisk walk; 16 → 667 stroll; 20 → 833 tired; 24 → 1000 slow; 32 → 1333 very slow. At twos halve the drawing count. Cadence per sprite frame: `42-walk-and-run`.
 
 ### Shipped numbers (frames × ms)
 
@@ -215,15 +191,11 @@ x = contact      #3b82e8
 ## Procedure
 
 1. Choose the tick and budget from the tables above; write the beat ("windup 2, strike 1, hold 2, recover 3").
-2. Block the keys only: `addFrame` ops, `applyBatch` `grid` per key. `render` `filmstrip`: the story must read from
-   the keys alone, and each pose must pass the flat-fill test.
-3. Place offsets from a spacing ladder: `translate` `dx`/`dy` per frame. Use `tweenCels` with `inOut` /
-   `out` only for secondary parts; whole-pixel rounding stutters a small primary move.
-4. Add breakdowns, then followers on their own layers (`craft/00-core/06-layers-and-rigging.md`). `render` `onionSkin` on the moving part's
-   `layerId`: ghost gaps must match the chart.
+2. Block the keys only: `addFrame` ops, `applyBatch` `grid` per key. `render` `filmstrip`: the story must read from the keys alone, and each pose must pass the flat-fill test.
+3. Place offsets from a spacing ladder: `translate` `dx`/`dy` per frame. Use `tweenCels` with `inOut` / `out` only for secondary parts; whole-pixel rounding stutters a small primary move.
+4. Add breakdowns, then followers on their own layers (`06-layers-and-rigging`). `render` `onionSkin` on the moving part's `layerId`: ghost gaps must match the chart.
 5. `setFrameDuration` `durations` in timeline order. Long on extremes and contacts, short on the action.
-6. `addTag` per cycle. `render` `filmstrip`; `validate` with `checks: ["animation"]` for uniform timing and
-   volume drift.
+6. `addTag` per cycle. `render` `filmstrip`; `validate` with `checks: ["animation"]` for uniform timing and volume drift.
 
 ## Mistakes
 

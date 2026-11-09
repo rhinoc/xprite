@@ -1,44 +1,22 @@
 # Dithering and texture
 
-Dithering fakes a colour you do not have by mixing two you do; texture suggests a material. Both add pixels that
-are not silhouette or light, so at small sizes they read as noise, and in animation they flicker. Without this file
-an agent reaches for noise dither or a smooth gradient tool and produces grain, wobble, or plastic.
+Dithering fakes a colour you do not have by mixing two you do; texture suggests a material. Both add pixels that are not silhouette or light, so at small sizes they read as noise, and in animation they flicker. Without this file an agent reaches for noise dither or a smooth gradient tool and produces grain, wobble, or plastic.
 
 ## Rules
 
-1. **Default: don't.** First try one more palette colour or a flat step. Dither only when (a) the palette is
-   locked, (b) the area is large and flat (sky, wall, floor) or rough (dirt, rock, chainmail), and (c) it is static.
-   Small sprites and animated parts almost never need it.
-2. **Cap it.** If dither covers about half of an object or becomes a field of its own, add a colour instead.
-   It should taper at the ends and edges of an area, not fill it.
-3. **Keep the two shades close.** Adjacent ramp steps with low value difference give a soft transition; high
-   contrast gives a loud checkerboard. With a rich palette dither only between neighbouring ramp colours.
-4. **Use ordered levels.** A 4×4 Bayer tile gives levels of 16 (table below). No two dither pixels touch
-   orthogonally up to 50%; above 50% invert the roles so no two *holes* touch. `applyBatch` `dither`
-   (`pattern` `checker` / `bayer2` / `bayer4` / `bayer8` / `noise`, `ratio` 0 = all `colorA`, 1 = all `colorB`) does
-   this; `noise` is random, avoid it.
-5. **Never a wide pixel.** Two touching dither pixels (2×1) read as a mistake. The usual cause is a **phase
-   break**: two patches or a mirrored tile meeting, so the checker shifts by one. Keep one phase `(x+y) mod 2`
-   across the whole area, or slide a block by 1 px and add or remove a pixel; for mirrored hills use two different tiles.
-6. **Build the transition from the middle.** Put the 50% checker at the centre of the change, then 25/75
-   outwards, then flat. Narrower bands = faster change. 3–5 levels are plenty.
-7. **Bridge a hard edge** instead of blending a whole area: in the first row of the lighter band, every other pixel in
-   the darker colour; for a second row, offset by one. This is the cheapest dither and the most useful at 32 px.
-8. **Organic vs patterned.** Organic (quasi-random, density rising toward the seam from both sides) suits sky, shadow,
-   anything natural. Patterned (checker, lines, crosshatch) suits metal, plastic, masonry and looks static on foliage.
-   Random dither from a filter is lazy; hand-fix or turn it into a repeating tile.
-9. **Stylised dither = gradient + texture at once.** A motif matched to the material (dashes for water, slashes for
-   ground, zig-zag for grass) repeated as a tile, low contrast. A texture does not need a gradient, and a gradient does
-   not need a pattern: a roof or wall can be textured with clean clusters and no dither.
-10. **Orient texture to the form.** Straight marks on flat planes, curved marks around round forms, perspective
-    on receding ones. Do not lay one global grid over a cylinder.
-11. **Texture recipe.** Simplify (3 glyphs), repeat the same clusters, balance dense against empty, let negative space
-    imply texture, no orphans (`craft/10-technique/11-clusters-and-noise.md`). Brick: group a few bricks, leave areas empty, hint
-    mortar, shadow or light one brick; do not outline every brick.
-12. **Never on faces or near a mouth, never on a sprite that moves.** Dither beside the face reads as stray pixels;
-    on an animated part it flickers. Put dithered texture on a static background layer (`craft/00-core/06-layers-and-rigging.md`).
-13. **Screens no longer blur dither into a blend**; the pattern is seen as a pattern. `applyBatch` `gradient` with
-    `dither` (`bayer2`–`bayer8`) bands and dithers the seams; clean them by hand.
+1. **Default: don't.** First try one more palette colour or a flat step. Dither only when (a) the palette is locked, (b) the area is large and flat (sky, wall, floor) or rough (dirt, rock, chainmail), and (c) it is static. Small sprites and animated parts almost never need it.
+2. **Cap it.** If dither covers about half of an object or becomes a field of its own, add a colour instead. It should taper at the ends and edges of an area, not fill it.
+3. **Keep the two shades close.** Adjacent ramp steps with low value difference give a soft transition; high contrast gives a loud checkerboard. With a rich palette dither only between neighbouring ramp colours.
+4. **Use ordered levels.** A 4×4 Bayer tile gives levels of 16 (table below). No two dither pixels touch orthogonally up to 50%; above 50% invert the roles so no two *holes* touch. `applyBatch` `dither` (`pattern` `checker` / `bayer2` / `bayer4` / `bayer8` / `noise`, `ratio` 0 = all `colorA`, 1 = all `colorB`) does this; `noise` is random, avoid it.
+5. **Never a wide pixel.** Two touching dither pixels (2×1) read as a mistake. The usual cause is a **phase break**: two patches or a mirrored tile meeting, so the checker shifts by one. Keep one phase `(x+y) mod 2` across the whole area, or slide a block by 1 px and add or remove a pixel; for mirrored hills use two different tiles.
+6. **Build the transition from the middle.** Put the 50% checker at the centre of the change, then 25/75 outwards, then flat. Narrower bands = faster change. 3–5 levels are plenty.
+7. **Bridge a hard edge** instead of blending a whole area: in the first row of the lighter band, every other pixel in the darker colour; for a second row, offset by one. This is the cheapest dither and the most useful at 32 px.
+8. **Organic vs patterned.** Organic (quasi-random, density rising toward the seam from both sides) suits sky, shadow, anything natural. Patterned (checker, lines, crosshatch) suits metal, plastic, masonry and looks static on foliage. Random dither from a filter is lazy; hand-fix or turn it into a repeating tile.
+9. **Stylised dither = gradient + texture at once.** A motif matched to the material (dashes for water, slashes for ground, zig-zag for grass) repeated as a tile, low contrast. A texture does not need a gradient, and a gradient does not need a pattern: a roof or wall can be textured with clean clusters and no dither.
+10. **Orient texture to the form.** Straight marks on flat planes, curved marks around round forms, perspective on receding ones. Do not lay one global grid over a cylinder.
+11. **Texture recipe.** Simplify (3 glyphs), repeat the same clusters, balance dense against empty, let negative space imply texture, no orphans (`11-clusters-and-noise`). Brick: group a few bricks, leave areas empty, hint mortar, shadow or light one brick; do not outline every brick.
+12. **Never on faces or near a mouth, never on a sprite that moves.** Dither beside the face reads as stray pixels; on an animated part it flickers. Put dithered texture on a static background layer (`06-layers-and-rigging`).
+13. **Screens no longer blur dither into a blend**; the pattern is seen as a pattern. `applyBatch` `gradient` with `dither` (`bayer2`–`bayer8`) bands and dithers the seams; clean them by hand.
 
 ### Bayer 4×4 levels (derived)
 
@@ -47,8 +25,7 @@ an agent reaches for noise dither or a smooth gradient tool and produces grain, 
 | Share of dark | 0% | 12.5% | 25% | 37.5% | 50% | 62.5% | 75% | 87.5% | 100% |
 | Look | flat | sparse diamonds | dots every 2nd px | dots + diagonals | checker | mirror of 37.5 | mirror of 25 | mirror of 12.5 | flat |
 
-Other families: parallel lines (blur and limited animation only), broken lines, dents (a solid row then alternating
-pixels: texture in little space, not a gradient), interwoven (two overlapping dithers).
+Other families: parallel lines (blur and limited animation only), broken lines, dents (a solid row then alternating pixels: texture in little space, not a gradient), interwoven (two overlapping dithers).
 
 ## By size
 
@@ -132,8 +109,7 @@ AAAAAAAAABABABBBBBBBBBBB
 AAAAAAAAAAAAABBABBBBBBBB
 AAAAAAAAAABABABBBBBBBBBB
 ```
-**`dither-phase-bad` → `dither-phase-fixed`** — two checker patches with different phase leave vertical pairs at the
-seam (red); one phase across the area leaves none.
+**`dither-phase-bad` → `dither-phase-fixed`** — two checker patches with different phase leave vertical pairs at the seam (red); one phase across the area leaves none.
 ```grid dither-phase-bad
 A = shade-light #e7c9a0
 B = shade-dark #7d5a7a
@@ -161,8 +137,7 @@ ABABABABABAB
 BABABABABABA
 ABABABABABAB
 ```
-**`dither-families`** — pattern vocabulary at about 50%/33%: horizontal lines · vertical lines · diagonal 1-in-3 ·
-crosshatch diamonds · broken lines. Pick by material (metal, rope, cloth, mesh, brick).
+**`dither-families`** — pattern vocabulary at about 50%/33%: horizontal lines · vertical lines · diagonal 1-in-3 · crosshatch diamonds · broken lines. Pick by material (metal, rope, cloth, mesh, brick).
 ```grid dither-families
 A = shade-light #e7c9a0
 B = shade-dark #7d5a7a
@@ -178,8 +153,7 @@ AAAAAAAAAA..BABABABABA..AABAABAABA..ABABABABAB..AAAAAAAAAA
 BBBBBBBBBB..BABABABABA..ABAABAABAA..BAAABAAABA..BBBABBBABB
 AAAAAAAAAA..BABABABABA..BAABAABAAB..ABABABABAB..AAAAAAAAAA
 ```
-**`dither-sphere-cel` → `dither-sphere-buffer`** — the same Ø20 sphere with a flat terminator, and with a 3 px dither
-buffer between mid and shadow. Only worth it at 32 px and up, and static.
+**`dither-sphere-cel` → `dither-sphere-buffer`** — the same Ø20 sphere with a flat terminator, and with a 3 px dither buffer between mid and shadow. Only worth it at 32 px and up, and static.
 ```grid dither-sphere-cel
 O = outline    #2b1d2e
 L = fill-light #f2c28b
@@ -286,10 +260,8 @@ WWWWWWSSWWWWWWWW
 
 1. Ask: can one more palette colour or a bridge do this? If yes, stop.
 2. Pick two adjacent ramp shades (`palette` op `analyze` shows ramp structure and near-duplicates).
-3. Confine the area with `select` (`rect` / `ellipse` / `color`), then `applyBatch` `dither` with `pattern`
-   `bayer4` or `checker`, and a `ratio` from the table — or draw a 3–5 band transition with `grid` from a template.
-4. `readPixels` `format:"grid"` over the seams: find touching dither pixels or phase breaks (rule 5); slide a block or add/remove
-   one pixel.
+3. Confine the area with `select` (`rect` / `ellipse` / `color`), then `applyBatch` `dither` with `pattern` `bayer4` or `checker`, and a `ratio` from the table — or draw a 3–5 band transition with `grid` from a template.
+4. `readPixels` `format:"grid"` over the seams: find touching dither pixels or phase breaks (rule 5); slide a block or add/remove one pixel.
 5. Taper the dither at the ends and borders; clean the outline of the dithered area as you would any contour.
 6. `render` the sprite: it must read as a smooth step, not as grain. Compare with the flat version.
 7. Textures: build one stamp, repeat it with changed spacing, leave empty areas, tile 3×3 and check for lattices.

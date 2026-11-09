@@ -2,12 +2,9 @@
 
 ## The silhouette test
 
-Fill the sprite with a single flat colour. Can you still tell what it is? If not,
-no amount of shading will save it.
+Fill the sprite with a single flat colour. Can you still tell what it is? If not, no amount of shading will save it.
 
-This is the highest-leverage check in pixel art and it takes one call:
-`render` after a `replaceColor` on a copy, or just squint at
-the preview. Do it before you shade, not after.
+This is the highest-leverage check in pixel art and it takes one call: `render` after a `replaceColor` on a copy, or just squint at the preview. Do it before you shade, not after.
 
 Silhouettes fail because of:
 
@@ -19,8 +16,7 @@ Silhouettes fail because of:
 
 ## Proportions
 
-Game characters are usually stylised shorter than life. Common ratios, measured
-in head-heights:
+Game characters are usually stylised shorter than life. Common ratios, measured in head-heights:
 
 | Style | Heads tall | Reads as |
 |-------|-----------|----------|
@@ -32,8 +28,7 @@ At 16×16 you are at 2–3 heads whether you planned it or not. Plan it.
 
 ## The 3⁄4 view
 
-Most top-down and isometric games want 3⁄4: the character faces the camera but
-is seen slightly from above. In practice:
+Most top-down and isometric games want 3⁄4: the character faces the camera but is seen slightly from above. In practice:
 
 - The head shows the face **and** a little of the top of the skull.
 - The shoulders are wider than a pure front view suggests.
@@ -45,8 +40,7 @@ is seen slightly from above. In practice:
 A 4-direction set is down / up / left / right; 8 adds the diagonals. Rules:
 
 - **Left and right are mirrors** — draw one, use `flip` on a
-  copied layer. Mirror asymmetric details (a scar, a shoulder pad) back by hand
-  if the character has any, or accept the flip and say so.
+  copied layer. Mirror asymmetric details (a scar, a shoulder pad) back by hand   if the character has any, or accept the flip and say so.
 - **Up** shows the back of the head and no face. This is the frame agents most
   often get wrong by drawing a face on the back of a head.
 - Keep the **same pixel height and centre of mass** across all directions, or
@@ -54,7 +48,4 @@ A 4-direction set is down / up / left / right; 8 adds the diagonals. Rules:
 
 ## Volume consistency
 
-Across an animation, a limb must stay the same number of pixels thick unless it
-is foreshortened on purpose. Volume drift — an arm that quietly gains two pixels
-by frame four — is very visible in motion and invisible frame by frame. Review
-with `render` `filmstrip`, which is exactly what it is for.
+Across an animation, a limb must stay the same number of pixels thick unless it is foreshortened on purpose. Volume drift — an arm that quietly gains two pixels by frame four — is very visible in motion and invisible frame by frame. Review with `render` `filmstrip`, which is exactly what it is for.

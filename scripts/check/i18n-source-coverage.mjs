@@ -51,6 +51,7 @@ const invariantMessages = new Set([
   "sRGB",
   "GitHub",
   "px",
+  "Craft handbook index",
 ]);
 const sourceExceptions = new Map([
   ["apps/editor/src/components/canvas/editor-canvas.tsx", new Set(["crosshair"])],

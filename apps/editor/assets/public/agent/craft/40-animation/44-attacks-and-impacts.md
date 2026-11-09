@@ -1,74 +1,25 @@
 # Attacks and impacts
 
-An attack with no wind-up is a pose swap, one with no recovery is a pogo stick,
-and a hit with no hold is a wave through air. The weight of a blow comes from
-three things the drawings only imply: the opposite-direction preparation, the
-one fast smeared frame, and the pause when it lands. This file covers melee and
-body attacks, hit reactions, death and block, side view; top-down variants are in
-`craft/40-animation/47-top-down-animation.md`, flashes and screen shake in
-`craft/80-effects-ui/81-impacts-and-game-feel.md`.
+An attack with no wind-up is a pose swap, one with no recovery is a pogo stick, and a hit with no hold is a wave through air. The weight of a blow comes from three things the drawings only imply: the opposite-direction preparation, the one fast smeared frame, and the pause when it lands. This file covers melee and body attacks, hit reactions, death and block, side view; top-down variants are in `47-top-down-animation`, flashes and screen shake in `81-impacts-and-game-feel`.
 
 ## Rules
 
-1. **Phase order:** anticipation → smear → hit (held) → follow-through →
-   recover → overshoot. Keep every phase that the size allows; drop from the
-   front first (anticipation), never the hit.
-2. **Anticipation goes the opposite way**, by at least 2–3 px at 32 px, and the
-   bigger the blow the bigger the wind-up (Williams). Put the weapon "out in the
-   clear" — not hidden behind the head — so the pose reads.
-3. **Player attacks get no wind-up, or one frame of ≤ 50 ms.** The first frame
-   after the button must be the strike or the smear, or controls feel laggy
-   (Saint11, Slynyrd PB9). **Enemies telegraph** 150–400 ms with a held, readable
-   silhouette; that is a gameplay signal, not decoration.
-4. **Timing shape: long start, very short action, medium settle** (Stardew heavy
-   swing 150 / 40 / 40 / 170 / 75 ms). Smear frames stay 50 ms whatever the
-   weapon; weight shows in anticipation, hold and recovery length (Street
-   Fighter III punches: startup 3–5 frames, recovery 5 → 10 → 17).
-5. **Smear: 1 frame at 16–24 px, 2–3 frames at 32 px+, 50 ms each.** Sources
-   differ (Pixel Logic: one frame; Slynyrd PB56: several shrinking frames); the
-   rule scales with sprite size. The first smear frame is the biggest; later
-   frames shrink to a thin arc and vanish (`attacks-smear-fade`). Paint the swept
-   arc with the object's two brightest ramp colours, fully opaque, no dithered or
-   semi-transparent blur (Pixel Logic; Wesnoth recipe). The smear connects the
-   previous position to the new one and follows the path from stance to
-   follow-through. Never smear the anticipation or the recovery jump (PB56).
-6. **Stretch at the extreme.** Elongate the weapon or limb 1–2 px at maximum
-   reach for a loose feel, while the body silhouette stays stable.
-7. **Hit frame: the target is already displaced.** Show the fist past the chin
-   and the chin moved, not the touch (Williams). Hold the hit 100 ms (light) to
-   150 ms (heavy). This is the frame the engine hitbox and spark attach to.
-8. **Hitstop is an engine freeze, drawn as a held pose.** Scale it with weight:
-   light 3 frames at 60 fps (50 ms), strong 6 (100), finisher 9–12 (150–200),
-   attacker and victim freeze equally, never longer than ~12 frames. Decision:
-   Celeste ships 3/6/9, Vlambeer 100–200 ms for a killing blow, Smash scales to a
-   30-frame cap, Saint11 says "never long" — 12 is the ceiling for a sprite
-   game. The victim jitters ±1 px (horizontal if standing, vertical if airborne)
-   with decaying amplitude. Sprite side: deliver a distinct HIT frame and, for
-   big blows, one 33–50 ms contrast frame (white or black silhouette).
-9. **Overshoot and snap back.** After the follow-through the guard pose returns
-   as a copy of the idle frame shifted 1 px back for 50 ms (Slynyrd PB53). Even a
-   1 px overshoot is felt.
-10. **Recovery is longer than the strike** and uses a different arc from it
-    (Saint11). Muybridge's throw is ~4 frames wind-up, 2 acceleration, 4
-    follow-through. Recovery length is the attack's cost to the player.
-11. **Power chain:** hips, then torso, arm, wrist, weapon tip, each one frame
-    later. At 16–32 px: hips drop 1 px before limbs move; the hand pixel lags the
-    elbow one frame; keep one foot planted, rotate the head slightly, swing the
-    opposite arm back.
-12. **Hit reaction:** the first frame is the strongest and throws the body the
-    whole distance; overshoot it; the impact is ONE frame; recover slowly to idle
-    over 3–5 frames. Knockback 2–4 px, white flash 1–2 frames.
-13. **Death:** impact → partial recover → "give up" (recovery stops midway,
-    knees bend, arms and head lag) → hit the ground (arms lag, overshoot 1 px)
-    → one bounce → rest. Saint11's is 22 frames at 100 ms; hold the final pose
-    200–300 ms. Small enemies may squash (conserving area) or burst.
-14. **Block:** show that the hit connected and did nothing: only the shield or
-    armour reacts, a short bright flash, long recovery, silhouette almost
-    unchanged.
-15. **Attacks must reach.** Extend the kick or arm so the hitbox covers the area
-    in front, and keep the character's silhouette readable at its extreme.
-16. **Secondary parts follow:** baggy cloth, hair and the weapon tip settle one
-    to two frames after the body stops (`craft/40-animation/45-secondary-motion.md`).
+1. **Phase order:** anticipation → smear → hit (held) → follow-through → recover → overshoot. Keep every phase that the size allows; drop from the front first (anticipation), never the hit.
+2. **Anticipation goes the opposite way**, by at least 2–3 px at 32 px, and the bigger the blow the bigger the wind-up (Williams). Put the weapon "out in the clear" — not hidden behind the head — so the pose reads.
+3. **Player attacks get no wind-up, or one frame of ≤ 50 ms.** The first frame after the button must be the strike or the smear, or controls feel laggy (Saint11, Slynyrd PB9). **Enemies telegraph** 150–400 ms with a held, readable silhouette; that is a gameplay signal, not decoration.
+4. **Timing shape: long start, very short action, medium settle** (Stardew heavy swing 150 / 40 / 40 / 170 / 75 ms). Smear frames stay 50 ms whatever the weapon; weight shows in anticipation, hold and recovery length (Street Fighter III punches: startup 3–5 frames, recovery 5 → 10 → 17).
+5. **Smear: 1 frame at 16–24 px, 2–3 frames at 32 px+, 50 ms each.** Sources differ (Pixel Logic: one frame; Slynyrd PB56: several shrinking frames); the rule scales with sprite size. The first smear frame is the biggest; later frames shrink to a thin arc and vanish (`attacks-smear-fade`). Paint the swept arc with the object's two brightest ramp colours, fully opaque, no dithered or semi-transparent blur (Pixel Logic; Wesnoth recipe). The smear connects the previous position to the new one and follows the path from stance to follow-through. Never smear the anticipation or the recovery jump (PB56).
+6. **Stretch at the extreme.** Elongate the weapon or limb 1–2 px at maximum reach for a loose feel, while the body silhouette stays stable.
+7. **Hit frame: the target is already displaced.** Show the fist past the chin and the chin moved, not the touch (Williams). Hold the hit 100 ms (light) to 150 ms (heavy). This is the frame the engine hitbox and spark attach to.
+8. **Hitstop is an engine freeze, drawn as a held pose.** Scale it with weight: light 3 frames at 60 fps (50 ms), strong 6 (100), finisher 9–12 (150–200), attacker and victim freeze equally, never longer than ~12 frames. Decision: Celeste ships 3/6/9, Vlambeer 100–200 ms for a killing blow, Smash scales to a 30-frame cap, Saint11 says "never long" — 12 is the ceiling for a sprite game. The victim jitters ±1 px (horizontal if standing, vertical if airborne) with decaying amplitude. Sprite side: deliver a distinct HIT frame and, for big blows, one 33–50 ms contrast frame (white or black silhouette).
+9. **Overshoot and snap back.** After the follow-through the guard pose returns as a copy of the idle frame shifted 1 px back for 50 ms (Slynyrd PB53). Even a 1 px overshoot is felt.
+10. **Recovery is longer than the strike** and uses a different arc from it (Saint11). Muybridge's throw is ~4 frames wind-up, 2 acceleration, 4 follow-through. Recovery length is the attack's cost to the player.
+11. **Power chain:** hips, then torso, arm, wrist, weapon tip, each one frame later. At 16–32 px: hips drop 1 px before limbs move; the hand pixel lags the elbow one frame; keep one foot planted, rotate the head slightly, swing the opposite arm back.
+12. **Hit reaction:** the first frame is the strongest and throws the body the whole distance; overshoot it; the impact is ONE frame; recover slowly to idle over 3–5 frames. Knockback 2–4 px, white flash 1–2 frames.
+13. **Death:** impact → partial recover → "give up" (recovery stops midway, knees bend, arms and head lag) → hit the ground (arms lag, overshoot 1 px) → one bounce → rest. Saint11's is 22 frames at 100 ms; hold the final pose 200–300 ms. Small enemies may squash (conserving area) or burst.
+14. **Block:** show that the hit connected and did nothing: only the shield or armour reacts, a short bright flash, long recovery, silhouette almost unchanged.
+15. **Attacks must reach.** Extend the kick or arm so the hitbox covers the area in front, and keep the character's silhouette readable at its extreme.
+16. **Secondary parts follow:** baggy cloth, hair and the weapon tip settle one to two frames after the body stops (`45-secondary-motion`).
 
 ## By size
 
@@ -96,15 +47,11 @@ All values ms per frame; "—" means no frame. Derived rows are marked.
 | Player slash, 32 px (derived) | 0–50 | 50 | 100 | 50 | 100 | 50 | 350–400 | combined |
 | Enemy slash, 32 px (derived) | 200 | 50 | 100 | 50 | 150 | 50 | 600 | combined |
 
-Saint11's attack sheet is 3 attack + 4 return frames at 100 ms with the idle
-held 300 ms. Street Fighter III Ryu (60 fps): light 3 startup / 2 active / 5
-recovery, medium 5 / 3 / 10, hard 4 / 3 / 17.
+Saint11's attack sheet is 3 attack + 4 return frames at 100 ms with the idle held 300 ms. Street Fighter III Ryu (60 fps): light 3 startup / 2 active / 5 recovery, medium 5 / 3 / 10, hard 4 / 3 / 17.
 
 ## Templates
 
-`attacks-sword-keys` — anticipation (sword raised behind, torso back, weight on
-the rear foot), smear (arc spans the whole swing), hit (arm extended, smear gone,
-hold), recover (guard, shifted back by the overshoot copy). Frame width 48, 46 rows, one rig with `walk-30-keys` (same bone lengths), feet on the last row.
+`attacks-sword-keys` — anticipation (sword raised behind, torso back, weight on the rear foot), smear (arc spans the whole swing), hit (arm extended, smear gone, hold), recover (guard, shifted back by the overshoot copy). Frame width 48, 46 rows, one rig with `walk-30-keys` (same bone lengths), feet on the last row.
 
 ```grid attacks-sword-keys
 O = outline          #2b1d2e
@@ -172,8 +119,7 @@ OMMO..............................................Ww............................
 .............OOOOOO..OOOOOO.....................................OOO....OOO..................................OOOOOO......OOO...................................OOOOOO.OOOOOO.....................
 ```
 
-`attacks-smear-fade` — one swing's smear over four frames: thick crescent, thinner,
-hairline, remnant. Frame width 20. Two ramp colours; do not add a third.
+`attacks-smear-fade` — one swing's smear over four frames: thick crescent, thinner, hairline, remnant. Frame width 20. Two ramp colours; do not add a third.
 
 ```grid attacks-smear-fade
 W = smear-bright   #ffffff
@@ -201,8 +147,7 @@ w = smear-mid      #b9d4f0
 ................................................................................
 ```
 
-`attacks-hit-spark` — contact effect at the point of impact: small star, starburst,
-ring of dots, faint ring. Frame width 11; 33–50 ms each.
+`attacks-hit-spark` — contact effect at the point of impact: small star, starburst, ring of dots, faint ring. Frame width 11; 33–50 ms each.
 
 ```grid attacks-hit-spark
 W = smear-bright   #ffffff
@@ -221,8 +166,7 @@ w = smear-mid      #b9d4f0
 ......................................w.....
 ```
 
-`attacks-hit-react` — victim: struck (arched back, arms flung), stagger (knees
-bent, still leaning), recovered. Frame width 26. Hold the first frame under hitstop.
+`attacks-hit-react` — victim: struck (arched back, arms flung), stagger (knees bent, still leaning), recovered. Frame width 26. Hold the first frame under hitstop.
 
 ```grid attacks-hit-react
 O = outline          #2b1d2e
@@ -276,21 +220,13 @@ H = hair             #7a4a2a
 
 ## Procedure
 
-1. State the class (player / enemy), weapon weight and arc, and pick the timing
-   row above. Write down the hitbox frame index for the engine.
-2. Pose to pose: draw the HIT pose first, then the anticipation (opposite arc),
-   then the recover/guard. Check each as a flat silhouette with `render`.
-3. Smear: duplicate the HIT frame, erase the blade, paint the crescent from
-   `attacks-smear-fade` with the two brightest ramp colours (`palette` op `ramp`
-   if the sprite lacks them). Keep the body unchanged on this frame.
-4. Overshoot: duplicate the guard frame and shift it 1 px opposite the strike
-   with `setCel` or `translate`.
-5. Set uneven durations with `setFrameDuration` `durations`; tag the attack with
-   `addTag`.
-6. `render` `filmstrip`, then `render` `onionSkin` across smear → hit → recover to
-   check the arc. `validate`.
-7. In the hand-off, state the engine-side items that are not pixels: hitstop
-   frames, victim jitter px, shake px/frames, knockback px, flash frames.
+1. State the class (player / enemy), weapon weight and arc, and pick the timing row above. Write down the hitbox frame index for the engine.
+2. Pose to pose: draw the HIT pose first, then the anticipation (opposite arc), then the recover/guard. Check each as a flat silhouette with `render`.
+3. Smear: duplicate the HIT frame, erase the blade, paint the crescent from `attacks-smear-fade` with the two brightest ramp colours (`palette` op `ramp` if the sprite lacks them). Keep the body unchanged on this frame.
+4. Overshoot: duplicate the guard frame and shift it 1 px opposite the strike with `setCel` or `translate`.
+5. Set uneven durations with `setFrameDuration` `durations`; tag the attack with `addTag`.
+6. `render` `filmstrip`, then `render` `onionSkin` across smear → hit → recover to check the arc. `validate`.
+7. In the hand-off, state the engine-side items that are not pixels: hitstop frames, victim jitter px, shake px/frames, knockback px, flash frames.
 
 ## Mistakes
 
@@ -332,6 +268,4 @@ H = hair             #7a4a2a
   MotionBlur tutorials — saint11.art.
 - Pixel Logic, ch. 9 (smears, overshoot).
 - Celeste `Player.cs` and freeze-frame wiki; Super Smash Bros. hitlag (ssbwiki);
-  Sakurai's Famitsu column on hitstop; Vlambeer, "The Art of Screenshake";
-  Street Fighter III Ryu frame data; Stardew Valley farmer sprite wiki;
-  Wesnoth "How to create motion blurs".
+  Sakurai's Famitsu column on hitstop; Vlambeer, "The Art of Screenshake";   Street Fighter III Ryu frame data; Stardew Valley farmer sprite wiki;   Wesnoth "How to create motion blurs".

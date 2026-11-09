@@ -1,109 +1,37 @@
 # Hands and feet
 
-At 32 px a hand is a dozen pixels and a boot a dozen more, yet they decide whether
-a figure grips, points, stands or floats. Without a size ladder an agent draws
-five-pixel fingers on a 16 px sprite (noise) or a featureless blob that gestures
-nothing (mush); without a foot rule the sprite hovers, skates or changes shoe
-size between frames. This file is the ladder: what a hand and a foot are at each
-size, in each view, with the pose templates to copy. Proportions are
-`craft/30-characters/30-proportions-by-size.md`; the walk itself is `craft/40-animation/42-walk-and-run.md`.
+At 32 px a hand is a dozen pixels and a boot a dozen more, yet they decide whether a figure grips, points, stands or floats. Without a size ladder an agent draws five-pixel fingers on a 16 px sprite (noise) or a featureless blob that gestures nothing (mush); without a foot rule the sprite hovers, skates or changes shoe size between frames. This file is the ladder: what a hand and a foot are at each size, in each view, with the pose templates to copy. Proportions are `30-proportions-by-size`; the walk itself is `42-walk-and-run`.
 
 ## Rules
 
 **Hands**
 
-1. **Size by figure height; never enlarge a hand to "make it read".** Skin bounding box
-   (inside the outline, front view, fist × open hand): 8 px figure → 1×1; 16 px → 3×3 ×
-   4×4; 32 px → 5×4 × 5×6; 48 px → 7×6 × 7×8; 64 px → 9×8 × 11×13 (the open hand's thumb
-   adds 4 px of width). A relaxed hand hanging at the side is one step smaller: 2×2 at
-   16 px, 4×4 at 32 px. Basis: hand ≈ ¾ of head height (Loomis, derived) and measured
-   sprites (the gallery in Pixel Logic runs 3–9 px). Blair's 3×3 palm "at 16 px" is a
-   close-up cartoon scale. A hand more than 1 px larger than these numbers in either
-   direction is a style choice (heavy, cute), never an accident.
-2. **Mitten first, fingers last.** Block a palm mass, add the thumb as a separate
-   bump, then split the finger mass. Below 5 px there are no fingers: a mitten
-   and at most one thumb pixel. Draw the pose, not the anatomy.
-3. **Fingers arrive in a fixed order:** one notch splitting the index off at
-   32 px; three fingers + thumb at 48 px; four fingers at 64 px. Never four equal
-   parallel fingers: middle longest, little shortest, ring ≈ index. Three fingers
+1. **Size by figure height; never enlarge a hand to "make it read".** Skin bounding box (inside the outline, front view, fist × open hand): 8 px figure → 1×1; 16 px → 3×3 × 4×4; 32 px → 5×4 × 5×6; 48 px → 7×6 × 7×8; 64 px → 9×8 × 11×13 (the open hand's thumb adds 4 px of width). A relaxed hand hanging at the side is one step smaller: 2×2 at 16 px, 4×4 at 32 px. Basis: hand ≈ ¾ of head height (Loomis, derived) and measured sprites (the gallery in Pixel Logic runs 3–9 px). Blair's 3×3 palm "at 16 px" is a close-up cartoon scale. A hand more than 1 px larger than these numbers in either direction is a style choice (heavy, cute), never an accident.
+2. **Mitten first, fingers last.** Block a palm mass, add the thumb as a separate bump, then split the finger mass. Below 5 px there are no fingers: a mitten and at most one thumb pixel. Draw the pose, not the anatomy.
+3. **Fingers arrive in a fixed order:** one notch splitting the index off at 32 px; three fingers + thumb at 48 px; four fingers at 64 px. Never four equal parallel fingers: middle longest, little shortest, ring ≈ index. Three fingers
    + thumb is a legitimate stylisation at any size.
-4. **Separate fingers with value, not black.** Under about 6 px wide, a finger gap
-   is one skin-shadow pixel or a notch in the silhouette. A dark line between
-   1 px fingers reads as a barcode and eats the hand's only light.
-5. **The thumb points a different way from the fingers.** Show it when the hand
-   holds, points or pinches; omit it on a relaxed hand at ≤ 16 px. Its base is a
-   fleshy lump, so give it one pixel of light, not an outline stub.
-6. **At 16 px one corner pixel is the gesture.** A rounded fist whose bounding
-   corner is filled turns: none = delicate fist; top-left = points at the face;
-   bottom-left = hand dips or points down; top-right = beckon or uppercut out;
-   bottom-right = reads as an elbow; three corners = heavy "hamfist"; all four =
-   punch straight at the viewer (Tsu). A flat edge facing in, up or down turns a
-   ball into a slap or a tray; a flat face turned outward looks wrong unless it
-   is armour. See `hands-16-corners`.
-7. **A cuff separates hand from sleeve.** One lighter or darker band at the wrist
-   (Blair). At ≤ 16 px the sleeve's end is the edge of the hand: sleeves can
-   stand in for hands entirely.
-8. **Hands get the highest contrast on the limb in fast motion** (Saint11): skin or
-   glove against a dark sleeve, or the reverse, so the eye can follow them
-   through a swing. Never let hand and sleeve share a value.
-9. **A grip is the hand fused to the handle.** Draw the fist; let the handle
-   show 1 px beyond it on each end (guard above, pommel below); one dark line
-   or shade step between skin and wood; the weapon crosses the hand and leaves
-   the silhouette on a different axis than the forearm (BJG's trainer poses).
-   Hold the object's offset from the fist constant while the body is steady
-   (`craft/40-animation/45-secondary-motion.md`, rule 10). Object shapes: `craft/70-objects/73-props-and-items.md`.
-10. **Handedness is a design decision.** `flip` swaps hands: move
-    the thumb to the correct side, re-draw anything asymmetric, and keep the
-    weapon in the same hand in every direction, which makes 8 directions 8
-    unique drawings, not 5 plus mirrors (Slynyrd PB55). Flip a finished hand for
-    the other arm and then fix it; hands are the most expensive part to draw
-    twice (Tuts+).
-11. **An arm in front of the torso keeps its outline** (Saint11). Where hand
-    meets body, leave a 1 px gap or a clear value step; a hand tangent to the
-    torso outline fuses into it (`craft/00-core/03-silhouette-and-form.md`).
-12. **Build six hands per character at its sprite size** and reuse them: relaxed,
-    fist, open, point, grip, reach or wave. Every other pose is a rotation or flip
-    of these (Blair). A hand redrawn slightly differently each frame flickers.
-13. **Personality lives in the hand; change one parameter, not all.** Weight: hand 1–2 px
-    wider than the ladder, flat-edged (Solarski). Cute: small triangular limbs with stubby
-    3-finger hands (Saint11). Monsters: one exaggerated feature, a claw or a giant palm,
-    instead of five normal fingers (Bancroft; `craft/50-creatures/54-monster-design.md`).
+4. **Separate fingers with value, not black.** Under about 6 px wide, a finger gap is one skin-shadow pixel or a notch in the silhouette. A dark line between 1 px fingers reads as a barcode and eats the hand's only light.
+5. **The thumb points a different way from the fingers.** Show it when the hand holds, points or pinches; omit it on a relaxed hand at ≤ 16 px. Its base is a fleshy lump, so give it one pixel of light, not an outline stub.
+6. **At 16 px one corner pixel is the gesture.** A rounded fist whose bounding corner is filled turns: none = delicate fist; top-left = points at the face; bottom-left = hand dips or points down; top-right = beckon or uppercut out; bottom-right = reads as an elbow; three corners = heavy "hamfist"; all four = punch straight at the viewer (Tsu). A flat edge facing in, up or down turns a ball into a slap or a tray; a flat face turned outward looks wrong unless it is armour. See `hands-16-corners`.
+7. **A cuff separates hand from sleeve.** One lighter or darker band at the wrist (Blair). At ≤ 16 px the sleeve's end is the edge of the hand: sleeves can stand in for hands entirely.
+8. **Hands get the highest contrast on the limb in fast motion** (Saint11): skin or glove against a dark sleeve, or the reverse, so the eye can follow them through a swing. Never let hand and sleeve share a value.
+9. **A grip is the hand fused to the handle.** Draw the fist; let the handle show 1 px beyond it on each end (guard above, pommel below); one dark line or shade step between skin and wood; the weapon crosses the hand and leaves the silhouette on a different axis than the forearm (BJG's trainer poses). Hold the object's offset from the fist constant while the body is steady (`45-secondary-motion`, rule 10). Object shapes: `73-props-and-items`.
+10. **Handedness is a design decision.** `flip` swaps hands: move the thumb to the correct side, re-draw anything asymmetric, and keep the weapon in the same hand in every direction, which makes 8 directions 8 unique drawings, not 5 plus mirrors (Slynyrd PB55). Flip a finished hand for the other arm and then fix it; hands are the most expensive part to draw twice (Tuts+).
+11. **An arm in front of the torso keeps its outline** (Saint11). Where hand meets body, leave a 1 px gap or a clear value step; a hand tangent to the torso outline fuses into it (`03-silhouette-and-form`).
+12. **Build six hands per character at its sprite size** and reuse them: relaxed, fist, open, point, grip, reach or wave. Every other pose is a rotation or flip of these (Blair). A hand redrawn slightly differently each frame flickers.
+13. **Personality lives in the hand; change one parameter, not all.** Weight: hand 1–2 px wider than the ladder, flat-edged (Solarski). Cute: small triangular limbs with stubby 3-finger hands (Saint11). Monsters: one exaggerated feature, a claw or a giant palm, instead of five normal fingers (Bancroft; `54-monster-design`).
 
 **Feet**
 
-14. **Feet plant the figure.** The lowest foot pixel sits on the same row in every
-    frame; both feet share that row unless one is lifted (Pixnote). A foot that
-    is 3 px tall moves in thirds of its height, so lift it a whole pixel or not
-    at all (Silber).
-15. **Side-view foot length ≈ head height** (Loomis, cross-checked: Muybridge's
-    32 px feet are 4–5 px long). Inside the outline: 8 px figure → 1–2 px; 16 px →
-    3–4 px; 32 px → 5–6 px; 48 px → 8–10 px. Heavy or armoured characters get a
-    flatter, wider wedge; a goofy character a bigger one (Blair).
-16. **A boot is shaft + foot + one sole line.** 16 px: 2 px shaft, 3–4 px foot, the
-    bottom outline row is the sole. 32 px: add a toe-cap highlight and a darker
-    heel pixel. 48 px: cuff band, toe cap, heel block and a sole band one step
-    darker than the boot.
-17. **Divide boot from trouser by colour, not outline** (Tsu). Keep black where the
-    shapes need separating (the sole, between the legs). The bottom outline row may
-    be dropped when the ground contrasts: the eye bridges the gap and the row goes
-    to detail.
-18. **Four foot poses carry a walk** (Muybridge; frame tables in
-    `craft/40-animation/42-walk-and-run.md`): heel strike (heel down, toe up: a 2 px wedge at
-    32 px), flat (sole on the ground line), toe-off (heel up, toes on the ground),
-    swing (foot off the ground, toe low). A run lands on the ball or flat foot
-    under the body, never heel first.
-19. **View changes the shape.** Front: feet splay a little outward and the boot is
-    the widest part of the leg. Back: heel and sole line only, no toe cap. Top-down:
-    toes toward the viewer with a lighter cap, legs foreshortened to 2–3 px
-    behind the foot (`craft/40-animation/47-top-down-animation.md`). 3/4 is in
-    `craft/30-characters/37-views-and-directions.md`.
-20. **Toes are not drawn below 48 px.** At 32 px a bare foot gets at most three
-    bumps along the bottom edge; the big toe separates only at 48 px and up
-    (Tsu: toenails and gaps become blobs).
-21. **Heels change everything.** A heel adds about 4 px of height and tilts the foot
-    wedge down toward the toe; flat shoes add 1 px (Slynyrd PB52). Say which one
-    the character wears before drawing the leg.
-22. Paws, hooves and talons are in `craft/50-creatures/50-quadrupeds.md` and `craft/50-creatures/54-monster-design.md`.
+14. **Feet plant the figure.** The lowest foot pixel sits on the same row in every frame; both feet share that row unless one is lifted (Pixnote). A foot that is 3 px tall moves in thirds of its height, so lift it a whole pixel or not at all (Silber).
+15. **Side-view foot length ≈ head height** (Loomis, cross-checked: Muybridge's 32 px feet are 4–5 px long). Inside the outline: 8 px figure → 1–2 px; 16 px → 3–4 px; 32 px → 5–6 px; 48 px → 8–10 px. Heavy or armoured characters get a flatter, wider wedge; a goofy character a bigger one (Blair).
+16. **A boot is shaft + foot + one sole line.** 16 px: 2 px shaft, 3–4 px foot, the bottom outline row is the sole. 32 px: add a toe-cap highlight and a darker heel pixel. 48 px: cuff band, toe cap, heel block and a sole band one step darker than the boot.
+17. **Divide boot from trouser by colour, not outline** (Tsu). Keep black where the shapes need separating (the sole, between the legs). The bottom outline row may be dropped when the ground contrasts: the eye bridges the gap and the row goes to detail.
+18. **Four foot poses carry a walk** (Muybridge; frame tables in `42-walk-and-run`): heel strike (heel down, toe up: a 2 px wedge at 32 px), flat (sole on the ground line), toe-off (heel up, toes on the ground), swing (foot off the ground, toe low). A run lands on the ball or flat foot under the body, never heel first.
+19. **View changes the shape.** Front: feet splay a little outward and the boot is the widest part of the leg. Back: heel and sole line only, no toe cap. Top-down: toes toward the viewer with a lighter cap, legs foreshortened to 2–3 px behind the foot (`47-top-down-animation`). 3/4 is in `37-views-and-directions`.
+20. **Toes are not drawn below 48 px.** At 32 px a bare foot gets at most three bumps along the bottom edge; the big toe separates only at 48 px and up (Tsu: toenails and gaps become blobs).
+21. **Heels change everything.** A heel adds about 4 px of height and tilts the foot wedge down toward the toe; flat shoes add 1 px (Slynyrd PB52). Say which one the character wears before drawing the leg.
+22. Paws, hooves and talons are in `50-quadrupeds` and `54-monster-design`.
 
 ## By size
 
@@ -115,20 +43,13 @@ size, in each view, with the pose templates to copy. Proportions are
 | 48 px | fist 7×6, open 7×8 | curl line on a fist, open = 3 fingers + thumb, gaps in skin-shadow | 8–10 px × 5 tall, cuff, sole band, heel block |
 | 64 px | fist 9×8, open 11×13 | four fingers, thumb apart, finger gaps in skin-shadow, palm shade on the lower and right edges; knuckle wrinkles only if the light needs them (`hands-64-front`) | 12–14 px × 7 tall, laces or buckles allowed |
 
-Detail budget: a hand is at most 2 light-ramp steps below 32 px, 3 at 48 px. A
-highlight on a hand that is not on the fingertips or the knuckle row is noise
-(`craft/10-technique/14-readability-and-scale.md`).
+Detail budget: a hand is at most 2 light-ramp steps below 32 px, 3 at 48 px. A highlight on a hand that is not on the fingertips or the knuckle row is noise (`14-readability-and-scale`).
 
 ## Templates
 
-All hand sheets show a hand with a forearm stub in `sleeve` colours. **Front** =
-the character faces the viewer, or the palm/back of the hand does. **Side** = the
-character faces right, near hand. Cells are separated by one blank column; to draw
-one cell, copy its columns `[i × stride, i × stride + width)` into `applyBatch` `grid`
-and map the roles onto the sprite's own palette. Light is from the upper left.
+All hand sheets show a hand with a forearm stub in `sleeve` colours. **Front** = the character faces the viewer, or the palm/back of the hand does. **Side** = the character faces right, near hand. Cells are separated by one blank column; to draw one cell, copy its columns `[i × stride, i × stride + width)` into `applyBatch` `grid` and map the roles onto the sprite's own palette. Light is from the upper left.
 
-**8 px.** Four 5-px cells (stride 6): arm hanging, sword grip (blade above, grip
-pixel below the skin pixel), arm raised, arm pointing. The hand is the only skin pixel.
+**8 px.** Four 5-px cells (stride 6): arm hanging, sword grip (blade above, grip pixel below the skin pixel), arm raised, arm pointing. The hand is the only skin pixel.
 
 ```grid hands-8-arms
 L = skin-light  #f2b48a
@@ -142,8 +63,7 @@ W = grip-mid    #a0663a
 .........W...C.........
 ```
 
-**16 px, front.** Cells 7 × 7 (stride 8): relaxed, open palm, fist, sword grip, point,
-wave. Use for characters facing the viewer or gestures toward the camera.
+**16 px, front.** Cells 7 × 7 (stride 8): relaxed, open palm, fist, sword grip, point, wave. Use for characters facing the viewer or gestures toward the camera.
 
 ```grid hands-16-front
 O = outline       #2b1d2e
@@ -166,9 +86,7 @@ Y = guard-gold    #e2b94c
 ..........OccO............OOOO....OccO....OccO.
 ```
 
-**16 px, side.** Cells 9 × 7 (stride 10): relaxed, reaching open hand (thumb up),
-punching fist, sword grip, point, raised hand. The grip cell is the weapon pose for
-side-on sprites.
+**16 px, side.** Cells 9 × 7 (stride 10): relaxed, reaching open hand (thumb up), punching fist, sword grip, point, raised hand. The grip cell is the weapon pose for side-on sprites.
 
 ```grid hands-16-side
 O = outline       #2b1d2e
@@ -191,8 +109,7 @@ Y = guard-gold    #e2b94c
 ..............................OOOOWwO...............OCCO...
 ```
 
-**16 px fist corners.** Six 6 × 6 cells (stride 7): none, top-left, bottom-left,
-top-right, bottom-right, three corners. Rule 6 says what each one means.
+**16 px fist corners.** Six 6 × 6 cells (stride 7): none, top-left, bottom-left, top-right, bottom-right, three corners. Rule 6 says what each one means.
 
 ```grid hands-16-corners
 O = outline     #2b1d2e
@@ -207,9 +124,7 @@ OLLLDO.OLLLDO.OLLLDO.OLLLDO.OLLLDO.OLLLDO
 ..OO.....OO....OOO.....OO.....OOO...OOO..
 ```
 
-**32 px, front.** Cells 13 × 10 (stride 14): relaxed, open (finger notch + thumb), fist,
-sword grip, point, wave (the open hand sheared; alternate it with its mirror for
-a 2-frame wave).
+**32 px, front.** Cells 13 × 10 (stride 14): relaxed, open (finger notch + thumb), fist, sword grip, point, wave (the open hand sheared; alternate it with its mirror for a 2-frame wave).
 
 ```grid hands-32-front
 O = outline       #2b1d2e
@@ -235,8 +150,7 @@ Y = guard-gold    #e2b94c
 .................OcccO.......................OOOO..........OcccO..........OcccO....
 ```
 
-**32 px, side.** Cells 14 × 12 (stride 15): relaxed, open reach, punching fist, sword grip
-(guard, blade, pommel), point, raised hand.
+**32 px, side.** Cells 14 × 12 (stride 15): relaxed, open reach, punching fist, sword grip (guard, blade, pommel), point, raised hand.
 
 ```grid hands-32-side
 O = outline       #2b1d2e
@@ -264,8 +178,7 @@ Y = guard-gold    #e2b94c
 ...................................................OOOO..................................
 ```
 
-**48 px, front.** Cells 16 × 13 (stride 17): relaxed, open (three fingers + thumb, gaps in
-shadow), fist (knuckle highlight, curl shadow), sword grip, point, wave.
+**48 px, front.** Cells 16 × 13 (stride 17): relaxed, open (three fingers + thumb, gaps in shadow), fist (knuckle highlight, curl shadow), sword grip, point, wave.
 
 ```grid hands-48-front
 O = outline        #2b1d2e
@@ -295,8 +208,7 @@ Y = guard-gold     #e2b94c
 .......................................................OOOO..........................................
 ```
 
-**48 px, side.** Cells 17 × 14 (stride 18): relaxed, open reach with thumb band, punching
-fist, sword grip, point, raised hand.
+**48 px, side.** Cells 17 × 14 (stride 18): relaxed, open reach with thumb band, punching fist, sword grip, point, raised hand.
 
 ```grid hands-48-side
 O = outline        #2b1d2e
@@ -327,10 +239,7 @@ Y = guard-gold     #e2b94c
 .............................................................OOOO..........................................
 ```
 
-**64 px, front.** Cells 20 × 18 (stride 21): open (four fingers, thumb apart, gaps in
-skin-shadow), fist (three visible finger curls over a curl line, thumb across), sword grip
-(guard, fist over the handle, 2 px of handle and a pommel below). Palm shade sits on the
-lower and right edges; the only highlights are on fingertips and knuckles.
+**64 px, front.** Cells 20 × 18 (stride 21): open (four fingers, thumb apart, gaps in skin-shadow), fist (three visible finger curls over a curl line, thumb across), sword grip (guard, fist over the handle, 2 px of handle and a pommel below). Palm shade sits on the lower and right edges; the only highlights are on fingertips and knuckles.
 
 ```grid hands-64-front
 O = outline        #2b1d2e
@@ -391,8 +300,7 @@ P = trouser-mid #5a6a8a
 .OOOOOO...OOOOOO......OOOO
 ```
 
-**Feet, 16 px, other views.** Three 12-px cells (stride 13): front pair, back pair,
-top-down pair.
+**Feet, 16 px, other views.** Three 12-px cells (stride 13): front pair, back pair, top-down pair.
 
 ```grid feet-16-views
 O = outline     #2b1d2e
@@ -408,8 +316,7 @@ OBBBO..OBBBO..ObbO..ObbO..OBBBO.OBBBO.
 OOOOO..OOOOO..OOOO..OOOO...OOO...OOO..
 ```
 
-**Feet, 32 px, side.** Three 10-px cells (stride 11): stand (flat), heel strike (toe up,
-2 px wedge), toe-off (heel up). Trouser in `trouser` colours, boot in `boot`.
+**Feet, 32 px, side.** Three 10-px cells (stride 11): stand (flat), heel strike (toe up, 2 px wedge), toe-off (heel up). Trouser in `trouser` colours, boot in `boot`.
 
 ```grid feet-32-side
 O = outline        #2b1d2e
@@ -430,8 +337,7 @@ p = trouser-shadow #3e4b68
 .OOOOOOOO...OOOOOO.........OOOO.
 ```
 
-**Feet, 32 px, other views.** Three 14-px cells (stride 15): front pair (outward toes),
-back pair (heel + sole shade, no cap), top-down pair (toe caps toward the viewer).
+**Feet, 32 px, other views.** Three 14-px cells (stride 15): front pair (outward toes), back pair (heel + sole shade, no cap), top-down pair (toe caps toward the viewer).
 
 ```grid feet-32-views
 O = outline        #2b1d2e
@@ -451,9 +357,7 @@ OBBBBO..OBBBBO..ObbbO..ObbbO....OOO....OOO..
 OOOOOO..OOOOOO..OOOOO..OOOOO................
 ```
 
-**Feet, 32 px, bare.** Side cell 14 px wide (arch lifted a pixel off the ground line), then
-a front pair 15 px wide (three toes each, separated by outline notches); both start at
-stride 15.
+**Feet, 32 px, bare.** Side cell 14 px wide (arch lifted a pixel off the ground line), then a front pair 15 px wide (three toes each, separated by outline notches); both start at stride 15.
 
 ```grid feet-32-bare
 O = outline     #2b1d2e
@@ -521,28 +425,14 @@ OOOOOOOOO.OOOOOOOOO.
 
 ## Procedure
 
-1. `getContext`. Read the figure height and the head height; look up hand and foot
-   size in the table. Write the size down before drawing anything.
-2. Decide the pose from the six-hand library (rule 12) and the view (front, side,
-   top-down). Pick the template whose size row matches; at an in-between height
-   take the smaller one and add a pixel to the thumb or toe cap, not to the palm.
-3. Draw the limb first (sleeve, trouser), then stamp the hand or boot with `applyBatch`
-   op `grid` at the limb's end, using `transparent: "skip"` so the limb underneath
-   survives. Map roles onto the sprite's palette with `palette` op `get`; the
-   example hexes only make the template renderable.
-4. Hands that grip: draw the object first on its own layer, then the fist on top,
-   so the handle runs behind the fingers and shows at both ends.
-5. `render`, then `readPixels` `format:"grid"` on the hand region: count the hand's
-   pixels against the ladder and check that no hand pixel touches the torso's
-   outline.
-6. Other hand: copy the cel, `flip` `direction: "horizontal"`, then redraw
-   thumb and cuff. Weapon hand stays fixed across directions (rule 10).
-7. Animated: keep arms, hands and feet on stable layers (`craft/00-core/06-layers-and-rigging.md`);
-   run `render` `filmstrip` and `render` `onionSkin` on the hand layer; the lowest foot
-   pixel must stay on one row and the hand's pixel count must not change between
-   frames unless the pose does.
-8. `validate`; fix orphan pixels at fingertips by moving them into the cluster,
-   not by deleting the finger (`craft/10-technique/11-clusters-and-noise.md`).
+1. `getContext`. Read the figure height and the head height; look up hand and foot size in the table. Write the size down before drawing anything.
+2. Decide the pose from the six-hand library (rule 12) and the view (front, side, top-down). Pick the template whose size row matches; at an in-between height take the smaller one and add a pixel to the thumb or toe cap, not to the palm.
+3. Draw the limb first (sleeve, trouser), then stamp the hand or boot with `applyBatch` op `grid` at the limb's end, using `transparent: "skip"` so the limb underneath survives. Map roles onto the sprite's palette with `palette` op `get`; the example hexes only make the template renderable.
+4. Hands that grip: draw the object first on its own layer, then the fist on top, so the handle runs behind the fingers and shows at both ends.
+5. `render`, then `readPixels` `format:"grid"` on the hand region: count the hand's pixels against the ladder and check that no hand pixel touches the torso's outline.
+6. Other hand: copy the cel, `flip` `direction: "horizontal"`, then redraw thumb and cuff. Weapon hand stays fixed across directions (rule 10).
+7. Animated: keep arms, hands and feet on stable layers (`06-layers-and-rigging`); run `render` `filmstrip` and `render` `onionSkin` on the hand layer; the lowest foot pixel must stay on one row and the hand's pixel count must not change between frames unless the pose does.
+8. `validate`; fix orphan pixels at fingertips by moving them into the cluster, not by deleting the finger (`11-clusters-and-noise`).
 
 ## Mistakes
 

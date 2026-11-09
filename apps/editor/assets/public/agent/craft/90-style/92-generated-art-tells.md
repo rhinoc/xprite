@@ -14,7 +14,7 @@ Machine-made pixel art is a picture *of* pixel art, not pixels on a grid. Image 
 8. **Fix at native scale.** Never smooth, blur, upscale or filter to hide a tell. `resizeSprite` `nearest` is the only legal resize. `palette` op `snap` the art and refuse `bilinear`/`rotsprite` unless the user asks.
 9. **Re-run the detector after each fix** and quote before/after counts in the report.
 10. **Thresholds** (sprite ≤32 px unless noted; colour caps derived from sources that expect 8–32 colours for sprites): used colours ≤16 (≤32 at 64 px); off-palette 0; near-duplicate pairs (ΔE<3) 0; semi-transparent pixels 0; isolated pixels 0, at most one justified highlight or eye per object; no banding note; outline either ≥60% one colour with every gap justified, or deliberately none.
-11. **Hi-bit is no excuse.** A large canvas or unlimited palette still gets hard-edged clusters and no bilinear anything (`craft/90-style/90-platform-styles.md`).
+11. **Hi-bit is no excuse.** A large canvas or unlimited palette still gets hard-edged clusters and no bilinear anything (`90-platform-styles`).
 
 ## Catalogue
 
@@ -29,7 +29,7 @@ Detect = what to run. Fix = the smallest repair. Row ids are used in Review.
 | G3 | Bilinear or fractional scaling: unequal stair runs, intermediate colours on every edge, dozens of extra colours | `palette` op `analyze` near-duplicates; `readPixels` `format:"grid"` on an edge shows 3+ steps | Return to source; integer nearest-neighbour only |
 | G4 | Rotated pixels: lumps, diamonds, smears on edges that were straight | `readPixels` `format:"grid"`: irregular runs where the edge was a clean slope | Rotate only by 90° multiples (`rotate90`), else redraw per angle |
 | G5 | Mixed pitch in one scene: a sprite at 2× beside background at 1× | Row test in two regions; preview shows chunky vs fine pixels | Redraw the odd element at the world pitch |
-| G6 | Jaggies and wobbly lines: runs like 2,3,1,2 | `readPixels` `format:"grid"` run lengths | Uniform or monotone runs (`craft/10-technique/10-lines-and-curves.md`) |
+| G6 | Jaggies and wobbly lines: runs like 2,3,1,2 | `readPixels` `format:"grid"` run lengths | Uniform or monotone runs (`10-lines-and-curves`) |
 | G7 | Boxy fake pixelation: shapes built only from rectangles, no 2:1 slopes or rounded 2 px corners; reads as a 3D render at low res | Preview: silhouette is rectangles | Redraw with diagonals and corner rounding |
 | G8 | Odd canvas: not a multiple of 8, or 512 / 1024 | `getContext` | Work at 16 / 24 / 32 / 48 / 64 |
 
@@ -42,9 +42,9 @@ Detect = what to run. Fix = the smallest repair. Row ids are used in Review.
 | C3 | Brightness-only ramps: shadow = same hue, darker | `palette` op `analyze` ramp structure; ramp steps share one hue | `palette` op `ramp` (shadows toward blue/violet, highlights toward orange), `adjustHsl` |
 | C4 | Colour noise inside flat regions (JPEG-like) | `readPixels` on a 4×4 flat patch: more than one colour | `applyBatch` `fill` with `tolerance` 20–40, contiguous, then `palette` op `snap` |
 | C5 | Confetti: single pixels of unrelated hue near the subject | `validate` strays only finds specks floating in transparency; specks inside a fill need `readPixels` `format:"grid"` (a glyph with no same-glyph 4-neighbour) | Repaint with the surrounding colour (`applyBatch` `pixels`); keep one specular dot or eye |
-| C6 | Conflicting light: highlights on both sides | Preview; `readPixels` `format:"grid"`: lightest glyph clusters on opposite sides | One direction (`craft/00-core/02-shading-and-light.md`), reshade |
+| C6 | Conflicting light: highlights on both sides | Preview; `readPixels` `format:"grid"`: lightest glyph clusters on opposite sides | One direction (`02-shading-and-light`), reshade |
 | C7 | Pillow shading: value falls off from the centre in rings, uniform dark rim | `readPixels` `format:"grid"` of one form shows concentric rings | Offset highlight toward the light, crescent shadow on the far side (template) |
-| C8 | Local colour only: every material one hue, one saturation, no accent | Preview; `effect` `hue-saturation` on a copy shows no focal value | `craft/20-color/20-color-for-pixel-art.md`: temperature and one accent |
+| C8 | Local colour only: every material one hue, one saturation, no accent | Preview; `effect` `hue-saturation` on a copy shows no focal value | `20-color-for-pixel-art`: temperature and one accent |
 
 **Clusters and texture**
 
@@ -53,7 +53,7 @@ Detect = what to run. Fix = the smallest repair. Row ids are used in Review.
 | X1 | Speckle as texture: random 1–2 px clusters | `readPixels` `format:"grid"`: many clusters under 3 px | Clusters of ≥3 px that follow the form; fewer |
 | X2 | Dither as a field or noise | `applyBatch` `dither` pattern `noise` anywhere; dither over about half an object | Add a colour; `checker` / `bayer` only in a 1–3 px transition |
 | X3 | Banding and hugging: parallel bands with aligned ends | `validate` banding (horizontal run ≥ max(8, width/3), reported as a note); vertical, diagonal and hugging need `readPixels` `format:"grid"` | Stagger the ends, let boundaries wander, dither one short section (template) |
-| X4 | Equal detail everywhere: no resting area | The `render` fails the 1× test; `readPixels` regions show similar colour counts everywhere | Delete detail until 1× passes; quiet zones (`craft/90-style/91-composition-and-scenes.md`) |
+| X4 | Equal detail everywhere: no resting area | The `render` fails the 1× test; `readPixels` regions show similar colour counts everywhere | Delete detail until 1× passes; quiet zones (`91-composition-and-scenes`) |
 | X5 | Smooth gradients on rock, pipe, cloth | `applyBatch` `gradient` with many `steps` | 3–5 steps; wander the edges; dither only large skies |
 | X6 | Software circles: even but lumpy runs | `readPixels` `format:"grid"` run lengths | Hand-edit to monotone runs |
 | X7 | Repeating tile grid | Blit the tile 3×3 with `applyBatch` `blit`, `render` | Variants; break the lattice |
@@ -63,19 +63,19 @@ Detect = what to run. Fix = the smallest repair. Row ids are used in Review.
 | Id | Tell | Detect | Fix |
 |----|------|--------|-----|
 | E1 | Semi-transparent pixels and halos | `validate` antialiasing (RGB sprites) | Repaint those pixels opaque with `applyBatch` `pixels` |
-| E2 | Soft AA: opaque in-between tones, two or more steps from outline to background | `readPixels` `format:"grid"` on an edge; `palette` op `analyze` near-duplicates | Hard 1 px edge; selective AA at most half the step length (`craft/10-technique/12-anti-aliasing.md`) |
+| E2 | Soft AA: opaque in-between tones, two or more steps from outline to background | `readPixels` `format:"grid"` on an edge; `palette` op `analyze` near-duplicates | Hard 1 px edge; selective AA at most half the step length (`12-anti-aliasing`) |
 | E3 | Colour fringe from an old background | Add a temporary flat contrasting layer below, `render` | Recolour the fringe to the outline colour (`outline`, `side: "inside"`) |
 | E4 | Broken or doubled outline | `validate` outline: 60–99% one colour = gaps; doubles need `readPixels` `format:"grid"` | Regenerate with `outline` |
-| E5 | Dark outline on every internal boundary | Preview, `readPixels` `format:"grid"` | Selective outline (`craft/00-core/04-outlines-and-edges.md`) |
+| E5 | Dark outline on every internal boundary | Preview, `readPixels` `format:"grid"` | Selective outline (`04-outlines-and-edges`) |
 
 **Process and animation**
 
 | Id | Tell | Detect | Fix |
 |----|------|--------|-----|
-| S1 | Frame drift: size, palette, outline change between frames | `render` `filmstrip`; `readPixels` `mode:"diff"` on frame pairs | Build every frame from one master (`craft/00-core/06-layers-and-rigging.md`) |
-| S2 | Uniform timing, no holds | `validate` animation note | `craft/40-animation/40-timing-and-spacing.md` |
-| S3 | Anatomy and object logic: extra digits, unequal eyes, impossible joins | Count limbs in preview | Rebuild from construction (`craft/30-characters/31-anatomy-and-pose.md`) |
-| S4 | Perfect mirror symmetry | Copy to a scratch sprite, flip with `flip`, `readPixels` `mode:"diff"`: near-empty diff = mirror | Break symmetry (`craft/00-core/03-silhouette-and-form.md`) |
+| S1 | Frame drift: size, palette, outline change between frames | `render` `filmstrip`; `readPixels` `mode:"diff"` on frame pairs | Build every frame from one master (`06-layers-and-rigging`) |
+| S2 | Uniform timing, no holds | `validate` animation note | `40-timing-and-spacing` |
+| S3 | Anatomy and object logic: extra digits, unequal eyes, impossible joins | Count limbs in preview | Rebuild from construction (`31-anatomy-and-pose`) |
+| S4 | Perfect mirror symmetry | Copy to a scratch sprite, flip with `flip`, `readPixels` `mode:"diff"`: near-empty diff = mirror | Break symmetry (`03-silhouette-and-form`) |
 | S5 | Photo-conversion look: uniform error-diffusion speckle over a photographic layout, no designed silhouette | Preview; fails the silhouette test | Redraw from a silhouette |
 
 **Downscale damage**

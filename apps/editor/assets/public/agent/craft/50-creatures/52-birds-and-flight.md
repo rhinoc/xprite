@@ -1,67 +1,23 @@
 # Birds and flight
 
-A bird drawn as a mammal with a beak has a knee in the wrong place and a wing that
-is a flat paddle. A flap cycle built by tilting one rigid blade up and down looks like
-a windmill. This file gives the body plan, the one visible leg joint that people draw
-backwards, wing structure for birds and bats, the four-frame flap with body bob and
-timing, and the small cases (hover, glide, perch). Quadruped anatomy is
-`craft/50-creatures/50-quadrupeds.md`; follow-through in general is `craft/40-animation/45-secondary-motion.md`;
-sub-pixel hover is `craft/40-animation/46-subpixel-animation.md`.
+A bird drawn as a mammal with a beak has a knee in the wrong place and a wing that is a flat paddle. A flap cycle built by tilting one rigid blade up and down looks like a windmill. This file gives the body plan, the one visible leg joint that people draw backwards, wing structure for birds and bats, the four-frame flap with body bob and timing, and the small cases (hover, glide, perch). Quadruped anatomy is `50-quadrupeds`; follow-through in general is `45-secondary-motion`; sub-pixel hover is `46-subpixel-animation`.
 
 ## Rules
 
-1. **Build a bird from an egg, a ball and a cone.** Body = egg with the breast (keel)
-   forward and down and the tail up and back; head = ball; beak = cone or wedge; legs
-   = thin lines; the S-shaped neck is long but tucks into the shoulders at rest, so
-   draw 2–3 px of it. Owls are fat pears with a big ball head; ducks and geese carry the
-   S neck upright (Hultgren, Goldfinger).
-2. **The visible leg joint is the ankle, and it bends backward.** The knee is hidden in
-   the body feathers. Draw one kink: body → short feathered thigh → ankle (kink pointing
-   **back**) → straight tarsus down → toes. Toes: 3 forward and 1 back for chicken, hawk,
-   crow and songbirds; 2 forward and 2 back for parrots and woodpeckers; 2 for the ostrich.
-   Anatomy gives a visible tarsus of 0.10–0.12 of standing height (chicken: head + neck
-   0.35–0.40, body 0.30–0.35, tibia 0.25, tarsus 0.20 of which 0.10–0.12 shows, toes 0.08);
-   stylised sprites stretch the visible leg to 0.2–0.3 so the kink reads (derived).
-3. **A wing is an arm.** Short humerus against the body, two long parallel bones, a fused
-   hand with the long primaries; the thumb carries a small tuft (alula). Elbow and wrist are
-   coupled: they bend together or straighten together. Folded, the wing is a Z: upper arm
-   back, forearm forward, hand back, tip lying along the tail root. Open, it is nearly a
-   straight line from shoulder to tip, leading edge straight, trailing edge scalloped.
-4. **Wing bands, three of them.** Leading edge: small coverts, 2–3 px, lightest or patterned.
-   Middle: large coverts, 2 px, darker. Trailing: flight feathers as 1–2 px stripes with a
-   1 px darker gap; primaries fan out like fingers at the tip, secondaries make a smooth
-   rounded edge. At ≤ 16 px collapse to two tones: a light covert patch and a dark tip.
-5. **Flap: four key poses, body bob opposite the wing.** Wings up (body lowest, +1) → wings
-   mid on the way down (0) → wings fully down (body highest, −2) → wings mid on the way up
-   (−1). The body rises fast on the downstroke and sinks 1 px as the wings recover
-   (Saint11: up 3 px fast, then 1 px while the wings descend). The wing is two segments (7 + 8 px
-   in the templates) so the tip can trail.
-6. **Tips trail.** On the downstroke the tip bends up behind the arm; on the upstroke it bends
-   down (Blair). In the templates the outer segment turns 20–35° against the inner one.
-7. **Which stroke is fast.** Sources disagree: Saint11 makes the upstroke much faster than the
-   downstroke; Blair's cartoon chart spends more drawings on the rising wing and a single wide
-   drawing on the downstroke. Decision: use Saint11's, because it is measured from a shipped 56-frame
-   loop at 80 ms and matches how birds fly (the downstroke is the power stroke, the upstroke is a
-   quick folded recovery). Use Blair's snap for a slow, cartoon, heavy bird.
-8. **Frame count and speed follow size.** Small birds beat fast, large birds beat slowly (see
-   Timing). A convincing flap often needs fewer than 8 frames; at ≤ 16 px use 2 (up, down).
-9. **Soaring is a held pose.** Wings flat, the "M" or flat-gull silhouette with finger notches
-   at the tips; move 1 px of bob, a tail tilt and a slight wing flex every few frames, not a flap.
-10. **Hover and fast wings.** A hovering bird bobs by sub-pixel moves; very fast wings (hummingbird,
-    insects) use fewer frames or two wing copies as a light smear, not eight drawings. Falling:
-    1 px per frame with the wings rising against the fall.
-11. **Bat wings are hands.** Wrist peak, 3–4 finger struts radiating from it, thin membrane
-    between them with scalloped trailing edge, a thumb claw at the wrist, body and head tiny.
-    A bat at rest hangs head-down with the wings wrapped round the body.
-12. **Beak and eye are the lone allowed orphan pixels.** Each is 1 px (2×1 beak at 16–20 px).
-    Beak length 0.5–1 × the cranium; upper and lower jaw 1 px each when open. Do not use the beak
-    colour anywhere else on the bird (an orange nose reads as a beak) (Cure for the lone-pixel exception,
-    Pixel Logic for the misread).
-13. **A walking bird is a biped with a reversed knee.** The same contact, down, pass, up structure
-    as the human walk, the visible joint pointing back; the head thrusts forward on each step (derived).
-    Williams makes the point with ostrich, man and horse (`craft/40-animation/42-walk-and-run.md`).
-14. **Colour on the underside.** Light breast, darker back; the flight feathers darker than the
-    coverts. Put dark on all extremities (tail end, wingtips) of a light bird (Hultgren).
+1. **Build a bird from an egg, a ball and a cone.** Body = egg with the breast (keel) forward and down and the tail up and back; head = ball; beak = cone or wedge; legs = thin lines; the S-shaped neck is long but tucks into the shoulders at rest, so draw 2–3 px of it. Owls are fat pears with a big ball head; ducks and geese carry the S neck upright (Hultgren, Goldfinger).
+2. **The visible leg joint is the ankle, and it bends backward.** The knee is hidden in the body feathers. Draw one kink: body → short feathered thigh → ankle (kink pointing **back**) → straight tarsus down → toes. Toes: 3 forward and 1 back for chicken, hawk, crow and songbirds; 2 forward and 2 back for parrots and woodpeckers; 2 for the ostrich. Anatomy gives a visible tarsus of 0.10–0.12 of standing height (chicken: head + neck 0.35–0.40, body 0.30–0.35, tibia 0.25, tarsus 0.20 of which 0.10–0.12 shows, toes 0.08); stylised sprites stretch the visible leg to 0.2–0.3 so the kink reads (derived).
+3. **A wing is an arm.** Short humerus against the body, two long parallel bones, a fused hand with the long primaries; the thumb carries a small tuft (alula). Elbow and wrist are coupled: they bend together or straighten together. Folded, the wing is a Z: upper arm back, forearm forward, hand back, tip lying along the tail root. Open, it is nearly a straight line from shoulder to tip, leading edge straight, trailing edge scalloped.
+4. **Wing bands, three of them.** Leading edge: small coverts, 2–3 px, lightest or patterned. Middle: large coverts, 2 px, darker. Trailing: flight feathers as 1–2 px stripes with a 1 px darker gap; primaries fan out like fingers at the tip, secondaries make a smooth rounded edge. At ≤ 16 px collapse to two tones: a light covert patch and a dark tip.
+5. **Flap: four key poses, body bob opposite the wing.** Wings up (body lowest, +1) → wings mid on the way down (0) → wings fully down (body highest, −2) → wings mid on the way up (−1). The body rises fast on the downstroke and sinks 1 px as the wings recover (Saint11: up 3 px fast, then 1 px while the wings descend). The wing is two segments (7 + 8 px in the templates) so the tip can trail.
+6. **Tips trail.** On the downstroke the tip bends up behind the arm; on the upstroke it bends down (Blair). In the templates the outer segment turns 20–35° against the inner one.
+7. **Which stroke is fast.** Sources disagree: Saint11 makes the upstroke much faster than the downstroke; Blair's cartoon chart spends more drawings on the rising wing and a single wide drawing on the downstroke. Decision: use Saint11's, because it is measured from a shipped 56-frame loop at 80 ms and matches how birds fly (the downstroke is the power stroke, the upstroke is a quick folded recovery). Use Blair's snap for a slow, cartoon, heavy bird.
+8. **Frame count and speed follow size.** Small birds beat fast, large birds beat slowly (see Timing). A convincing flap often needs fewer than 8 frames; at ≤ 16 px use 2 (up, down).
+9. **Soaring is a held pose.** Wings flat, the "M" or flat-gull silhouette with finger notches at the tips; move 1 px of bob, a tail tilt and a slight wing flex every few frames, not a flap.
+10. **Hover and fast wings.** A hovering bird bobs by sub-pixel moves; very fast wings (hummingbird, insects) use fewer frames or two wing copies as a light smear, not eight drawings. Falling: 1 px per frame with the wings rising against the fall.
+11. **Bat wings are hands.** Wrist peak, 3–4 finger struts radiating from it, thin membrane between them with scalloped trailing edge, a thumb claw at the wrist, body and head tiny. A bat at rest hangs head-down with the wings wrapped round the body.
+12. **Beak and eye are the lone allowed orphan pixels.** Each is 1 px (2×1 beak at 16–20 px). Beak length 0.5–1 × the cranium; upper and lower jaw 1 px each when open. Do not use the beak colour anywhere else on the bird (an orange nose reads as a beak) (Cure for the lone-pixel exception, Pixel Logic for the misread).
+13. **A walking bird is a biped with a reversed knee.** The same contact, down, pass, up structure as the human walk, the visible joint pointing back; the head thrusts forward on each step (derived). Williams makes the point with ostrich, man and horse (`42-walk-and-run`).
+14. **Colour on the underside.** Light breast, darker back; the flight feathers darker than the coverts. Put dark on all extremities (tail end, wingtips) of a light bird (Hultgren).
 
 ## By size
 
@@ -80,8 +36,7 @@ sub-pixel hover is `craft/40-animation/46-subpixel-animation.md`.
 | Crow / pigeon | 60–80 | 240–320 ms |
 | Gull / hawk | 100–140 | 400–560 ms |
 
-Hold the wings-up frame about 1.5× the others (Blair: two ticks at the top), the mid-up frame
-shortest. Source ranges: small birds 50–60 ms per frame, large 100–140 ms; Saint11's loop runs at 80 ms.
+Hold the wings-up frame about 1.5× the others (Blair: two ticks at the top), the mid-up frame shortest. Source ranges: small birds 50–60 ms per frame, large 100–140 ms; Saint11's loop runs at 80 ms.
 
 ## Templates
 
@@ -424,17 +379,12 @@ OBBBBDBDBDLLLFFFFLLLBDBBDBDBBO.
 
 ## Procedure
 
-1. Pick the bird, canvas and facing. Palette: back, breast, flight feather (3 tones), beak, eye;
-   `palette` op `ramp` for the back.
-2. Rig with `addLayer`: `wing-far`, `tail`, `body`, `head`, `wing-near`, `legs` (omit legs in flight).
-   Keep the wing on its own layer so it can move as one piece (`craft/00-core/06-layers-and-rigging.md`).
+1. Pick the bird, canvas and facing. Palette: back, breast, flight feather (3 tones), beak, eye; `palette` op `ramp` for the back.
+2. Rig with `addLayer`: `wing-far`, `tail`, `body`, `head`, `wing-near`, `legs` (omit legs in flight). Keep the wing on its own layer so it can move as one piece (`06-layers-and-rigging`).
 3. Draw the body egg and head ball, then the beak and eye pixel. Check the silhouette with `render`.
-4. Wing: draw it open as two segments, then bands (coverts, flight feathers, primaries). Fold it with the Z rule
-   for the perched pose.
-5. Flap: `addFrame` to four frames. Draw wings up, wings down first, then the two mids. Move the body per
-   frame with `translate` using the +1, 0, −2, −1 offsets; add tip trail on the mids.
-6. `render` `filmstrip`, then `render` `onionSkin`: the wing should sweep an arc and the tip should lag. `setFrameDuration`
-   from the Timing table; `addTag` the loop `fly`. `validate` for orphan pixels (beak and eye are fine).
+4. Wing: draw it open as two segments, then bands (coverts, flight feathers, primaries). Fold it with the Z rule for the perched pose.
+5. Flap: `addFrame` to four frames. Draw wings up, wings down first, then the two mids. Move the body per frame with `translate` using the +1, 0, −2, −1 offsets; add tip trail on the mids.
+6. `render` `filmstrip`, then `render` `onionSkin`: the wing should sweep an arc and the tip should lag. `setFrameDuration` from the Timing table; `addTag` the loop `fly`. `validate` for orphan pixels (beak and eye are fine).
 
 ## Mistakes
 

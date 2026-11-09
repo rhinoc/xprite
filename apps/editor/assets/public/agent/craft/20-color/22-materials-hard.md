@@ -1,8 +1,6 @@
 # Hard materials: metal, gold, glass, gems, stone, wood, bone
 
-Hard materials fail in two ways: everything gets the same grey-brown ramp, or every material gets a highlight. A material is mostly its
-*highlight behaviour* and *ramp contrast* — how many pixels shine, how hard the band edges are — not a special colour. Soft materials are in
-`craft/20-color/23-materials-soft.md`; light colour in `craft/20-color/24-lighting-scenarios.md`; ramp theory in `craft/20-color/20-color-for-pixel-art.md`.
+Hard materials fail in two ways: everything gets the same grey-brown ramp, or every material gets a highlight. A material is mostly its *highlight behaviour* and *ramp contrast* — how many pixels shine, how hard the band edges are — not a special colour. Soft materials are in `23-materials-soft`; light colour in `24-lighting-scenarios`; ramp theory in `20-color-for-pixel-art`.
 
 ## Rules
 
@@ -20,7 +18,7 @@ Hard materials fail in two ways: everything gets the same grey-brown ramp, or ev
 12. **Cracks:** thin cracks end in a *lighter* pixel, deeper cracks in a darker one (line weight applied to cracks). Moss goes in crevices. A 2–3 px bevel on a block: light edge top-left, 1 px dark edge bottom-right.
 13. **Wood: hue-shift the shadows toward crimson,** slow transitions, don't overdo the highlight, no pillow shading. Planks: big shapes and bevels first, grain after, raise contrast at joins; grain lines are broken, never full length. Bark: individual scales *lit as one shape*. End grain: rings fade with distance from the cut face. Details: knots, nails, cracks, moss.
 14. **Bone is cream, not white.** Hue 44–50, S ≤ 30; shadows go warm taupe → violet-brown. Matte: no specular. Skeleton icons keep the eye sockets as 2×2 dark blocks and drop everything else at ≤ 9 px.
-15. **Ice and snow** (brief): six tones, snow only on up-facing faces, reflection glint crossing the ice planes; sunset snow takes pink lights and blue-violet shadows. Soft-matter snow detail in `craft/20-color/23-materials-soft.md`.
+15. **Ice and snow** (brief): six tones, snow only on up-facing faces, reflection glint crossing the ice planes; sunset snow takes pink lights and blue-violet shadows. Soft-matter snow detail in `23-materials-soft`.
 
 ## Material recipes (dark → light)
 
@@ -36,7 +34,7 @@ Hard materials fail in two ways: everything gets the same grey-brown ramp, or ev
 | bone (derived) | `#422e37 #705159 #a38c72 #d6cbab #f7f3df` | H 335 → 50, S 10–30 | cream light, violet-brown core |
 | ice (measured, 6) | `#0a3059 #004da0 #1f74a4 #40949a #c0cbdc #ffffff` | deep blue → glow teal → snow | reflection glint cycles planes |
 
-Other gem hues (derived): emerald and sapphire use the green and blue 5-step ramps from `craft/20-color/20-color-for-pixel-art.md`, with the refraction step moved 25–40° off the shadow hue.
+Other gem hues (derived): emerald and sapphire use the green and blue 5-step ramps from `20-color-for-pixel-art`, with the refraction step moved 25–40° off the shadow hue.
 
 ## By size
 

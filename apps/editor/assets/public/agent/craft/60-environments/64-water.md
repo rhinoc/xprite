@@ -1,90 +1,41 @@
 # Water
 
-Water drawn as a blue fill with white dashes looks like a rug. It needs three things at once: a depth
-gradient, a surface layer that moves less than one pixel at a time, and a reflection or shore that is
-cut into strips instead of mirrored whole. This file covers still water, flowing water, waterfalls,
-reflections and animated tiles. Particle foam and rain are `craft/80-effects-ui/82-particles-and-weather.md`; tile
-connection logic is `craft/60-environments/66-tiles-and-autotiling.md`; ice and slime are `craft/20-color/22-materials-hard.md`
-and `craft/20-color/23-materials-soft.md`.
+Water drawn as a blue fill with white dashes looks like a rug. It needs three things at once: a depth gradient, a surface layer that moves less than one pixel at a time, and a reflection or shore that is cut into strips instead of mirrored whole. This file covers still water, flowing water, waterfalls, reflections and animated tiles. Particle foam and rain are `82-particles-and-weather`; tile connection logic is `66-tiles-and-autotiling`; ice and slime are `22-materials-hard` and `23-materials-soft`.
 
 ## Rules
 
 **Colour and depth**
 
-1. Water is a vertical gradient. Looking steeply into near water you see through it: dark, transparent,
-   tinted by the bed (green-brown). Far water at a shallow angle mirrors the sky: the sky ramp, one or two
-   steps darker. Default: dark near → sky-coloured far, as hard bands joined with a dithered
-   checker row (`craft/10-technique/13-dithering-and-texture.md`).
-2. Reflected light objects are slightly *darker* than the objects. Dark objects (trees, hulls) reflect
-   weakly or vanish. Shadows on clear deep water vanish; on turbid water (brown-green cast) they are soft.
-   At dusk, clear water reflects the cool sky evenly.
-3. Depth ramp for underwater and streams: shallows show the warm bed (red-brown, ochre) → olive-green →
-   teal → blue-green → indigo. Red goes first (about 3 m), oranges by about 7.6 m; below that only blue,
-   cyan and violet, with low contrast. Horizontal distance acts like depth. Add warm light only if there
-   is a source (lamp, flash).
-4. Keep a low-contrast base and a small overlay. Measured saint11 tile (16×16): base `#627aea` with 17 %
-   flecks one step darker (`#5b6ee1`); overlay mid `#639bff` 28 %, cyan glint `#5fcde4` 7 %, pale
-   `#cbdbfc` under 2 %; the rest transparent. Overlay shapes are 1–2 px thick wavy dashes, 4–7 px long,
-   pale pixels next to cyan ones. Sea and grass must not share one noise structure.
+1. Water is a vertical gradient. Looking steeply into near water you see through it: dark, transparent, tinted by the bed (green-brown). Far water at a shallow angle mirrors the sky: the sky ramp, one or two steps darker. Default: dark near → sky-coloured far, as hard bands joined with a dithered checker row (`13-dithering-and-texture`).
+2. Reflected light objects are slightly *darker* than the objects. Dark objects (trees, hulls) reflect weakly or vanish. Shadows on clear deep water vanish; on turbid water (brown-green cast) they are soft. At dusk, clear water reflects the cool sky evenly.
+3. Depth ramp for underwater and streams: shallows show the warm bed (red-brown, ochre) → olive-green → teal → blue-green → indigo. Red goes first (about 3 m), oranges by about 7.6 m; below that only blue, cyan and violet, with low contrast. Horizontal distance acts like depth. Add warm light only if there is a source (lamp, flash).
+4. Keep a low-contrast base and a small overlay. Measured saint11 tile (16×16): base `#627aea` with 17 % flecks one step darker (`#5b6ee1`); overlay mid `#639bff` 28 %, cyan glint `#5fcde4` 7 %, pale `#cbdbfc` under 2 %; the rest transparent. Overlay shapes are 1–2 px thick wavy dashes, 4–7 px long, pale pixels next to cyan ones. Sea and grass must not share one noise structure.
 
 **Surface animation**
 
-5. Two layers. Top: wave shapes (think circles changing size) where nothing moves more than 1 px, each
-   ripple one chunk, never split into parts; ripples travel a small closed loop (up, left, down, right) with
-   no rest frame. Bottom: the base tile scrolls right at constant speed (0.5 px/frame in saint11's 100 ms
-   loop). Add small bright spots on wave tips and move them slightly.
-6. Waves: build a chain of ovals as a loopable guide: circles give short deep waves, wide ovals shallow ones;
-   crests are steeper than troughs, so use asymmetric ovals. A sine is fine for small narrow waves. Frame
-   budget: 2–4 frames for a tile; 8 frames at ~8 fps for ocean waves or they look choppy.
-7. Surface sparkle is a 6-frame loop of simple linear moves; bright patches mirror the clouds above. Animate
-   tiles inside each autotile index. Rivers without a grid: small pulsing-line loops (4 frames) where flow shows.
+5. Two layers. Top: wave shapes (think circles changing size) where nothing moves more than 1 px, each ripple one chunk, never split into parts; ripples travel a small closed loop (up, left, down, right) with no rest frame. Bottom: the base tile scrolls right at constant speed (0.5 px/frame in saint11's 100 ms loop). Add small bright spots on wave tips and move them slightly.
+6. Waves: build a chain of ovals as a loopable guide: circles give short deep waves, wide ovals shallow ones; crests are steeper than troughs, so use asymmetric ovals. A sine is fine for small narrow waves. Frame budget: 2–4 frames for a tile; 8 frames at ~8 fps for ocean waves or they look choppy.
+7. Surface sparkle is a 6-frame loop of simple linear moves; bright patches mirror the clouds above. Animate tiles inside each autotile index. Rivers without a grid: small pulsing-line loops (4 frames) where flow shows.
 8. Blend trick for wet contrast: duplicate the water layer, lower one *multiply*, the upper *overlay*, both ~50 %.
 
 **Shores and edges**
 
-9. Shore stack from land: sand (grey-green yellow, not cartoon yellow) → wet sand, darker → thin foam line →
-    shallow (lightest, bed visible) → mid → deep. Give sand/water a 1-px darker separation line. Silber's
-    top-down sea darkens near the beach, but Gurney's stream ramp puts light shallows over darker deeps. Use the
-    light shallows with a dark line: it keeps both the separation and the physics.
-10. Edge animation menu: *undulate* (edge pixels 1 px up, left, down, right), *expand/contract* (rest, −1, rest, +1;
-    cheap, but the water area visibly grows), *side waves* (¼ of the edge contracts, ¼ expands, shifting a
-    quarter per frame over 4 frames), *ocean waves* (expand with a transparent under-wave, slower
-    contraction, 8 frames). Animating the inner outline only keeps the coast calm. Foam sweeps along one
-    diagonal, it does not pulse everywhere. RPG Maker-style water autotile = 3 frames played 1-2-3-2-1, the
-    land connection drawn on the side frames.
+9. Shore stack from land: sand (grey-green yellow, not cartoon yellow) → wet sand, darker → thin foam line → shallow (lightest, bed visible) → mid → deep. Give sand/water a 1-px darker separation line. Silber's top-down sea darkens near the beach, but Gurney's stream ramp puts light shallows over darker deeps. Use the light shallows with a dark line: it keeps both the separation and the physics.
+10. Edge animation menu: *undulate* (edge pixels 1 px up, left, down, right), *expand/contract* (rest, −1, rest, +1; cheap, but the water area visibly grows), *side waves* (¼ of the edge contracts, ¼ expands, shifting a quarter per frame over 4 frames), *ocean waves* (expand with a transparent under-wave, slower contraction, 8 frames). Animating the inner outline only keeps the coast calm. Foam sweeps along one diagonal, it does not pulse everywhere. RPG Maker-style water autotile = 3 frames played 1-2-3-2-1, the land connection drawn on the side frames.
 
 **Reflections**
 
-11. Reflect only upright objects (people, trees, posts), never flat things (cobblestones). Mirror about the
-    object's ground-contact line, shorten the copy about 25 %, darken one ramp step, desaturate ~10, keep
-    only the silhouette's big shapes.
-12. Break it: cut the reflection into horizontal 1-px strips and shift alternate strips ±1 px in a 2-row
-    period. Vertical lines survive, horizontal lines break; light breeze turns reflections into webs of
-    vertical strokes. Fade the lowest third by replacing every other pixel with water colour. Add a few
-    glints on crests.
-13. Animate by swapping the strip offsets on alternate frames (rows 0/1 ↔ 1/0), or with a slow ripple distort
-    whose source sits off the bottom edge so waves travel one way (PB10: speed 0.5, width 10, height 3).
-    Pad the layer with transparent space and render with hard pixels.
+11. Reflect only upright objects (people, trees, posts), never flat things (cobblestones). Mirror about the object's ground-contact line, shorten the copy about 25 %, darken one ramp step, desaturate ~10, keep only the silhouette's big shapes.
+12. Break it: cut the reflection into horizontal 1-px strips and shift alternate strips ±1 px in a 2-row period. Vertical lines survive, horizontal lines break; light breeze turns reflections into webs of vertical strokes. Fade the lowest third by replacing every other pixel with water colour. Add a few glints on crests.
+13. Animate by swapping the strip offsets on alternate frames (rows 0/1 ↔ 1/0), or with a slow ripple distort whose source sits off the bottom edge so waves travel one way (PB10: speed 0.5, width 10, height 3). Pad the layer with transparent space and render with hard pixels.
 
 **Waterfalls, streams, underwater**
 
-14. A waterfall is three parts: **mouth** (lip, brightest, with reflections), **flow** (vertical bands that sag
-    and darken as they fall and break up toward the bottom) and **splash** (foam particles, looped in sync).
-    Shake the column ±1 px. A narrow fall has a twisting V highlight; two overlays at different speeds widen
-    the wave as it falls.
-15. Loop the flow by shifting the streak pattern down with wrap. The shift per frame must divide the pattern
-    period: period 8, shift 2 → 4 frames (the template); or 16 px with shifts 6, 5, 5. Apparent speed comes from
-    the *length* of each streak segment, not the cycle speed: short at the lip (about 3 px), long below
-    (5–10 px). Bridge each seam between segments with a margin band: its top half takes the last colour above,
-    its bottom half the first colour below, otherwise a flash crosses the flow. For transparency, checker two phases
-    of the same pattern.
-16. Mountain streams: warm shallows, olive, teal, dark pools; rapids = near-white foam in the lightest 1–2 entries with a
-    dithered edge, and dark troughs between.
-17. Under the surface: a darker translucent purple-blue region; objects displaced by a sine; bubbles with random
-    horizontal drift that fade or rise. Caustics = a network of 1-px lines in the lightest water tone on the
-    bottom, shifting 1 px in alternating directions over 4–8 frames.
-18. Iso water tile sits half a cube lower than land; its texture drops 1 px per frame while highlight pixels
-    alternate, 16-frame loop (`craft/70-objects/71-isometric.md`).
+14. A waterfall is three parts: **mouth** (lip, brightest, with reflections), **flow** (vertical bands that sag and darken as they fall and break up toward the bottom) and **splash** (foam particles, looped in sync). Shake the column ±1 px. A narrow fall has a twisting V highlight; two overlays at different speeds widen the wave as it falls.
+15. Loop the flow by shifting the streak pattern down with wrap. The shift per frame must divide the pattern period: period 8, shift 2 → 4 frames (the template); or 16 px with shifts 6, 5, 5. Apparent speed comes from the *length* of each streak segment, not the cycle speed: short at the lip (about 3 px), long below (5–10 px). Bridge each seam between segments with a margin band: its top half takes the last colour above, its bottom half the first colour below, otherwise a flash crosses the flow. For transparency, checker two phases of the same pattern.
+16. Mountain streams: warm shallows, olive, teal, dark pools; rapids = near-white foam in the lightest 1–2 entries with a dithered edge, and dark troughs between.
+17. Under the surface: a darker translucent purple-blue region; objects displaced by a sine; bubbles with random horizontal drift that fade or rise. Caustics = a network of 1-px lines in the lightest water tone on the bottom, shifting 1 px in alternating directions over 4–8 frames.
+18. Iso water tile sits half a cube lower than land; its texture drops 1 px per frame while highlight pixels alternate, 16-frame loop (`71-isometric`).
 
 ## By size
 
@@ -97,8 +48,7 @@ and `craft/20-color/23-materials-soft.md`.
 
 ## Templates
 
-Water surface tile: static base with flecks, a ripple overlay that moves each chunk 1 px around a small loop;
-frames are side by side, cut at the transparent column.
+Water surface tile: static base with flecks, a ripple overlay that moves each chunk 1 px around a small loop; frames are side by side, cut at the transparent column.
 
 ```grid water-tile-16-x4
 a = water-base     #627aea
@@ -287,19 +237,12 @@ xxxxxxxx
 
 ## Procedure
 
-1. `getContext`. Decide the water type (tile, side-view, fall, reflection), frame count and loop. Build a water ramp of
-   4–5 entries with `palette` op `ramp` or `set`, with hue travel from cyan-teal (light) to indigo (deep).
-2. Base on its own layer: `applyBatch` `fillRect` fill, flecks with `pixels`, bands with `fillRect` and `dither` (pattern
-   `checker`) on the joins.
-3. Overlay on a second layer, `applyBatch` `grid` for ripples. Add frames with `addFrame` `duplicate`; move each ripple chunk by
-   re-drawing (≤1 px) or with `translate` for a whole overlay. Tag the loop with `addTag`.
-4. Waterfall: draw the period pattern once, then each frame is the pattern shifted down by the step with wrap:
-   `applyBatch` `blit` two pieces (rows 0…H−s to y = s, rows H−s…H to y = 0). The splash is drawn per frame.
-5. Reflection: `applyBatch` `blit` from the object (above its contact line) to below it, then `flip` `vertical` on it; `adjustHsl`
-   and `effect` `hue-saturation` on that region; then one `blit` per 2-row strip with `x ± 1` in one `applyBatch` call, last third
-   dithered with `dither` (pattern `checker`) against the water colour.
-6. `render` `filmstrip` for the loop and `onionSkin` to check ≤1 px moves; `validate` checks `animation` timing and strays.
-   Check tile seams on 3×3 copies.
+1. `getContext`. Decide the water type (tile, side-view, fall, reflection), frame count and loop. Build a water ramp of 4–5 entries with `palette` op `ramp` or `set`, with hue travel from cyan-teal (light) to indigo (deep).
+2. Base on its own layer: `applyBatch` `fillRect` fill, flecks with `pixels`, bands with `fillRect` and `dither` (pattern `checker`) on the joins.
+3. Overlay on a second layer, `applyBatch` `grid` for ripples. Add frames with `addFrame` `duplicate`; move each ripple chunk by re-drawing (≤1 px) or with `translate` for a whole overlay. Tag the loop with `addTag`.
+4. Waterfall: draw the period pattern once, then each frame is the pattern shifted down by the step with wrap: `applyBatch` `blit` two pieces (rows 0…H−s to y = s, rows H−s…H to y = 0). The splash is drawn per frame.
+5. Reflection: `applyBatch` `blit` from the object (above its contact line) to below it, then `flip` `vertical` on it; `adjustHsl` and `effect` `hue-saturation` on that region; then one `blit` per 2-row strip with `x ± 1` in one `applyBatch` call, last third dithered with `dither` (pattern `checker`) against the water colour.
+6. `render` `filmstrip` for the loop and `onionSkin` to check ≤1 px moves; `validate` checks `animation` timing and strays. Check tile seams on 3×3 copies.
 
 ## Mistakes
 

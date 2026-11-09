@@ -1,63 +1,22 @@
 # Secondary motion
 
-A sprite whose hair, cape and weapon move in lock-step with the body reads as a
-cut-out. A sprite whose loose parts flap at random reads as broken. Secondary
-motion is the middle path: every loose part is attached to something, starts
-later than it, travels further at its free end, overshoots when the body stops,
-and settles. This file is for hair, capes, scarves, tails, loose cloth, flags,
-carried items and weapon tips. Primary cycles are `craft/40-animation/42-walk-and-run.md` and
-`craft/40-animation/44-attacks-and-impacts.md`; motion below one pixel is
-`craft/40-animation/46-subpixel-animation.md`; wind particles are `craft/80-effects-ui/82-particles-and-weather.md`.
+A sprite whose hair, cape and weapon move in lock-step with the body reads as a cut-out. A sprite whose loose parts flap at random reads as broken. Secondary motion is the middle path: every loose part is attached to something, starts later than it, travels further at its free end, overshoots when the body stops, and settles. This file is for hair, capes, scarves, tails, loose cloth, flags, carried items and weapon tips. Primary cycles are `42-walk-and-run` and `44-attacks-and-impacts`; motion below one pixel is `46-subpixel-animation`; wind particles are `82-particles-and-weather`.
 
 ## Rules
 
-1. **Leader first, followers later.** Draw the body's motion, then each loose
-   part with a lag of **1–2 frames** behind the part it hangs from. A hair tip
-   hangs from the head, the head from the torso: lags add up, the tip is last.
-2. **The root does not move relative to its anchor.** Pixels at the attachment
-   stay identical frame to frame (grass roots, hair at the scalp, cape at the
-   clasp); amplitude grows towards the free end.
-3. **Overshoot, then settle with decaying amplitude.** After the body stops,
-   loose parts keep going 2–4 frames: 3 px, 2 px, 1 px, 0. Never a single frozen
-   frame. Settle takes 250–400 ms in total. Thin cloth swings further and faster
-   than heavy cloth (Williams).
-4. **Counteract the body bob.** The body drops on `down`; hair and cape lift
-   (continue upward) one frame later, then fall as the body rises. In a run the
-   free end sits in antiphase to the hip with a one-frame delay
-   (`secondary-run-cape-hair`). Restrain it — a visible 1–2 px is enough.
-5. **Cloth streams with speed.** Walk: cape hangs with 1 px sway. Run: it
-   trails nearly horizontal with a 2–3 px bob. Sudden stop: it swings through to
-   vertical, rebounds, and hangs (`secondary-cape-stop`).
-6. **Draw the edge as one continuous curve** (C, S or reverse C). Step lengths
-   change smoothly, e.g. 4-2-1-1-2-4, never kink. A wave is a sine offset along
-   the wind direction with the phase shifting along the length; flow points
-   12 px apart moving 2 px per frame make a 6-frame loop
-   (`secondary-flag-wave-6`, Slynyrd PB33). Hair locks use the same wave, drawn
-   thinner.
-7. **Few folds.** At 16 px a cape is 2–3 value bands and one fold line that
-   radiates from the shoulder or clasp; at 32 px add a second fold family. No
-   highlights on cloth, dark areas stay low-detail, light and shadow move away
-   from the wind source. Folds that appear and disappear every frame are noise.
-8. **Each loose part gets its own layer and loop length.** Cape 8 frames, hair
-   6, orbiting item 5: the combined pose never repeats exactly (Saint11 loop
-   rule). Start copies of the same loop on different frames. Cross-reference
-   `craft/00-core/06-layers-and-rigging.md`.
-9. **Protect the silhouette.** Run the flat-fill test with the cape on: it must
-   not merge with the legs or the back arm. Leave a 1 px gap or separate by
-   value (dark cape against bright tunic).
-10. **Carried items lag like pendulums.** A weapon tip, bag or lantern trails
-    the hand by one frame at start and stop (Muybridge's carried loads lag one
-    photo). Hold the item's offset from the hand constant while the body is
-    steady.
-11. **Small colour counts survive motion.** Detail correct in a still is lost at
-    speed; merge clusters that split and join frame to frame, and keep the hair
-    highlight moving by tiny amounts on a steady rhythm (Slynyrd PB55, PB58).
-12. **Animals:** tails lag the spine by about two frames and pivot at the sacrum;
-    ears swing out on stretch frames and hang on the settle (Goldfinger, Blair;
-    gaits in `craft/50-creatures/51-animal-gaits.md`).
-13. **Skip it when it cannot be seen.** At 8 px leave hair and cape fixed or use
-    a 1 px flicker. Celeste draws hair in code from a chain of followers; if
-    the engine can do that, say so instead of baking 12 frames.
+1. **Leader first, followers later.** Draw the body's motion, then each loose part with a lag of **1–2 frames** behind the part it hangs from. A hair tip hangs from the head, the head from the torso: lags add up, the tip is last.
+2. **The root does not move relative to its anchor.** Pixels at the attachment stay identical frame to frame (grass roots, hair at the scalp, cape at the clasp); amplitude grows towards the free end.
+3. **Overshoot, then settle with decaying amplitude.** After the body stops, loose parts keep going 2–4 frames: 3 px, 2 px, 1 px, 0. Never a single frozen frame. Settle takes 250–400 ms in total. Thin cloth swings further and faster than heavy cloth (Williams).
+4. **Counteract the body bob.** The body drops on `down`; hair and cape lift (continue upward) one frame later, then fall as the body rises. In a run the free end sits in antiphase to the hip with a one-frame delay (`secondary-run-cape-hair`). Restrain it — a visible 1–2 px is enough.
+5. **Cloth streams with speed.** Walk: cape hangs with 1 px sway. Run: it trails nearly horizontal with a 2–3 px bob. Sudden stop: it swings through to vertical, rebounds, and hangs (`secondary-cape-stop`).
+6. **Draw the edge as one continuous curve** (C, S or reverse C). Step lengths change smoothly, e.g. 4-2-1-1-2-4, never kink. A wave is a sine offset along the wind direction with the phase shifting along the length; flow points 12 px apart moving 2 px per frame make a 6-frame loop (`secondary-flag-wave-6`, Slynyrd PB33). Hair locks use the same wave, drawn thinner.
+7. **Few folds.** At 16 px a cape is 2–3 value bands and one fold line that radiates from the shoulder or clasp; at 32 px add a second fold family. No highlights on cloth, dark areas stay low-detail, light and shadow move away from the wind source. Folds that appear and disappear every frame are noise.
+8. **Each loose part gets its own layer and loop length.** Cape 8 frames, hair 6, orbiting item 5: the combined pose never repeats exactly (Saint11 loop rule). Start copies of the same loop on different frames. Cross-reference `06-layers-and-rigging`.
+9. **Protect the silhouette.** Run the flat-fill test with the cape on: it must not merge with the legs or the back arm. Leave a 1 px gap or separate by value (dark cape against bright tunic).
+10. **Carried items lag like pendulums.** A weapon tip, bag or lantern trails the hand by one frame at start and stop (Muybridge's carried loads lag one photo). Hold the item's offset from the hand constant while the body is steady.
+11. **Small colour counts survive motion.** Detail correct in a still is lost at speed; merge clusters that split and join frame to frame, and keep the hair highlight moving by tiny amounts on a steady rhythm (Slynyrd PB55, PB58).
+12. **Animals:** tails lag the spine by about two frames and pivot at the sacrum; ears swing out on stretch frames and hang on the settle (Goldfinger, Blair; gaits in `51-animal-gaits`).
+13. **Skip it when it cannot be seen.** At 8 px leave hair and cape fixed or use a 1 px flicker. Celeste draws hair in code from a chain of followers; if the engine can do that, say so instead of baking 12 frames.
 
 ## By size
 
@@ -70,10 +29,7 @@ carried items and weapon tips. Primary cycles are `craft/40-animation/42-walk-an
 
 ## Lag and amplitude tables (30 px figure)
 
-Free-end position of the cape relative to its clasp (3 px behind and 1 px below
-the shoulder; px, +x forward, +y up), the `secondary-cape-stop` sequence. Frame 1
-is the run, frame 2 is the first frame after the body stops. Durations
-60 / 60 / 80 / 80 / 120 ms (derived).
+Free-end position of the cape relative to its clasp (3 px behind and 1 px below the shoulder; px, +x forward, +y up), the `secondary-cape-stop` sequence. Frame 1 is the run, frame 2 is the first frame after the body stops. Durations 60 / 60 / 80 / 80 / 120 ms (derived).
 
 | # | Body | Cape mid | Cape tip | Note |
 |---|------|----------|----------|------|
@@ -83,8 +39,7 @@ is the run, frame 2 is the first frame after the body stops. Durations
 | 4 | stopped | (−6, −8) | (−8, −15) | rebound, amplitude 4 → 2 |
 | 5 | stopped | (−4, −9) | (−5, −17) | settle, amplitude 1 |
 
-Run with cape and ponytail (`secondary-run-cape-hair`), tip offset in y relative
-to the clasp / head anchor; body hip dy −1, −2, 0, +1 (as `run-30-keys`):
+Run with cape and ponytail (`secondary-run-cape-hair`), tip offset in y relative to the clasp / head anchor; body hip dy −1, −2, 0, +1 (as `run-30-keys`):
 
 | Pose | Cape tip dy | Ponytail tip dy |
 |------|-------------|-----------------|
@@ -95,12 +50,9 @@ to the clasp / head anchor; body hip dy −1, −2, 0, +1 (as `run-30-keys`):
 
 ## Templates
 
-Frame widths: 32 (`secondary-cape-stop`), 32 (`secondary-run-cape-hair`) and 14
-(`secondary-flag-wave-6`) columns. Cut at multiples; the body keeps the same ground
-row in every frame and is the `walk-30-keys` / `run-30-keys` rig (same bone lengths).
+Frame widths: 32 (`secondary-cape-stop`), 32 (`secondary-run-cape-hair`) and 14 (`secondary-flag-wave-6`) columns. Cut at multiples; the body keeps the same ground row in every frame and is the `walk-30-keys` / `run-30-keys` rig (same bone lengths).
 
-`secondary-cape-stop` — five frames: cape streaming, swinging down, hanging,
-rebounding, settled. Re-use the table for any long cloth.
+`secondary-cape-stop` — five frames: cape streaming, swinging down, hanging, rebounding, settled. Re-use the table for any long cloth.
 
 ```grid secondary-cape-stop
 O = outline          #2b1d2e
@@ -154,8 +106,7 @@ v = cape-shadow      #5f2a7a
 .....................OOO........................OOOOOOOOOO......................OOOOOOOOOO......................OOOOOOOOOO......................OOOOOOOOOO......
 ```
 
-`secondary-run-cape-hair` — the run keys from `craft/40-animation/42-walk-and-run.md` with a
-trailing cape and a ponytail whose free ends bob a frame behind the hips.
+`secondary-run-cape-hair` — the run keys from `42-walk-and-run` with a trailing cape and a ponytail whose free ends bob a frame behind the hips.
 
 ```grid secondary-run-cape-hair
 O = outline          #2b1d2e
@@ -209,9 +160,7 @@ v = cape-shadow      #5f2a7a
 .....................OOO.........................OOOOOO..........................OO.............................................
 ```
 
-`secondary-flag-wave-6` — a 6-frame travelling wave off a fixed edge. Amplitude
-grows from the pole; thickness is constant. Use for banners, long scarves, hair
-sheets and tails; shorten the wavelength for small sprites.
+`secondary-flag-wave-6` — a 6-frame travelling wave off a fixed edge. Amplitude grows from the pole; thickness is constant. Use for banners, long scarves, hair sheets and tails; shorten the wavelength for small sprites.
 
 ```grid secondary-flag-wave-6
 O = outline        #2b1d2e
@@ -234,21 +183,13 @@ O.............O.............O.............O.............O.............O.........
 
 ## Procedure
 
-1. Finish and approve the primary cycle first. Secondary motion on an unfinished
-   body is rework.
-2. Put each loose part on its own layer above or below the body as depth demands
-   (cape behind, ponytail above the head layer, weapon in front).
-3. Per frame, mark the anchor (pixel on the body) and 2–3 nodes for the free
-   part. Place each node on the previous node's path, one frame late. Write the
-   offsets down as in the tables.
-4. Draw the part along those nodes with `applyBatch` `stroke` or `grid`: 3 px wide
-   at the root, 2 px at the tip; cast the lower edge in the shade colour.
-5. On a stop or direction change, add the overshoot and settle frames
-   (amplitude 3 → 2 → 1 → 0) even if the body has no more frames.
-6. `render` `onionSkin` against the previous frame to confirm the tip travels along
-   a curve; `render` `filmstrip` to check the loop and the silhouette.
-7. Prefer hand-keyed nodes. `tweenCels` rounds to whole
-   pixels and stutters on amplitudes of 1–2 px (`craft/00-core/05-animation.md`).
+1. Finish and approve the primary cycle first. Secondary motion on an unfinished body is rework.
+2. Put each loose part on its own layer above or below the body as depth demands (cape behind, ponytail above the head layer, weapon in front).
+3. Per frame, mark the anchor (pixel on the body) and 2–3 nodes for the free part. Place each node on the previous node's path, one frame late. Write the offsets down as in the tables.
+4. Draw the part along those nodes with `applyBatch` `stroke` or `grid`: 3 px wide at the root, 2 px at the tip; cast the lower edge in the shade colour.
+5. On a stop or direction change, add the overshoot and settle frames (amplitude 3 → 2 → 1 → 0) even if the body has no more frames.
+6. `render` `onionSkin` against the previous frame to confirm the tip travels along a curve; `render` `filmstrip` to check the loop and the silhouette.
+7. Prefer hand-keyed nodes. `tweenCels` rounds to whole pixels and stutters on amplitudes of 1–2 px (`05-animation`).
 
 ## Mistakes
 

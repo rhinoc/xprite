@@ -2,9 +2,7 @@
 
 ## Split before you animate, not after
 
-Pixels baked into one layer cannot be animated without redrawing them. Separating
-a finished sprite into limbs later is more work than building it separated. If
-the sprite will ever move, rig it first.
+Pixels baked into one layer cannot be animated without redrawing them. Separating a finished sprite into limbs later is more work than building it separated. If the sprite will ever move, rig it first.
 
 ## The standard character rig
 
@@ -20,27 +18,19 @@ Bottom to top in the layer stack, so nearer parts draw over farther ones:
   shadow            ← ground contact, if the style has one
 ```
 
-Add `weapon`, `cape`, `hair-back` and `hair-front` as the design needs. Keep the
-names stable — every later tool call refers to them by name.
+Add `weapon`, `cape`, `hair-back` and `hair-front` as the design needs. Keep the names stable — every later tool call refers to them by name.
 
-Build the whole rig in one `applyBatch` call with `addLayer` ops; that is one
-undo step for the user and one round trip for you.
+Build the whole rig in one `applyBatch` call with `addLayer` ops; that is one undo step for the user and one round trip for you.
 
 ## Groups
 
-Group related layers (`arms`, `legs`) once the count passes about eight. Groups
-hold no pixels themselves — target their children when drawing.
+Group related layers (`arms`, `legs`) once the count passes about eight. Groups hold no pixels themselves — target their children when drawing.
 
 ## Cels
 
-A **cel** is one layer's image on one frame. Cels are only as big as their
-content, which is why moving a limb between frames is `setCel` `position` (cheap,
-lossless) rather than redrawing it.
+A **cel** is one layer's image on one frame. Cels are only as big as their content, which is why moving a limb between frames is `setCel` `position` (cheap, lossless) rather than redrawing it.
 
-**Linked cels** share one image across several frames: edit once, every linked
-frame updates. Use them for parts that genuinely do not move in a cycle — a
-static torso under moving arms. Do not link something you will later want to
-differ; unlinking after the fact loses the shared history.
+**Linked cels** share one image across several frames: edit once, every linked frame updates. Use them for parts that genuinely do not move in a cycle — a static torso under moving arms. Do not link something you will later want to differ; unlinking after the fact loses the shared history.
 
 ## Non-destructive habits
 

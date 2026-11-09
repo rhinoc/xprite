@@ -22,6 +22,62 @@ function fill(editor: RasterEditor): BatchEditOperation & { type: BatchEditKind.
 const revision = (editor: RasterEditor) => editor.getContentRevision();
 
 describe("agent document batches", () => {
+  it("fills a polygon with a distinct closed border in one undo step", () => {
+    const editor = fixture();
+    const layerId = fill(editor).layerId;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillPolygon,
+          layerId,
+          frameIndex: 0,
+          points: [
+            { x: 0, y: 0 },
+            { x: 3, y: 0 },
+            { x: 3, y: 3 },
+            { x: 0, y: 3 },
+          ],
+          color: "#FF0000",
+          outlineColor: "#0000FF",
+        },
+      ],
+      revision(editor),
+      "Outlined polygon",
+    );
+    const pixels = editor.canvas.composite().data;
+    expect(Array.from(pixels.slice(0, 4))).toEqual([0, 0, 255, 255]);
+    expect(Array.from(pixels.slice(20, 24))).toEqual([255, 0, 0, 255]);
+    expect(Array.from(pixels.slice(60, 64))).toEqual([0, 0, 255, 255]);
+    editor.history.undo();
+    expect(editor.canvas.composite().data.every((byte) => byte === 0)).toBe(true);
+  });
+
+  it("rejects an invalid polygon atomically after an earlier paint operation", () => {
+    const editor = fixture();
+    const before = revision(editor);
+    expect(() =>
+      editor.applyBatch(
+        [
+          fill(editor),
+          {
+            type: BatchEditKind.FillPolygon,
+            layerId: fill(editor).layerId,
+            frameIndex: 0,
+            points: [
+              { x: 0, y: 0 },
+              { x: 3, y: 3 },
+            ],
+            color: "#FFFFFF",
+          },
+        ],
+        before,
+        "Invalid polygon",
+      ),
+    ).toThrow("polygon point count");
+    expect(revision(editor)).toBe(before);
+    expect(editor.canvas.composite().data.every((byte) => byte === 0)).toBe(true);
+  });
+
   it("shares conflict revisions across linked document views", () => {
     const editor = fixture(),
       linked = editor.createLinkedView();

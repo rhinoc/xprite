@@ -1,70 +1,28 @@
 # Props and items: weapons, potions, chests, keys, shields
 
-Props expose every error in a scene because their geometry is exact: a chest whose lid
-and body use two different cameras, a sword in white, a potion with no glass. Items are
-also read at a glance and at 1×, so silhouette and one clear material cue matter more
-than detail. Forms underneath: `craft/72-3d-forms.md`. Materials: `craft/20-color/22-materials-hard.md`.
+Props expose every error in a scene because their geometry is exact: a chest whose lid and body use two different cameras, a sword in white, a potion with no glass. Items are also read at a glance and at 1×, so silhouette and one clear material cue matter more than detail. Forms underneath: `72-3d-forms`. Materials: `22-materials-hard`.
 
 ## Rules
 
-1. **Silhouette first.** Fill the item with one flat colour; it must still name itself at
-   1×. Reduce to an iconic outline and about six colours before any detail.
-2. **Size is dictated by the world.** A 16 px tile means 16×16 items; a big prop (large
-   chest) may half-fill 32×32. Break tall things into tile-sized pieces. Colour budget:
-   8×8 item 3–4 colours, 16×16 ≤ 6 (simple item 3–4), 32×32 5–9.
-3. **One projection and one light across the whole set.** Side view or tilted 3/4, not
-   both; a cabbage drawn straight-on among tilted vegetables is the classic break
-   (`craft/70-objects/70-perspective.md`).
-4. **Fit the icon square.** Long objects (swords, keys, tools) are tilted 30–45° to fill
-   it, or kept upright when the set is upright. Keep a 1 px margin at 16 px (art 14×14),
-   8–10% on larger icons. No text.
-5. **Chibify.** Fat hilt, big bulb, oversized key bow, short neck: proportions that
-   survive scaling beat real ones.
-6. **Ramp length:** 3 tones per material at 16 px, 5 by default, 7+ only on big surfaces.
-   Share swatches between materials so a small palette feels bigger
-   (`craft/20-color/20-color-for-pixel-art.md`).
-7. **Metal is grey or blue-grey, never white.** A small specular pixel, two faces on a
-   blade (lit and dark), lights cooler and less saturated, darks warmer. Selective outline:
-   brighter where the light hits. Shine sits anywhere along the blade, small relative to it.
-8. **Sword anatomy:** pommel, grip, cross-guard, blade (edge, centre ridge or fuller, point).
-   Hilt has three colour zones (pommel, grip, guard). Shade the grip as a cylinder (columns,
-   `craft/72-3d-forms.md`). A 1 px shadow between grip and guard separates them and makes the
-   guard read thicker. The same template gives an axe (thicker blade), dagger (short), staff
-   (recolour). Claymore quatrefoil ends vanish below ~48 px.
-9. **Potion: four things** (liquid, glass, plug, reflection). Show glass first as a border only,
-   then a few short curved highlights on bulb and neck; shade away from the highlight. A
-   half-empty bottle has a lighter circular liquid surface with a wavy edge. Bubbles last.
-   Translucency by blending glass and liquid colour, only in bright areas, and not below 16 px
-   (use a lighter ring plus a 2 px curved highlight).
-10. **Chest, barrel, crate, pot:** outline → single flat base → split into volumes (lid vs body,
-    rim, bevel) → 2–3 shading steps → details (bands, lock, bolts). Round tops are ellipses;
-    metal bands are contrasting lines that follow the form. Sit them on a ground patch with a
-    short cast shadow; bake the shadow in only when it stays inside the frame.
-11. **Shield:** a field, a rim and one big simple emblem (cross, chevron, boss). The shape is
-    symmetric, so break symmetry with light: rim light on the top and lit side, a shade value on
-    the far half. Heater, round, kite shapes carry different personalities.
-12. **Key:** bow (ring), shaft, bit (teeth). The bow is the readable part: a D=7 circle with a
-    small hole. Leave a gap between teeth so the outline shows a notch.
-13. **Firearms:** learn the pistol (rear and front sight, slide, trigger, grip, magazine); a
-    rifle is a big pistol plus extras. Invent by exaggerating one part (huge slide, many screws,
-    scope) or by function: muzzle, magazine, grip placed on a random silhouette. Bows: grip,
-    arrow rest, limbs, string; arrows: nock, fletching, shaft, point.
-14. **Gems are flat facets:** table, crown, girdle, pavilion. 16 px: outline, 3 facet value bands,
-    1 white point, 1 dark facet opposite; 8 px: 2 bands + 1 point. A cabochon (dome) uses a ramp
-    instead. Shine lights each facet as a whole, the middle frames covering the largest area.
-15. **Food and organic props:** dark outline keeps them cartoony; limit colours and reuse them
-    across the set; unlimited colour without outline looks like a shrunken photo.
-16. **Tech props:** panel divisions with screws, repeating patterns, hazard stripes, antennas as
-    connected verticals, cables organic and segmented; right angles only in chip texture.
-17. **Idle conventions, one system per game:** ground items bounce, floating items bob, currency
-    shines, shine is wrong on food, complex items never rotate (a coin may). A shine on a flat
-    disc travels along its edge, not across the face. Pickup feedback: currency plays in place,
-    stat items play on the character, one radial flash style for all.
-18. **Props echo their owner:** a faction emblem repeats the faction's shapes. Show damage as
-    states of the same silhouette. Light-emitting props get concentric glow rings
-    (`craft/80-effects-ui/80-vfx-fire-smoke-magic.md`).
-19. **Held items:** dark line between hand and grip, the item crosses the hand in front, its mass
-    leaves the silhouette on a different axis than the arm (`craft/30-characters/34-hands-and-feet.md`).
+1. **Silhouette first.** Fill the item with one flat colour; it must still name itself at 1×. Reduce to an iconic outline and about six colours before any detail.
+2. **Size is dictated by the world.** A 16 px tile means 16×16 items; a big prop (large chest) may half-fill 32×32. Break tall things into tile-sized pieces. Colour budget: 8×8 item 3–4 colours, 16×16 ≤ 6 (simple item 3–4), 32×32 5–9.
+3. **One projection and one light across the whole set.** Side view or tilted 3/4, not both; a cabbage drawn straight-on among tilted vegetables is the classic break (`70-perspective`).
+4. **Fit the icon square.** Long objects (swords, keys, tools) are tilted 30–45° to fill it, or kept upright when the set is upright. Keep a 1 px margin at 16 px (art 14×14), 8–10% on larger icons. No text.
+5. **Chibify.** Fat hilt, big bulb, oversized key bow, short neck: proportions that survive scaling beat real ones.
+6. **Ramp length:** 3 tones per material at 16 px, 5 by default, 7+ only on big surfaces. Share swatches between materials so a small palette feels bigger (`20-color-for-pixel-art`).
+7. **Metal is grey or blue-grey, never white.** A small specular pixel, two faces on a blade (lit and dark), lights cooler and less saturated, darks warmer. Selective outline: brighter where the light hits. Shine sits anywhere along the blade, small relative to it.
+8. **Sword anatomy:** pommel, grip, cross-guard, blade (edge, centre ridge or fuller, point). Hilt has three colour zones (pommel, grip, guard). Shade the grip as a cylinder (columns, `72-3d-forms`). A 1 px shadow between grip and guard separates them and makes the guard read thicker. The same template gives an axe (thicker blade), dagger (short), staff (recolour). Claymore quatrefoil ends vanish below ~48 px.
+9. **Potion: four things** (liquid, glass, plug, reflection). Show glass first as a border only, then a few short curved highlights on bulb and neck; shade away from the highlight. A half-empty bottle has a lighter circular liquid surface with a wavy edge. Bubbles last. Translucency by blending glass and liquid colour, only in bright areas, and not below 16 px (use a lighter ring plus a 2 px curved highlight).
+10. **Chest, barrel, crate, pot:** outline → single flat base → split into volumes (lid vs body, rim, bevel) → 2–3 shading steps → details (bands, lock, bolts). Round tops are ellipses; metal bands are contrasting lines that follow the form. Sit them on a ground patch with a short cast shadow; bake the shadow in only when it stays inside the frame.
+11. **Shield:** a field, a rim and one big simple emblem (cross, chevron, boss). The shape is symmetric, so break symmetry with light: rim light on the top and lit side, a shade value on the far half. Heater, round, kite shapes carry different personalities.
+12. **Key:** bow (ring), shaft, bit (teeth). The bow is the readable part: a D=7 circle with a small hole. Leave a gap between teeth so the outline shows a notch.
+13. **Firearms:** learn the pistol (rear and front sight, slide, trigger, grip, magazine); a rifle is a big pistol plus extras. Invent by exaggerating one part (huge slide, many screws, scope) or by function: muzzle, magazine, grip placed on a random silhouette. Bows: grip, arrow rest, limbs, string; arrows: nock, fletching, shaft, point.
+14. **Gems are flat facets:** table, crown, girdle, pavilion. 16 px: outline, 3 facet value bands, 1 white point, 1 dark facet opposite; 8 px: 2 bands + 1 point. A cabochon (dome) uses a ramp instead. Shine lights each facet as a whole, the middle frames covering the largest area.
+15. **Food and organic props:** dark outline keeps them cartoony; limit colours and reuse them across the set; unlimited colour without outline looks like a shrunken photo.
+16. **Tech props:** panel divisions with screws, repeating patterns, hazard stripes, antennas as connected verticals, cables organic and segmented; right angles only in chip texture.
+17. **Idle conventions, one system per game:** ground items bounce, floating items bob, currency shines, shine is wrong on food, complex items never rotate (a coin may). A shine on a flat disc travels along its edge, not across the face. Pickup feedback: currency plays in place, stat items play on the character, one radial flash style for all.
+18. **Props echo their owner:** a faction emblem repeats the faction's shapes. Show damage as states of the same silhouette. Light-emitting props get concentric glow rings (`80-vfx-fire-smoke-magic`).
+19. **Held items:** dark line between hand and grip, the item crosses the hand in front, its mass leaves the silhouette on a different axis than the arm (`34-hands-and-feet`).
 
 ## By size
 
@@ -79,8 +37,7 @@ The 16 px column is the shipped templates; the 8, 32 and 64 px cells are derived
 
 ## Templates
 
-**props-sword-8x16** — upright sword: tapered tip, two-tone blade, gold guard with shade, wrapped
-grip, pommel. Retint for axe/dagger/staff by changing the blade rows.
+**props-sword-8x16** — upright sword: tapered tip, two-tone blade, gold guard with shade, wrapped grip, pommel. Retint for axe/dagger/staff by changing the blade rows.
 
 ```grid props-sword-8x16
 K = outline        #2b2433
@@ -109,8 +66,7 @@ KGGGGggK
 ...KK...
 ```
 
-**props-potion-12x13** — round flask: cork, glass border, curved glint, liquid surface line,
-shade on the far side. Swap liquid roles for mana, poison, antidote.
+**props-potion-12x13** — round flask: cork, glass border, curved glint, liquid surface line, shade on the far side. Swap liquid roles for mana, poison, antidote.
 
 ```grid props-potion-12x13
 K = outline        #2a1f3a
@@ -137,8 +93,7 @@ D = liquid-shade   #9a2349
 ...KKKKKK...
 ```
 
-**props-chest-16x13** — lid/body split, vertical gold bands, rim strip, lock plate with keyhole,
-dark underside row.
+**props-chest-16x13** — lid/body split, vertical gold bands, rim strip, lock plate with keyhole, dark underside row.
 
 ```grid props-chest-16x13
 K = outline        #2b1d2e
@@ -164,8 +119,7 @@ KDDDDDDDDDDDDDDK
 .KKKKKKKKKKKKKK.
 ```
 
-**props-shield-14** — heater shield: metal rim lit on the left, red field split light/shade,
-gold cross emblem split the same way.
+**props-shield-14** — heater shield: metal rim lit on the left, red field split light/shade, gold cross emblem split the same way.
 
 ```grid props-shield-14
 K = outline        #2b1d2e
@@ -218,12 +172,7 @@ KYY.yyK.
 ..KKKKKK
 ```
 
-**props-sword-diag-19x20** — the same sword at 45°, tip up-right, drawn on 1:1 bands: every
-row shifts one pixel, so the blade (3 interior px: two light, one shade), both outline edges and
-the 5-step guard are perfect 1:1 diagonals with no doubled pixels. Light blade face on the
-upper-left, shade on the lower-right; guard is a 1:1 line crossing the blade at right angles.
-Rule: pick the band direction first, then fill each row as `outline, light, light, shade, outline`
-moved one column per row.
+**props-sword-diag-19x20** — the same sword at 45°, tip up-right, drawn on 1:1 bands: every row shifts one pixel, so the blade (3 interior px: two light, one shade), both outline edges and the 5-step guard are perfect 1:1 diagonals with no doubled pixels. Light blade face on the upper-left, shade on the lower-right; guard is a 1:1 line crossing the blade at right angles. Rule: pick the band direction first, then fill each row as `outline, light, light, shade, outline` moved one column per row.
 
 ```grid props-sword-diag-19x20
 K = outline        #2b2433
@@ -256,9 +205,7 @@ KggK................
 .KK.................
 ```
 
-**props-barrel-16** — side-on barrel: bulged outline (rows 10, 12, 14 wide), light rim on top,
-stave seams every 4 px, two metal hoops (light row over dark row) at the widest rows, light on the
-left and core shade on the right. Same layout gives a keg, a pot or a water butt.
+**props-barrel-16** — side-on barrel: bulged outline (rows 10, 12, 14 wide), light rim on top, stave seams every 4 px, two metal hoops (light row over dark row) at the widest rows, light on the left and core shade on the right. Same layout gives a keg, a pot or a water butt.
 
 ```grid props-barrel-16
 K = outline        #2b1d2e
@@ -294,11 +241,9 @@ KhhhhhhhhhhhhhhK
 1. Pick size from the world's tile; choose projection and light; write the colour budget.
 2. `applyBatch` `grid` the silhouette in one colour; `render` at 1×. Fix shape now.
 3. Split into volumes/materials (blade vs hilt, lid vs body, glass vs liquid) with flat roles.
-4. Build one ramp per material with `palette` op `ramp`; add 2–3 steps per material in light
-   order; add the one specular/glint pixel last.
+4. Build one ramp per material with `palette` op `ramp`; add 2–3 steps per material in light order; add the one specular/glint pixel last.
 5. Add details only where they name a part (band, rivet, keyhole); one cast shadow layer.
-6. Outline selectively (`craft/00-core/04-outlines-and-edges.md`); `readPixels` `format:"grid"` for orphans;
-   `validate`.
+6. Outline selectively (`04-outlines-and-edges`); `readPixels` `format:"grid"` for orphans; `validate`.
 
 ## Mistakes
 

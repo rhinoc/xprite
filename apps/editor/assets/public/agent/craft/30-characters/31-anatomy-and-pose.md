@@ -17,8 +17,8 @@ A sprite with head, chest and hips stacked on one vertical and both arms hanging
 11. **Keep only the landmarks that survive.** ≤ 32 px: shoulder point, elbow / knee bend, ankle. Use inside / outside asymmetry: calf bulge high on the outside, ankle bone high on the inside, a 1 px offset between the two outlines. At 32–64 px only 3–4 muscle shapes read: chest fan, shoulder cap, ribs + ab block, forearm bulge near the elbow. Everything else is shading.
 12. **Volume is constant.** Bone length never changes; foreshorten by overlap, not by shrinking. A stretched pose is 10–20 % longer and thinner, a crouch shorter and thicker, and the pixel count of the body stays about the same (squash and stretch).
 13. **Twist with two blocks.** Shift the chest block and the pelvis block horizontally by *different* amounts (chest +2 px, hips −1 px at 32) and shear the shoulder line against the hip line. That one move sells a turn.
-14. **Pose the extremes and the counter-move.** Action is readable at the start or end of a sweep, not the middle. Anticipation is a spine curve opposite to the action, then the reverse C (`craft/40-animation/44-attacks-and-impacts.md`).
-15. **Profile reads fastest.** If the action must be read instantly, show it in profile; front and 3/4 views hide limbs and flatten the waist (`craft/30-characters/37-views-and-directions.md`).
+14. **Pose the extremes and the counter-move.** Action is readable at the start or end of a sweep, not the middle. Anticipation is a spine curve opposite to the action, then the reverse C (`44-attacks-and-impacts`).
+15. **Profile reads fastest.** If the action must be read instantly, show it in profile; front and 3/4 views hide limbs and flatten the waist (`37-views-and-directions`).
 16. **Construct in order:** line of action → three masses → limbs (tubes) → hands and feet → outline → shading. One layer each, merged last. Make 2–3 thumbnails at 8–16 px high first and choose; the first try is never the best.
 
 ## By size
@@ -164,7 +164,7 @@ O = outline         #2b1d2e
 .......OOOOO..OOOOOO........OOOOOOOO.....OOOOOO................OOOOOO..
 ```
 
-`anatomy-poses-balance-32` — three static poses on one baseline (colour-coded dummy, see `craft/30-characters/30-proportions-by-size.md`): **contrapposto, front** (columns 0–18: shoulder line tilted against the hip line, weight on the viewer's left leg, relaxed knee out on the free leg), **side stand** (22–35: head forward of the chest, chest back, pelvis and belly forward), **heroic wide stance** (39–68: upward triangle, fists on hips, shoulders ≈ 2 heads wide).
+`anatomy-poses-balance-32` — three static poses on one baseline (colour-coded dummy, see `30-proportions-by-size`): **contrapposto, front** (columns 0–18: shoulder line tilted against the hip line, weight on the viewer's left leg, relaxed knee out on the free leg), **side stand** (22–35: head forward of the chest, chest back, pelvis and belly forward), **heroic wide stance** (39–68: upward triangle, fists on hips, shoulders ≈ 2 heads wide).
 
 ```grid anatomy-poses-motion-32
 H = dummy-head      #e8c547
@@ -219,7 +219,7 @@ OJJJJJO.....OJJJJJJO.......OJJJJJO........OJJJJJJO...................OJJJJJJJJJO
 3. Add limbs as 3→2 px tapered strokes (`applyBatch` `line`, or `grid`). Hands and feet as clusters.
 4. `render`; then the silhouette test: `duplicateLayer`, `replaceColor` every colour with one dark flat colour, `render`, then delete the copy. If the action is unclear change the pose, not the shading.
 5. Shift a mass by `applyBatch` `blit` to the new x/y plus `clear` of the old one, rather than redrawing; compare variants on separate frames with `render` `onionSkin`.
-6. Only then outline and shade (`craft/00-core/02-shading-and-light.md`). For animation keep the same masses across frames (`craft/00-core/06-layers-and-rigging.md`, `craft/40-animation/42-walk-and-run.md`).
+6. Only then outline and shade (`02-shading-and-light`). For animation keep the same masses across frames (`06-layers-and-rigging`, `42-walk-and-run`).
 
 ## Mistakes
 

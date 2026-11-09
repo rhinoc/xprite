@@ -2,8 +2,7 @@
 
 ## Timing is the performance
 
-Frame durations carry more of the life in a cycle than the drawings do. Uniform
-timing reads mechanical no matter how good the poses are.
+Frame durations carry more of the life in a cycle than the drawings do. Uniform timing reads mechanical no matter how good the poses are.
 
 Rules of thumb, at 60fps-equivalent thinking but expressed in milliseconds:
 
@@ -18,19 +17,16 @@ Set a whole cycle in one `setFrameDuration` `durations` op, one entry per frame.
 
 ## Key poses first
 
-Draw the extremes, then the in-betweens. Never animate by nudging pixels frame
-to frame — drift accumulates and by frame six the character is a different size.
+Draw the extremes, then the in-betweens. Never animate by nudging pixels frame to frame — drift accumulates and by frame six the character is a different size.
 
 A walk cycle's canonical poses:
 
 1. **Contact** — front foot lands, back foot pushing off. Widest stance.
 2. **Down** — weight over the front leg, body at its **lowest**.
-3. **Pass** — legs together, body at its **highest**. This is the frame people
-   forget, and its absence is why a walk looks like sliding.
+3. **Pass** — legs together, body at its **highest**. This is the frame people forget, and its absence is why a walk looks like sliding.
 4. **Up** — pushing off, rising.
 
-Then mirror all four for the other leg: 8 frames. A 4-frame walk uses contact
-and pass for each leg.
+Then mirror all four for the other leg: 8 frames. A 4-frame walk uses contact and pass for each leg.
 
 ## The principles that survive at 16 pixels
 
@@ -41,18 +37,16 @@ and pass for each leg.
 - **Arcs** — a hand travels along a curve, never a straight line.
 - **Overlap** — parts do not all start and stop together.
 
-Easing does not exist frame-by-frame; you get it from **spacing**. Poses close
-together = slow; far apart = fast. That is the whole trick.
+Easing does not exist frame-by-frame; you get it from **spacing**. Poses close together = slow; far apart = fast. That is the whole trick.
 
 ## Working method
 
-1. Put the character on separate layers first (see `craft/00-core/06-layers-and-rigging.md`).
+1. Put the character on separate layers first (see `06-layers-and-rigging`).
 2. Block in the key poses on their own frames. Look at them as a filmstrip.
 3. Add in-betweens only once the keys read.
 4. Set timing.
 5. Tag the cycle. Untagged frames are unusable by a game engine.
-6. Review with `render` `filmstrip` — a vision model reads only the first
-   frame of a GIF, so a filmstrip is the only way to actually see the motion.
+6. Review with `render` `filmstrip` — a vision model reads only the first frame of a GIF, so a filmstrip is the only way to actually see the motion.
 
 ## Cross-frame checks
 
@@ -63,9 +57,4 @@ together = slow; far apart = fast. That is the whole trick.
 
 ## Tooling notes
 
-`render` `onionSkin` composites a frame over its ghosted neighbours, for judging
-spacing and in-betweens without stepping through frames one at a time. The
-`tweenCels` op (`ease: "pingpong"` for oscillation) fills in in-between cels for secondary motion (a
-bob, a breath, a float) — but on small amplitudes their rounding to whole
-pixels can stutter, so hand-key the primary motion and save them for motion
-nobody is meant to consciously notice.
+`render` `onionSkin` composites a frame over its ghosted neighbours, for judging spacing and in-betweens without stepping through frames one at a time. The `tweenCels` op (`ease: "pingpong"` for oscillation) fills in in-between cels for secondary motion (a bob, a breath, a float) — but on small amplitudes their rounding to whole pixels can stutter, so hand-key the primary motion and save them for motion nobody is meant to consciously notice.

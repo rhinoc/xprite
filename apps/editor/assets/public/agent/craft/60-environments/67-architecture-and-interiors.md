@@ -1,6 +1,6 @@
 # Architecture and interiors
 
-Everybody knows what a wall, a door and a window look like, so errors show at once: bricks like plastic sheets, windows that are holes, a door the size of a shutter, a roof with no overhang or eave shadow, rooms with no wall at all. This file is how to build facades, brickwork, openings, roofs and rooms on a tile grid. Seams and edges: `craft/60-environments/66-tiles-and-autotiling.md`; ground: `craft/60-environments/65-ground-rocks-grass.md`; true perspective and iso: `craft/70-objects/70-perspective.md`, `craft/70-objects/71-isometric.md`.
+Everybody knows what a wall, a door and a window look like, so errors show at once: bricks like plastic sheets, windows that are holes, a door the size of a shutter, a roof with no overhang or eave shadow, rooms with no wall at all. This file is how to build facades, brickwork, openings, roofs and rooms on a tile grid. Seams and edges: `66-tiles-and-autotiling`; ground: `65-ground-rocks-grass`; true perspective and iso: `70-perspective`, `71-isometric`.
 
 ## Rules
 
@@ -17,7 +17,7 @@ Everybody knows what a wall, a door and a window look like, so errors show at on
 6. **Mortar first, then bricks, then light, then damage.** Mortar lines make the tile wrap; bricks that leave one edge must continue on the opposite edge. Dark mortar vs light mortar changes the whole feel.
 7. **Imply, do not outline every brick.** Top row of each brick lit, face mid, mortar dark; alternate two face tones; make 2–4 bricks chipped, protruding (keep highlight) or sunk (lose it). A perfectly regular grid looks plastic.
 8. **Top faces are brighter than side faces**, and on a vertical face the visible brick is shorter than on a top face. Use columns or pillars as universal corner pieces instead of four custom corners.
-9. **Every heavily used wall tile gets a crack or stain variant** that changes only its centre (`craft/60-environments/66-tiles-and-autotiling.md`). Cracks are short and branch, not exaggerated; mossy and window-with-figure variants break the repetition cheaply.
+9. **Every heavily used wall tile gets a crack or stain variant** that changes only its centre (`66-tiles-and-autotiling`). Cracks are short and branch, not exaggerated; mossy and window-with-figure variants break the repetition cheaply.
 
 **Openings**
 
@@ -253,11 +253,11 @@ mmmmmmmmmmmmmmmm
 
 1. Fix the grid, light direction (upper-left) and a palette of 4–6 swatches per material (`palette` op `ramp` per material; stone cool, wood warm).
 2. Block the facade in flat colour with `applyBatch` `fillRect`: roof band, wall, base, openings. `render` at 1× and squint: roof, wall and base must separate by value.
-3. Tile materials first: brick or plaster tile via `applyBatch` `grid` from the template, wrap-tested as in `craft/60-environments/66-tiles-and-autotiling.md`.
+3. Tile materials first: brick or plaster tile via `applyBatch` `grid` from the template, wrap-tested as in `66-tiles-and-autotiling`.
 4. Openings: frame, then glass, then sill and shadow row; door planks before straps before handle.
 5. Eave shadow: 2 rows under the roof, then drop shadows under sills and lintels. One light direction.
 6. Chip and crack the brick, then add a variant tile; `readPixels` `format:"grid"` to check no crack touches the tile border.
-7. Subtle outline last: a slightly darker version of the adjacent colour, not black (`craft/00-core/04-outlines-and-edges.md`).
+7. Subtle outline last: a slightly darker version of the adjacent colour, not black (`04-outlines-and-edges`).
 8. Interiors: floor tile, wall tile, baseboard; then furniture on a separate layer; then `render` at game scale.
 9. `validate` (`strays`, `palette`); `render` with the layers hidden one by one to check overlap order.
 

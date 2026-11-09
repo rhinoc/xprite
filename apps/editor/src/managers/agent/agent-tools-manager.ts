@@ -1,3 +1,10 @@
+import {
+  composeAgentPreview,
+  previewBoolean,
+  previewOptions,
+  previewCaptionWidth,
+  type AgentPreviewFrame,
+} from "$/managers/agent/agent-preview";
 import { AGENT_TOOL_DEFINITIONS } from "$/managers/agent/agent-tool-definitions";
 import {
   automaticViewTransition,
@@ -6,6 +13,7 @@ import {
 import {
   AGENT_INTERFACE_VERSION,
   AgentFileFormat,
+  AgentOutput,
   AgentToolName,
   type AgentToolsPort,
   type AgentToolResponse,
@@ -17,6 +25,7 @@ import {
   BatchEditError,
   BatchEditErrorCode,
   BatchEditKind,
+  AnimationIntent,
   analyzePalette,
   assertAgentPaletteSize,
   assertExportPixelBudget,
@@ -63,10 +72,46 @@ const GRID_CHARACTER_ALPHABET =
 const STATS_HISTOGRAM_LIMIT = 64;
 const DEFAULT_ONION_ALPHA = 0.4;
 const MAX_ONION_RANGE = 64;
-const MAX_FILMSTRIP_SCALE = 16;
+const MAX_ARTIFACTS = 32;
+const MAX_ARTIFACT_BYTES = 64 * 1024 * 1024;
+const GIF_MIME_TYPE = "image/gif";
 const MAX_VALIDATE_RANGES = 64;
 const MAX_IMPORT_SIDE = 2048;
 const MAX_IMPORT_BASE64 = 32 * 1024 * 1024;
+const AGENT_DOC_INDEX = "README.md";
+/** Band directories by leading digit, matching craft/README.md. */
+const AGENT_DOC_BANDS: Record<string, string> = {
+  "0": "00-core",
+  "1": "10-technique",
+  "2": "20-color",
+  "3": "30-characters",
+  "4": "40-animation",
+  "5": "50-creatures",
+  "6": "60-environments",
+  "7": "70-objects",
+  "8": "80-effects-ui",
+  "9": "90-style",
+};
+const AGENT_DOC_ID = /^[0-9a-z][0-9a-z-]{0,127}$/;
+
+/** Map a doc id to its file under agent/craft/. Accepts a bare name
+ * ("42-walk-and-run") or a band-prefixed path ("40-animation/42-walk-and-run",
+ * optional ".md"); band is derived from the leading digit. */
+function agentDocPath(input: unknown): string {
+  if (input === undefined || input === "index") return AGENT_DOC_INDEX;
+  const raw = name(input, "id").replace(/\.md$/i, "");
+  const slash = raw.indexOf("/");
+  const id = slash < 0 ? raw : raw.slice(slash + 1);
+  if (!AGENT_DOC_ID.test(id) || id.includes("..") || !id.includes("-"))
+    throw new BatchEditError(
+      BatchEditErrorCode.InvalidInput,
+      'id must look like "42-walk-and-run"; call listDocs for the index',
+    );
+  const band = AGENT_DOC_BANDS[id[0]];
+  if (!band)
+    throw new BatchEditError(BatchEditErrorCode.InvalidInput, `Unknown doc band "${id[0]}"`);
+  return `${band}/${id}.md`;
+}
 
 /** Bounding box of non-transparent pixels inside one buffer, or null. */
 function alphaBounds(pixels: PixelBuffer): Rect | null {
@@ -168,6 +213,8 @@ function docBaseName(slot: DocumentSlot): string {
 
 /** No state mirror: every request resolves the current workspace and editor. */
 export class AgentToolsManager {
+  private readonly artifacts = new Map<string, number>();
+  private stopped = false;
   constructor(
     private readonly workspace: DocumentWorkspace,
     private readonly port: AgentToolsPort,
@@ -175,7 +222,132 @@ export class AgentToolsManager {
   ) {}
 
   start(): () => void {
-    return this.port.publish({ tools: AGENT_TOOL_DEFINITIONS, execute: this.execute });
+    this.stopped = false;
+    const stop = this.port.publish({ tools: AGENT_TOOL_DEFINITIONS, execute: this.execute });
+    return () => {
+      this.stopped = true;
+      stop();
+      for (const url of this.artifacts.keys()) this.port.artifacts?.revoke(url);
+      this.artifacts.clear();
+    };
+  }
+
+  private binaryOutput(
+    bytes: Uint8Array,
+    mimeType: string,
+    filename: string,
+    input: Record<string, unknown>,
+    fallback: AgentOutput,
+  ) {
+    const output = input.output ?? fallback;
+    if (output !== fallback && output !== AgentOutput.Url)
+      throw new BatchEditError(
+        BatchEditErrorCode.InvalidInput,
+        `output must be ${fallback} or url`,
+      );
+    if (output === AgentOutput.Url) {
+      if (!this.port.artifacts || this.stopped)
+        throw new BatchEditError(BatchEditErrorCode.Unsupported, "File URLs are unavailable");
+      const retained = [...this.artifacts.values()].reduce((sum, size) => sum + size, 0);
+      if (this.artifacts.size >= MAX_ARTIFACTS || retained + bytes.byteLength > MAX_ARTIFACT_BYTES)
+        throw new BatchEditError(
+          BatchEditErrorCode.InvalidInput,
+          "Artifact limit reached; call releaseArtifact for files you have finished using",
+        );
+      const url = this.port.artifacts.create(bytes, mimeType, filename);
+      this.artifacts.set(url, bytes.byteLength);
+      return { output, url };
+    }
+    const base64 = this.port.encodeBase64(bytes);
+    return output === AgentOutput.Base64
+      ? { output, base64 }
+      : { output, dataUrl: `data:${mimeType};base64,${base64}` };
+  }
+
+  private async previewResponse(
+    slot: DocumentSlot,
+    input: Record<string, unknown>,
+    frames: readonly AgentPreviewFrame[],
+    metadata: Record<string, unknown> = {},
+    filmstrip?: Record<string, unknown>,
+  ): Promise<AgentToolResponse> {
+    const revision = slot.core.getContentRevision();
+    const { pixels, ...presentation } = composeAgentPreview(
+      frames,
+      previewOptions(input, filmstrip),
+      this.port.rasterText,
+    );
+    const bytes = await this.port.encodePng(pixels);
+    const filename = `${docBaseName(slot)}-preview.png`;
+    return {
+      ok: true,
+      data: {
+        documentId: slot.documentId,
+        revision,
+        ...metadata,
+        ...presentation,
+        frames: frames.length,
+        mimeType: PNG_MIME_TYPE,
+        filename,
+        byteLength: bytes.byteLength,
+        ...this.binaryOutput(bytes, PNG_MIME_TYPE, filename, input, AgentOutput.DataUrl),
+      },
+    };
+  }
+
+  private async animationPreview(
+    slot: DocumentSlot,
+    input: Record<string, unknown>,
+  ): Promise<AgentToolResponse> {
+    this.assertIdle(slot);
+    const doc = slot.core.getSnapshot().document!;
+    const revision = slot.core.getContentRevision();
+    const indices = this.exportFrameIndices(doc, input);
+    const options = previewOptions(input);
+    assertExportPixelBudget(doc, indices.length, options.scale);
+    options.minimumWidth = previewCaptionWidth(
+      indices.map((frameIndex) => ({
+        frameIndex,
+        duration: doc.timeline!.frames[frameIndex].duration,
+      })),
+      options,
+      this.port.rasterText,
+    );
+    let allocated = 0;
+    const frames = indices.map((frameIndex) => {
+      const read = this.pixels(slot, { ...input, frameIndex }, BATCH_EDIT_LIMITS.pixels);
+      const duration = doc.timeline!.frames[frameIndex].duration;
+      const preview = composeAgentPreview(
+        [{ pixels: convertPixelsToSrgb(read.pixels, read.profile), frameIndex, duration }],
+        options,
+        this.port.rasterText,
+      );
+      allocated += preview.width * preview.height;
+      if (allocated > BATCH_EDIT_LIMITS.pixels)
+        throw new BatchEditError(
+          BatchEditErrorCode.InvalidInput,
+          "Animation preview exceeds the pixel budget; reduce scale or frame range",
+        );
+      return { pixels: preview.pixels, duration, sourceFrame: frameIndex };
+    });
+    const bytes = encodeGif(frames);
+    const filename = `${docBaseName(slot)}-preview.gif`;
+    return {
+      ok: true,
+      data: {
+        documentId: slot.documentId,
+        revision,
+        mimeType: GIF_MIME_TYPE,
+        filename,
+        byteLength: bytes.byteLength,
+        width: frames[0].pixels.width,
+        height: frames[0].pixels.height,
+        frames: frames.length,
+        frameIndices: indices,
+        durations: frames.map(({ duration }) => duration),
+        ...this.binaryOutput(bytes, GIF_MIME_TYPE, filename, input, AgentOutput.DataUrl),
+      },
+    };
   }
 
   private slots(): DocumentSlot[] {
@@ -225,7 +397,7 @@ export class AgentToolsManager {
       throw new BatchEditError(BatchEditErrorCode.Conflict, "Document changed; read context again");
   }
 
-  private context(slot: DocumentSlot) {
+  private context(slot: DocumentSlot, input: Record<string, unknown> = {}) {
     const state = slot.core.getSnapshot(),
       doc = state.document!,
       t = doc.timeline!;
@@ -254,7 +426,11 @@ export class AgentToolsManager {
       activeFrameIndex: t.activeFrame,
       layers: t.layers.map((layer, index) => {
         let inkBounds: Rect | null = null;
-        if ((!layer.kind || layer.kind === "image") && effectiveLayerVisible(t, index)) {
+        if (
+          input.includeInkBounds &&
+          (!layer.kind || layer.kind === "image") &&
+          effectiveLayerVisible(t, index)
+        ) {
           const cel = t.frames[t.activeFrame].cels[index];
           const active = index === t.activeLayer;
           const source = active ? doc.layer.pixels : cel?.pixels;
@@ -281,7 +457,7 @@ export class AgentToolsManager {
           locked: !layerEditable(t, index),
           effectiveVisible: effectiveLayerVisible(t, index),
           opacity: layer.opacity,
-          inkBounds,
+          ...(input.includeInkBounds ? { inkBounds } : {}),
           writable:
             (t.colorDepth ?? 32) === 32 &&
             (!layer.kind || layer.kind === "image") &&
@@ -314,9 +490,13 @@ export class AgentToolsManager {
             height: doc.selection.height,
           }
         : null,
-      palette: (t.frames[t.activeFrame].palette ?? doc.palette ?? state.palette).map((rgba) => [
-        ...rgba,
-      ]),
+      ...(input.includePalette
+        ? {
+            palette: (t.frames[t.activeFrame].palette ?? doc.palette ?? state.palette).map(
+              (rgba) => [...rgba],
+            ),
+          }
+        : {}),
     };
   }
 
@@ -590,58 +770,25 @@ export class AgentToolsManager {
               return index;
             });
           })();
-    const layout = spec.layout ?? "strip";
-    if (layout !== "strip" && layout !== "grid")
-      throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Invalid filmstrip.layout");
-    const scale = integer(spec.scale ?? 1, "filmstrip.scale", 1, MAX_FILMSTRIP_SCALE);
-    const columns =
-      layout === "strip" ? frames.length : Math.max(1, Math.ceil(Math.sqrt(frames.length)));
-    const rows = Math.ceil(frames.length / columns);
-    const width = doc.width * columns * scale,
-      height = doc.height * rows * scale;
-    if (width > MAX_DOCUMENT_SIDE || height > MAX_DOCUMENT_SIDE)
+    const options = previewOptions(input, spec);
+    const rect = region(input.rect, doc, BATCH_EDIT_LIMITS.pixels);
+    if (
+      rect.width * rect.height * frames.length * options.scale * options.scale >
+      BATCH_EDIT_LIMITS.pixels
+    )
       throw new BatchEditError(
         BatchEditErrorCode.InvalidInput,
-        `Filmstrip exceeds ${MAX_DOCUMENT_SIDE}px per side; reduce scale or split frames`,
+        "Filmstrip exceeds the pixel budget; reduce scale or split frames",
       );
-    const output: PixelBuffer = {
-      width,
-      height,
-      data: new Uint8ClampedArray(width * height * BATCH_EDIT_LIMITS.rgbaChannels),
-    };
-    const frameRects = frames.map((frameIndex, ordinal) => {
-      const x = (ordinal % columns) * doc.width * scale,
-        y = Math.floor(ordinal / columns) * doc.height * scale;
-      const source = renderTimelineFrame(t, doc.width, doc.height, frameIndex);
-      const channels = BATCH_EDIT_LIMITS.rgbaChannels;
-      for (let py = 0; py < doc.height * scale; py++) {
-        const sy = Math.floor(py / scale);
-        for (let px = 0; px < doc.width * scale; px++) {
-          const from = (sy * doc.width + Math.floor(px / scale)) * channels,
-            at = ((y + py) * width + x + px) * channels;
-          output.data.set(source.data.subarray(from, from + channels), at);
-        }
-      }
-      return { x, y, width: doc.width * scale, height: doc.height * scale, frameIndex };
+    const previews = frames.map((frameIndex) => {
+      const read = this.pixels(slot, { ...input, frameIndex }, BATCH_EDIT_LIMITS.pixels);
+      return {
+        pixels: convertPixelsToSrgb(read.pixels, read.profile),
+        frameIndex,
+        duration: t.frames[frameIndex].duration,
+      };
     });
-    const bytes = await this.port.encodePng(convertPixelsToSrgb(output, workingColorProfile(t)));
-    return {
-      ok: true,
-      data: {
-        documentId: slot.documentId,
-        revision: slot.core.getContentRevision(),
-        mimeType: PNG_MIME_TYPE,
-        dataUrl: `data:${PNG_MIME_TYPE};base64,${this.port.encodeBase64(bytes)}`,
-        frames: frames.length,
-        width,
-        height,
-        scale,
-        layout,
-        columns,
-        rows,
-        frameRects,
-      },
-    };
+    return this.previewResponse(slot, input, previews, {}, spec);
   }
 
   /** render onionSkin — target frame at full alpha over ghosted neighbors, oldest first. */
@@ -704,21 +851,18 @@ export class AgentToolsManager {
     };
     for (const ghost of ghosts) draw(ghost, alpha);
     draw(frameIndex, 255);
-    const bytes = await this.port.encodePng(convertPixelsToSrgb(output, workingColorProfile(t)));
-    return {
-      ok: true,
-      data: {
-        documentId: slot.documentId,
-        revision: slot.core.getContentRevision(),
-        mimeType: PNG_MIME_TYPE,
-        dataUrl: `data:${PNG_MIME_TYPE};base64,${this.port.encodeBase64(bytes)}`,
-        frameIndex,
-        layerId: spec.layerId ?? null,
-        ghostFrames: ghosts,
-        width: doc.width,
-        height: doc.height,
-      },
-    };
+    return this.previewResponse(
+      slot,
+      input,
+      [
+        {
+          pixels: convertPixelsToSrgb(output, workingColorProfile(t)),
+          frameIndex,
+          duration: t.frames[frameIndex].duration,
+        },
+      ],
+      { frameIndex, layerId: spec.layerId ?? null, ghostFrames: ghosts },
+    );
   }
 
   /** mode:"stats" — color histogram and ink bounds over the read region. */
@@ -1000,7 +1144,13 @@ export class AgentToolsManager {
             filename: `${baseName}.gif`,
             mimeType: "image/gif",
             byteLength: bytes.byteLength,
-            base64: this.port.encodeBase64(bytes),
+            ...this.binaryOutput(
+              bytes,
+              GIF_MIME_TYPE,
+              `${baseName}.gif`,
+              input,
+              AgentOutput.Base64,
+            ),
             frames: frames.length,
             frameIndices: indices,
           },
@@ -1047,7 +1197,13 @@ export class AgentToolsManager {
           filename: `${baseName}-sheet.png`,
           mimeType: PNG_MIME_TYPE,
           byteLength: bytes.byteLength,
-          base64: this.port.encodeBase64(bytes),
+          ...this.binaryOutput(
+            bytes,
+            PNG_MIME_TYPE,
+            `${baseName}-sheet.png`,
+            input,
+            AgentOutput.Base64,
+          ),
           frames: frames.length,
           layout,
           columns,
@@ -1087,7 +1243,13 @@ export class AgentToolsManager {
         filename: `${baseName}.${format as string}`,
         mimeType: format === AgentFileFormat.Png ? PNG_MIME_TYPE : ASEPRITE_MIME_TYPE,
         byteLength: bytes.byteLength,
-        base64: this.port.encodeBase64(bytes),
+        ...this.binaryOutput(
+          bytes,
+          format === AgentFileFormat.Png ? PNG_MIME_TYPE : ASEPRITE_MIME_TYPE,
+          `${baseName}.${format as string}`,
+          input,
+          AgentOutput.Base64,
+        ),
       },
     };
   }
@@ -1344,7 +1506,44 @@ export class AgentToolsManager {
   execute = async (tool: AgentToolName, args: unknown): Promise<AgentToolResponse> => {
     try {
       const input = inputObject(args);
+      if (tool === AgentToolName.ListDocs) {
+        if (!this.port.agentDocs)
+          throw new BatchEditError(BatchEditErrorCode.Unsupported, "listDocs is unavailable");
+        return { ok: true, data: { docs: await this.port.agentDocs.list() } };
+      }
+      if (tool === AgentToolName.ReadDoc) {
+        if (!this.port.agentDocs)
+          throw new BatchEditError(BatchEditErrorCode.Unsupported, "readDoc is unavailable");
+        const path = agentDocPath(input.id);
+        const content = await this.port.agentDocs.read(path);
+        if (content === null)
+          throw new BatchEditError(BatchEditErrorCode.NotFound, `No doc at "${path}"`);
+        return { ok: true, data: { id: input.id ?? "index", path, content } };
+      }
+      if (tool === AgentToolName.ReleaseArtifact) {
+        if (typeof input.url !== "string")
+          throw new BatchEditError(BatchEditErrorCode.InvalidInput, "url must be an artifact URL");
+        const released = this.artifacts.delete(input.url);
+        if (released) this.port.artifacts?.revoke(input.url);
+        return { ok: true, data: { released } };
+      }
       if (tool === AgentToolName.GetContext) {
+        previewBoolean(input.includePalette, "includePalette");
+        previewBoolean(input.includeInkBounds, "includeInkBounds");
+        const limits = {
+          ...BATCH_EDIT_LIMITS,
+          readPixels: MAX_READ_PIXELS,
+          documentSide: MAX_DOCUMENT_SIDE,
+        };
+        if (input.documentId !== undefined)
+          return {
+            ok: true,
+            data: {
+              version: AGENT_INTERFACE_VERSION,
+              document: this.context(this.resolve(input), input),
+              limits,
+            },
+          };
         const seen = new Set<string>();
         const documents = this.slots()
           .filter((slot) => {
@@ -1352,19 +1551,28 @@ export class AgentToolsManager {
             seen.add(slot.documentId);
             return true;
           })
-          .map((slot) => this.context(slot));
+          .map((slot) => {
+            const doc = slot.core.getSnapshot().document!;
+            return {
+              id: slot.documentId,
+              name: doc.name,
+              width: doc.width,
+              height: doc.height,
+              revision: slot.core.getContentRevision(),
+              layers: doc.timeline!.layers.length,
+              frames: doc.timeline!.frames.length,
+            };
+          });
         const active = this.workspace.active;
         return {
           ok: true,
           data: {
             version: AGENT_INTERFACE_VERSION,
-            activeDocument: active?.core.getSnapshot().document ? this.context(active) : null,
+            activeDocument: active?.core.getSnapshot().document
+              ? this.context(active, input)
+              : null,
             documents,
-            limits: {
-              ...BATCH_EDIT_LIMITS,
-              readPixels: MAX_READ_PIXELS,
-              documentSide: MAX_DOCUMENT_SIDE,
-            },
+            limits,
             operations: Object.values(BatchEditKind),
             coordinates: "sprite pixels; zero-based frame indices",
             colorInput: "working-space #RRGGBB, #RRGGBBAA or RGBA bytes; replacement ink",
@@ -1388,12 +1596,17 @@ export class AgentToolsManager {
         this.showDocument(automaticViewTransition(EditorViewChangeReason.DocumentOpened));
         return { ok: true, data: this.context(this.workspace.active) };
       }
-      if (tool === AgentToolName.ManageDocument) return this.manageDocument(input);
+      if (tool === AgentToolName.ManageDocument) return await this.manageDocument(input);
       const slot = this.resolve(input);
-      if (tool === AgentToolName.ImportImage) return this.importImage(slot, input);
+      if (tool === AgentToolName.ImportImage) return await this.importImage(slot, input);
       if (tool === AgentToolName.Validate) {
         const expect = input.expect === undefined ? undefined : inputObject(input.expect);
         const options: ValidateOptions = {};
+        if (input.animationIntent !== undefined) {
+          if (!Object.values(AnimationIntent).includes(input.animationIntent as AnimationIntent))
+            throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Invalid animationIntent");
+          options.animationIntent = input.animationIntent as AnimationIntent;
+        }
         if (input.checks !== undefined) {
           if (!Array.isArray(input.checks))
             throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Invalid checks");
@@ -1507,10 +1720,22 @@ export class AgentToolsManager {
         if (tool === AgentToolName.ReadPixels && input.rect === undefined)
           throw new BatchEditError(BatchEditErrorCode.InvalidInput, "rect is required");
         if (tool === AgentToolName.ReadPixels && input.mode === "diff") return this.diff(input);
-        if (tool === AgentToolName.Render && input.filmstrip !== undefined)
-          return this.filmstrip(slot, input);
+        if (tool === AgentToolName.Render) {
+          const animation = previewBoolean(input.animation, "animation");
+          if (
+            [animation, input.filmstrip !== undefined, input.onionSkin !== undefined].filter(
+              Boolean,
+            ).length > 1
+          )
+            throw new BatchEditError(
+              BatchEditErrorCode.InvalidInput,
+              "Choose one of animation, filmstrip or onionSkin",
+            );
+          if (animation) return await this.animationPreview(slot, input);
+          if (input.filmstrip !== undefined) return await this.filmstrip(slot, input);
+        }
         if (tool === AgentToolName.Render && input.onionSkin !== undefined)
-          return this.onionSkin(slot, input);
+          return await this.onionSkin(slot, input);
         const read = this.pixels(
           slot,
           input,
@@ -1553,15 +1778,19 @@ export class AgentToolsManager {
             },
           };
         }
-        const bytes = await this.port.encodePng(convertPixelsToSrgb(read.pixels, read.profile));
-        return {
-          ok: true,
-          data: {
-            ...metadata,
-            mimeType: PNG_MIME_TYPE,
-            dataUrl: `data:${PNG_MIME_TYPE};base64,${this.port.encodeBase64(bytes)}`,
-          },
-        };
+        return await this.previewResponse(
+          slot,
+          input,
+          [
+            {
+              pixels: convertPixelsToSrgb(read.pixels, read.profile),
+              frameIndex: read.frameIndex,
+              duration:
+                slot.core.getSnapshot().document!.timeline!.frames[read.frameIndex].duration,
+            },
+          ],
+          metadata,
+        );
       }
       if (tool === AgentToolName.WritePreview) {
         const directory = this.port.previewDirectory;
@@ -1604,8 +1833,8 @@ export class AgentToolsManager {
           },
         };
       }
-      if (tool === AgentToolName.ExportDocument) return this.exportDocument(slot, input);
-      if (tool === AgentToolName.Palette) return this.palette(slot, input);
+      if (tool === AgentToolName.ExportDocument) return await this.exportDocument(slot, input);
+      if (tool === AgentToolName.Palette) return await this.palette(slot, input);
       throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Unknown tool");
     } catch (reason) {
       return {

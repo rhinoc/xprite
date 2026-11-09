@@ -7,7 +7,8 @@ provides `document.modelContext.registerTool`, the same operations are
 registered as `xprite_getContext`, `xprite_render`, `xprite_readPixels`,
 `xprite_validate`, `xprite_createDocument`, `xprite_applyBatch`,
 `xprite_undo`, `xprite_redo`, `xprite_importImage`, `xprite_manageDocument`,
-`xprite_exportDocument` and `xprite_palette`. No additional server is required;
+`xprite_exportDocument`, `xprite_palette`, `xprite_listDocs`, `xprite_readDoc`
+and `xprite_releaseArtifact`. No additional server is required;
 an agent must be connected to this live editor tab — fetching the website URL
 cannot read another browser's document memory.
 
@@ -56,13 +57,19 @@ Use a rectangle that fits the sprite. `createDocument` caps new canvases at
 
 ## Reads
 
-- `getContext`: documents, revisions, layers (kind/visible/locked/inkBounds/
-  writable), frames + durations, selection, palette, tilesets, busy flag.
+- `getContext`: full active document plus compact open-document summaries.
+  `documentId` returns only `data.document`. Layers, frame timing, tags,
+  selection, tilesets and busy flags are included; `includePalette` and
+  `includeInkBounds` opt into heavier details.
   Read previews can include an in-progress raster gesture; `busy` marks an
   uncommitted gesture.
 - `render`: sRGB PNG data URL, independent of zoom/pan. `filmstrip` composes
   listed frames into one image and returns `frameRects`; `onionSkin` ghosts
-  neighbouring frames. Includes in-progress raster gestures.
+  neighbouring frames. `scale`, `background` (transparent/checkerboard/hex),
+  `compareNative`, and `labels` compose a review without editing source pixels.
+  Captions and native rectangles are outside the enlarged image; `frameRects`
+  includes durations. `animation:true` returns a GIF with frame timing.
+  Includes in-progress raster gestures in still previews.
 - `readPixels`: `format:"grid"` returns a one-char-per-color legend plus row
   strings (`.` = transparent); `mode:"diff"` compares two endpoints and with
   `detail:true` returns the changed map; `mode:"stats"` returns color
@@ -71,10 +78,19 @@ Use a rectangle that fits the sprite. `createDocument` caps new canvases at
 - `validate`: mechanical lint (`palette`, `strays`, `outline`, `banding`,
   `antialiasing`, `layers`, `animation`, `export_readiness`); `strict`
   promotes warnings; `expect.layerFrames`/`mustNotOverlap` assert invariants.
+  Results report checks and error/warning/note counts, never an art-quality
+  score. Findings distinguish technical issues from visual-review heuristics;
+  isolated particles are warnings, not certain errors. Visual review is always
+  required. `animationIntent` gates character
+  timing advice; ambient/mechanical loops may correctly use uniform timing.
 - `exportDocument`: `png` (one frame, sRGB), `aseprite` (whole project),
   `gif` (all frames / `frameRange` / `tag`, honoring durations, `scale`
   integer), `spritesheet` (`layout` `strip`|`grid`, returns `frameRects`),
-  `tag` shorthand. Never downloads or marks saved.
+  `tag` shorthand. Never downloads or marks saved. `output:"url"` on export
+  or render returns a same-browser Blob URL instead of base64/data URLs.
+  The manager bounds retained artifacts to 32 files / 64 MiB, rejects further
+  allocations at capacity, and revokes them on teardown. `releaseArtifact`
+  releases only URLs owned by this interface. The browser adapter owns Blob IO.
 - `importImage`: base64 PNG/GIF → cel (multi-frame GIF appends frames);
   optional `pixelate` worker pass `{ method?, colorPicker?, targetWidth?,
   targetHeight?, outlineStrength?, removeNoise? }` — `method` is the per-cell
@@ -91,9 +107,13 @@ Ops explicitly target `layerId` + `frameIndex`; region edits add an optional
 later indices. Reread context after structural edits.
 
 - **Paint**: `stroke` (`points`, `size?`), `line` (`start`,`end`),
+  `polygon` (`points`, `size?`), `fillPolygon` (`points`, `outlineColor?`),
   `rectangle`/`fillRect`/`ellipse`/`fillEllipse` (`rect`), `fill` (`point`),
   `pixels` (`rect`,`rgba` 4 bytes/px), `grid` (`rect`,`legend`,`rows`;
-  `transparent` `erase`|`skip`). All take `color`, optional `size`.
+  `transparent` `erase`|`skip`). Polygons close automatically and require
+  at least three vertices. Filled polygon borders are one pixel wide.
+  Raw pixels/grids supply their own colors; brush size applies to strokes
+  and outlines, not fills.
 - **Structure**: `addLayer` (`layerId`, `name`, `afterLayerId?`),
   `renameLayer`, `setLayerVisibility`, `moveLayer` (`targetLayerId`),
   `setLayer` (`opacity`/`blendMode`/`visible`/`name`/`editable`),
@@ -142,7 +162,12 @@ current schemas.
 ## Design sources
 
 Aseprite's `tests/scripts/tools.lua` and `app_transaction.lua` (MIT) informed
-explicit drawing targets and one-undo-step batching. WebMCP registration uses
+explicit drawing targets and one-undo-step batching. Polygon behavior reuses
+Xprite's existing rasterizer; reference `src/doc/algorithm/polygon.cpp` (MIT).
+Reference `src/render/bg_options.h` and `src/render/bg_type.h` (both MIT)
+informed preview-only transparency/checkerboard backgrounds. Review captions,
+native-size comparison and artifact delivery are agent-specific additions;
+no reference implementation code was copied for them. WebMCP registration uses
 `document.modelContext.registerTool`; the page JS interface remains available
 without it. Registration failures emit `xprite-agent-registration-error`.
 
@@ -150,4 +175,7 @@ without it. Registration failures emit `xprite-agent-registration-error`.
 
 `assets/public/agent/craft/` is a handbook of pixel-art craft rules for agents,
 grouped into band directories (`00-core`, `10-technique`, … `90-style`) with
-`README.md` as the index — shipped alongside `editor.md` for connected agents.
+`README.md` as the index — shipped alongside `editor.md` for connected agents,
+and readable through the `listDocs`/`readDoc` tools (`id` like
+`"42-walk-and-run"`, `"index"` alias; the leading digit selects the band) so
+tool-loop agents need no page fetch.

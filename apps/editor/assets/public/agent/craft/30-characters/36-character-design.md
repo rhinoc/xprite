@@ -4,9 +4,9 @@ A character that is only a correct figure is a mannequin in a costume. At 16–3
 
 ## Rules
 
-1. **Write the brief before the first pixel.** One line: role, personality, one strong element ("lazy, kind cowboy with a huge hat"). From it choose the dominant shape (rule 2) and a head count (`craft/30-characters/30-proportions-by-size.md`).
+1. **Write the brief before the first pixel.** One line: role, personality, one strong element ("lazy, kind cowboy with a huge hat"). From it choose the dominant shape (rule 2) and a head count (`30-proportions-by-size`).
 2. **Shape language sets the first read.** Circle = friendly, young, cute, safe. Square = sturdy, reliable, heavy, confident. Triangle = aggressive, sinister, fast, dangerous. Organic and irregular = natural, unpredictable. Apply it to the whole silhouette first, then echo it in hair, costume and props. A villain in a friendly game keeps triangles but rounds the vertices; keep one corner treatment across the cast. Templates `design-shape-trio-24`.
-3. **Silhouette test before shading.** Fill the sprite with one flat colour at 1×; can you name the character? Include hat, hair, weapon. For a roster, fill every sprite black and line them up: each must be identifiable. If not, change the shape; shading will not repair it (`craft/00-core/03-silhouette-and-form.md`).
+3. **Silhouette test before shading.** Fill the sprite with one flat colour at 1×; can you name the character? Include hat, hair, weapon. For a roster, fill every sprite black and line them up: each must be identifiable. If not, change the shape; shading will not repair it (`03-silhouette-and-form`).
 4. **Three different masses.** Give head, torso and legs one small, one medium and one large share (32 px: head 12, torso 8, legs 10). Never three equal steps. Push the contrast until it looks wrong, then back off one step.
 5. **Straight against curve.** On a limb or torso make one edge a clean straight run of 3+ px and the opposite edge a stepped curve. All-parallel or all-curved contours go to mush.
 6. **Design the negative space.** The 1–3 px holes between arm and torso, between legs, under a cape are part of the shape. Make them different sizes; never let an arm fuse with the torso.
@@ -16,14 +16,14 @@ A character that is only a correct figure is a mannequin in a costume. At 16–3
 10. **Head count as characterisation:** child / imp 3–4; kid 5–6; commoner 6–7 with wide shoulders (≥ 2⅓ heads); ordinary adult 7½; hero / knight 8; elf, noble, villain 8½–9, narrow; brute 7–8 with shoulders 3 heads wide (the child, commoner and brute rows are extrapolated from Loomis).
 11. **Danger vocabulary:** snake and spider shapes, very long thin limbs, spikes and sharp complicated edges. Give every design one strong identifying element (a flat head, treads, a sword on the back). A ruined thing has a ruined silhouette.
 12. **One detail level for the whole cast.** Choose the eye style once — 1 px dot, 2×2 with highlight, or full eye — and use it for every character; an iconic mouse beside a realistic girl clashes.
-13. **Colour:** 2–3 colours per character, a main and a sub; 6–12 total at 16–32 px. Make the hair or one accessory the saturated accent against muted clothes. Warm = energetic or dangerous; cool = calm or mysterious; high saturation = young or heroic; low = aged (`craft/20-color/20-color-for-pixel-art.md`).
+13. **Colour:** 2–3 colours per character, a main and a sub; 6–12 total at 16–32 px. Make the hair or one accessory the saturated accent against muted clothes. Warm = energetic or dangerous; cool = calm or mysterious; high saturation = young or heroic; low = aged (`20-color-for-pixel-art`).
 14. **Keep an anchor feature.** Palette swaps, upgrades and costume changes keep one fixed group (a 3×2 hat, a red scarf, the hair shape) at the same position.
-15. **Mirroring decides asymmetry.** A sword hand, scar or parted fringe flips when W is made from E: design symmetrical accessories, or budget a separate W set (`craft/30-characters/37-views-and-directions.md`).
-16. **Design for animation.** Ask what moves independently (weapon, cape, tail, hair) and draw it on its own layer; mock the resting pose first; avoid details that vanish in motion (`craft/00-core/06-layers-and-rigging.md`, `craft/40-animation/45-secondary-motion.md`).
+15. **Mirroring decides asymmetry.** A sword hand, scar or parted fringe flips when W is made from E: design symmetrical accessories, or budget a separate W set (`37-views-and-directions`).
+16. **Design for animation.** Ask what moves independently (weapon, cape, tail, hair) and draw it on its own layer; mock the resting pose first; avoid details that vanish in motion (`06-layers-and-rigging`, `45-secondary-motion`).
 17. **Work in rounds.** Blue-sky first: 6–10 tiny silhouettes at 16×16, pick, then polish. Redraw fresh instead of editing the same drawing; recombine the best parts; push the chosen design ≈ 10 % past comfortable, then pull back one step.
 18. **State the intent:** *simulation* (faithful), *emotion* (chibi, big eyes), *function* (an action silhouette that shows the weapon), or *conservation* (tiny and economical). Style is the set of choices you make about size, shape, colour, contrast and complexity.
 19. **Costume carries personality.** Baggy and high-collared = pensive; stripes and V-necks = studious; short and bright = outgoing. The same uniform on different bodies slumps, stretches and bulges differently; use that.
-20. **Animals and monsters:** pick one level on the scale realistic → simplified → cartoon → anthropomorphic and hold it. Caricature = 3–5 defining traits exaggerated (`craft/50-creatures/50-quadrupeds.md`, `craft/50-creatures/54-monster-design.md`).
+20. **Animals and monsters:** pick one level on the scale realistic → simplified → cartoon → anthropomorphic and hold it. Caricature = 3–5 defining traits exaggerated (`50-quadrupeds`, `54-monster-design`).
 
 ## By size
 
@@ -270,7 +270,7 @@ k = boot-mid           #5a3a22
 4. Silhouette test on a duplicate layer: `replaceColor` to one flat colour, `render`; for a cast put all sprites on one frame.
 5. Add the strong element and the anchor feature (rules 11, 14), then 2–3 colours via `palette` op ramp, one saturated accent.
 6. Split independent parts onto layers (rule 16). Mirror-check: `flip` on a copy and look for anything that must not flip.
-7. Face last (`craft/30-characters/32-heads-and-faces.md`, `craft/30-characters/33-eyes-and-expressions.md`); then `validate`.
+7. Face last (`32-heads-and-faces`, `33-eyes-and-expressions`); then `validate`.
 
 ## Mistakes
 
