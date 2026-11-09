@@ -6,8 +6,15 @@ import type {
 } from "$/adapters/workers/recovery-codec-worker";
 import type { RecoveryCompression } from "$/adapters/workers/recovery-compression";
 import { RecoverySnapshotDeltaSender } from "$/adapters/workers/recovery-snapshot-delta";
-import { workerLoadFailed } from "$/adapters/workers/worker-load-failure";
-import { WORKER_LOAD_ERROR_NAME } from "$/managers/ports/chunk-load";
+import {
+  announceWorkerLoadFailure,
+  importWithRetry,
+  isWorkerLoadError,
+  waitBeforeWorkerRetry,
+  WORKER_LOAD_ATTEMPTS,
+  WORKER_LOAD_RETRY_DELAY_MS,
+  workerLoadError,
+} from "$/adapters/workers/worker-load-failure";
 import {
   WorkerRequestChannel,
   type WorkerRequestTransport,
@@ -36,6 +43,8 @@ export interface RecoveryCodecClientOptions {
   worker?: WorkerRequestTransport<RecoveryCodecRequest> | null;
   workerFactory?: () => WorkerRequestTransport<RecoveryCodecRequest>;
   onFatalError?: (error: Error) => void;
+  /** Delay before a worker whose script failed to load is started again. */
+  workerLoadRetryDelayMs?: number;
 }
 
 function restoreWorkerError(value: string | SerializedRecoveryCodecError): Error {
@@ -56,6 +65,10 @@ export class RecoveryCodecClient {
   private workerFactory?: () => WorkerRequestTransport<RecoveryCodecRequest>;
   private readonly onFatalError?: (error: Error) => void;
   private fallbackCodec?: Promise<typeof import("$/adapters/workers/recovery-codec")>;
+  private readonly workerLoadRetryDelayMs: number;
+  private workerLoadAttempts = 0;
+  /** Set while a worker whose script failed to load waits to be started again. */
+  private workerRestart: Promise<void> | null = null;
   private fallbackCompression?: RecoveryCompression;
   private readonly snapshotDelta = new RecoverySnapshotDeltaSender();
   private closed = false;
@@ -66,6 +79,7 @@ export class RecoveryCodecClient {
     if (options.worker !== undefined && options.workerFactory)
       throw new Error("Provide worker or workerFactory, not both");
     this.onFatalError = options.onFatalError;
+    this.workerLoadRetryDelayMs = options.workerLoadRetryDelayMs ?? WORKER_LOAD_RETRY_DELAY_MS;
     this.workerFactory =
       options.workerFactory ??
       (options.worker === undefined && typeof Worker !== "undefined"
@@ -73,14 +87,19 @@ export class RecoveryCodecClient {
         : undefined);
     if (options.worker !== undefined) this.worker = options.worker;
     else if (!this.workerFactory) this.worker = null;
-    else {
-      try {
-        this.worker = this.workerFactory();
-      } catch {
-        this.worker = null;
-      } // Capability/CSP construction failure: retain autosave.
-    }
+    else this.worker = this.startWorker();
     this.attachChannel();
+  }
+  /** Capability/CSP construction failure selects the in-process codec: autosave continues. */
+  private startWorker(): WorkerRequestTransport<RecoveryCodecRequest> | null {
+    if (!this.workerFactory) return null;
+    this.workerLoadAttempts++;
+    try {
+      return this.workerFactory();
+    } catch {
+      this.workerFactory = undefined;
+      return null;
+    }
   }
   private attachChannel() {
     const firstRequestId = this.channel?.nextRequestId() ?? 1;
@@ -90,16 +109,14 @@ export class RecoveryCodecClient {
           closedError: () => new Error("Recovery codec client is closed"),
           transportError: (_event, failure) =>
             failure.startup
-              ? workerLoadFailed("The recovery codec worker script could not be loaded")
+              ? workerLoadError("The recovery codec worker script could not be loaded")
               : new Error("Recovery codec worker failed"),
           onFatalError: (error) => {
             this.snapshotDelta.clear();
-            if (this.isWorkerLoadFailure(error)) {
-              // workerLoadFailed already announced the stale build. Drop the worker so the
-              // rejected operation retries on the in-process codec instead of looping on a
-              // missing script.
-              this.abandonWorkerAfterLoadFailure();
-              this.onFatalError?.(error);
+            if (isWorkerLoadError(error)) {
+              // The rejected operation runs again once the worker restarts or, after the last
+              // attempt, on the in-process codec.
+              this.handleWorkerLoadFailure(error);
               return;
             }
             this.failure = error;
@@ -110,85 +127,99 @@ export class RecoveryCodecClient {
   }
   async encode(snapshot: EditorPersistenceSnapshot): Promise<Uint8Array> {
     this.assertOpen();
-    if (!this.worker) {
-      // Capture mutable input before the first import/await. Hashing and deflate
-      // both read these bytes later; they must observe the same frozen content.
-      const immutable = isCommittedPersistenceSnapshot(snapshot);
-      const owned = immutable
-        ? snapshot
-        : snapshot.document.timeline
-          ? clonePersistenceSnapshot(snapshot)
-          : cloneGraph(snapshot);
-      const codec = await this.getFallbackCodec();
-      const { RecoveryCompression } = await import("$/adapters/workers/recovery-compression");
-      this.assertOpen();
-      this.fallbackCompression ??= new RecoveryCompression();
-      return codec.encodeRecoverySnapshot(owned, this.fallbackCompression.deflateImmutable);
-    }
-    // Preserve delta order while yielding between pixel batches. Other kinds
-    // of requests can proceed without invalidating this sender/receiver pair.
-    // Same ownership rule as the in-thread path: a timeline-less document is cloned as a plain graph.
+    // Capture mutable input before the first import/await. Hashing and deflate both read these
+    // bytes later; they must observe the same frozen content. A timeline-less document is
+    // cloned as a plain graph.
     const owned = isCommittedPersistenceSnapshot(snapshot)
       ? snapshot
       : snapshot.document.timeline
         ? clonePersistenceSnapshot(snapshot)
         : cloneGraph(snapshot);
-    const job = this.encodeQueue.then(async () => {
-      this.assertOpen();
-      const request: RecoveryCodecRequest = isCommittedPersistenceSnapshot(owned)
-        ? {
-            id: this.channel!.nextRequestId(),
-            operation: "encode-delta",
-            delta: this.snapshotDelta.encode(owned),
-          }
-        : { id: this.channel!.nextRequestId(), operation: "encode", snapshot: owned };
-      if (request.operation === "encode-delta") {
-        const bytes = [...request.delta.additions.values()].reduce(
-          (sum, value) =>
-            sum + (value instanceof ArrayBuffer ? value.byteLength : value.buffer.byteLength),
-          0,
-        );
-        if (bytes > PIXEL_BATCH_BYTES) {
-          let batch = new Map<number, ArrayBufferView | ArrayBuffer>();
-          let size = 0;
-          const flush = async () => {
-            this.assertOpen();
-            this.worker!.postMessage({
-              id: request.id,
-              operation: "stage-delta",
-              additions: batch,
-            });
-            batch = new Map();
-            size = 0;
-            await new Promise<void>((resolve) => setTimeout(resolve, MAIN_THREAD_YIELD_MS));
-          };
-          for (const [id, value] of request.delta.additions) {
-            const length =
-              value instanceof ArrayBuffer ? value.byteLength : value.buffer.byteLength;
-            if (batch.size && size + length > PIXEL_BATCH_BYTES) await flush();
-            batch.set(id, value);
-            size += length;
-          }
-          if (batch.size) await flush();
-          request.delta = { ...request.delta, additions: new Map() };
-          request.staged = true;
-        }
-      }
-      return this.request(request) as Promise<Uint8Array>;
-    });
-    const result = job.catch((reason: unknown) => {
-      this.snapshotDelta.clear();
-      if (this.isWorkerLoadFailure(reason) && !this.worker) return this.encode(snapshot);
-      throw reason;
-    });
+    if (!this.worker && !this.workerRestart) return this.encodeInProcess(owned);
+    // Preserve delta order while yielding between pixel batches. Other kinds
+    // of requests can proceed without invalidating this sender/receiver pair.
+    const result = this.encodeQueue.then(() => this.encodeQueued(owned));
     this.encodeQueue = result.then(
       () => undefined,
       () => undefined,
     );
     return result;
   }
+  /** Runs in encode order. A worker whose script failed to load is waited for or replaced. */
+  private async encodeQueued(owned: EditorPersistenceSnapshot): Promise<Uint8Array> {
+    for (;;) {
+      if (this.workerRestart) await this.workerRestart;
+      this.assertOpen();
+      if (!this.worker) return this.encodeInProcess(owned);
+      try {
+        return await this.encodeOnWorker(owned);
+      } catch (reason) {
+        this.snapshotDelta.clear();
+        if (!isWorkerLoadError(reason) || this.worker) throw reason;
+      }
+    }
+  }
+  private async encodeInProcess(owned: EditorPersistenceSnapshot): Promise<Uint8Array> {
+    const codec = await this.getFallbackCodec();
+    const { RecoveryCompression } = await this.importFallback(
+      () => import("$/adapters/workers/recovery-compression"),
+    );
+    this.assertOpen();
+    this.fallbackCompression ??= new RecoveryCompression();
+    return codec.encodeRecoverySnapshot(owned, this.fallbackCompression.deflateImmutable);
+  }
+  private async encodeOnWorker(owned: EditorPersistenceSnapshot): Promise<Uint8Array> {
+    const request: RecoveryCodecRequest = isCommittedPersistenceSnapshot(owned)
+      ? {
+          id: this.channel!.nextRequestId(),
+          operation: "encode-delta",
+          delta: this.snapshotDelta.encode(owned),
+        }
+      : { id: this.channel!.nextRequestId(), operation: "encode", snapshot: owned };
+    if (request.operation === "encode-delta") {
+      const bytes = [...request.delta.additions.values()].reduce(
+        (sum, value) =>
+          sum + (value instanceof ArrayBuffer ? value.byteLength : value.buffer.byteLength),
+        0,
+      );
+      if (bytes > PIXEL_BATCH_BYTES) {
+        let batch = new Map<number, ArrayBufferView | ArrayBuffer>();
+        let size = 0;
+        const flush = async () => {
+          this.assertOpen();
+          // The worker failed to load while earlier batches were staged.
+          if (!this.worker)
+            throw workerLoadError("The recovery codec worker script could not be loaded");
+          this.worker.postMessage({
+            id: request.id,
+            operation: "stage-delta",
+            additions: batch,
+          });
+          batch = new Map();
+          size = 0;
+          await new Promise<void>((resolve) => setTimeout(resolve, MAIN_THREAD_YIELD_MS));
+        };
+        for (const [id, value] of request.delta.additions) {
+          const length = value instanceof ArrayBuffer ? value.byteLength : value.buffer.byteLength;
+          if (batch.size && size + length > PIXEL_BATCH_BYTES) await flush();
+          batch.set(id, value);
+          size += length;
+        }
+        if (batch.size) await flush();
+        request.delta = { ...request.delta, additions: new Map() };
+        request.staged = true;
+      }
+    }
+    if (!this.channel)
+      throw workerLoadError("The recovery codec worker script could not be loaded");
+    return this.request(request) as Promise<Uint8Array>;
+  }
   async decode(bytes: Uint8Array): Promise<EditorPersistenceSnapshot> {
     this.assertOpen();
+    if (this.workerRestart) {
+      await this.workerRestart;
+      return this.decode(bytes);
+    }
     if (!this.worker) return (await this.getFallbackCodec()).decodeRecoverySnapshot(bytes);
     try {
       return (await this.request({
@@ -197,7 +228,7 @@ export class RecoveryCodecClient {
         bytes,
       })) as EditorPersistenceSnapshot;
     } catch (error) {
-      if (this.isWorkerLoadFailure(error) && !this.worker) return this.decode(bytes);
+      if (isWorkerLoadError(error) && !this.worker) return this.decode(bytes);
       throw error;
     }
   }
@@ -206,11 +237,21 @@ export class RecoveryCodecClient {
     ownership = RecoveryCodecSnapshotOwnership.Copy,
   ): Promise<PackedRecentSnapshot> {
     this.assertOpen();
+    if (this.workerRestart) {
+      const owned =
+        ownership === RecoveryCodecSnapshotOwnership.Immutable ? snapshot : cloneGraph(snapshot);
+      await this.workerRestart;
+      return this.packRecent(owned, RecoveryCodecSnapshotOwnership.Immutable);
+    }
     if (!this.worker) {
       const owned =
         ownership === RecoveryCodecSnapshotOwnership.Immutable ? snapshot : cloneGraph(snapshot);
-      const { packRecentSnapshot } = await import("$/adapters/workers/recent-snapshot");
-      const { RecoveryCompression } = await import("$/adapters/workers/recovery-compression");
+      const { packRecentSnapshot } = await this.importFallback(
+        () => import("$/adapters/workers/recent-snapshot"),
+      );
+      const { RecoveryCompression } = await this.importFallback(
+        () => import("$/adapters/workers/recovery-compression"),
+      );
       this.assertOpen();
       this.fallbackCompression ??= new RecoveryCompression();
       return packRecentSnapshot(owned, this.fallbackCompression);
@@ -222,15 +263,20 @@ export class RecoveryCodecClient {
         snapshot,
       })) as PackedRecentSnapshot;
     } catch (error) {
-      if (this.isWorkerLoadFailure(error) && !this.worker)
-        return this.packRecent(snapshot, ownership);
+      if (isWorkerLoadError(error) && !this.worker) return this.packRecent(snapshot, ownership);
       throw error;
     }
   }
   async unpackRecent(snapshot: PackedRecentSnapshot): Promise<RecentSnapshot> {
     this.assertOpen();
+    if (this.workerRestart) {
+      await this.workerRestart;
+      return this.unpackRecent(snapshot);
+    }
     if (!this.worker) {
-      const { unpackRecentSnapshot } = await import("$/adapters/workers/recent-snapshot");
+      const { unpackRecentSnapshot } = await this.importFallback(
+        () => import("$/adapters/workers/recent-snapshot"),
+      );
       this.assertOpen();
       return unpackRecentSnapshot(snapshot);
     }
@@ -241,26 +287,47 @@ export class RecoveryCodecClient {
         snapshot,
       })) as RecentSnapshot;
     } catch (error) {
-      if (this.isWorkerLoadFailure(error) && !this.worker) return this.unpackRecent(snapshot);
+      if (isWorkerLoadError(error) && !this.worker) return this.unpackRecent(snapshot);
       throw error;
     }
   }
 
-  /** A worker script that never loaded: keep autosave on the main thread and stop recreating it. */
-  private abandonWorkerAfterLoadFailure(): void {
-    this.channel?.close(new Error("The recovery codec worker script could not be loaded"));
+  /**
+   * A worker script that never loaded. A load that the browser cancelled succeeds when the
+   * worker starts again after a pause. After the last attempt, announce the stale build, keep
+   * autosave on the main thread and stop recreating the worker.
+   */
+  private handleWorkerLoadFailure(report: Error): void {
+    if (this.closed) return;
+    this.channel?.close(report);
     this.channel = null;
     this.worker = null;
-    this.workerFactory = undefined;
     this.failure = null;
+    if (this.workerFactory && this.workerLoadAttempts < WORKER_LOAD_ATTEMPTS) {
+      this.workerRestart ??= waitBeforeWorkerRetry(this.workerLoadRetryDelayMs).then(() => {
+        this.workerRestart = null;
+        if (this.closed) return;
+        this.worker = this.startWorker();
+        this.attachChannel();
+      });
+      return;
+    }
+    this.workerFactory = undefined;
+    this.onFatalError?.(announceWorkerLoadFailure(report));
   }
 
-  private isWorkerLoadFailure(error: unknown): boolean {
-    return error instanceof Error && error.name === WORKER_LOAD_ERROR_NAME;
+  private importFallback<T>(load: () => Promise<T>): Promise<T> {
+    return importWithRetry(load, this.workerLoadRetryDelayMs);
   }
 
   private getFallbackCodec() {
-    return (this.fallbackCodec ??= import("$/adapters/workers/recovery-codec"));
+    // A failed load is not cached: the next operation tries the import again.
+    return (this.fallbackCodec ??= this.importFallback(
+      () => import("$/adapters/workers/recovery-codec"),
+    ).catch((error: unknown) => {
+      this.fallbackCodec = undefined;
+      throw error;
+    }));
   }
   private request(request: RecoveryCodecRequest): Promise<CodecResult> {
     return this.channel!.request(request, (response) => {
@@ -274,7 +341,6 @@ export class RecoveryCodecClient {
         : response.result;
     }).catch((error: unknown) => {
       this.snapshotDelta.clear();
-      if (this.isWorkerLoadFailure(error)) this.abandonWorkerAfterLoadFailure();
       throw error;
     });
   }

@@ -297,8 +297,8 @@ export async function decodeAsepriteBlob(
         try {
           return await pending;
         } catch (error) {
-          // Worker script missing after a deploy: keep the file open on the main thread.
-          // workerLoadFailed already announced the stale build for a single Reload prompt.
+          // The worker script still failed to load after its retry: open the file on the main
+          // thread. importAsepriteInWorker announced the stale build for a single Reload prompt.
           if (!(error instanceof Error) || error.name !== WORKER_LOAD_ERROR_NAME) throw error;
         }
       }
