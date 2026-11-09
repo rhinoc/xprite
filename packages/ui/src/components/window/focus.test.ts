@@ -12,7 +12,11 @@ vi.mock("react", () => ({
 }));
 vi.mock("$/components/window/interaction", () => ({ isOwnedOverlayTarget: () => false }));
 
-import { createModalFocusScope, useModalFocus } from "$/components/window/focus";
+import {
+  createModalFocusScope,
+  focusDialogContainer,
+  useModalFocus,
+} from "$/components/window/focus";
 
 class FocusDocument extends EventTarget {
   activeElement: FocusElement | null = null;
@@ -21,6 +25,7 @@ class FocusDocument extends EventTarget {
 
 class FocusElement {
   isConnected = true;
+  disabled = false;
   children: FocusElement[] = [];
   constructor(readonly ownerDocument: FocusDocument) {}
   contains(target: unknown): boolean {
@@ -37,7 +42,7 @@ class FocusElement {
   }
   focus() {
     const document = this.ownerDocument;
-    if (document.activeElement === this) return;
+    if (this.disabled || document.activeElement === this) return;
     // A trap loop must fail deterministically instead of exhausting the test process stack.
     if (++document.focusChanges > 20) throw new Error("Modal focus loop");
     document.activeElement = this;
@@ -149,6 +154,55 @@ describe("modal focus ownership", () => {
     assert.equal(foreground.dispose(), true);
     assert.equal(childScope.isActive(), true);
     childScope.dispose();
+  });
+
+  it("gives focus to a child modal opened over a scoped parent and returns it on close", () => {
+    // Save As keeps its form open when saving fails; the error dialog opens on top of it.
+    const document = browser();
+    const saveAs = new FocusElement(document);
+    const nameInput = new FocusElement(document);
+    saveAs.children = [nameInput];
+    mount(saveAs);
+    nameInput.focus();
+    const error = new FocusElement(document);
+    const ok = new FocusElement(document);
+    error.children = [ok];
+    const errorKeys = mount(error);
+    assert.equal(document.activeElement, error);
+    ok.focus();
+    assert.equal(document.activeElement, ok);
+    key(document, "Escape");
+    assert.equal(errorKeys.mock.calls.length, 1);
+    effects.pop()!();
+    assert.equal(document.activeElement, nameInput);
+  });
+
+  it("keeps focus in the parent modal when the child's opener cannot take it back", () => {
+    // Save As disables its Save button while saving, so focus cannot return there.
+    const document = browser();
+    const saveAs = new FocusElement(document);
+    const save = new FocusElement(document);
+    saveAs.children = [save];
+    mount(saveAs);
+    save.focus();
+    const error = new FocusElement(document);
+    mount(error);
+    assert.equal(document.activeElement, error);
+    save.disabled = true;
+    effects.pop()!();
+    assert.equal(document.activeElement, saveAs);
+  });
+
+  it("stops two focus traps that disagree after one move instead of recursing", () => {
+    const document = browser();
+    const first = new FocusElement(document);
+    const second = new FocusElement(document);
+    for (const root of [first, second])
+      document.addEventListener("focusin", (event) => {
+        if (!root.contains(event.target)) focusDialogContainer(root as unknown as HTMLElement);
+      });
+    assert.doesNotThrow(() => second.focus());
+    assert.ok(document.focusChanges <= 3, `focus moved ${document.focusChanges} times`);
   });
 
   it("isolates documents and gates business shortcuts while suspended", () => {

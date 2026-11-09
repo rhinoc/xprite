@@ -31,6 +31,7 @@ import {
   createModalFocusScope,
   focusDialogContainer,
   isDialogPopupTarget,
+  restoreModalFocus,
   type ButtonProps,
   type SurfaceBounds,
   type ControlPlacement,
@@ -377,7 +378,7 @@ export function FormDialog({
     return () => {
       document.removeEventListener("focusin", focus);
       document.removeEventListener("keydown", key, true);
-      if (scope.dispose() && previous?.isConnected) previous.focus({ preventScroll: true });
+      if (scope.dispose()) restoreModalFocus(document, previous);
     };
   }, [
     open,

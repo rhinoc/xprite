@@ -6,6 +6,7 @@ export {
   createModalFocusScope,
   focusDialogContainer,
   isDialogPopupTarget,
+  restoreModalFocus,
 } from "$/components/window/focus";
 export { FloatingLayer, FloatingLayerKind } from "$/components/window/floating-layer";
 export type { FloatingLayerProps } from "$/components/window/floating-layer";

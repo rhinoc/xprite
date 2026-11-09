@@ -34,12 +34,38 @@ export function createModalFocusScope(root: HTMLElement) {
   };
 }
 
-/** Keep modal focus without reopening an editable control's software keyboard. */
+/**
+ * Return focus to the element that opened a closed modal. The opener can be disabled while
+ * a parent modal is busy, so focus falls back to the parent modal instead of the page.
+ */
+export function restoreModalFocus(document: Document, previous: HTMLElement | null) {
+  if (previous?.isConnected) previous.focus({ preventScroll: true });
+  const scopes = modalScopes.get(document);
+  const parent = scopes?.[scopes.length - 1]?.root;
+  if (parent && !parent.contains(document.activeElement)) focusDialogContainer(parent);
+}
+
+/** Documents whose focus is being moved to a dialog container right now. */
+const containerFocusing = new WeakSet<Document>();
+
+/**
+ * Keep modal focus without reopening an editable control's software keyboard. A trap that
+ * reacts to this focus change cannot move focus again during it, so two traps that disagree
+ * about the owner stop after one move instead of recursing until the stack overflows.
+ */
 export function focusDialogContainer(root: HTMLElement | null) {
   const dialog = root?.matches(DIALOG_SELECTOR)
     ? root
     : root?.querySelector<HTMLElement>(DIALOG_SELECTOR);
-  dialog?.focus({ preventScroll: true });
+  if (!dialog) return;
+  const document = dialog.ownerDocument;
+  if (containerFocusing.has(document)) return;
+  containerFocusing.add(document);
+  try {
+    dialog.focus({ preventScroll: true });
+  } finally {
+    containerFocusing.delete(document);
+  }
 }
 
 /** Portaled control popups handle their own focus and keyboard dismissal. */
@@ -130,7 +156,7 @@ export function useModalFocus({
     return () => {
       document.removeEventListener("focusin", focus);
       document.removeEventListener("keydown", key, true);
-      if (scope.dispose() && previous?.isConnected) previous.focus({ preventScroll: true });
+      if (scope.dispose()) restoreModalFocus(document, previous);
     };
   }, [open, rootRef, focusableSelector]);
 }
