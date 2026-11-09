@@ -4,6 +4,8 @@ import type { AsepriteTagDirection } from "$/import-export/aseprite/model";
 export enum BatchEditKind {
   Stroke = "stroke",
   Line = "line",
+  Polygon = "polygon",
+  FillPolygon = "fillPolygon",
   Rectangle = "rectangle",
   FillRect = "fillRect",
   Ellipse = "ellipse",
@@ -22,6 +24,37 @@ export enum BatchEditKind {
   RemoveTag = "removeTag",
   LinkCels = "linkCels",
   UnlinkCels = "unlinkCels",
+  Clear = "clear",
+  ClearCel = "clearCel",
+  CopyCel = "copyCel",
+  Blit = "blit",
+  DeleteFrame = "deleteFrame",
+  ReorderFrame = "reorderFrame",
+  DeleteLayer = "deleteLayer",
+  SetLayer = "setLayer",
+  CopyFrame = "copyFrame",
+  DuplicateLayer = "duplicateLayer",
+  MergeLayer = "mergeLayer",
+  GroupLayer = "groupLayer",
+  UngroupLayer = "ungroupLayer",
+  SetCel = "setCel",
+  ResizeCanvas = "resizeCanvas",
+  CropToContent = "cropToContent",
+  Select = "select",
+  ReplaceColor = "replaceColor",
+  Outline = "outline",
+  AdjustHsl = "adjustHsl",
+  Effect = "effect",
+  Gradient = "gradient",
+  Dither = "dither",
+  Flip = "flip",
+  Rotate90 = "rotate90",
+  Translate = "translate",
+  ResizeSprite = "resizeSprite",
+  ConvertToTilemap = "convertToTilemap",
+  StampTiles = "stampTiles",
+  PaintTiles = "paintTiles",
+  TweenCels = "tweenCels",
 }
 
 export const BATCH_EDIT_LIMITS = Object.freeze({
@@ -41,9 +74,17 @@ interface PaintTarget extends RasterTarget {
   color: Rgba | string;
   size?: number;
 }
-export type BatchEditOperation =
+type BatchEditOperationBase =
   | (PaintTarget & { type: BatchEditKind.Stroke; points: readonly Point[] })
   | (PaintTarget & { type: BatchEditKind.Line; start: Point; end: Point })
+  | (PaintTarget & { type: BatchEditKind.Polygon; points: readonly Point[] })
+  | (RasterTarget & {
+      type: BatchEditKind.FillPolygon;
+      points: readonly Point[];
+      color: Rgba | string;
+      /** Optional one-pixel closed border, painted after the fill. */
+      outlineColor?: Rgba | string;
+    })
   | (PaintTarget & {
       type:
         | BatchEditKind.Rectangle
@@ -71,7 +112,13 @@ export type BatchEditOperation =
       duplicate?: boolean;
       duration?: number;
     }
-  | { type: BatchEditKind.SetFrameDuration; frameIndex: number; duration: number }
+  | {
+      type: BatchEditKind.SetFrameDuration;
+      frameIndex?: number;
+      duration?: number;
+      /** Per-frame durations in timeline order; length must equal the frame count. */
+      durations?: readonly number[];
+    }
   | {
       type: BatchEditKind.AddTag;
       name: string;
@@ -107,6 +154,181 @@ export type BatchEditOperation =
       /** Frames whose cel gets its own pixel buffer. */
       frameIndices: readonly number[];
     };
+
+/** Fields every raster-region op shares. `rect` omitted means the whole cel. */
+interface RegionTarget extends RasterTarget {
+  rect?: Rect;
+}
+
+export type BatchEditLayerAttribute =
+  | { opacity: number }
+  | { blendMode: string }
+  | { visible: boolean }
+  | { name: string }
+  | { editable: boolean };
+
+export type BatchEditOperationExtra =
+  | (RegionTarget & { type: BatchEditKind.Clear })
+  | (RasterTarget & { type: BatchEditKind.ClearCel })
+  | (RasterTarget & { type: BatchEditKind.CopyCel; toFrameIndex: number })
+  | (RasterTarget & {
+      type: BatchEditKind.Blit;
+      src: { documentId?: string; layerId: string; frameIndex: number; rect: Rect };
+      dest: { x: number; y: number };
+    })
+  | { type: BatchEditKind.DeleteFrame; frameIndex: number }
+  | { type: BatchEditKind.ReorderFrame; frameIndex: number; toIndex: number }
+  | { type: BatchEditKind.DeleteLayer; layerId: string }
+  | {
+      type: BatchEditKind.SetLayer;
+      layerId: string;
+      opacity?: number;
+      blendMode?: string;
+      visible?: boolean;
+      name?: string;
+      editable?: boolean;
+    }
+  | { type: BatchEditKind.CopyFrame; frameIndex: number; to: readonly number[] }
+  | { type: BatchEditKind.DuplicateLayer; layerId: string; name?: string; toDocumentId?: string }
+  | { type: BatchEditKind.MergeLayer; layerId: string; targetLayerId?: string }
+  | { type: BatchEditKind.GroupLayer; layerIds: readonly string[]; name?: string }
+  | { type: BatchEditKind.UngroupLayer; layerId: string }
+  | (RasterTarget & {
+      type: BatchEditKind.SetCel;
+      position?: Point;
+      opacity?: number;
+    })
+  | {
+      type: BatchEditKind.ResizeCanvas;
+      width: number;
+      height: number;
+      anchor?:
+        | "topLeft"
+        | "top"
+        | "topRight"
+        | "left"
+        | "center"
+        | "right"
+        | "bottomLeft"
+        | "bottom"
+        | "bottomRight";
+    }
+  | { type: BatchEditKind.CropToContent; layerId?: string }
+  | {
+      type: BatchEditKind.Select;
+      op: "all" | "none" | "rect" | "ellipse" | "color";
+      rect?: Rect;
+      color?: Rgba | string;
+      mode?: "replace" | "add" | "subtract" | "intersect";
+      grow?: number;
+      shrink?: number;
+    }
+  | (RegionTarget & {
+      type: BatchEditKind.ReplaceColor;
+      from: Rgba | string;
+      to: Rgba | string;
+      frameRange?: readonly [number, number];
+    })
+  | (RegionTarget & {
+      type: BatchEditKind.Outline;
+      color: Rgba | string;
+      position?: "outside" | "inside";
+      size?: number;
+    })
+  | (RegionTarget & {
+      type: BatchEditKind.AdjustHsl;
+      hue?: number;
+      saturation?: number;
+      lightness?: number;
+    })
+  | (RegionTarget & {
+      type: BatchEditKind.Effect;
+      effect:
+        | { kind: "brightness-contrast"; brightness?: number; contrast?: number }
+        | { kind: "invert" }
+        | { kind: "median-blur"; width?: number; height?: number }
+        | {
+            kind: "convolution-matrix";
+            preset:
+              | "identity"
+              | "box-blur"
+              | "gaussian-blur"
+              | "sharpen"
+              | "edge-detect"
+              | "emboss"
+              | "horizontal-edges"
+              | "vertical-edges";
+          }
+        | {
+            kind: "color-curve";
+            points: readonly { x: number; y: number }[];
+          }
+        | {
+            kind: "hue-saturation";
+            mode?: "hsv-mul" | "hsl-mul" | "hsv-add" | "hsl-add";
+            hue?: number;
+            saturation?: number;
+            lightness?: number;
+            alpha?: number;
+          };
+    })
+  | (RegionTarget & {
+      type: BatchEditKind.Gradient;
+      from: Rgba | string;
+      to: Rgba | string;
+      direction?: "horizontal" | "vertical" | "radial";
+      dither?: "none" | "bayer2" | "bayer4" | "bayer8";
+    })
+  | (RegionTarget & {
+      type: BatchEditKind.Dither;
+      colorA: Rgba | string;
+      colorB: Rgba | string;
+      pattern: "bayer2" | "bayer4" | "bayer8" | "checker" | "noise";
+      ratio?: number;
+    })
+  | (RegionTarget & { type: BatchEditKind.Flip; direction: "horizontal" | "vertical" })
+  | (RegionTarget & { type: BatchEditKind.Rotate90; angle: 90 | 180 | 270 })
+  | (RegionTarget & { type: BatchEditKind.Translate; dx: number; dy: number })
+  | {
+      type: BatchEditKind.ResizeSprite;
+      width: number;
+      height: number;
+      method?: "nearest" | "bilinear" | "rotsprite";
+    }
+  | {
+      type: BatchEditKind.ConvertToTilemap;
+      layerId: string;
+      tileWidth: number;
+      tileHeight: number;
+      name?: string;
+      tilesetName?: string;
+      baseIndex?: number;
+      matchFlags?: number;
+    }
+  | {
+      type: BatchEditKind.StampTiles;
+      layerId: string;
+      frameIndex: number;
+      /** Grid-cell placements; `tile` is the tileset index. */
+      cells: readonly { x: number; y: number; tile: number }[];
+    }
+  | (RasterTarget & {
+      type: BatchEditKind.PaintTiles;
+      rect: Rect;
+      rgba: readonly number[];
+    })
+  | {
+      type: BatchEditKind.TweenCels;
+      layerId: string;
+      fromFrame: number;
+      toFrame: number;
+      property: "position" | "opacity" | "scale";
+      from: number | Point;
+      to: number | Point;
+      ease?: "linear" | "in" | "out" | "inOut" | "pingpong";
+    };
+
+export type BatchEditOperation = BatchEditOperationBase | BatchEditOperationExtra;
 
 export interface BatchEditResult {
   changedRegions: { layerId: string; frameIndex: number; rect: Rect }[];

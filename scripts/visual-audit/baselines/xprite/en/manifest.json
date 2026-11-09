@@ -2404,7 +2404,7 @@
     {
       "id": "preferences-wide",
       "file": "preferences-wide.png",
-      "sha256": "8c9ad04eb690e3d0166dbfa54672914e8ac3c51fd7bdab385c5c4f878e64dc36",
+      "sha256": "3c056a872c8f24a8735ebd9d0953f0549298b77705468afaa9bcb54eca08e86c",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:13.816Z",
@@ -2435,7 +2435,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "8c9ad04eb690e3d0166dbfa54672914e8ac3c51fd7bdab385c5c4f878e64dc36",
+        "sha256": "3c056a872c8f24a8735ebd9d0953f0549298b77705468afaa9bcb54eca08e86c",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2650,7 +2650,7 @@
     {
       "id": "new-sprite-wide",
       "file": "new-sprite-wide.png",
-      "sha256": "ca1e4e37a2684a7698a90ba00ccd23b3abc6b6739ac0e4db0c2b40400848851c",
+      "sha256": "e3056f75ce8528e82a14847a77fa7634b0b18ceb1802e8892b93c27a8214664b",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.368Z",
@@ -2681,7 +2681,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "ca1e4e37a2684a7698a90ba00ccd23b3abc6b6739ac0e4db0c2b40400848851c",
+        "sha256": "e3056f75ce8528e82a14847a77fa7634b0b18ceb1802e8892b93c27a8214664b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4025,7 +4025,7 @@
     {
       "id": "new-sprite-compact",
       "file": "new-sprite-compact.png",
-      "sha256": "b70dcc2f3614e621d132fe2151266be0350f58029b0b6ec23cd30e8e9fcc336c",
+      "sha256": "c5a231f41a54ad0bd6b4aa634443a544460d02398dd3e38fdd4ee97a41a48042",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.769Z",
@@ -4056,7 +4056,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b70dcc2f3614e621d132fe2151266be0350f58029b0b6ec23cd30e8e9fcc336c",
+        "sha256": "c5a231f41a54ad0bd6b4aa634443a544460d02398dd3e38fdd4ee97a41a48042",
         "requestedClip": {
           "x": 0,
           "y": 0,

@@ -1,16 +1,24 @@
 import { sharedAgentPreviewDirectory } from "$/adapters/agent/preview-directory";
+import { ImageImportWorkerClient } from "$/adapters/workers/import-client";
 import {
   AGENT_GLOBAL_NAME,
   AGENT_INTERFACE_VERSION,
   AgentToolName,
+  type AgentPixelateOptions,
   type AgentToolsPort,
   type AgentToolResponse,
   type AgentPageApi,
 } from "$/managers/ports/agent-tools";
-import { encodePngBlob } from "@xprite/bedrock/browser/images";
+import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
+import type { PixelBuffer } from "@xprite/editor-core/base";
+import type { CellColorPicker, PixelationMethod, PixelateOptions } from "@xprite/pixelate";
+import { createArtifactRasterText } from "@xprite/site-shell/browser";
 
 const BASE64_CHUNK_BYTES = 8192;
 const REGISTRATION_ERROR_EVENT = "xprite-agent-registration-error";
+const AGENT_DOCS_BASE = "agent/craft";
+const AGENT_DOC_INDEX_PATH = `${AGENT_DOCS_BASE}/README.md`;
+const AGENT_DOC_LINE = /- `([0-9a-z][0-9a-z-]*)` — (.+)/g;
 
 declare global {
   interface Window {
@@ -34,13 +42,73 @@ interface WebModelContext {
 /** Browser publication only; all edits and tool definitions belong to the manager. */
 export function createBrowserAgentToolsPort(): AgentToolsPort {
   const previewDirectory = sharedAgentPreviewDirectory();
+  let pixelateWorker: ImageImportWorkerClient | undefined;
   return {
+    rasterText: createArtifactRasterText(),
+    artifacts: {
+      create: (bytes, mimeType, filename) =>
+        URL.createObjectURL(
+          new File([bytes.slice().buffer as ArrayBuffer], filename, { type: mimeType }),
+        ),
+      revoke: (url) => URL.revokeObjectURL(url),
+    },
     encodePng: async (pixels) => new Uint8Array(await (await encodePngBlob(pixels)).arrayBuffer()),
     encodeBase64: (bytes) => {
       let binary = "";
       for (let at = 0; at < bytes.length; at += BASE64_CHUNK_BYTES)
         binary += String.fromCharCode(...bytes.subarray(at, at + BASE64_CHUNK_BYTES));
       return btoa(binary);
+    },
+    decodeBase64: (value) => {
+      let binary: string;
+      try {
+        binary = atob(value);
+      } catch {
+        throw new Error("bytes must be base64");
+      }
+      const bytes = new Uint8Array(binary.length);
+      for (let at = 0; at < binary.length; at += BASE64_CHUNK_BYTES) {
+        const end = Math.min(at + BASE64_CHUNK_BYTES, binary.length);
+        for (let index = at; index < end; index++) bytes[index] = binary.charCodeAt(index);
+      }
+      return bytes;
+    },
+    decodeImage: async (bytes) => decodeImageBlob(new Blob([bytes.buffer as ArrayBuffer])),
+    agentDocs: {
+      list: async () => {
+        const response = await fetch(`${import.meta.env.BASE_URL}${AGENT_DOC_INDEX_PATH}`, {
+          credentials: "same-origin",
+        });
+        if (!response.ok) throw new Error(`agent doc index fetch failed: ${response.status}`);
+        const markdown = await response.text();
+        const docs: { id: string; title: string }[] = [
+          { id: "index", title: "Craft handbook index" },
+        ];
+        for (const match of markdown.matchAll(AGENT_DOC_LINE)) {
+          docs.push({ id: match[1], title: match[2].trim() });
+        }
+        return docs;
+      },
+      read: async (path) => {
+        const response = await fetch(`${import.meta.env.BASE_URL}${AGENT_DOCS_BASE}/${path}`, {
+          credentials: "same-origin",
+        });
+        if (response.status === 404) return null;
+        if (!response.ok) throw new Error(`agent doc fetch failed: ${response.status}`);
+        return response.text();
+      },
+    },
+    pixelate: (pixels: PixelBuffer, options: AgentPixelateOptions) => {
+      const worker = (pixelateWorker ??= new ImageImportWorkerClient());
+      const request: PixelateOptions = {};
+      if (options.method !== undefined) request.method = options.method as PixelationMethod;
+      if (options.colorPicker !== undefined)
+        request.colorPicker = options.colorPicker as CellColorPicker;
+      if (options.targetWidth !== undefined) request.targetWidth = options.targetWidth;
+      if (options.targetHeight !== undefined) request.targetHeight = options.targetHeight;
+      if (options.outlineStrength !== undefined) request.outlineStrength = options.outlineStrength;
+      if (options.removeNoise !== undefined) request.removeNoise = options.removeNoise;
+      return worker.pixelate(pixels, request);
     },
     publish: ({ tools, execute }) => {
       const lifetime = new AbortController();

@@ -14,6 +14,7 @@ export * from "$/color/palette-resize";
 // when findEditorPaletteColor returns -1 (exact miss). See palette-warning.test.ts.
 export { appendMissingPaletteColor, exactPaletteColorIndex } from "$/color/palette-warning";
 export * from "$/color/palette-usage";
+export * from "$/color/palette-agent";
 export * from "$/color/selector";
 export * from "$/color/quantization";
 export * from "$/color/types";

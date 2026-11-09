@@ -2210,6 +2210,36 @@ export class DocumentWorkspace {
       this.active.session.reportError(error);
     }
   }
+  /** Copy an open document's committed state into a new unsaved tab. */
+  duplicateDocument(slotId: string, name?: string): DocumentSlot | null {
+    const source = this.slots.find((slot) => slot.id === slotId && !this.closed.has(slot.id));
+    if (
+      !source ||
+      !source.core.getSnapshot().document ||
+      !source.session.canStartInteraction() ||
+      source.core.hasPendingDocumentEdit()
+    )
+      return null;
+    const snapshot = source.core.getPersistenceSnapshot();
+    if (!snapshot) return null;
+    const documentName =
+      name?.trim() || source.core.getSnapshot().document!.name.replace(/(\.[^.]+)?$/, " copy$1");
+    const slot = this.appendSlot(documentName);
+    try {
+      slot.core.restorePersistenceSnapshot({
+        ...snapshot,
+        dirty: true,
+        document: { ...snapshot.document, name: documentName },
+      });
+      this.select(slot.id);
+      this.recordWorkspaceEvent(WorkspaceDiagnosticAction.DocumentCreated, slot);
+      return slot;
+    } catch (error) {
+      this.closed.add(slot.id);
+      this.active.session.reportError(error);
+      return null;
+    }
+  }
   async openSource(source: SessionSource<string>) {
     const active = this.active.core.getSnapshot();
     const profile = workingColorProfile(active.document?.timeline);

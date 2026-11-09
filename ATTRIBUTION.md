@@ -316,3 +316,14 @@ Normal map and light mask generation in `packages/editor-core/src/image-editing/
 are adapted from [Pixel Art Lighter v3.5.22](https://www.moonfell-rpg.com/Pixel-Art-Lighter-v3.5.22.html)
 by Red Hat Sprite, Copyright (c) 2026 Red Hat Sprite, under the MIT License.
 The complete notice is retained in [LICENSES/pixel-art-lighter-MIT.txt](LICENSES/pixel-art-lighter-MIT.txt).
+
+## Agent craft rules
+
+The pixel-art craft knowledge base in `apps/editor/assets/public/agent/craft/`
+is adapted from the **Aseprite AI Artist** project by with-pebbly (MIT). The 62
+rule files keep the upstream numbering bands; tool names inside the text are
+translated to `window.xpriteAgent` operations and an adapter table sits in
+`00-adapter.md`. The upstream MIT notice is retained at
+`apps/editor/assets/public/agent/craft/LICENSE` and
+[`LICENSES/aseprite-ai-artist.txt`](LICENSES/aseprite-ai-artist.txt). Source:
+[Aseprite AI Artist](https://github.com/with-pebbly/aseprite-ai-artist).

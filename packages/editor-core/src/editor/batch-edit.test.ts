@@ -22,6 +22,62 @@ function fill(editor: RasterEditor): BatchEditOperation & { type: BatchEditKind.
 const revision = (editor: RasterEditor) => editor.getContentRevision();
 
 describe("agent document batches", () => {
+  it("fills a polygon with a distinct closed border in one undo step", () => {
+    const editor = fixture();
+    const layerId = fill(editor).layerId;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillPolygon,
+          layerId,
+          frameIndex: 0,
+          points: [
+            { x: 0, y: 0 },
+            { x: 3, y: 0 },
+            { x: 3, y: 3 },
+            { x: 0, y: 3 },
+          ],
+          color: "#FF0000",
+          outlineColor: "#0000FF",
+        },
+      ],
+      revision(editor),
+      "Outlined polygon",
+    );
+    const pixels = editor.canvas.composite().data;
+    expect(Array.from(pixels.slice(0, 4))).toEqual([0, 0, 255, 255]);
+    expect(Array.from(pixels.slice(20, 24))).toEqual([255, 0, 0, 255]);
+    expect(Array.from(pixels.slice(60, 64))).toEqual([0, 0, 255, 255]);
+    editor.history.undo();
+    expect(editor.canvas.composite().data.every((byte) => byte === 0)).toBe(true);
+  });
+
+  it("rejects an invalid polygon atomically after an earlier paint operation", () => {
+    const editor = fixture();
+    const before = revision(editor);
+    expect(() =>
+      editor.applyBatch(
+        [
+          fill(editor),
+          {
+            type: BatchEditKind.FillPolygon,
+            layerId: fill(editor).layerId,
+            frameIndex: 0,
+            points: [
+              { x: 0, y: 0 },
+              { x: 3, y: 3 },
+            ],
+            color: "#FFFFFF",
+          },
+        ],
+        before,
+        "Invalid polygon",
+      ),
+    ).toThrow("polygon point count");
+    expect(revision(editor)).toBe(before);
+    expect(editor.canvas.composite().data.every((byte) => byte === 0)).toBe(true);
+  });
+
   it("shares conflict revisions across linked document views", () => {
     const editor = fixture(),
       linked = editor.createLinkedView();
@@ -320,5 +376,555 @@ describe("agent document batches", () => {
     ).toThrow(BatchEditError);
     expect(timelineTags(editor.getSnapshot().document!.timeline!)).toHaveLength(0);
     expect(revision(editor)).toBe(before);
+  });
+
+  it("clears pixels in a rect and clears the whole cel", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 4, height: 4 },
+          color: "#FF0000",
+        },
+      ],
+      revision(editor),
+      "Fill",
+    );
+    const alpha = () => {
+      const data = editor.canvas.composite().data,
+        out: number[] = [];
+      for (let i = 3; i < data.length; i += 4) out.push(data[i]);
+      return out;
+    };
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Clear,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 1, y: 1, width: 2, height: 2 },
+        },
+      ],
+      revision(editor),
+      "Clear rect",
+    );
+    expect(alpha()[0]).toBe(255);
+    expect(alpha()[5]).toBe(0);
+    expect(alpha()[10]).toBe(0);
+    editor.applyBatch(
+      [{ type: BatchEditKind.ClearCel, layerId, frameIndex: 0 }],
+      revision(editor),
+      "Clear cel",
+    );
+    expect(alpha().every((a) => a === 0)).toBe(true);
+  });
+
+  it("copies a cel to another frame", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 2, height: 2 },
+          color: "#00FF00",
+        },
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 0, duplicate: false },
+        { type: BatchEditKind.CopyCel, layerId, frameIndex: 0, toFrameIndex: 1 },
+      ],
+      revision(editor),
+      "Copy cel",
+    );
+    const cel = editor.getSnapshot().document!.timeline!.frames[1].cels[0];
+    expect(cel).not.toBeNull();
+    expect(cel!.pixels.data[3]).toBe(255);
+  });
+
+  it("blits a source rect onto another layer", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 2, height: 2 },
+          color: "#0000FF",
+        },
+        { type: BatchEditKind.AddLayer, layerId: "dest", name: "Dest" },
+        {
+          type: BatchEditKind.Blit,
+          layerId: "dest",
+          frameIndex: 0,
+          src: { layerId, frameIndex: 0, rect: { x: 0, y: 0, width: 2, height: 2 } },
+          dest: { x: 2, y: 2 },
+        },
+      ],
+      revision(editor),
+      "Blit",
+    );
+    const timeline = editor.getSnapshot().document!.timeline!;
+    const dest = timeline.frames[0].cels[timeline.layers.findIndex((l) => l.id === "dest")];
+    expect(dest!.pixels.data[(2 * dest!.pixels.width + 2) * 4 + 3]).toBe(255);
+    expect(() =>
+      editor.applyBatch(
+        [
+          {
+            type: BatchEditKind.Blit,
+            layerId: "dest",
+            frameIndex: 0,
+            src: {
+              documentId: "other",
+              layerId,
+              frameIndex: 0,
+              rect: { x: 0, y: 0, width: 1, height: 1 },
+            },
+            dest: { x: 0, y: 0 },
+          },
+        ],
+        revision(editor),
+        "Cross doc",
+      ),
+    ).toThrow("same document");
+  });
+
+  it("deletes, reorders and copies frames", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    for (let i = 0; i < 2; i++)
+      editor.applyBatch(
+        [{ type: BatchEditKind.AddFrame, afterFrameIndex: i, duplicate: false }],
+        revision(editor),
+        "Add",
+      );
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 1, height: 1 },
+          color: "#FFFFFF",
+        },
+        { type: BatchEditKind.CopyFrame, frameIndex: 0, to: [2] },
+      ],
+      revision(editor),
+      "Copy frame",
+    );
+    expect(editor.getSnapshot().document!.timeline!.frames[2].cels[0]!.pixels.data[3]).toBe(255);
+    editor.applyBatch(
+      [{ type: BatchEditKind.ReorderFrame, frameIndex: 2, toIndex: 0 }],
+      revision(editor),
+      "Reorder",
+    );
+    expect(editor.getSnapshot().document!.timeline!.frames[0].cels[0]!.pixels.data[3]).toBe(255);
+    editor.applyBatch(
+      [{ type: BatchEditKind.DeleteFrame, frameIndex: 0 }],
+      revision(editor),
+      "Delete",
+    );
+    expect(editor.getSnapshot().document!.timeline!.frames).toHaveLength(2);
+  });
+
+  it("edits layers: set, duplicate, merge, group, ungroup, delete", () => {
+    const editor = fixture(),
+      base = editor.getSnapshot().document!.timeline!.layers[0].id;
+    const result = editor.applyBatch(
+      [
+        { type: BatchEditKind.SetLayer, layerId: base, opacity: 128, name: "Ink" },
+        { type: BatchEditKind.DuplicateLayer, layerId: base, name: "Copy" },
+      ],
+      revision(editor),
+      "Layer edits",
+    );
+    let timeline = editor.getSnapshot().document!.timeline!;
+    expect(timeline.layers[0]).toMatchObject({ name: "Ink", opacity: 128 });
+    const copy = result.createdLayerIds[0];
+    expect(timeline.layers[1].name).toBe("Copy");
+    expect(() =>
+      editor.applyBatch(
+        [{ type: BatchEditKind.SetLayer, layerId: base, blendMode: "bogus" }],
+        revision(editor),
+        "Bad blend",
+      ),
+    ).toThrow("blendMode");
+    const grouped = editor.applyBatch(
+      [{ type: BatchEditKind.GroupLayer, layerIds: [base, copy], name: "Stack" }],
+      revision(editor),
+      "Group",
+    );
+    editor.applyBatch(
+      [{ type: BatchEditKind.UngroupLayer, layerId: grouped.createdLayerIds[0] }],
+      revision(editor),
+      "Ungroup",
+    );
+    timeline = editor.getSnapshot().document!.timeline!;
+    expect(timeline.layers.some((l) => l.kind === "group")).toBe(false);
+    editor.applyBatch(
+      [{ type: BatchEditKind.MergeLayer, layerId: copy }],
+      revision(editor),
+      "Merge down",
+    );
+    timeline = editor.getSnapshot().document!.timeline!;
+    expect(timeline.layers).toHaveLength(1);
+    editor.applyBatch(
+      [
+        { type: BatchEditKind.AddLayer, layerId: "scratch", name: "Scratch" },
+        { type: BatchEditKind.DeleteLayer, layerId: "scratch" },
+      ],
+      revision(editor),
+      "Delete",
+    );
+    expect(editor.getSnapshot().document!.timeline!.layers).toHaveLength(1);
+  });
+
+  it("moves and re-alpha cels with setCel", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 1, height: 1 },
+          color: "#FFFFFF",
+        },
+        {
+          type: BatchEditKind.SetCel,
+          layerId,
+          frameIndex: 0,
+          position: { x: 1, y: 1 },
+          opacity: 64,
+        },
+      ],
+      revision(editor),
+      "Set cel",
+    );
+    const cel = editor.getSnapshot().document!.timeline!.frames[0].cels[0]!;
+    expect([cel.x, cel.y, cel.opacity]).toEqual([1, 1, 64]);
+  });
+
+  it("resizes canvas and crops to content", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        { type: BatchEditKind.ResizeCanvas, width: 8, height: 8, anchor: "topLeft" },
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 2, y: 2, width: 3, height: 3 },
+          color: "#FF00FF",
+        },
+      ],
+      revision(editor),
+      "Resize",
+    );
+    expect(editor.getSnapshot().document!.width).toBe(8);
+    editor.applyBatch([{ type: BatchEditKind.CropToContent, layerId }], revision(editor), "Crop");
+    const doc = editor.getSnapshot().document!;
+    expect([doc.width, doc.height]).toEqual([3, 3]);
+  });
+
+  it("changes the selection with the select op", () => {
+    const editor = fixture();
+    editor.applyBatch(
+      [{ type: BatchEditKind.Select, op: "rect", rect: { x: 1, y: 1, width: 2, height: 2 } }],
+      revision(editor),
+      "Select",
+    );
+    let selection = editor.getSnapshot().document!.selection!;
+    expect([selection.x, selection.y, selection.width, selection.height]).toEqual([1, 1, 2, 2]);
+    editor.applyBatch([{ type: BatchEditKind.Select, op: "none" }], revision(editor), "Deselect");
+    expect(editor.getSnapshot().document!.selection).toBeNull();
+  });
+
+  it("replaces colors, adjusts hsl, outlines and flips pixels", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 1, y: 1, width: 2, height: 2 },
+          color: "#FF0000",
+        },
+        {
+          type: BatchEditKind.ReplaceColor,
+          layerId,
+          frameIndex: 0,
+          from: "#FF0000",
+          to: "#0000FF",
+        },
+      ],
+      revision(editor),
+      "Replace",
+    );
+    const at = (x: number, y: number) => {
+      const data = editor.canvas.composite().data,
+        i = (y * 4 + x) * 4;
+      return [data[i], data[i + 1], data[i + 2], data[i + 3]];
+    };
+    expect(at(1, 1)).toEqual([0, 0, 255, 255]);
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Outline,
+          layerId,
+          frameIndex: 0,
+          color: "#000000",
+          position: "outside",
+        },
+      ],
+      revision(editor),
+      "Outline",
+    );
+    expect(at(0, 1)).toEqual([0, 0, 0, 255]);
+    // (3,1) is the black outline corner after flipping the 4×2 region horizontally.
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Flip,
+          layerId,
+          frameIndex: 0,
+          direction: "horizontal",
+          rect: { x: 0, y: 1, width: 4, height: 2 },
+        },
+      ],
+      revision(editor),
+      "Flip",
+    );
+    expect(at(3, 1)).toEqual([0, 0, 0, 255]);
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.AdjustHsl,
+          layerId,
+          frameIndex: 0,
+          lightness: -50,
+        },
+      ],
+      revision(editor),
+      "HSL",
+    );
+    expect(at(3, 1)[2]).toBeLessThan(255);
+  });
+
+  it("paints gradients, dithers, rotates and translates", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Gradient,
+          layerId,
+          frameIndex: 0,
+          from: "#000000",
+          to: "#FFFFFF",
+          direction: "horizontal",
+        },
+      ],
+      revision(editor),
+      "Gradient",
+    );
+    const at = (x: number, y: number) => {
+      const data = editor.canvas.composite().data,
+        i = (y * 4 + x) * 4;
+      return data[i];
+    };
+    expect(at(0, 0)).toBe(0);
+    expect(at(3, 0)).toBe(255);
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Dither,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 2, height: 2 },
+          colorA: "#FF0000",
+          colorB: "#0000FF",
+          pattern: "checker",
+        },
+      ],
+      revision(editor),
+      "Dither",
+    );
+    expect(at(0, 0)).toBe(255);
+    expect(at(1, 0)).toBe(0);
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Rotate90,
+          layerId,
+          frameIndex: 0,
+          angle: 90,
+          rect: { x: 0, y: 0, width: 2, height: 2 },
+        },
+        {
+          type: BatchEditKind.Translate,
+          layerId,
+          frameIndex: 0,
+          dx: 1,
+          dy: 0,
+        },
+      ],
+      revision(editor),
+      "Transform",
+    );
+    expect(editor.canvas.composite().data.length).toBe(64);
+  });
+
+  it("interpolates cel position and opacity with tweenCels", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    for (let i = 0; i < 4; i++)
+      editor.applyBatch(
+        [{ type: BatchEditKind.AddFrame, afterFrameIndex: i, duplicate: false }],
+        revision(editor),
+        "Add",
+      );
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 1, height: 1 },
+          color: "#FFFFFF",
+        },
+        {
+          type: BatchEditKind.TweenCels,
+          layerId,
+          fromFrame: 0,
+          toFrame: 4,
+          property: "position",
+          from: { x: 0, y: 0 },
+          to: { x: 4, y: 0 },
+        },
+      ],
+      revision(editor),
+      "Tween",
+    );
+    const frames = editor.getSnapshot().document!.timeline!.frames;
+    expect(frames[1].cels[0]!.x).toBe(1);
+    expect(frames[2].cels[0]!.x).toBe(2);
+    expect(frames[3].cels[0]!.x).toBe(3);
+    expect(() =>
+      editor.applyBatch(
+        [
+          {
+            type: BatchEditKind.TweenCels,
+            layerId,
+            fromFrame: 0,
+            toFrame: 4,
+            property: "scale",
+            from: 1,
+            to: 2,
+          },
+        ],
+        revision(editor),
+        "Scale tween",
+      ),
+    ).toThrow("scale");
+  });
+  it("converts an image layer to a tilemap, paints pixels and stamps tiles", () => {
+    const editor = fixture(),
+      layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 2, height: 2 },
+          color: "#00FF00",
+        },
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 2, y: 2, width: 2, height: 2 },
+          color: "#FF0000",
+        },
+      ],
+      revision(editor),
+      "Tiles source",
+    );
+    editor.applyBatch(
+      [{ type: BatchEditKind.ConvertToTilemap, layerId, tileWidth: 2, tileHeight: 2 }],
+      revision(editor),
+      "Convert to tilemap",
+    );
+    let layer = editor.getSnapshot().document!.timeline!.layers[0];
+    expect(layer.kind).toBe("tilemap");
+    const set = editor
+      .getSnapshot()
+      .document!.timeline!.tilesets!.find((s) => s.id === layer.tilesetId)!;
+    // Empty + the two painted tiles; identical cells deduplicated.
+    expect(set.tileCount).toBe(3);
+    // Stamp tile 1 into every cell.
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.StampTiles,
+          layerId,
+          frameIndex: 0,
+          cells: [
+            { x: 0, y: 0, tile: 1 },
+            { x: 1, y: 0, tile: 1 },
+            { x: 0, y: 1, tile: 1 },
+            { x: 1, y: 1, tile: 1 },
+          ],
+        },
+      ],
+      revision(editor),
+      "Stamp",
+    );
+    const composite = editor.canvas.composite().data;
+    expect(Array.from(composite.slice(0, 4))).toEqual([0, 255, 0, 255]);
+    expect(() =>
+      editor.applyBatch(
+        [
+          {
+            type: BatchEditKind.StampTiles,
+            layerId,
+            frameIndex: 0,
+            cells: [{ x: 0, y: 0, tile: 99 }],
+          },
+        ],
+        revision(editor),
+        "Bad tile",
+      ),
+    ).toThrow("outside the tileset");
+    // Painting a brand-new tile grows the set.
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.PaintTiles,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 2, height: 2 },
+          rgba: [0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255],
+        },
+      ],
+      revision(editor),
+      "Paint tiles",
+    );
+    const grown = editor
+      .getSnapshot()
+      .document!.timeline!.tilesets!.find((s) => s.id === layer.tilesetId)!;
+    expect(grown.tileCount).toBe(4);
+    expect(Array.from(editor.canvas.composite().data.slice(0, 4))).toEqual([0, 0, 255, 255]);
   });
 });
