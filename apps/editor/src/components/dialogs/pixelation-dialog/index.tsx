@@ -36,6 +36,7 @@ import {
   useModalFocus,
   ScrollArea,
 } from "@xprite/ui";
+import { FIELD_ROW_HEIGHT } from "@xprite/ui/canvas";
 import { useElementSize } from "@xprite/ui/utils";
 
 type Workflow = Pick<
@@ -70,7 +71,6 @@ const HINT_HEIGHT = 58;
 const ROW_HEIGHT = 24;
 /** At least the label font's height: the shared Text centres its glyphs and clips what overflows the box. */
 const FIELD_LABEL_HEIGHT = 18;
-const COMBO_HEIGHT = 30;
 const FOOTER_HEIGHT = 34;
 const FOOTER_STACK_HEIGHT = ROW_HEIGHT + GAP + FOOTER_HEIGHT;
 const BUTTON_WIDTH = 120;
@@ -263,19 +263,19 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const hintBounds = pixelateMessage ? at(HINT_HEIGHT, GAP) : null;
         const advancedRow = at(ROW_HEIGHT, GAP);
         const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const algorithmCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const algorithmCombo = showAdvanced ? at(FIELD_ROW_HEIGHT, GAP) : null;
         const gridSourceLabel = showGridSource ? at(FIELD_LABEL_HEIGHT) : null;
-        const gridSourceCombo = showGridSource ? at(COMBO_HEIGHT, GAP) : null;
+        const gridSourceCombo = showGridSource ? at(FIELD_ROW_HEIGHT, GAP) : null;
         const sizeLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const sizeRow = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const sizeRow = showAdvanced ? at(FIELD_ROW_HEIGHT, GAP) : null;
         const pickerLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const pickerCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const pickerCombo = showAdvanced ? at(FIELD_ROW_HEIGHT, GAP) : null;
         // Outline pre-pass and, for PixelOE + lines, its line guide share one row.
         const prepassLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
-        const prepassCombo = showAdvanced ? at(COMBO_HEIGHT, GAP) : null;
+        const prepassCombo = showAdvanced ? at(FIELD_ROW_HEIGHT, GAP) : null;
         const limitRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const ditherLabel = showDither ? at(FIELD_LABEL_HEIGHT) : null;
-        const ditherCombo = showDither ? at(COMBO_HEIGHT, GAP) : null;
+        const ditherCombo = showDither ? at(FIELD_ROW_HEIGHT, GAP) : null;
         const noiseRow = showAdvanced ? at(ROW_HEIGHT, GAP) : null;
         const removeBgRow = at(ROW_HEIGHT, GAP);
         const removeModeRow = removeBg.enabled ? at(ROW_HEIGHT, GAP) : null;

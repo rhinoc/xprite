@@ -104,8 +104,8 @@ XPRITE_PREPUSH_FULL=1 git push
 pnpm run pre-push:full
 ```
 
-`XPRITE_SKIP_VISUAL=1` still skips only the visual audits. CI (Check + Visual audits workflows)
-remains the full gate for pull requests.
+GitHub CI runs static checks and unit tests for pull requests. Visual audits run locally through
+the pre-push hook when the changed paths require them.
 
 `pnpm run dev` starts the independent editor, growth, tools and components servers,
 reusing this workspace's existing servers on their fixed ports. It performs no

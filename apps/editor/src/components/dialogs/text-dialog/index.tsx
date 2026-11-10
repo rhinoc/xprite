@@ -25,7 +25,7 @@ import {
   defaultActionProps,
 } from "@xprite/ui";
 import { centerUiPixel, measureUiText } from "@xprite/ui/assets";
-import { sceneViewport } from "@xprite/ui/canvas";
+import { FIELD_ROW_HEIGHT, sceneViewport } from "@xprite/ui/canvas";
 import { clientRect, isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 export interface TextDialogProps {
   open: boolean;
@@ -228,7 +228,7 @@ export function TextDialog({
       >
         {({ clientBounds: client }) => {
           const fieldX = client.x + labelWidth + 8;
-          const colorBounds = { x: fieldX, y: client.y + 78, width: 128, height: 30 };
+          const colorBounds = { x: fieldX, y: client.y + 78, width: 128, height: FIELD_ROW_HEIGHT };
           const separator = {
             x: client.x,
             y: client.y + 116,
@@ -239,14 +239,14 @@ export function TextDialog({
             x: fieldX,
             y: client.y + 38,
             width: 330,
-            height: 32,
+            height: FIELD_ROW_HEIGHT,
           };
           return (
             <>
               {[
-                { text: "Text:", y: 0, h: 30 },
-                { text: "Font:", y: 38, h: 32 },
-                { text: "Color:", y: 78, h: 30 },
+                { text: "Text:", y: 0, h: FIELD_ROW_HEIGHT },
+                { text: "Font:", y: 38, h: FIELD_ROW_HEIGHT },
+                { text: "Color:", y: 78, h: FIELD_ROW_HEIGHT },
               ].map((row) => (
                 <Text
                   variant={TextVariant.Control}
@@ -270,7 +270,7 @@ export function TextDialog({
                 aria-invalid={invalidText ? true : undefined}
                 aria-describedby={invalidText ? errorId : undefined}
                 title={invalidText ?? undefined}
-                bounds={{ x: fieldX, y: client.y, width: 512, height: 30 }}
+                bounds={{ x: fieldX, y: client.y, width: 512, height: FIELD_ROW_HEIGHT }}
                 relativeTo={client}
               />
               {invalidText && (
@@ -316,7 +316,7 @@ export function TextDialog({
                   x: fieldX + 338,
                   y: client.y + 38,
                   width: 86,
-                  height: 32,
+                  height: FIELD_ROW_HEIGHT,
                 }}
                 relativeTo={client}
                 value={String(draftSize)}
@@ -341,7 +341,7 @@ export function TextDialog({
                     x: fieldX + 432 + index * 26,
                     y: client.y + 38,
                     width: 28,
-                    height: 32,
+                    height: FIELD_ROW_HEIGHT,
                   }}
                   relativeTo={client}
                   onClick={() => {
@@ -354,7 +354,7 @@ export function TextDialog({
                 disabled={disabled}
                 antialias={draftAntialias}
                 onAntialiasChange={setDraftAntialias}
-                bounds={{ x: fieldX + 484, y: client.y + 38, width: 28, height: 32 }}
+                bounds={{ x: fieldX + 484, y: client.y + 38, width: 28, height: FIELD_ROW_HEIGHT }}
                 relativeTo={client}
               />
               <EditorColorButton

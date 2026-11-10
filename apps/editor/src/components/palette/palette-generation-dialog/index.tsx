@@ -8,6 +8,7 @@ import {
 } from "$/managers/palette/palette-actions-model";
 import { Checkbox, CheckboxMode, Input, Combobox, Text, TextVariant, Divider } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
+import { FIELD_ROW_HEIGHT } from "@xprite/ui/canvas";
 
 interface Props {
   open: boolean;
@@ -20,7 +21,6 @@ interface Props {
 }
 const ROW_HEIGHT = 28;
 const INPUT_WIDTH = 90;
-const FIELD_HEIGHT = 30;
 export function PaletteGenerationDialog({
   open,
   value,
@@ -120,7 +120,7 @@ export function PaletteGenerationDialog({
               x: client.x + rowWidth + 8,
               y: client.y,
               width: INPUT_WIDTH,
-              height: FIELD_HEIGHT,
+              height: FIELD_ROW_HEIGHT,
             }}
             relativeTo={client}
           />
@@ -147,7 +147,7 @@ export function PaletteGenerationDialog({
               <Text
                 variant={TextVariant.Control}
                 text={tUi("ui.palette.generate.algorithm")}
-                bounds={{ x: client.x, y: client.y + 168, width: 110, height: FIELD_HEIGHT }}
+                bounds={{ x: client.x, y: client.y + 168, width: 110, height: FIELD_ROW_HEIGHT }}
                 relativeTo={client}
               />
               <Combobox
@@ -174,7 +174,7 @@ export function PaletteGenerationDialog({
                   x: client.x + 118,
                   y: client.y + 164,
                   width: client.width - 118,
-                  height: FIELD_HEIGHT,
+                  height: FIELD_ROW_HEIGHT,
                 }}
                 relativeTo={client}
               />

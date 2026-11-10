@@ -30,7 +30,12 @@ import { themeTextCache } from "$/base/theme/theme-text-cache";
 import { FontRole } from "$/base/theme/theme-types";
 import { UiFontRenderer, type UiFontDefinition } from "$/base/theme/theme-types";
 import { cn } from "$/base/utils/cn";
-import { borderSize, observeElementSize, rangeRect } from "$/base/utils/dom-geometry";
+import {
+  borderSize,
+  computedStyle,
+  observeElementSize,
+  rangeRect,
+} from "$/base/utils/dom-geometry";
 import { markFieldKey } from "$/base/utils/field-key";
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { UINT8_MAX } from "$/base/utils/numeric-constants";
@@ -466,6 +471,7 @@ export type InputProps = InputContentProps & ControlPlacement;
 const INPUT_TEXT_INSET = 8;
 const ENTRY_DESCENDER = 2;
 const INPUT_LEADING_GAP = 4;
+const IOS_MINIMUM_INPUT_FONT_SIZE = 16;
 interface EntryTextPositions {
   selectionStart: number;
   selectionEnd: number;
@@ -578,6 +584,26 @@ export function Input({
   }, [hasLeading]);
   const contentInset = suppliedTextInset ?? theme.dimensions.input_text_inset ?? INPUT_TEXT_INSET;
   const textInset = contentInset + (hasLeading ? leadingWidth + INPUT_LEADING_GAP : 0);
+  const nativeInput = React.useRef<HTMLInputElement>(null);
+  const syncNativeInputScale = React.useCallback(
+    (input: HTMLInputElement) => {
+      if (!input.ownerDocument.defaultView?.CSS.supports("-webkit-touch-callout", "none")) return;
+      const style = computedStyle(input);
+      const fontSize = Number.parseFloat(
+        style.getPropertyValue("--ui-text-size") ||
+          style.getPropertyValue("--ui-text-primary-size"),
+      );
+      if (!Number.isFinite(fontSize) || fontSize <= 0) return;
+      const scale = fontSize / Math.max(fontSize, IOS_MINIMUM_INPUT_FONT_SIZE);
+      input.style.setProperty("--ui-native-input-scale", String(scale));
+      input.style.setProperty("--ui-native-input-extent", `${100 / scale}%`);
+      input.style.paddingLeft = `${textInset / scale}px`;
+    },
+    [textInset],
+  );
+  React.useLayoutEffect(() => {
+    if (nativeInput.current) syncNativeInputScale(nativeInput.current);
+  }, [syncNativeInputScale, theme]);
   const measuredText = "0".repeat(Math.max(1, size)) + suffix;
   const measuredSize = themeControlSize(
     theme,
@@ -805,6 +831,7 @@ export function Input({
       <input
         {...props}
         {...fieldAttributes}
+        ref={nativeInput}
         readOnly={activation.readOnly}
         style={{ paddingLeft: textInset }}
         aria-label={props["aria-label"] ? translateSource(props["aria-label"]!) : undefined}
@@ -813,6 +840,7 @@ export function Input({
         data-label-source={props["aria-label"] ?? undefined}
         value={draft}
         onPointerDown={(event) => {
+          syncNativeInputScale(event.currentTarget);
           activation.onPointerDown(event);
           onPointerDown?.(event);
         }}
@@ -857,6 +885,7 @@ export function Input({
           onSelect?.(e);
         }}
         onFocus={(e) => {
+          syncNativeInputScale(e.currentTarget);
           setFocused(
             focusRing === FocusRingBehavior.Always || e.currentTarget.matches(":focus-visible"),
           );

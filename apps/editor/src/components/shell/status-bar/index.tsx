@@ -101,10 +101,12 @@ export function StatusBar({
               text={recoveryProblem}
               color={uiStyle.colors.status_bar_text}
             />
-            <Button onClick={retryRecovery} disabled={backupActive}>
-              {tUi("ui.recovery.retry.save")}
-            </Button>
-            {hasDocument && <Button onClick={saveRecoveryCopy}>{tUi("ui.save.as")}</Button>}
+            <Button
+              text={tUi("ui.recovery.retry.save")}
+              onClick={retryRecovery}
+              disabled={backupActive}
+            />
+            {hasDocument && <Button text={tUi("ui.save.as")} onClick={saveRecoveryCopy} />}
           </div>
         ) : about ? (
           <div className={styles.about}>

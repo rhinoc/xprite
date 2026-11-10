@@ -37,6 +37,7 @@ import {
   Slider,
 } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
+import { FIELD_ROW_HEIGHT } from "@xprite/ui/canvas";
 
 const COLOR_CURVE_BODY_WIDTH = 256;
 
@@ -200,7 +201,7 @@ export function EffectDialogs({
     return (
       <>
         <Slider
-          bounds={{ x: c.x + x, y: c.y + y, width, height: 30 }}
+          bounds={{ x: c.x + x, y: c.y + y, width, height: FIELD_ROW_HEIGHT }}
           relativeTo={c}
           min={min}
           max={max}
@@ -210,7 +211,12 @@ export function EffectDialogs({
         />
         <Input
           mini
-          bounds={{ x: c.x + entryX, y: c.y + y, width: entryWidth, height: 30 }}
+          bounds={{
+            x: c.x + entryX,
+            y: c.y + y,
+            width: entryWidth,
+            height: FIELD_ROW_HEIGHT,
+          }}
           relativeTo={c}
           value={String(value)}
           inputMode="numeric"
@@ -251,13 +257,23 @@ export function EffectDialogs({
                   <span key={dimension}>
                     <Text
                       variant={TextVariant.Control}
-                      bounds={{ x: c.x, y: c.y + index * 52, width: 110, height: 30 }}
+                      bounds={{
+                        x: c.x,
+                        y: c.y + index * 56,
+                        width: 110,
+                        height: FIELD_ROW_HEIGHT,
+                      }}
                       relativeTo={c}
                       text={dimension === "width" ? "Width:" : "Height:"}
                     />
                     <Input
                       mini
-                      bounds={{ x: c.x + 116, y: c.y + index * 52, width: 110, height: 30 }}
+                      bounds={{
+                        x: c.x + 116,
+                        y: c.y + index * 56,
+                        width: 110,
+                        height: FIELD_ROW_HEIGHT,
+                      }}
                       relativeTo={c}
                       value={String(spec[dimension])}
                       inputMode="numeric"
@@ -278,7 +294,7 @@ export function EffectDialogs({
                 ))}
                 <Text
                   variant={TextVariant.Control}
-                  bounds={{ x: c.x, y: c.y + 120, width: c.width, height: 38 }}
+                  bounds={{ x: c.x, y: c.y + 128, width: c.width, height: 38 }}
                   relativeTo={c}
                   text={tUi("ui.median.neighborhood.range", { max: MAX_DIALOG_MEDIAN_SIZE })}
                 />
@@ -296,7 +312,7 @@ export function EffectDialogs({
                       text="Matrix:"
                     />
                     <Combobox
-                      bounds={{ x: c.x, y: c.y + 30, width: c.width, height: 30 }}
+                      bounds={{ x: c.x, y: c.y + 30, width: c.width, height: FIELD_ROW_HEIGHT }}
                       relativeTo={c}
                       aria-label={tUi("ui.convolution.preset")}
                       value={spec.preset}
@@ -322,9 +338,9 @@ export function EffectDialogs({
                         key={index}
                         bounds={{
                           x: c.x + (index % kernel.width) * 70,
-                          y: c.y + 82 + Math.floor(index / kernel.width) * 36,
+                          y: c.y + 84 + Math.floor(index / kernel.width) * 38,
                           width: 64,
-                          height: 30,
+                          height: FIELD_ROW_HEIGHT,
                         }}
                         relativeTo={c}
                         text={String(weight)}
@@ -332,7 +348,7 @@ export function EffectDialogs({
                     ))}
                     <Text
                       variant={TextVariant.Control}
-                      bounds={{ x: c.x, y: c.y + 214, width: c.width, height: 30 }}
+                      bounds={{ x: c.x, y: c.y + 216, width: c.width, height: FIELD_ROW_HEIGHT }}
                       relativeTo={c}
                       text={tUi("ui.convolution.parameters", {
                         divisor: kernel.divisor,
@@ -438,7 +454,12 @@ export function EffectDialogs({
                   <span key={key}>
                     <Text
                       variant={TextVariant.Control}
-                      bounds={{ x: c.x + 2, y: c.y + 68 + i * 30, width: 12, height: 18 }}
+                      bounds={{
+                        x: c.x + 2,
+                        y: c.y + 69 + i * 34,
+                        width: 12,
+                        height: 18,
+                      }}
                       relativeTo={c}
                       text={["H", "S", spec.mode.startsWith("hsl") ? "L" : "V", "A"][i]}
                     />
@@ -452,7 +473,7 @@ export function EffectDialogs({
                         "Alpha",
                       ][i],
                       14,
-                      62 + i * 30,
+                      62 + i * 34,
                       256,
                       270,
                       96,
