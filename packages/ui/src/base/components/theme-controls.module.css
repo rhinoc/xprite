@@ -52,6 +52,17 @@
   opacity: 1;
 }
 
+@supports (-webkit-touch-callout: none) {
+  .uiEntry > input {
+    /* Safari uses the untransformed font size when deciding whether to zoom. */
+    font-size: max(16px, var(--ui-text-size, var(--ui-text-primary-size, 14px)));
+    width: var(--ui-native-input-extent, 100%);
+    height: var(--ui-native-input-extent, 100%);
+    transform: scale(var(--ui-native-input-scale, 1));
+    transform-origin: top left;
+  }
+}
+
 .uiEntry > input {
   cursor: var(--ui-cursor-default, default);
 }
