@@ -25,6 +25,7 @@ import {
   Divider,
   defaultActionProps,
 } from "@xprite/ui";
+import { FIELD_ROW_HEIGHT } from "@xprite/ui/canvas";
 
 interface GridSettingsProps {
   bounds: DialogRect;
@@ -76,7 +77,7 @@ function GridSettings({ bounds, onAccept, onClose, suspended }: GridSettingsProp
                     x: client.x + x + 2,
                     y: client.y + y,
                     width: right ? 56 : 52,
-                    height: 30,
+                    height: FIELD_ROW_HEIGHT,
                   }}
                   relativeTo={client}
                 />
@@ -102,7 +103,7 @@ function GridSettings({ bounds, onAccept, onClose, suspended }: GridSettingsProp
                     x: client.x + (right ? 232 : 62),
                     y: client.y + y,
                     width: 96,
-                    height: 30,
+                    height: FIELD_ROW_HEIGHT,
                   }}
                   relativeTo={client}
                 />

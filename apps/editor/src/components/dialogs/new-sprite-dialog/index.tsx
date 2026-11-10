@@ -27,6 +27,7 @@ import {
 } from "@xprite/ui";
 import { centerUiPixel, useUiAssets } from "@xprite/ui/assets";
 import type { UiPartName } from "@xprite/ui/assets";
+import { FIELD_ROW_HEIGHT } from "@xprite/ui/canvas";
 import { isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/new-sprite-dialog/new-sprite-dialog.module.css";
@@ -349,7 +350,7 @@ export function NewSpriteDialog({
                   x: client.x + fileNameInputX,
                   y: client.y,
                   width: client.width - fileNameInputX,
-                  height: 30,
+                  height: FIELD_ROW_HEIGHT,
                 }}
                 relativeTo={client}
               />
@@ -372,7 +373,7 @@ export function NewSpriteDialog({
                   x: client.x + widthInputX,
                   y: client.y + 90,
                   width: dimensionInputWidth,
-                  height: 30,
+                  height: FIELD_ROW_HEIGHT,
                 }}
                 relativeTo={client}
                 editable
@@ -388,7 +389,7 @@ export function NewSpriteDialog({
                 text="×"
                 bounds={{
                   x: client.x + dimensionSeparatorX,
-                  y: client.y + 98,
+                  y: client.y + 99,
                   width: dimensionSeparatorWidth,
                   height: 14,
                 }}
@@ -413,7 +414,7 @@ export function NewSpriteDialog({
                   x: client.x + heightInputX,
                   y: client.y + 90,
                   width: dimensionInputWidth,
-                  height: 30,
+                  height: FIELD_ROW_HEIGHT,
                 }}
                 relativeTo={client}
                 editable
@@ -435,7 +436,7 @@ export function NewSpriteDialog({
                   x: client.x + lockButtonX,
                   y: client.y + 90,
                   width: lockButtonWidth,
-                  height: 30,
+                  height: FIELD_ROW_HEIGHT,
                 }}
                 relativeTo={client}
                 onClick={() => {

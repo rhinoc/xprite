@@ -34,6 +34,7 @@
 
 :global(.xse-status .xse-status-indicators[data-recovery-error="true"]) {
   flex: 0 0 auto;
+  pointer-events: auto;
 }
 :global(.xse-status .xse-status-indicators) {
   position: relative;
