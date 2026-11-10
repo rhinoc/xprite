@@ -1,6 +1,7 @@
 export interface WritableFile {
   write(blob: Blob): Promise<void>;
   close(): Promise<void>;
+  abort?(): Promise<void>;
 }
 
 export interface WritableFileHandle {
@@ -146,8 +147,17 @@ export function requestFileWritePermission(
 
 export async function writeFileHandle(handle: WritableFileHandle, blob: Blob): Promise<void> {
   const writable = await handle.createWritable();
-  await writable.write(blob);
-  await writable.close();
+  try {
+    await writable.write(blob);
+    await writable.close();
+  } catch (reason) {
+    try {
+      await writable.abort?.();
+    } catch {
+      // Cleanup must not replace the write failure, including a failed close.
+    }
+    throw reason;
+  }
 }
 
 export function isAbortError(error: unknown): boolean {

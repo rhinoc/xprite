@@ -64,15 +64,35 @@ function toOpfsError(name: string, message: string): Error {
 }
 
 const OPFS_READ_ATTEMPTS = 2;
+const OPFS_READ_RETRY_DELAY_MS = 1000;
+const OPFS_NOT_READABLE_ERROR = "NotReadableError";
 
 enum OpfsWorkerFailureStage {
   Construction = "construction",
   PostMessage = "post-message",
   Error = "error",
   MessageError = "messageerror",
+  ReadResponse = "read-response",
 }
 
-/** Only transport failures are eligible for a bounded, read-only retry. */
+/** The worker answered, but its newly obtained file snapshot could not be read. */
+class OpfsReadFailure extends Error {
+  readonly diagnosticDetails: Readonly<Record<string, unknown>>;
+  constructor(message: string, requestId: number) {
+    super(message);
+    this.name = OPFS_NOT_READABLE_ERROR;
+    this.diagnosticDetails = {
+      opfs: {
+        stage: OpfsWorkerFailureStage.ReadResponse,
+        operation: "read",
+        workerAnswered: true,
+        requestId,
+      },
+    };
+  }
+}
+
+/** A broken worker transport; reads may retry on a replacement worker. */
 class OpfsWorkerFailure extends BrowserStorageError {
   constructor(cause: unknown, details: Readonly<Record<string, unknown>>) {
     super(BrowserStorageErrorCode.Io, "OPFS worker failed", {
@@ -116,7 +136,10 @@ export class OpfsByteStore implements ByteStore {
       this.pending.delete(response.id);
       if (response.ok) pending.resolve(response.bytes);
       else {
-        const error = toOpfsError(response.name, response.message);
+        const error =
+          pending.operation === "read" && response.name === OPFS_NOT_READABLE_ERROR
+            ? new OpfsReadFailure(response.message, response.id)
+            : toOpfsError(response.name, response.message);
         pending.reject(error);
       }
     };
@@ -209,11 +232,16 @@ export class OpfsByteStore implements ByteStore {
         return new Uint8Array(bytes);
       } catch (error) {
         if (
-          !(error instanceof OpfsWorkerFailure) ||
+          !(error instanceof OpfsWorkerFailure || error instanceof OpfsReadFailure) ||
           attempt + 1 >= OPFS_READ_ATTEMPTS ||
           this.closed
         )
           throw error;
+        if (error instanceof OpfsReadFailure) {
+          // Let a transient snapshot failure settle before reacquiring the file.
+          // The worker obtains a new File snapshot; pending writes keep their worker.
+          await new Promise((resolve) => setTimeout(resolve, OPFS_READ_RETRY_DELAY_MS));
+        }
       }
     }
   }

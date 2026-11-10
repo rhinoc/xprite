@@ -2555,5 +2555,7 @@
   "normal.mask.lightest": "最大値",
   "normal.mask.cavity": "くぼみを暗くする",
   "normal.mask.influence": "マスクの強さ",
-  "normal.mask": "ライトマスク"
+  "normal.mask": "ライトマスク",
+  "ui.file.write.download.fallback": "選択した場所への保存に失敗しました。コピーのダウンロードを開始しました。",
+  "ui.file.write.download.failed": "選択した場所への保存とダウンロードに失敗しました。名前を付けて保存をお試しください。"
 }

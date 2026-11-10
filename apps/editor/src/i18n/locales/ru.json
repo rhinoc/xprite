@@ -2555,5 +2555,7 @@
   "normal.mask.lightest": "Максимальное значение",
   "normal.mask.cavity": "Затемнение углублений",
   "normal.mask.influence": "Сила маски",
-  "normal.mask": "Маска света"
+  "normal.mask": "Маска света",
+  "ui.file.write.download.fallback": "Не удалось сохранить в выбранное место. Начато скачивание копии.",
+  "ui.file.write.download.failed": "Не удалось сохранить файл в выбранное место или скачать его. Попробуйте «Сохранить как»."
 }

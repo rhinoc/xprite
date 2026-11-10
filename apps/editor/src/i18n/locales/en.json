@@ -2555,5 +2555,7 @@
   "normal.mask.lightest": "Lightest Value",
   "normal.mask.cavity": "Cavity Darkening",
   "normal.mask.influence": "Light Mask Influence",
-  "normal.mask": "Light Mask"
+  "normal.mask": "Light Mask",
+  "ui.file.write.download.fallback": "The selected location could not be saved. A copy download was started.",
+  "ui.file.write.download.failed": "The file could not be saved to the selected location or downloaded. Try Save As."
 }

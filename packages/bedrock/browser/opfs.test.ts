@@ -4,6 +4,7 @@ import { isOpfsUnavailableError, OpfsByteStore, probeOpfs, supportsOpfs } from "
 import { BrowserStorageError, BrowserStorageErrorCode } from "$/storage-error";
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -88,6 +89,11 @@ class TestWorker {
   respond(id: number, bytes = new Uint8Array([7]).buffer) {
     this.onmessage?.({ data: { id, ok: true, bytes } } as MessageEvent);
   }
+  reject(id: number, name: string) {
+    this.onmessage?.({
+      data: { id, ok: false, name, message: "The I/O read operation failed." },
+    } as MessageEvent);
+  }
 }
 
 function transportError(worker: TestWorker) {
@@ -104,6 +110,94 @@ function transportError(worker: TestWorker) {
 }
 
 describe("OPFS worker recovery", () => {
+  it("reissues a NotReadableError read once without interrupting an in-flight write", async () => {
+    vi.useFakeTimers();
+    const worker = new TestWorker();
+    const factory = vi.fn(() => worker as unknown as Worker);
+    let readCount = 0;
+    let writeId = 0;
+    worker.postMessage.mockImplementation(({ id, operation }) => {
+      if (operation === "write") {
+        writeId = id;
+        return;
+      }
+      queueMicrotask(() => {
+        if (++readCount === 1) worker.reject(id, "NotReadableError");
+        else worker.respond(id, new Uint8Array([1, 2, 3]).buffer);
+      });
+    });
+    const store = new OpfsByteStore("test", factory);
+    const reading = store.read("immutable");
+    const writing = store.write("new-generation", new Uint8Array([9]));
+    await vi.runAllTimersAsync();
+    expect([...(await reading)]).toEqual([1, 2, 3]);
+    worker.respond(writeId);
+    await writing;
+    expect(factory).toHaveBeenCalledOnce();
+    expect(worker.terminate).not.toHaveBeenCalled();
+    expect(worker.postMessage.mock.calls.map(([request]) => request.operation)).toEqual([
+      "read",
+      "write",
+      "read",
+    ]);
+    store.close();
+  });
+
+  it("bounds persistent NotReadableError reads and retains response diagnostics", async () => {
+    vi.useFakeTimers();
+    const worker = new TestWorker();
+    worker.postMessage.mockImplementation(({ id }) =>
+      queueMicrotask(() => worker.reject(id, "NotReadableError")),
+    );
+    const store = new OpfsByteStore("test", () => worker as unknown as Worker);
+    const rejected = expect(store.read("immutable")).rejects.toMatchObject({
+      name: "NotReadableError",
+      diagnosticDetails: {
+        opfs: { stage: "read-response", operation: "read", workerAnswered: true },
+      },
+    });
+    await vi.runAllTimersAsync();
+    await rejected;
+    expect(worker.postMessage).toHaveBeenCalledTimes(2);
+    store.close();
+  });
+
+  it("does not retry other read errors or NotReadableError writes and deletes", async () => {
+    for (const operation of ["read", "write", "remove"] as const) {
+      for (const name of operation === "read"
+        ? ["NotFoundError", "NotAllowedError", "QuotaExceededError"]
+        : ["NotReadableError"]) {
+        const worker = new TestWorker();
+        worker.postMessage.mockImplementation(({ id }) =>
+          queueMicrotask(() => worker.reject(id, name)),
+        );
+        const store = new OpfsByteStore("test", () => worker as unknown as Worker);
+        const result =
+          operation === "write" ? store.write("key", new Uint8Array([1])) : store[operation]("key");
+        await expect(result).rejects.toBeInstanceOf(Error);
+        expect(worker.postMessage).toHaveBeenCalledOnce();
+        store.close();
+      }
+    }
+  });
+
+  it("does not reissue a read after closing during its retry delay", async () => {
+    vi.useFakeTimers();
+    const worker = new TestWorker();
+    worker.postMessage.mockImplementation(({ id }) =>
+      queueMicrotask(() => worker.reject(id, "NotReadableError")),
+    );
+    const store = new OpfsByteStore("test", () => worker as unknown as Worker);
+    const rejected = expect(store.read("immutable")).rejects.toMatchObject({
+      code: BrowserStorageErrorCode.Closed,
+    });
+    await vi.advanceTimersByTimeAsync(0);
+    store.close();
+    await vi.runAllTimersAsync();
+    await rejected;
+    expect(worker.postMessage).toHaveBeenCalledOnce();
+  });
+
   it("retries a read once on a fresh worker and ignores late responses from the failed worker", async () => {
     const first = new TestWorker(),
       second = new TestWorker();

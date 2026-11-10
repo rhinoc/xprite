@@ -2555,5 +2555,7 @@
   "normal.mask.lightest": "最亮值",
   "normal.mask.cavity": "凹陷加深",
   "normal.mask.influence": "遮罩强度",
-  "normal.mask": "光照遮罩"
+  "normal.mask": "光照遮罩",
+  "ui.file.write.download.fallback": "原位置保存失败，已发起副本下载。",
+  "ui.file.write.download.failed": "原位置保存失败，下载也未能启动。请尝试另存为。"
 }

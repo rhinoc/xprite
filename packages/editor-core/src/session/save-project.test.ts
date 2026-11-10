@@ -15,6 +15,52 @@ import {
 import { TilesetMode, TilemapDisplayMode } from "$/tilemap/types";
 
 describe("immutable project save snapshots", () => {
+  for (const continueEditing of [false, true])
+    it(`completes a fallback download while preserving newer edits: ${continueEditing}`, async () => {
+      const blank = { width: 1, height: 1, data: new Uint8ClampedArray([10, 20, 30, 255]) };
+      const core = new RasterEditor(blank, "Original.png");
+      core.color.setPalette([[1, 2, 3, 255]]);
+      let offered: Uint8ClampedArray | undefined;
+      let finish!: (result: SessionWriteResult) => void;
+      const ports: EditorSessionPorts<string> = {
+        decode: async () => blank,
+        analyze: async () => {
+          throw new Error("unexpected analysis");
+        },
+        pixelate: async (pixels) => pixels,
+        write: (pixels) => {
+          offered = pixels.data.slice();
+          return new Promise((resolve) => {
+            finish = resolve;
+          });
+        },
+      };
+      const session = new EditorSession(core, ports);
+      const saving = session.save(SessionSaveIntent.SaveAs, "Chosen.png");
+      assert.ok(offered);
+      if (continueEditing) {
+        core.drawing.settings.setSettings({ tool: "pencil", foreground: [255, 0, 0, 255] });
+        core.pointerDown({ x: 0, y: 0 });
+        core.pointerUp();
+        assert.deepEqual([...offered], [10, 20, 30, 255]);
+      }
+      finish({ method: "download", name: "Chosen.png", format: "png", downloadFallback: true });
+      assert.equal(await saving, SessionOutcome.Created);
+      assert.equal(session.getLastSaveMethod(), "download");
+      assert.equal(core.getSnapshot().dirty, continueEditing);
+      assert.equal(
+        core.getSnapshot().document?.name,
+        continueEditing ? "Original.png" : "Chosen.png",
+      );
+      assert.equal(session.getSnapshot().error, null);
+      assert.equal(session.getSnapshot().saving, false);
+      assert.equal(
+        session.getSnapshot().notice,
+        "The selected location could not be saved. A copy download was started.",
+      );
+      session.dispose();
+    });
+
   it("retains the uncommitted manual pixel-perfect tilemap projection for PNG", async () => {
     const blank = { width: 16, height: 16, data: new Uint8ClampedArray(16 * 16 * 4) };
     const core = new RasterEditor(blank);

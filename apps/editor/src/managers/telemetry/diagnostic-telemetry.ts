@@ -26,6 +26,7 @@ enum OpfsDiagnosticStage {
   PostMessage = "post-message",
   Error = "error",
   MessageError = "messageerror",
+  ReadResponse = "read-response",
 }
 
 enum OpfsDiagnosticOperation {

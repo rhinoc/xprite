@@ -1,3 +1,4 @@
+import { downloadAfterFileWriteFailure } from "$/adapters/files/file-write-download";
 import { fileWritePermissionRefused } from "$/adapters/files/file-write-permission";
 import { encodePng } from "$/adapters/files/images";
 import { importAsepriteInWorker } from "$/adapters/workers/aseprite-import-client";
@@ -433,7 +434,16 @@ export async function saveAseprite(
     try {
       await writeFileHandle(handle, output.blob);
     } catch (reason) {
-      throw fileWriteError(reason, FileWriteStage.Write, { permission: permission ?? null });
+      const result = downloadAfterFileWriteFailure(
+        output.blob,
+        handle.name || fileName,
+        fileWriteError(reason, FileWriteStage.Write, { permission: permission ?? null }),
+      );
+      options.onFileDataSaved?.(output.blob, result.name, output.bytes);
+      return {
+        ...result,
+        format,
+      };
     }
     options.onFileDataSaved?.(output.blob, handle.name || fileName, output.bytes);
     return { method: "file", name: handle.name || fileName, format };
@@ -481,7 +491,12 @@ export async function saveAseprite(
       try {
         await writeFileHandle(handle, output.blob);
       } catch (reason) {
-        throw fileWriteError(reason, FileWriteStage.Write);
+        const result = downloadAfterFileWriteFailure(output.blob, handle.name || fileName, reason);
+        options.onFileDataSaved?.(output.blob, result.name, output.bytes);
+        return {
+          ...result,
+          format,
+        };
       }
       options.onFileDataSaved?.(output.blob, handle.name || fileName, output.bytes);
       options.onFileHandleSaved?.(handle);

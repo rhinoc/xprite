@@ -781,8 +781,14 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
           : undefined;
       const outcome = await session.save(intent, suggestedName);
       if (outcome === SessionOutcome.Created) {
-        await workspace.saveLocally(workspaceSnapshot.activeId);
-        workspace.linkRecentFileToWorkspaceProject(workspaceSnapshot.activeId);
+        const downloaded = session.getLastSaveMethod() === "download";
+        try {
+          await workspace.saveLocally(workspaceSnapshot.activeId);
+          workspace.linkRecentFileToWorkspaceProject(workspaceSnapshot.activeId);
+        } catch (reason) {
+          // Recovery reports its own storage status; a dispatched download is already complete.
+          if (!downloaded) throw reason;
+        }
         pwa?.markSuccessfulSave();
       }
       return outcome;
@@ -792,7 +798,8 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setClosingSaveBusy(true);
     void saveCurrentDocument(SessionSaveIntent.Save, target)
       .then((outcome) => {
-        if (outcome === SessionOutcome.Created) return session.confirmReplacement();
+        if (outcome === SessionOutcome.Created && !session.hasUnsavedChanges())
+          return session.confirmReplacement();
       })
       .catch((reason) => session.reportError(reason, SessionOperation.Save))
       .finally(() => setClosingSaveBusy(false));

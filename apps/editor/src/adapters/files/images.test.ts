@@ -295,8 +295,7 @@ describe("browser-images", () => {
       check(pickerResult, { method: "picker", name: "picked.png" });
       check(anchors.length, 0);
 
-      // A write failure propagates after a picker opens; it must not silently
-      // create a second download with a different destination.
+      // A selected file that cannot be written falls back to the encoded PNG copy.
       resetCounters();
       globalThis.showSaveFilePicker = async () => ({
         name: "broken.png",
@@ -309,9 +308,47 @@ describe("browser-images", () => {
           };
         },
       });
-      await rejects(images.savePng(sourcePixels, "broken"), /disk full/);
-      check(anchors.length, 0);
-      check(createdUrls.length, 0);
+      check(await images.savePng(sourcePixels, "broken"), {
+        method: "download",
+        name: "broken.png",
+        downloadFallback: true,
+      });
+      check(anchors.length, 1);
+      check(anchors[0].clicked, true);
+      check(createdUrls[0].value, canvasBlobs[0]);
+
+      for (const stage of ["create", "close"]) {
+        resetCounters();
+        let aborted = 0;
+        const handle = {
+          name: "retained.png",
+          requestPermission: async () => "granted",
+          async createWritable() {
+            if (stage === "create") throw new DOMException("refused", "NotAllowedError");
+            return {
+              async write() {},
+              async close() {
+                throw new DOMException("commit failed", "AbortError");
+              },
+              async abort() {
+                aborted++;
+              },
+            };
+          },
+        };
+        let bound = false;
+        const result = await images.savePng(sourcePixels, "original", {
+          fileHandle: handle,
+          onFileHandleSaved: () => {
+            bound = true;
+          },
+        });
+        check(result, { method: "download", name: "retained.png", downloadFallback: true });
+        check(anchors.length, 1);
+        check(createdUrls[0].value, canvasBlobs[0]);
+        check(bound, false);
+        check(aborted, stage === "close" ? 1 : 0);
+      }
 
       // AbortError is preserved verbatim and never switches to a download.
       resetCounters();
@@ -346,6 +383,7 @@ describe("browser-images", () => {
       }
 
       // Explicit download mode bypasses an available picker and reuses PNG encoding.
+      await new Promise((resolve) => setTimeout(resolve, 0));
       resetCounters();
       let forcedPickerCalled = false;
       globalThis.showSaveFilePicker = () => {
