@@ -4,7 +4,7 @@
 //   unit   — `test:ci`
 //   site   — one production site build (`check:deploy --build`), then `--prepare` + site-output
 //   visual — `visual --prebuilt` on that build (implies site)
-// editor-core-only / non-UI pushes skip site + visual. CI keeps the full suite.
+// editor-core-only / non-UI pushes skip site + visual. CI runs static checks and unit tests.
 // Force every bucket: XPRITE_PREPUSH_FULL=1 or `pnpm run pre-push:full`.
 // XPRITE_SKIP_VISUAL=1 still skips only visual when that bucket would otherwise run.
 // Note: husky skips every hook when HUSKY=0; unset it before pushing.
