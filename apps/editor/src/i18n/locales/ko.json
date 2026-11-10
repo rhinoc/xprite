@@ -2555,5 +2555,7 @@
   "normal.mask.lightest": "최댓값",
   "normal.mask.cavity": "오목한 부분 어둡게",
   "normal.mask.influence": "마스크 강도",
-  "normal.mask": "광원 마스크"
+  "normal.mask": "광원 마스크",
+  "ui.file.write.download.fallback": "선택한 위치에 저장하지 못했습니다. 사본 다운로드를 시작했습니다.",
+  "ui.file.write.download.failed": "선택한 위치에 저장하거나 다운로드하지 못했습니다. 다른 이름으로 저장해 보세요."
 }

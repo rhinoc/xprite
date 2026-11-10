@@ -2555,5 +2555,7 @@
   "normal.mask.lightest": "Valor más claro",
   "normal.mask.cavity": "Oscurecimiento de cavidades",
   "normal.mask.influence": "Influencia de la máscara",
-  "normal.mask": "Máscara de luz"
+  "normal.mask": "Máscara de luz",
+  "ui.file.write.download.fallback": "No se pudo guardar en la ubicación seleccionada. Se inició la descarga de una copia.",
+  "ui.file.write.download.failed": "No se pudo guardar en la ubicación seleccionada ni descargar el archivo. Prueba Guardar como."
 }

@@ -1,3 +1,4 @@
+import { downloadAfterFileWriteFailure } from "$/adapters/files/file-write-download";
 import { fileWritePermissionRefused } from "$/adapters/files/file-write-permission";
 import { tUi } from "$/i18n";
 import {
@@ -61,7 +62,11 @@ export async function savePng(
   pixels: PixelBuffer,
   name: string,
   options: SavePngOptions = {},
-): Promise<{ method: "file" | "picker" | "download"; name: string }> {
+): Promise<{
+  method: "file" | "picker" | "download";
+  name: string;
+  downloadFallback?: true;
+}> {
   validatePixelBuffer(pixels);
   const mode = options.mode ?? SavePngMode.Auto;
   if (mode !== SavePngMode.Auto && mode !== SavePngMode.Picker && mode !== SavePngMode.Download) {
@@ -81,7 +86,13 @@ export async function savePng(
     if (permission !== "granted")
       throw fileWritePermissionRefused(permission, handle.name ?? filename);
     const blob = await encodePng(pixels);
-    await writeFileHandle(handle, blob);
+    try {
+      await writeFileHandle(handle, blob);
+    } catch (reason) {
+      const result = downloadAfterFileWriteFailure(blob, handle.name || filename, reason);
+      options.onFileDataSaved?.(blob, result.name);
+      return result;
+    }
     options.onFileDataSaved?.(blob, handle.name || filename);
     return { method: "file", name: handle.name || filename };
   }
@@ -114,13 +125,14 @@ export async function savePng(
     const blob = await encodePng(pixels);
     try {
       await writeFileHandle(handle, blob);
-      options.onFileDataSaved?.(blob, handle.name || filename);
-      options.onFileHandleSaved?.(handle);
-      return { method: "picker", name: handle.name || filename };
-    } catch (error) {
-      if (isAbortError(error)) throw error;
-      throw error;
+    } catch (reason) {
+      const result = downloadAfterFileWriteFailure(blob, handle.name || filename, reason);
+      options.onFileDataSaved?.(blob, result.name);
+      return result;
     }
+    options.onFileDataSaved?.(blob, handle.name || filename);
+    options.onFileHandleSaved?.(handle);
+    return { method: "picker", name: handle.name || filename };
   }
   const blob = await encodePng(pixels);
   downloadBlob(blob, filename);

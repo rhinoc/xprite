@@ -1107,14 +1107,14 @@ describe("editor-session", () => {
       );
       slice.core.cancelPointerGesture();
     });
-    await test("Save then Close waits for a successful write; picker cancellation keeps the document", async () => {
+    await test("Save then Close accepts a dispatched fallback copy; picker cancellation keeps the document", async () => {
       const w = deferred();
       const h = harness({ write: () => w.promise });
       dirty(h.core);
       h.session.requestClose();
       const close = h.session.saveAndContinue();
       assert.ok(h.core.getSnapshot().document);
-      w.resolve({ method: "download", name: "Original.png" });
+      w.resolve({ method: "download", name: "Original.png", downloadFallback: true });
       assert.equal(await close, "closed");
       assert.equal(h.core.getSnapshot().document, null);
       const cancelled = harness({ write: async () => ({ cancelled: true }) });
@@ -1124,14 +1124,14 @@ describe("editor-session", () => {
       assert.ok(cancelled.core.getSnapshot().document);
       assert.ok(cancelled.session.getSnapshot().replacement);
     });
-    await test("new edits during Save prevent Close, and failed writes keep the warning intent", async () => {
+    await test("new edits during fallback Save prevent Close, and failed writes keep the warning intent", async () => {
       const w = deferred();
       const h = harness({ write: () => w.promise });
       dirty(h.core);
       h.session.requestClose();
       const close = h.session.saveAndContinue();
       h.core.timeline.setLayerLocked(true);
-      w.resolve({ method: "download", name: "Original.png" });
+      w.resolve({ method: "download", name: "Original.png", downloadFallback: true });
       assert.equal(await close, "confirmation");
       assert.ok(h.core.getSnapshot().document);
       assert.equal(h.core.getSnapshot().dirty, true);

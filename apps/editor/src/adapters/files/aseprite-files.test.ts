@@ -49,9 +49,152 @@ function groupedProject(): SessionProject {
   return projectFromAseprite(sprite);
 }
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 describe("ASE project file save preserves group metadata", () => {
+  for (const intent of [SessionSaveIntent.Save, SessionSaveIntent.SaveAs])
+    for (const stage of ["create", "write", "close"] as const)
+      it(`${intent} downloads the encoded copy after ${stage} fails`, async () => {
+        const click = vi.fn();
+        const anchor = { click, remove: vi.fn(), href: "", download: "", rel: "" };
+        vi.stubGlobal("document", { createElement: () => anchor });
+        const urls = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:copy");
+        vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+        const reason = new DOMException(
+          "file write failed",
+          stage === "close" ? "AbortError" : "NotAllowedError",
+        );
+        const abort = vi.fn(async () => {});
+        const write = vi.fn(async (_blob: Blob) => {
+          if (stage === "write") throw reason;
+        });
+        const close = vi.fn(async () => {
+          if (stage === "close") throw reason;
+        });
+        const handle = {
+          name: "Chosen.aseprite",
+          requestPermission: async () => "granted" as const,
+          createWritable: async () => {
+            if (stage === "create") throw reason;
+            return { write, close, abort };
+          },
+        };
+        const bound = vi.fn();
+        const saved = vi.fn();
+        const result = await saveAseprite(groupedProject(), "Original.aseprite", intent, {
+          ...(intent === SessionSaveIntent.Save ? { fileHandle: handle } : {}),
+          saveFilePicker: async () => handle,
+          onFileHandleSaved: bound,
+          onFileDataSaved: saved,
+        });
+        assert.deepEqual(result, {
+          method: "download",
+          name: handle.name,
+          format: "aseprite",
+          downloadFallback: true,
+        });
+        assert.equal(click.mock.calls.length, 1);
+        assert.equal(anchor.download, handle.name);
+        assert.equal(bound.mock.calls.length, 0);
+        assert.equal(abort.mock.calls.length, stage === "create" ? 0 : 1);
+        assert.equal(saved.mock.calls[0][0], urls.mock.calls[0][0]);
+        if (stage !== "create") assert.equal(write.mock.calls[0][0], urls.mock.calls[0][0]);
+        const copy = urls.mock.calls[0][0] as Blob;
+        assert.ok((await decodeAsepriteBlob(copy, handle.name)).timeline);
+      });
+
+  it("reports both failures if the fallback download cannot be dispatched", async () => {
+    const reason = new DOMException("file rejected", "NotAllowedError");
+    const downloadError = new DOMException("download rejected", "AbortError");
+    vi.stubGlobal("document", {
+      createElement: () => ({
+        click: () => {
+          throw downloadError;
+        },
+        remove() {},
+      }),
+    });
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:copy");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    await assert.rejects(
+      saveAseprite(groupedProject(), "copy.aseprite", SessionSaveIntent.SaveAs, {
+        saveFilePicker: async () => ({
+          createWritable: async () => {
+            throw reason;
+          },
+        }),
+      }),
+      (error) => {
+        assert.ok(error instanceof AggregateError);
+        assert.deepEqual(error.errors, [reason, downloadError]);
+        assert.notEqual(error.name, "AbortError");
+        return true;
+      },
+    );
+  });
+
+  it("downloads PNG bytes when the selected project destination is PNG", async () => {
+    const blob = new Blob(["encoded PNG"], { type: "image/png" });
+    vi.stubGlobal(
+      "OffscreenCanvas",
+      class {
+        getContext() {
+          return {
+            createImageData: (width: number, height: number) => ({
+              data: new Uint8ClampedArray(width * height * 4),
+            }),
+            putImageData() {},
+          };
+        }
+        async convertToBlob() {
+          return blob;
+        }
+      },
+    );
+    const anchor = { click: vi.fn(), remove() {}, href: "", download: "", rel: "" };
+    vi.stubGlobal("document", { createElement: () => anchor });
+    const urls = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:png-copy");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const result = await saveAseprite(
+      groupedProject(),
+      "Original.aseprite",
+      SessionSaveIntent.SaveAs,
+      {
+        saveFilePicker: async () => ({
+          name: "Chosen.png",
+          createWritable: async () => {
+            throw new DOMException("refused", "NotAllowedError");
+          },
+        }),
+      },
+    );
+    assert.deepEqual(result, {
+      method: "download",
+      name: "Chosen.png",
+      format: "png",
+      downloadFallback: true,
+    });
+    assert.equal(urls.mock.calls[0][0], blob);
+    assert.equal(anchor.download, "Chosen.png");
+    assert.equal(anchor.click.mock.calls.length, 1);
+  });
+
+  it("keeps picker cancellation as cancellation without a download", async () => {
+    const createUrl = vi.spyOn(URL, "createObjectURL");
+    const reason = new DOMException("cancelled", "AbortError");
+    await assert.rejects(
+      saveAseprite(groupedProject(), "copy.aseprite", SessionSaveIntent.SaveAs, {
+        saveFilePicker: async () => {
+          throw reason;
+        },
+      }),
+      (error) => error === reason,
+    );
+    assert.equal(createUrl.mock.calls.length, 0);
+  });
   it("annotates unreadable Blob IO without retrying or starting the decoder", async () => {
     const blob = new Blob([new Uint8Array([1, 2, 3])]);
     const reason = new DOMException("Backing file is unreadable", "NotReadableError");

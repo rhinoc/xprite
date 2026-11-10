@@ -48,7 +48,7 @@ describe("diagnostic telemetry privacy", () => {
     );
   });
 
-  it.each(["construction", "post-message", "error", "messageerror"])(
+  it.each(["construction", "post-message", "error", "messageerror", "read-response"])(
     "allows the OPFS %s stage for each storage operation",
     (stage) => {
       for (const operation of ["read", "write", "remove"])

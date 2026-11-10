@@ -39,6 +39,8 @@ export type SessionWriteResult =
       name: string;
       format?: "png" | "aseprite";
       recentIdentity?: string;
+      /** The selected file failed to write and a copy download was dispatched instead. */
+      downloadFallback?: true;
     }
   | { cancelled: true };
 /** A sprite project kept alongside its current composite preview. The

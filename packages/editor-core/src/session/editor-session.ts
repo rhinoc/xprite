@@ -24,6 +24,7 @@ import type {
   SessionInitialOptions,
   SessionSize,
   RecentIdentityPort,
+  SessionWriteResult,
 } from "$/session/types";
 import { SessionOperation, SessionOutcome, SessionSaveIntent } from "$/session/types";
 import { renderTimelineFrame } from "$/timeline/timeline";
@@ -134,6 +135,7 @@ export class EditorSession<Source> {
   private persistenceVersion = 0;
   private persistenceAvailable = true;
   private activeRecentId: string | null = null;
+  private lastSaveMethod: Exclude<SessionWriteResult, { cancelled: true }>["method"] | null = null;
   private recentHydrated = false;
   private recentClearGeneration = 0;
   private recentLimitVersion = 0;
@@ -1228,6 +1230,9 @@ export class EditorSession<Source> {
       !!this.editor.getSnapshot().document
     );
   }
+  getLastSaveMethod() {
+    return this.lastSaveMethod;
+  }
   /** Do not open a second interactive workflow over asynchronous IO or a domain prompt. */
   canStartInteraction(): boolean {
     return !this.disposed && !this.state.busy && !this.state.saving && this.state.prompt === null;
@@ -1237,6 +1242,7 @@ export class EditorSession<Source> {
     suggestedName?: string,
   ): Promise<SessionOutcome> {
     if (!this.canSave()) return SessionOutcome.Ignored;
+    this.lastSaveMethod = null;
     const editor = this.editor;
     if (editor.getSnapshot().inlineText && !editor.drawing.text.commitInlineText()) {
       this.reportError(
@@ -1303,6 +1309,7 @@ export class EditorSession<Source> {
         : await this.ports.write(pixels, writeName, intent, this.documentKey);
       if (this.disposed) return SessionOutcome.Ignored;
       if ("cancelled" in result) return SessionOutcome.Cancelled;
+      this.lastSaveMethod = result.method;
       if (this.ports.listRecentImages) await this.restoreRecent();
       if (this.disposed) return SessionOutcome.Ignored;
       const now = editor.getSnapshot();
@@ -1338,7 +1345,9 @@ export class EditorSession<Source> {
       await this.flushPersistence();
       if (this.disposed) return SessionOutcome.Ignored;
       this.publish({
-        notice: `${result.method === "download" ? "Downloaded" : "Saved"} ${result.name}`,
+        notice: result.downloadFallback
+          ? "The selected location could not be saved. A copy download was started."
+          : `${result.method === "download" ? "Downloaded" : "Saved"} ${result.name}`,
       });
       return SessionOutcome.Created;
     } catch (reason) {

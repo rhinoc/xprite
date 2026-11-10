@@ -40,7 +40,7 @@ describe("session-browser-ports", () => {
     export const SavePngMode={Auto:'auto',Picker:'picker',Download:'download'};
     export function decodeImage(file){calls.push(['file',file]);return Promise.resolve(pixels);}
     export function decodeAsset(url){calls.push(['asset',url]);return Promise.resolve(pixels);}
-    export function savePng(image,name,options){calls.push(['write',image,name,options]);return Promise.resolve({method:'download',name});}
+    export function savePng(image,name,options){calls.push(['write',image,name,options]);return Promise.resolve(globalThis.__sessionPortsTest.writeResult ?? {method:'download',name});}
     export function readImageAssetBlob(){throw new Error('readImageAssetBlob is not used by session ports');}
     export function encodePng(){throw new Error('encodePng is not used by session ports');}
   `
@@ -109,6 +109,29 @@ describe("session-browser-ports", () => {
         assert.equal(calls.at(-1)[3].mode, intent === "export" ? "download" : "auto");
         await result;
       }
+      const handle = {
+        name: "retained.png",
+        createWritable: async () => {
+          throw new Error("unused");
+        },
+      };
+      const retained = ports.registerFile(file, handle);
+      ports.bindSourceToDocument(retained.source, "fallback-document");
+      globalThis.__sessionPortsTest.writeResult = {
+        method: "download",
+        name: "copy.png",
+        downloadFallback: true,
+      };
+      const fallback = await ports.write(pixels, "copy.png", "save", "fallback-document");
+      assert.equal(fallback.downloadFallback, true);
+      assert.equal(calls.at(-1)[3].fileHandle, handle);
+      delete globalThis.__sessionPortsTest.writeResult;
+      await ports.write(pixels, "copy.png", "save", "fallback-document");
+      assert.equal(
+        calls.at(-1)[3].fileHandle,
+        undefined,
+        "a failed handle is detached after download handoff",
+      );
       ports.dispose();
       ports.dispose();
       assert.equal(calls.filter((c) => c[0] === "close").length, 1);

@@ -350,7 +350,7 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
     });
     return writing.then(async (result) => {
       if (
-        intent === SessionSaveIntent.SaveAs &&
+        (intent === SessionSaveIntent.SaveAs || result.downloadFallback) &&
         "method" in result &&
         result.method === "download" &&
         documentKey
@@ -456,8 +456,8 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
       )
       .then(async (result) => {
         if (
-          intent === SessionSaveIntent.SaveAs &&
           "method" in result &&
+          (intent === SessionSaveIntent.SaveAs || result.downloadFallback) &&
           result.method === "download" &&
           documentKey
         )
