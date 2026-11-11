@@ -63,8 +63,8 @@ function toOpfsError(name: string, message: string): Error {
   return error;
 }
 
-const OPFS_READ_ATTEMPTS = 2;
-const OPFS_READ_RETRY_DELAY_MS = 1000;
+const OPFS_OPERATION_ATTEMPTS = 2;
+const OPFS_RETRY_DELAY_MS = 1000;
 const OPFS_NOT_READABLE_ERROR = "NotReadableError";
 
 enum OpfsWorkerFailureStage {
@@ -92,14 +92,50 @@ class OpfsReadFailure extends Error {
   }
 }
 
-/** A broken worker transport; reads may retry on a replacement worker. */
+/**
+ * The worker script never started, so the request cannot have run. Construction never
+ * creates a worker. An opaque `error` event with no message, file or error object is
+ * how browsers report a module worker that never loaded; terminating it drops any
+ * queued message. After a worker has answered, or after a script error that names a
+ * file, a write may already have reached disk — those stay I/O failures.
+ */
+function isNeverExecutedWorkerLoad(details: Readonly<Record<string, unknown>>): boolean {
+  if (details.stage === OpfsWorkerFailureStage.Construction) return true;
+  return (
+    details.stage === OpfsWorkerFailureStage.Error &&
+    details.workerAnswered === false &&
+    !details.message &&
+    !details.filename
+  );
+}
+
+function isNeverExecutedWorkerLoadError(error: unknown): error is OpfsWorkerFailure {
+  return (
+    error instanceof OpfsWorkerFailure &&
+    isNeverExecutedWorkerLoad(
+      (error.diagnosticDetails?.opfs ?? {}) as Readonly<Record<string, unknown>>,
+    )
+  );
+}
+
+/** A broken worker transport; a worker that never loaded may be started again. */
 class OpfsWorkerFailure extends BrowserStorageError {
   constructor(cause: unknown, details: Readonly<Record<string, unknown>>) {
-    super(BrowserStorageErrorCode.Io, "OPFS worker failed", {
-      cause,
-      diagnosticDetails: { opfs: details },
-    });
+    super(
+      isNeverExecutedWorkerLoad(details)
+        ? BrowserStorageErrorCode.Unavailable
+        : BrowserStorageErrorCode.Io,
+      "OPFS worker failed",
+      {
+        cause,
+        diagnosticDetails: { opfs: details },
+      },
+    );
   }
+}
+
+function waitBeforeRetry(delayMs: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, delayMs));
 }
 
 /** Stores opaque byte values in OPFS through a dedicated module worker. */
@@ -208,6 +244,7 @@ export class OpfsByteStore implements ByteStore {
           reject(
             new OpfsWorkerFailure(error, {
               stage: OpfsWorkerFailureStage.Construction,
+              workerAnswered: false,
               operation,
               requestId: id,
             }),
@@ -217,7 +254,9 @@ export class OpfsByteStore implements ByteStore {
   }
 
   async write(key: string, bytes: Uint8Array): Promise<void> {
-    await this.request("write", key, new Uint8Array(bytes).buffer);
+    await this.requestWithStartupRetry(() =>
+      this.request("write", key, new Uint8Array(bytes).buffer),
+    );
   }
 
   async read(key: string): Promise<Uint8Array> {
@@ -233,21 +272,41 @@ export class OpfsByteStore implements ByteStore {
       } catch (error) {
         if (
           !(error instanceof OpfsWorkerFailure || error instanceof OpfsReadFailure) ||
-          attempt + 1 >= OPFS_READ_ATTEMPTS ||
+          attempt + 1 >= OPFS_OPERATION_ATTEMPTS ||
           this.closed
         )
           throw error;
-        if (error instanceof OpfsReadFailure) {
-          // Let a transient snapshot failure settle before reacquiring the file.
-          // The worker obtains a new File snapshot; pending writes keep their worker.
-          await new Promise((resolve) => setTimeout(resolve, OPFS_READ_RETRY_DELAY_MS));
+        if (error instanceof OpfsReadFailure || isNeverExecutedWorkerLoadError(error)) {
+          // Let a cancelled script load or a transient snapshot failure settle.
+          // A replacement worker is started only after the previous one is detached.
+          await waitBeforeRetry(OPFS_RETRY_DELAY_MS);
         }
       }
     }
   }
 
   async remove(key: string): Promise<void> {
-    await this.request("remove", key);
+    await this.requestWithStartupRetry(() => this.request("remove", key));
+  }
+
+  /**
+   * Retry only when the worker script never ran. Writes and deletes that may already
+   * have reached the worker are not replayed.
+   */
+  private async requestWithStartupRetry<T>(run: () => Promise<T>): Promise<T> {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await run();
+      } catch (error) {
+        if (
+          !isNeverExecutedWorkerLoadError(error) ||
+          attempt + 1 >= OPFS_OPERATION_ATTEMPTS ||
+          this.closed
+        )
+          throw error;
+        await waitBeforeRetry(OPFS_RETRY_DELAY_MS);
+      }
+    }
   }
 
   close(): void {

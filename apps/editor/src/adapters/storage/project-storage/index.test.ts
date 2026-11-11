@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 import { build } from "esbuild";
 import { IDBFactory } from "fake-indexeddb";
-import { describe, it } from "vitest";
+import { afterEach, describe, it, vi } from "vitest";
 
 import { createBrowserProjectStorage } from "$/adapters/storage/project-storage";
 import { IndexedDbProjectStorage } from "$/adapters/storage/project-storage/indexeddb";
@@ -12,6 +12,11 @@ import { ProjectRepository } from "$/managers/storage/project-repository";
 import { randomId, sha256Hex } from "@xprite/bedrock/browser/runtime-crypto";
 
 describe("project-storage", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
   it("keeps the published head intact after an uncertain write and retries with a fresh generation", async () => {
     const catalog = new IndexedDbProjectStorage({
       factory: new IDBFactory(),
@@ -469,5 +474,221 @@ describe("project-storage", () => {
     assert.equal(second.head.backend, "indexeddb");
     assert.equal(opfsWrites, 1, "session keeps IndexedDB after demotion");
     repo.close();
+  });
+
+  function opaqueWorker() {
+    const worker = {
+      onmessage: null as ((event: MessageEvent) => void) | null,
+      onerror: null as ((event: Event) => void) | null,
+      onmessageerror: null,
+      terminate() {},
+      postMessage() {
+        queueMicrotask(() => worker.onerror?.(new Event("error")));
+      },
+    };
+    return worker;
+  }
+
+  it("maps an exhausted never-loaded OPFS worker write to unavailable", async () => {
+    vi.useFakeTimers();
+    let creations = 0;
+    const store = new OpfsPayloadStore("test", () => {
+      creations += 1;
+      return opaqueWorker() as unknown as Worker;
+    });
+    const rejected = assert.rejects(
+      store.write("key", new Uint8Array([1])),
+      (error: ProjectStorageError) => {
+        assert.equal(error.name, "ProjectStorageError");
+        assert.equal(error.code, "unavailable");
+        assert.deepEqual(error.diagnosticDetails?.opfs, {
+          stage: "error",
+          workerAnswered: false,
+          message: undefined,
+          filename: undefined,
+          line: undefined,
+          column: undefined,
+          operation: "write",
+          requestId: 2,
+        });
+        return true;
+      },
+    );
+    await vi.runAllTimersAsync();
+    await rejected;
+    assert.equal(creations, 2, "the worker script is started twice before giving up");
+    store.close();
+  });
+
+  it("demotes a new project when OPFS reports a never-loaded worker", async () => {
+    const factory = new IDBFactory();
+    const catalog = new IndexedDbProjectStorage({ factory, databaseName: "opfs-never-loaded" });
+    let opfsWrites = 0;
+    const opfs = {
+      kind: "opfs" as const,
+      async write() {
+        opfsWrites += 1;
+        throw new ProjectStorageError("unavailable", "OPFS worker failed", {
+          diagnosticDetails: {
+            opfs: { stage: "error", operation: "write", workerAnswered: false },
+          },
+        });
+      },
+      async read() {
+        throw new ProjectStorageError("unavailable", "OPFS worker failed");
+      },
+    };
+    const repo = new ProjectRepository({
+      makeId: randomId,
+      now: Date.now,
+      checksum: sha256Hex,
+      catalog,
+      stores: { opfs, indexeddb: catalog },
+      preferredBackend: "opfs",
+    });
+    const saved = await repo.save({
+      projectId: "fresh",
+      expectedHead: null,
+      metadata: { name: "New project" },
+      bytes: new Uint8Array([1, 2, 3]),
+    });
+    assert.equal(saved.head.backend, "indexeddb");
+    assert.equal(opfsWrites, 1);
+    const loaded = await repo.load("fresh");
+    assert.deepEqual([...loaded.bytes], [1, 2, 3]);
+    assert.equal(loaded.record.head.backend, "indexeddb");
+    repo.close();
+  });
+
+  it("does not switch an existing OPFS project after a never-loaded worker write", async () => {
+    const factory = new IDBFactory();
+    const catalog = new IndexedDbProjectStorage({ factory, databaseName: "opfs-pin-existing" });
+    const values = new Map<string, Uint8Array>();
+    let failWrites = false;
+    let opfsWrites = 0;
+    let idbWrites = 0;
+    const opfs = {
+      kind: "opfs" as const,
+      async write(id: string, bytes: Uint8Array) {
+        opfsWrites += 1;
+        if (failWrites) {
+          throw new ProjectStorageError("unavailable", "OPFS worker failed", {
+            diagnosticDetails: {
+              opfs: { stage: "error", operation: "write", workerAnswered: false },
+            },
+          });
+        }
+        values.set(id, bytes.slice());
+      },
+      async read(id: string) {
+        const bytes = values.get(id);
+        if (!bytes) throw new ProjectStorageError("corrupt", "Missing");
+        return bytes;
+      },
+      async remove() {},
+    };
+    const indexeddb = {
+      kind: "indexeddb" as const,
+      async write(id: string, bytes: Uint8Array) {
+        idbWrites += 1;
+        await catalog.write(id, bytes);
+      },
+      async read(id: string) {
+        return catalog.read(id);
+      },
+      async remove(id: string) {
+        return catalog.remove(id);
+      },
+    };
+    const repo = new ProjectRepository({
+      makeId: randomId,
+      now: Date.now,
+      checksum: sha256Hex,
+      catalog,
+      stores: { opfs, indexeddb },
+      preferredBackend: "opfs",
+    });
+    const first = await repo.save({
+      projectId: "kept",
+      expectedHead: null,
+      metadata: { name: "Existing project" },
+      bytes: new Uint8Array([9]),
+    });
+    assert.equal(first.head.backend, "opfs");
+    failWrites = true;
+    await assert.rejects(
+      repo.save({
+        projectId: "kept",
+        expectedHead: first.head.id,
+        metadata: { name: "Existing project" },
+        bytes: new Uint8Array([8]),
+      }),
+      (error: ProjectStorageError) => error.code === "unavailable",
+    );
+    assert.equal((await catalog.get("kept"))!.head.id, first.head.id);
+    assert.equal((await catalog.get("kept"))!.head.backend, "opfs");
+    assert.deepEqual([...(await repo.load("kept"))!.bytes], [9]);
+    assert.equal(idbWrites, 0, "existing OPFS projects are not copied into IndexedDB");
+    assert.equal(opfsWrites, 2);
+    repo.close();
+  });
+
+  it("does not demote a new project for quota or I/O failures after the worker ran", async () => {
+    for (const failure of [
+      new ProjectStorageError("io", "OPFS worker failed", {
+        diagnosticDetails: {
+          opfs: { stage: "messageerror", operation: "write", workerAnswered: false },
+        },
+      }),
+      new DOMException("Full", "QuotaExceededError"),
+    ]) {
+      const factory = new IDBFactory();
+      const catalog = new IndexedDbProjectStorage({
+        factory,
+        databaseName: `opfs-no-demote-${failure.name}`,
+      });
+      let idbWrites = 0;
+      const opfs = {
+        kind: "opfs" as const,
+        async write() {
+          throw failure;
+        },
+        async read() {
+          throw new ProjectStorageError("corrupt", "Missing");
+        },
+      };
+      const indexeddb = {
+        kind: "indexeddb" as const,
+        async write(id: string, bytes: Uint8Array) {
+          idbWrites += 1;
+          await catalog.write(id, bytes);
+        },
+        async read(id: string) {
+          return catalog.read(id);
+        },
+        async remove(id: string) {
+          return catalog.remove(id);
+        },
+      };
+      const repo = new ProjectRepository({
+        makeId: randomId,
+        now: Date.now,
+        checksum: sha256Hex,
+        catalog,
+        stores: { opfs, indexeddb },
+        preferredBackend: "opfs",
+      });
+      await assert.rejects(
+        repo.save({
+          projectId: "new-project",
+          expectedHead: null,
+          metadata: { name: "New project" },
+          bytes: new Uint8Array([1]),
+        }),
+      );
+      assert.equal(await catalog.get("new-project"), null);
+      assert.equal(idbWrites, 0, `${failure.name} must not create an IndexedDB copy`);
+      repo.close();
+    }
   });
 });

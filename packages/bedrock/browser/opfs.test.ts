@@ -96,6 +96,10 @@ class TestWorker {
   }
 }
 
+function startupLoadError(worker: TestWorker) {
+  worker.onerror?.(new Event("error") as ErrorEvent);
+}
+
 function transportError(worker: TestWorker) {
   const error = new Error("Script could not be loaded");
   const event = Object.assign(new Event("error"), {
@@ -267,6 +271,7 @@ describe("OPFS worker recovery", () => {
     const store = new OpfsByteStore("test", factory);
     const input = new Uint8Array([1, 2, 3]);
     await expect(store.write("key", input)).rejects.toMatchObject({
+      code: BrowserStorageErrorCode.Io,
       diagnosticDetails: { opfs: { stage: "messageerror", operation: "write" } },
     });
     expect(factory).toHaveBeenCalledOnce();
@@ -290,5 +295,129 @@ describe("OPFS worker recovery", () => {
     expect(factory).toHaveBeenCalledTimes(2);
     await expect(store.read("key")).rejects.toMatchObject({ code: BrowserStorageErrorCode.Closed });
     expect(factory).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries a write once when the first worker script never loads", async () => {
+    vi.useFakeTimers();
+    const first = new TestWorker(),
+      second = new TestWorker();
+    first.postMessage.mockImplementation(() => queueMicrotask(() => startupLoadError(first)));
+    second.postMessage.mockImplementation(({ id }) => queueMicrotask(() => second.respond(id)));
+    const factory = vi.fn().mockReturnValueOnce(first).mockReturnValueOnce(second);
+    const store = new OpfsByteStore("test", factory);
+    const writing = store.write("key", new Uint8Array([1, 2, 3]));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(factory).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1000);
+    await writing;
+    expect(factory).toHaveBeenCalledTimes(2);
+    expect(first.terminate).toHaveBeenCalledOnce();
+    expect(second.postMessage.mock.calls.map(([request]) => request.operation)).toEqual(["write"]);
+    store.close();
+  });
+
+  it("retries a write once when Worker construction fails on the first attempt", async () => {
+    vi.useFakeTimers();
+    const worker = new TestWorker();
+    worker.postMessage.mockImplementation(({ id }) => queueMicrotask(() => worker.respond(id)));
+    const factory = vi
+      .fn()
+      .mockImplementationOnce(() => {
+        throw new Error("Worker is unavailable");
+      })
+      .mockReturnValueOnce(worker);
+    const store = new OpfsByteStore("test", factory);
+    const writing = store.write("key", new Uint8Array([4]));
+    await vi.advanceTimersByTimeAsync(1000);
+    await writing;
+    expect(factory).toHaveBeenCalledTimes(2);
+    store.close();
+  });
+
+  it("reports exhausted never-loaded worker startup failures as unavailable", async () => {
+    vi.useFakeTimers();
+    const workers: TestWorker[] = [];
+    const factory = vi.fn(() => {
+      const worker = new TestWorker();
+      workers.push(worker);
+      worker.postMessage.mockImplementation(() => queueMicrotask(() => startupLoadError(worker)));
+      return worker as unknown as Worker;
+    });
+    const store = new OpfsByteStore("test", factory);
+    const rejected = expect(store.write("key", new Uint8Array([1]))).rejects.toMatchObject({
+      code: BrowserStorageErrorCode.Unavailable,
+      diagnosticDetails: {
+        opfs: { stage: "error", operation: "write", workerAnswered: false },
+      },
+    });
+    await vi.runAllTimersAsync();
+    await rejected;
+    expect(factory).toHaveBeenCalledTimes(2);
+    expect(workers.every((worker) => worker.terminate.mock.calls.length === 1)).toBe(true);
+    const construction = new OpfsByteStore("test", () => {
+      throw new Error("Worker is unavailable");
+    });
+    const constructionRejected = expect(
+      construction.write("key", new Uint8Array([1])),
+    ).rejects.toMatchObject({
+      code: BrowserStorageErrorCode.Unavailable,
+      diagnosticDetails: {
+        opfs: { stage: "construction", operation: "write", workerAnswered: false },
+      },
+    });
+    await vi.runAllTimersAsync();
+    await constructionRejected;
+    construction.close();
+    store.close();
+  });
+
+  it("does not hide quota or named script errors as a missing worker", async () => {
+    const quota = new TestWorker();
+    quota.postMessage.mockImplementation(({ id }) =>
+      queueMicrotask(() => quota.reject(id, "QuotaExceededError")),
+    );
+    const quotaStore = new OpfsByteStore("test", () => quota as unknown as Worker);
+    await expect(quotaStore.write("key", new Uint8Array([1]))).rejects.toMatchObject({
+      name: "QuotaExceededError",
+    });
+    expect(quota.postMessage).toHaveBeenCalledOnce();
+    quotaStore.close();
+
+    const named = new TestWorker();
+    const namedFactory = vi.fn(() => {
+      named.postMessage.mockImplementation(() => queueMicrotask(() => transportError(named)));
+      return named as unknown as Worker;
+    });
+    const namedStore = new OpfsByteStore("test", namedFactory);
+    await expect(namedStore.write("key", new Uint8Array([1]))).rejects.toMatchObject({
+      code: BrowserStorageErrorCode.Io,
+      diagnosticDetails: {
+        opfs: {
+          stage: "error",
+          operation: "write",
+          workerAnswered: false,
+          filename: "https://xprite.cc/assets/opfs-worker.js",
+        },
+      },
+    });
+    expect(namedFactory).toHaveBeenCalledOnce();
+    namedStore.close();
+  });
+
+  it("retries an opaque startup read after the load delay", async () => {
+    vi.useFakeTimers();
+    const first = new TestWorker(),
+      second = new TestWorker();
+    first.postMessage.mockImplementation(() => queueMicrotask(() => startupLoadError(first)));
+    second.postMessage.mockImplementation(({ id }) => queueMicrotask(() => second.respond(id)));
+    const factory = vi.fn().mockReturnValueOnce(first).mockReturnValueOnce(second);
+    const store = new OpfsByteStore("test", factory);
+    const reading = store.read("key");
+    await vi.advanceTimersByTimeAsync(0);
+    expect(factory).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect([...(await reading)]).toEqual([7]);
+    expect(factory).toHaveBeenCalledTimes(2);
+    store.close();
   });
 });

@@ -232,7 +232,9 @@ export class ProjectRepository {
       previous = valid.generation;
     }
     // Existing projects stay pinned to their backend. New projects may demote
-    // from OPFS to IndexedDB when OPFS is present but unusable (Safari private).
+    // from OPFS to IndexedDB when OPFS is present but unusable (Safari private,
+    // or a worker script that never loaded). A failure after the worker may
+    // already have written is never treated as a reason to copy the project.
     let backend = old?.head.backend ?? this.preferredBackend;
     for (;;) {
       const candidates: Generation[] = previous?.backend === backend ? [previous] : [];
