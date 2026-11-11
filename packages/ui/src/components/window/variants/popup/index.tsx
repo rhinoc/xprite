@@ -25,6 +25,8 @@ const POPUP_CLOSE_BUTTON_HEIGHT = 22;
 export interface PopupVariantContext {
   bounds: SurfaceBounds;
   clientBounds: SurfaceBounds;
+  /** The client rect actually visible after viewport clamping; lays out above `clientBounds`. */
+  clientLayoutBounds: SurfaceBounds;
   viewport: SurfaceViewport;
 }
 
@@ -150,7 +152,9 @@ export function PopupVariant({
     scrollY,
     viewportRef: focusReveal.viewportRef,
     children:
-      typeof children === "function" ? children({ bounds, clientBounds, viewport }) : children,
+      typeof children === "function"
+        ? children({ bounds, clientBounds, clientLayoutBounds, viewport })
+        : children,
   };
 
   return (

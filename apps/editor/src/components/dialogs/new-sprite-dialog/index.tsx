@@ -378,6 +378,7 @@ export function NewSpriteDialog({
                 relativeTo={client}
                 editable
                 inputMode="numeric"
+                selectOnFocus
                 suffix="px"
                 value={dimensionDrafts.width}
                 options={NEW_SPRITE_DIMENSION_OPTIONS}
@@ -419,6 +420,7 @@ export function NewSpriteDialog({
                 relativeTo={client}
                 editable
                 inputMode="numeric"
+                selectOnFocus
                 suffix="px"
                 value={dimensionDrafts.height}
                 options={NEW_SPRITE_DIMENSION_OPTIONS}

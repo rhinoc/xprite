@@ -831,8 +831,12 @@ export function Menu<Trigger extends HTMLElement = HTMLButtonElement>({
         !tree.current?.contains(event.target as Node) &&
         (activation === MenuActivation.ContextMenu ||
           !trigger.current?.contains(event.target as Node))
-      )
+      ) {
+        // Consume the press so it does not fall through to whatever sits under the menu.
+        event.preventDefault();
+        event.stopPropagation();
         close(false);
+      }
     };
     const dismiss = () => close(false);
     const focusOutside = (event: FocusEvent) => {

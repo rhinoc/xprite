@@ -86,6 +86,8 @@ function GridSettings({ bounds, onAccept, onClose, suspended }: GridSettingsProp
                     { x: "Grid X", y: "Grid Y", width: "Grid Width", height: "Grid Height" }[key]
                   }
                   value={values[key]}
+                  inputMode="numeric"
+                  selectOnFocus
                   onValueChange={(value) => setValues((old) => ({ ...old, [key]: value }))}
                   onCommit={(text) => {
                     const value = evaluateDialogNumber(text);

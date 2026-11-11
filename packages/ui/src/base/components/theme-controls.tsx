@@ -464,6 +464,8 @@ interface InputContentProps extends Omit<
   /** DoubleTap reserves casual touch/pen taps for controls rather than the keyboard. */
   touchActivation?: InputTouchActivation;
   onTouchTap?: () => void;
+  /** Select the whole draft when the field gains focus, ready for overtyping. */
+  selectOnFocus?: boolean;
 }
 
 export type InputProps = InputContentProps & ControlPlacement;
@@ -555,6 +557,7 @@ export function Input({
   onCompositionStart,
   onCompositionEnd,
   touchActivation = InputTouchActivation.SingleTap,
+  selectOnFocus = false,
   onTouchTap,
   onPointerDown,
   onPointerMove,
@@ -889,6 +892,7 @@ export function Input({
           setFocused(
             focusRing === FocusRingBehavior.Always || e.currentTarget.matches(":focus-visible"),
           );
+          if (selectOnFocus) e.currentTarget.select();
           updateSelection(e.currentTarget);
           onFocus?.(e);
         }}

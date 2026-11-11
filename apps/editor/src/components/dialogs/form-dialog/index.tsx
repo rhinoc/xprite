@@ -72,6 +72,7 @@ export type FormField = FieldBase &
         type: "select";
         editable?: boolean;
         suffix?: string;
+        inputMode?: "text" | "numeric" | "decimal";
         value: string;
         onChange: (value: string) => void;
         options: readonly ComboboxOption[];
@@ -714,6 +715,7 @@ export function FormDialog({
                   onValueChange={field.onChange}
                   disabled={field.disabled}
                   editable={field.editable}
+                  inputMode={field.inputMode}
                   suffix={field.suffix}
                 />
               ) : (

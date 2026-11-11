@@ -245,7 +245,8 @@ function SizeDialog({
       relativeTo={client}
       value={values[key]}
       suffix={suffix}
-      inputMode="text"
+      inputMode="decimal"
+      selectOnFocus
       onCommit={(text) => {
         const n = numeric(text);
         if (n !== null)

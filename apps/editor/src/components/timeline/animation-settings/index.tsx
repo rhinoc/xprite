@@ -203,6 +203,8 @@ export function OnionSkinSettingsPanel({
               bounds={b(204, 30, 96, 30)}
               value={String(firstFrame)}
               aria-label="First Frame"
+              inputMode="numeric"
+              selectOnFocus
               disabled={!onFirstFrameChange}
               onValueChange={(text) => {
                 const parsed = Number(text);

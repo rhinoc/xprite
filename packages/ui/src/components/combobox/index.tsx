@@ -59,6 +59,8 @@ interface ComboboxContentProps {
   suffix?: string;
   inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
   touchActivation?: InputTouchActivation;
+  /** Editable entries may select their draft on focus for quick replacement. */
+  selectOnFocus?: boolean;
   title?: string;
   buttonLabel?: string;
   "aria-invalid"?: InputHTMLAttributes<HTMLInputElement>["aria-invalid"];
@@ -96,6 +98,7 @@ export function Combobox({
   suffix,
   inputMode,
   touchActivation,
+  selectOnFocus,
   title,
   buttonLabel,
   id: controlId,
@@ -652,6 +655,7 @@ export function Combobox({
             disabled={disabled}
             inputMode={inputMode}
             touchActivation={touchActivation}
+            selectOnFocus={selectOnFocus}
             suffix={suffix}
             title={displayTitle}
             aria-label={displayLabel}
