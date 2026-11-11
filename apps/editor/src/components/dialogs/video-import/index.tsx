@@ -100,6 +100,7 @@ export function VideoImportDialog({
           label: tUi("ui.frame.rate"),
           editable: true,
           suffix: "fps",
+          inputMode: "numeric",
           disabled: !ready,
           value: String(settings.frameRate),
           options: FRAME_RATE_PRESETS.map((value) => ({

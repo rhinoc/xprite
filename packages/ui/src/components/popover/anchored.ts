@@ -1,6 +1,11 @@
 import * as React from "react";
 
-import { viewportContentSize, clientRect } from "$/base/utils/dom-geometry";
+import {
+  viewportContentSize,
+  clientRect,
+  getVisualViewport,
+  visualViewportRect,
+} from "$/base/utils/dom-geometry";
 import {
   DEFAULT_SURFACE_VIEWPORT,
   sceneViewport,
@@ -55,8 +60,18 @@ export function measurePopoverAnchor(
   const sx = viewport.width / viewport.sceneWidth;
   const sy = viewport.height / viewport.sceneHeight;
   const availableViewport = viewportContentSize(window);
-  const availableWidth = scene ? viewport.sceneWidth : availableViewport.width / sx;
-  const availableHeight = scene ? viewport.sceneHeight : availableViewport.height / sy;
+  // VisualViewport shrinks below the layout viewport when on-screen UI (mobile
+  // browser chrome, software keyboard) overlaps the page; intersect it with the
+  // layout/scene bounds so popups cannot be placed under it.
+  const visual = getVisualViewport(window);
+  const visibleHeight = visual ? visualViewportRect(visual).height : availableViewport.height;
+  const visibleWidth = visual ? visualViewportRect(visual).width : availableViewport.width;
+  const availableWidth = scene
+    ? Math.min(viewport.sceneWidth, visibleWidth / sx)
+    : visibleWidth / sx;
+  const availableHeight = scene
+    ? Math.min(viewport.sceneHeight, visibleHeight / sy)
+    : visibleHeight / sy;
   const authoredAnchor =
     !!scene &&
     !!authoredBounds &&

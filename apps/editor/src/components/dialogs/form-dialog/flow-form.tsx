@@ -147,6 +147,7 @@ function FlowField({
             onValueChange={field.onChange}
             disabled={field.disabled}
             editable={field.editable}
+            inputMode={field.inputMode}
             suffix={field.suffix}
           />
         ) : (

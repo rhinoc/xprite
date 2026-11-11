@@ -386,6 +386,7 @@ export function ExportFileDialog({
       type: "select",
       editable: true,
       suffix: "%",
+      inputMode: "numeric",
       value: resize,
       onChange: setResize,
       disabled: busy,

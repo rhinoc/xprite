@@ -289,6 +289,8 @@ export function TilemapDialog({
                 }}
                 relativeTo={c}
                 value={chosen ? String(chosen.tileWidth) : width}
+                inputMode="numeric"
+                selectOnFocus
                 onValueChange={setWidth}
                 disabled={!!chosen}
               />
@@ -308,6 +310,8 @@ export function TilemapDialog({
                 bounds={{ x: c.x + c.width - 95, y: c.y + 116 + rowShift, width: 95, height: 30 }}
                 relativeTo={c}
                 value={chosen ? String(chosen.tileHeight) : height}
+                inputMode="numeric"
+                selectOnFocus
                 onValueChange={setHeight}
                 disabled={!!chosen}
               />
@@ -335,6 +339,8 @@ export function TilemapDialog({
                   }}
                   relativeTo={c}
                   value={properties ? baseIndex : chosen ? String(chosen.baseIndex) : baseIndex}
+                  inputMode="numeric"
+                  selectOnFocus
                   onValueChange={setBaseIndex}
                 />
                 <Text

@@ -179,6 +179,7 @@ export function StatusBar({
               pixelSize={{ width: 36, height: 12 }}
               value={String(editor.frame - 1 + firstFrame)}
               aria-label="Current frame"
+              inputMode="numeric"
               onMouseUp={(event) => event.currentTarget.select()}
               disabled={!hasDocument}
               onCommit={(value) =>
@@ -207,6 +208,7 @@ export function StatusBar({
             value={editor.zoom.toFixed(1)}
             suffix="%"
             aria-label="Zoom"
+            inputMode="decimal"
             onCommit={(value) =>
               editor.setZoom(Math.max(100 / 64, Math.min(6400, Number(value) || 100)))
             }

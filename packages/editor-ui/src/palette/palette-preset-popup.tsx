@@ -67,6 +67,10 @@ const SCROLLBAR_INSET = 7;
 const SCROLLBAR_WIDTH = SCROLLBAR_SIZE + SCROLLBAR_INSET;
 const PIXEL_WHEEL_SCROLL_MULTIPLIER = 2;
 const REFRESH_BUTTON_WIDTH = 32;
+/** Below this scene width the popup spans the whole available width. */
+const NARROW_POPUP_WIDTH = 500;
+/** Below this client width the footer buttons stack vertically. */
+const FOOTER_STACK_WIDTH = 290;
 /** The check mark's gutter: from the list's clip edge to where the colour strip starts. */
 const CHECK_GUTTER_X = 6;
 const CHECK_GUTTER_WIDTH = 16;
@@ -429,7 +433,13 @@ export function PalettePresetPopup({
       height: 32,
     });
     setPopupScene({ width: anchor.availableWidth, height: anchor.availableHeight });
-    const width = Math.max(1, Math.floor(anchor.availableWidth / 2));
+    // Below ~360 logical pixels the footer buttons (Load + Open Folder) cannot
+    // share a row, so stretch the popup instead of squeezing the controls.
+    const narrow = anchor.availableWidth < NARROW_POPUP_WIDTH;
+    const width = Math.max(
+      1,
+      narrow ? anchor.availableWidth : Math.floor(anchor.availableWidth / 2),
+    );
     const height = Math.max(1, Math.floor((anchor.availableHeight * 3) / 4));
     setBounds({
       x: Math.max(0, Math.min(anchor.availableWidth - width, anchor.bounds.x)),
@@ -443,7 +453,8 @@ export function PalettePresetPopup({
     setOpen(true);
   };
   const selected = visibleChoices.find((choice) => choice.id === selectedId) ?? null;
-  const renderContents = ({ clientBounds: client }: PopoverContext) => {
+  const renderContents = ({ clientLayoutBounds: client }: PopoverContext) => {
+    const stackFooter = client.width < FOOTER_STACK_WIDTH;
     const searchBounds = {
       x: client.x + 2,
       y: client.y + 1,
@@ -460,18 +471,18 @@ export function PalettePresetPopup({
       x: client.x + 2,
       y: client.y + 40,
       width: Math.max(32, client.width - 4),
-      height: Math.max(32, client.height - 79),
+      height: Math.max(32, client.height - (stackFooter ? 118 : 79)),
     };
     const loadBounds = {
       x: client.x + 2,
-      y: client.y + client.height - 39,
-      width: 160,
+      y: client.y + client.height - (stackFooter ? 78 : 39),
+      width: stackFooter ? client.width - 4 : 160,
       height: 38,
     };
     const folderBounds = {
-      x: client.x + client.width - 122,
-      y: client.y + client.height - 37,
-      width: 120,
+      x: stackFooter ? client.x + 2 : client.x + client.width - 122,
+      y: client.y + client.height - (stackFooter ? 39 : 37),
+      width: stackFooter ? client.width - 4 : 120,
       height: 34,
     };
     const searchLayout = surfaceLayout(searchBounds),
