@@ -2557,5 +2557,9 @@
   "normal.mask.influence": "마스크 강도",
   "normal.mask": "광원 마스크",
   "ui.file.write.download.fallback": "선택한 위치에 저장하지 못했습니다. 사본 다운로드를 시작했습니다.",
-  "ui.file.write.download.failed": "선택한 위치에 저장하거나 다운로드하지 못했습니다. 다른 이름으로 저장해 보세요."
+  "ui.file.write.download.failed": "선택한 위치에 저장하거나 다운로드하지 못했습니다. 다른 이름으로 저장해 보세요.",
+  "ui.file.output.recovery.failed": "파일은 저장되었지만 로컬 복구 데이터는 저장되지 않았습니다. 문서를 열어 두세요.",
+  "ui.file.download.recovery.failed": "사본 다운로드를 시작했지만 로컬 복구 데이터는 저장되지 않았습니다. 문서를 열어 두세요.",
+  "ui.file.output.receipt.missing": "파일 저장이 완료되었지만 출력 확인 정보가 없습니다",
+  "ui.recovery.workspace.failed.status": "다른 문서 또는 작업 공간 레이아웃이 이 브라우저에 저장되지 않았습니다."
 }

@@ -160,18 +160,30 @@ export class WorkspaceRecovery {
   getRecoverySettings = () => this.state.settings;
   getSlotProjectId = (slotId: string): string | null =>
     this.bindings.get(slotId)?.projectId ?? null;
-  /** Whether this document's latest committed snapshot is resumable. */
-  isSlotUnpersisted(slotId: string): boolean {
+  /** A document checkpoint receipt, independent of workspace manifest membership. */
+  isSlotCheckpointUnpersisted(slotId: string): boolean {
     if (!this.writable) return true;
     const binding = this.bindings.get(slotId);
     if (!binding) return true;
     const state = binding.coordinator.getState();
-    if (
-      !state.head ||
-      state.persistedRevision < state.committedRevision ||
-      state.status === "error"
-    )
-      return true;
+    return (
+      !state.head || state.persistedRevision < state.committedRevision || state.status === "error"
+    );
+  }
+  /** Await only this binding; a sibling conflict cannot acknowledge or fail this receipt. */
+  async checkpointSlot(slotId: string): Promise<boolean> {
+    if (!this.writable || this.stopped) return false;
+    const binding = this.bindings.get(slotId);
+    if (!binding) return false;
+    await binding.coordinator.flush();
+    if (this.stopped || this.bindings.get(slotId) !== binding)
+      throw new Error("Document recovery is not ready");
+    return !this.isSlotCheckpointUnpersisted(slotId);
+  }
+  /** Whether this document's latest committed snapshot is resumable on workspace restore. */
+  isSlotUnpersisted(slotId: string): boolean {
+    if (this.isSlotCheckpointUnpersisted(slotId)) return true;
+    const binding = this.bindings.get(slotId)!;
     if (!this.lastManifest) return true;
     const manifest = JSON.parse(this.lastManifest) as Manifest;
     return !manifest.entries.some(

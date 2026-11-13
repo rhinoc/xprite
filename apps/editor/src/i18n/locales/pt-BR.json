@@ -2557,5 +2557,9 @@
   "normal.mask.influence": "Influência da máscara",
   "normal.mask": "Máscara de luz",
   "ui.file.write.download.fallback": "Não foi possível salvar no local selecionado. O download de uma cópia foi iniciado.",
-  "ui.file.write.download.failed": "Não foi possível salvar no local selecionado nem baixar o arquivo. Tente Salvar como."
+  "ui.file.write.download.failed": "Não foi possível salvar no local selecionado nem baixar o arquivo. Tente Salvar como.",
+  "ui.file.output.recovery.failed": "O arquivo foi salvo, mas a recuperação local não. Mantenha este documento aberto.",
+  "ui.file.download.recovery.failed": "O download de uma cópia foi iniciado, mas a recuperação local não foi salva. Mantenha este documento aberto.",
+  "ui.file.output.receipt.missing": "O salvamento do arquivo terminou sem confirmação de saída",
+  "ui.recovery.workspace.failed.status": "Outros documentos ou o layout do espaço de trabalho não estão salvos neste navegador."
 }

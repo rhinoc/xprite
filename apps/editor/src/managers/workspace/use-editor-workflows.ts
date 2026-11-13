@@ -74,6 +74,11 @@ import {
 import { DEFAULT_RECOVERY_SETTINGS } from "$/managers/workspace/recovery-settings";
 import { SaveTarget, shouldOpenSaveAsDialog } from "$/managers/workspace/save-target";
 import { useWorkflowActionSnapshot } from "$/managers/workspace/workflow-action-snapshot";
+import { presentRecoveryProblem } from "$/managers/workspace/workflows/present-recovery-problem";
+import {
+  canCloseSavedDocument,
+  saveFileAndCheckpoint,
+} from "$/managers/workspace/workflows/save-file-and-checkpoint";
 import { useDocumentOutputWorkflows } from "$/managers/workspace/workflows/use-document-output-workflows";
 import { canPickSaveFile } from "@xprite/bedrock/browser/file-system";
 import { normalizeKeyboardEvent } from "@xprite/bedrock/browser/keyboard";
@@ -559,7 +564,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       (replacement.kind !== "close" && replacement.kind !== "exit")
     )
       return;
-    if (!workspace.isDocumentLocallyModified(workspaceSnapshot.activeId))
+    if (canCloseSavedDocument(workspace, workspaceSnapshot.activeId))
       void session.confirmReplacement();
   }, [replacement, closingSaveBusy, workspaceSnapshot, workspace, session]);
   useEffect(() => {
@@ -779,18 +784,14 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
           ? requestedName?.trim() ||
             workspace.suggestedSaveName(core.getSnapshot().document?.name ?? "Untitled")
           : undefined;
-      const outcome = await session.save(intent, suggestedName);
-      if (outcome === SessionOutcome.Created) {
-        const downloaded = session.getLastSaveMethod() === "download";
-        try {
-          await workspace.saveLocally(workspaceSnapshot.activeId);
-          workspace.linkRecentFileToWorkspaceProject(workspaceSnapshot.activeId);
-        } catch (reason) {
-          // Recovery reports its own storage status; a dispatched download is already complete.
-          if (!downloaded) throw reason;
-        }
-        pwa?.markSuccessfulSave();
-      }
+      const outcome = await saveFileAndCheckpoint(
+        session,
+        workspace,
+        workspaceSnapshot.activeId,
+        intent,
+        suggestedName,
+      );
+      if (outcome === SessionOutcome.Created) pwa?.markSuccessfulSave();
       return outcome;
     });
   };
@@ -798,7 +799,10 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setClosingSaveBusy(true);
     void saveCurrentDocument(SessionSaveIntent.Save, target)
       .then((outcome) => {
-        if (outcome === SessionOutcome.Created && !session.hasUnsavedChanges())
+        if (
+          outcome === SessionOutcome.Created &&
+          canCloseSavedDocument(workspace, workspaceSnapshot.activeId)
+        )
           return session.confirmReplacement();
       })
       .catch((reason) => session.reportError(reason, SessionOperation.Save))
@@ -867,13 +871,12 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
   };
   const actions = {
     clipboardCapabilities: clipboard.getCapabilities(),
-    recoveryProblem: recoveryFailure
-      ? tUi(
-          workspace.recovery.hasUnpersistedWorkspaceChanges()
-            ? "ui.recovery.save.failed.status"
-            : "ui.recovery.backup.failed.status",
-        )
-      : undefined,
+    recoveryProblem: presentRecoveryProblem({
+      outputProblem: workspace.getFileOutputRecoveryProblem(workspaceSnapshot.activeId),
+      failure: recoveryFailure,
+      workspacePending: workspace.recovery.hasUnpersistedWorkspaceChanges(),
+      documentPending: workspace.recovery.isSlotCheckpointUnpersisted(workspace.active.documentId),
+    }),
     retryRecovery,
     backupActive:
       recoveryState.backingUp ||

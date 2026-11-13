@@ -2557,5 +2557,9 @@
   "normal.mask.influence": "マスクの強さ",
   "normal.mask": "ライトマスク",
   "ui.file.write.download.fallback": "選択した場所への保存に失敗しました。コピーのダウンロードを開始しました。",
-  "ui.file.write.download.failed": "選択した場所への保存とダウンロードに失敗しました。名前を付けて保存をお試しください。"
+  "ui.file.write.download.failed": "選択した場所への保存とダウンロードに失敗しました。名前を付けて保存をお試しください。",
+  "ui.file.output.recovery.failed": "ファイルは保存されましたが、ローカル復元用データは未保存です。ドキュメントを開いたままにしてください。",
+  "ui.file.download.recovery.failed": "コピーのダウンロードを開始しましたが、ローカル復元用データは未保存です。ドキュメントを開いたままにしてください。",
+  "ui.file.output.receipt.missing": "ファイル保存は完了しましたが、出力の確認情報がありません",
+  "ui.recovery.workspace.failed.status": "他のドキュメントまたはワークスペースの配置がこのブラウザーに保存されていません。"
 }
