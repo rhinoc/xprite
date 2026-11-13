@@ -33,6 +33,10 @@ class ReplyChannel {
 function harness() {
   vi.useFakeTimers();
   vi.stubGlobal("MessageChannel", ReplyChannel);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => new Response(null, { status: 200 })),
+  );
   const worker = Object.assign(new EventTarget(), {
     state: "activated",
     postMessage: vi.fn((_message: unknown, _transfer: ReplyPort[]) => {}),
@@ -74,7 +78,7 @@ function harness() {
     onError: (error) => errors.push(error as Error),
   });
   ports.push(port);
-  return { port, worker, serviceWorker, errors, browserDocument };
+  return { port, worker, registration, serviceWorker, errors, browserDocument };
 }
 
 afterEach(() => {
@@ -82,6 +86,7 @@ afterEach(() => {
   vi.clearAllTimers();
   vi.useRealTimers();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("PWA timeout recovery", () => {
@@ -152,7 +157,11 @@ describe("PWA timeout recovery", () => {
     assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Failed);
     assert.equal(errors.length, 1);
     assert.equal(errors[0].diagnosticDetails?.pwa?.stage, "prepare");
-    assert.equal(errors[0].diagnosticDetails?.pwa?.worker_version, "release-123");
+    assert.equal(
+      errors[0].diagnosticDetails?.pwa?.worker_version,
+      null,
+      "no cache version was ever verified ready",
+    );
     assert.equal(worker.postMessage.mock.calls.length, 2);
   });
 
@@ -320,7 +329,7 @@ describe("stale chunk reporting", () => {
     );
     const registrations = serviceWorker.register.mock.calls.length;
     window.dispatchEvent(new Event("online"));
-    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(250);
     assert.equal(serviceWorker.register.mock.calls.length, registrations + 1);
     assert.equal(
       errors.filter((error) => error.diagnosticDetails?.pwa?.stage === "update").length,
@@ -338,7 +347,7 @@ describe("stale chunk reporting", () => {
     registration.update.mockRejectedValueOnce(new TypeError("Failed to fetch"));
     const registrations = serviceWorker.register.mock.calls.length;
     window.dispatchEvent(new Event("online"));
-    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(250);
     assert.equal(serviceWorker.register.mock.calls.length, registrations);
     assert.equal(errors.at(-1)?.diagnosticDetails?.pwa?.stage, "update");
   });
@@ -388,7 +397,7 @@ describe("SW request lifetime", () => {
     serviceWorker.register.mockImplementation(() => pending.promise);
     port.start();
     for (let i = 0; i < 10; i++) window.dispatchEvent(new Event("online"));
-    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(250);
     assert.equal(serviceWorker.register.mock.calls.length, 1);
     port.dispose();
     pending.reject(new TypeError("Failed to fetch"));
@@ -397,7 +406,7 @@ describe("SW request lifetime", () => {
     assert.equal(errors.length, 0);
   });
 
-  it("coalesces concurrent updates, preserves genuine failure and does not self-retry", async () => {
+  it("coalesces concurrent updates and retries a transient failure without another online event", async () => {
     const { port, worker, serviceWorker, errors } = harness();
     replyReady(worker);
     port.start();
@@ -406,16 +415,16 @@ describe("SW request lifetime", () => {
     const pending = deferred<void>();
     registration.update.mockImplementationOnce(() => pending.promise);
     for (let i = 0; i < 10; i++) window.dispatchEvent(new Event("online"));
-    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(250);
     assert.equal(registration.update.mock.calls.length, 1);
     pending.reject(new TypeError("Failed to fetch"));
     await vi.advanceTimersByTimeAsync(60_000);
-    assert.equal(registration.update.mock.calls.length, 1);
+    assert.equal(registration.update.mock.calls.length, 2);
     assert.equal(serviceWorker.register.mock.calls.length, 1);
-    assert.equal(errors.filter((e) => e.diagnosticDetails?.pwa?.stage === "update").length, 1);
+    assert.equal(errors.filter((e) => e.diagnosticDetails?.pwa?.stage === "update").length, 0);
     window.dispatchEvent(new Event("online"));
-    await vi.advanceTimersByTimeAsync(0);
-    assert.equal(registration.update.mock.calls.length, 2, "a later explicit reconnect may retry");
+    await vi.advanceTimersByTimeAsync(250);
+    assert.equal(registration.update.mock.calls.length, 3, "a later reconnect begins a new cycle");
   });
 
   for (const name of ["InvalidStateError", "TypeError"])
@@ -428,7 +437,7 @@ describe("SW request lifetime", () => {
       const pending = deferred<void>();
       registration.update.mockImplementationOnce(() => pending.promise);
       window.dispatchEvent(new Event("online"));
-      await vi.advanceTimersByTimeAsync(0);
+      await vi.advanceTimersByTimeAsync(250);
       stop();
       port.start();
       await vi.advanceTimersByTimeAsync(0);
@@ -460,7 +469,7 @@ describe("SW request lifetime", () => {
     pending.resolve(original);
     await vi.advanceTimersByTimeAsync(0);
     window.dispatchEvent(new Event("online"));
-    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(250);
     assert.equal(original.update.mock.calls.length, 0);
     assert.equal(replacement.update.mock.calls.length, 1);
   });
@@ -479,5 +488,169 @@ describe("SW request lifetime", () => {
     assert.equal(errors.length, 1);
     assert.equal(errors[0].name, "SecurityError");
     assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Ready);
+  });
+});
+
+describe("bounded online update recovery", () => {
+  it("debounces online bursts, warns only for verified cache, then recovers automatically", async () => {
+    const h = harness();
+    replyReady(h.worker);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    h.registration.update.mockRejectedValueOnce(new TypeError("network"));
+    for (let n = 0; n < 20; n++) window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(249);
+    assert.equal(h.registration.update.mock.calls.length, 0);
+    await vi.advanceTimersByTimeAsync(1);
+    assert.equal(h.registration.update.mock.calls.length, 1);
+    assert.equal(h.errors.length, 0);
+    assert.equal(h.port.getState().offlineStatus, PwaOfflineStatus.Ready);
+    assert.equal(warn.mock.calls[0][0], "pwa_update_retry");
+    await vi.advanceTimersByTimeAsync(999);
+    assert.equal(h.registration.update.mock.calls.length, 1);
+    await vi.advanceTimersByTimeAsync(1);
+    assert.equal(h.registration.update.mock.calls.length, 2);
+    await vi.advanceTimersByTimeAsync(60_000);
+    assert.equal(h.registration.update.mock.calls.length, 2);
+    assert.equal(h.errors.length, 0);
+    assert.equal(vi.mocked(fetch).mock.calls.length, 1);
+  });
+
+  it("reports exhaustion after three attempts, even with a verified ready worker", async () => {
+    const h = harness();
+    replyReady(h.worker);
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const failure = new TypeError("network");
+    h.registration.update.mockRejectedValue(failure);
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(5_250);
+    assert.equal(h.registration.update.mock.calls.length, 3);
+    assert.equal(h.errors.length, 1);
+    assert.equal(h.errors[0], failure);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.attempt, 3);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.retry_exhausted, true);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.usable_worker, true);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.worker_version, "fixture");
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.script_probe_status, 200);
+    assert.equal(h.port.getState().offlineStatus, PwaOfflineStatus.Ready);
+    await vi.advanceTimersByTimeAsync(60_000);
+    assert.equal(h.registration.update.mock.calls.length, 3);
+    assert.equal(vi.mocked(fetch).mock.calls.length, 1);
+  });
+
+  it("does not suppress the first update failure when no cache has been verified", async () => {
+    const h = harness();
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    h.registration.update.mockRejectedValueOnce(new TypeError("network"));
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(250);
+    assert.equal(h.errors.length, 1);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.usable_worker, false);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.worker_version, null);
+  });
+
+  it("retains the last verified version while a new status probe is unanswered", async () => {
+    const h = harness();
+    replyReady(h.worker);
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    h.worker.postMessage.mockImplementation(() => {});
+    h.registration.update.mockRejectedValue(new DOMException("policy", "SecurityError"));
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(250);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.worker_version, "fixture");
+    assert.equal(h.port.getState().offlineStatus, PwaOfflineStatus.Ready);
+    await vi.advanceTimersByTimeAsync(10_000);
+    assert.equal(h.registration.update.mock.calls.length, 1, "policy errors are not retried");
+  });
+
+  it("does not call an activated but different controller a verified usable worker", async () => {
+    const h = harness();
+    replyReady(h.worker);
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const unknown = Object.assign(new EventTarget(), { state: "activated", postMessage: vi.fn() });
+    Object.assign(h.serviceWorker, { controller: unknown });
+    h.registration.update.mockRejectedValueOnce(new TypeError("network"));
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(250);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.usable_worker, false);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.worker_version, null);
+  });
+
+  it("pauses offline and resumes without resetting backoff or the three-attempt budget", async () => {
+    const h = harness();
+    replyReady(h.worker);
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    h.registration.update.mockRejectedValue(new TypeError("network"));
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(250);
+    Object.assign(navigator, { onLine: false });
+    window.dispatchEvent(new Event("offline"));
+    await vi.advanceTimersByTimeAsync(60_000);
+    assert.equal(h.registration.update.mock.calls.length, 1);
+    Object.assign(navigator, { onLine: true });
+    for (let n = 0; n < 20; n++) window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(999);
+    assert.equal(h.registration.update.mock.calls.length, 1);
+    await vi.advanceTimersByTimeAsync(1);
+    assert.equal(h.registration.update.mock.calls.length, 2);
+    Object.assign(navigator, { onLine: false });
+    window.dispatchEvent(new Event("offline"));
+    Object.assign(navigator, { onLine: true });
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(4_000);
+    assert.equal(h.registration.update.mock.calls.length, 3);
+    assert.equal(h.errors.length, 1);
+    assert.equal(h.errors[0].diagnosticDetails?.pwa?.retry_exhausted, true);
+    assert.equal(vi.mocked(fetch).mock.calls.length, 1);
+  });
+
+  it("does no update while offline even if an online event is misfired", async () => {
+    const h = harness();
+    replyReady(h.worker);
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    Object.assign(navigator, { onLine: false });
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(60_000);
+    assert.equal(h.registration.update.mock.calls.length, 0);
+    assert.equal(vi.mocked(fetch).mock.calls.length, 0);
+  });
+
+  it("cancels scheduled retry and pending diagnostic on dispose", async () => {
+    const h = harness();
+    replyReady(h.worker);
+    vi.mocked(fetch).mockImplementation(() => new Promise(() => {}));
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    h.registration.update.mockRejectedValue(new TypeError("network"));
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(250);
+    const signal = vi.mocked(fetch).mock.calls[0][1]?.signal;
+    h.port.dispose();
+    await vi.advanceTimersByTimeAsync(60_000);
+    assert.equal(signal?.aborted, true);
+    assert.equal(h.registration.update.mock.calls.length, 1);
+    assert.equal(h.errors.length, 0);
+  });
+
+  it("cancels a queued initial update on stop and does not carry it to a new session", async () => {
+    const h = harness();
+    replyReady(h.worker);
+    const stop = h.port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    window.dispatchEvent(new Event("online"));
+    stop();
+    h.port.start();
+    await vi.advanceTimersByTimeAsync(10_000);
+    assert.equal(h.registration.update.mock.calls.length, 0);
+    assert.equal(h.errors.length, 0);
   });
 });

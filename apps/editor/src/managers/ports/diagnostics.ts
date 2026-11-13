@@ -186,3 +186,14 @@ export interface DiagnosticsPort {
   /** Hosts without file downloads may supply a report for an in-page viewer. */
   readReport?(): Promise<string>;
 }
+
+/** Fixed, privacy-safe outcomes of a single same-origin worker-script probe. */
+export enum PwaScriptProbeOutcome {
+  Http = "http",
+  Redirect = "redirect",
+  Network = "network",
+  Timeout = "timeout",
+  Cancelled = "cancelled",
+  Offline = "offline",
+  Unavailable = "unavailable",
+}

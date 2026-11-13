@@ -12,6 +12,8 @@ import {
   type PwaPort,
 } from "$/managers/ports/pwa";
 
+import { diagnoseWorkerScript, type WorkerScriptDiagnostic } from "./worker-script-diagnostic";
+
 const MESSAGE_TIMEOUT_MS = 15_000;
 const PREPARATION_TIMEOUT_MS = 120_000;
 const STANDALONE_MEDIA_QUERY = "(display-mode: standalone)";
@@ -19,6 +21,18 @@ const WINDOW_CONTROLS_OVERLAY_MEDIA_QUERY = "(display-mode: window-controls-over
 const MINIMUM_SAFARI_INSTALL_VERSION = 17;
 const SERVICE_WORKER_FILENAME = "sw.js";
 const MAX_STATUS_ATTEMPTS = 2;
+const ONLINE_DEBOUNCE_MS = 250;
+const UPDATE_RETRY_DELAYS_MS = [1_000, 4_000] as const;
+
+interface UpdateCycle {
+  session: number;
+  attempts: number;
+  running: boolean;
+  timer: ReturnType<typeof setTimeout> | null;
+  delay: number;
+  diagnostic: Promise<WorkerScriptDiagnostic> | null;
+  diagnosticAbort: AbortController;
+}
 
 type PwaDetails = Readonly<Record<string, string | number | boolean | null>>;
 
@@ -231,7 +245,11 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
   let repairAttempts = new WeakSet<ServiceWorker>();
   let pendingPreparations = new WeakMap<ServiceWorker, Promise<void>>();
   let preparationTimeout: ReturnType<typeof setTimeout> | null = null;
-  let workerVersion: string | null = null;
+  let workerVersions = new WeakMap<ServiceWorker, string>();
+  const knownWorkerVersion = () => {
+    const worker = navigator.serviceWorker.controller ?? registration?.active;
+    return worker ? (workerVersions.get(worker) ?? null) : null;
+  };
   const removers: Array<() => void> = [];
 
   function patch(patch: Partial<PwaPlatformState>): void {
@@ -258,7 +276,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       active_state: registration?.active?.state ?? null,
       installing_state: registration?.installing?.state ?? null,
       waiting_state: registration?.waiting?.state ?? null,
-      worker_version: workerVersion,
+      worker_version: knownWorkerVersion(),
     };
   }
 
@@ -328,7 +346,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       details.controlled = Boolean(controller);
       details.controller_state = controller?.state ?? null;
       details.script_path = controller ? new URL(controller.scriptURL).pathname : null;
-      details.worker_version = workerVersion;
+      details.worker_version = knownWorkerVersion();
       if (controller && path) {
         const answer = await queryWorkerResource(controller, path);
         if (answer) {
@@ -355,7 +373,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       failure,
       status: typeof data.status === "number" ? data.status : null,
       resource: typeof data.path === "string" ? assetPath(data.path) : null,
-      worker_version: typeof data.version === "string" ? data.version : workerVersion,
+      worker_version: typeof data.version === "string" ? data.version : knownWorkerVersion(),
     });
   }
 
@@ -411,7 +429,6 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     };
     if (!isCurrentWorker()) return;
     clearPreparationTimeout();
-    workerVersion = null;
     let attempt = 0;
     try {
       let status: OfflineResponse;
@@ -433,7 +450,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
         }
       }
       if (!isCurrentWorker()) return;
-      workerVersion = typeof status.version === "string" ? status.version : null;
+      const observedVersion = status.version;
       if (!status.ready && !repairAttempts.has(worker)) {
         repairAttempts.add(worker);
         patch({ offlineStatus: PwaOfflineStatus.Preparing });
@@ -444,7 +461,6 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
         );
       }
       if (!isCurrentWorker()) return;
-      workerVersion = typeof status.version === "string" ? status.version : workerVersion;
       if (!status.ready)
         throw withPwaDetails(new Error("The offline application cache is not ready."), {
           stage: PwaDiagnosticStage.Prepare,
@@ -452,6 +468,8 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
           worker_state: worker.state,
         });
       clearPreparationTimeout();
+      const version = typeof status.version === "string" ? status.version : observedVersion;
+      if (typeof version === "string") workerVersions.set(worker, version);
       verifiedWorker = worker;
       patch({ offlineStatus: PwaOfflineStatus.Ready });
     } catch (error) {
@@ -495,6 +513,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     changed();
   }
 
+  let updateCycle: UpdateCycle | null = null;
   let pendingRegistration: { session: number; promise: Promise<void> } | null = null;
   let pendingUpdate: {
     session: number;
@@ -534,11 +553,11 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
           await current.update();
         } catch (error) {
           if (!isCurrentSession(expectedSession) || registration !== current) return;
-          // One guarded recovery from a detached registration; never recurse on fetch errors.
+          // Retain the existing single guarded detached-registration recovery.
           if (isInvalidStateError(error)) {
             registration = null;
             await register(expectedSession);
-          } else report(error, { stage: PwaDiagnosticStage.Update });
+          } else throw error;
         }
       }),
     };
@@ -548,6 +567,107 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     };
     void request.promise.then(finish, finish);
     return request.promise;
+  }
+
+  function usableOfflineWorker(): boolean {
+    const controller = navigator.serviceWorker.controller;
+    return (
+      !!controller &&
+      controller === verifiedWorker &&
+      controller.state === "activated" &&
+      state.offlineStatus === PwaOfflineStatus.Ready
+    );
+  }
+
+  function cancelUpdateCycle(): void {
+    const cycle = updateCycle;
+    updateCycle = null;
+    if (!cycle) return;
+    if (cycle.timer !== null) clearTimeout(cycle.timer);
+    cycle.diagnosticAbort.abort();
+  }
+
+  function scheduleUpdate(cycle: UpdateCycle): void {
+    if (
+      !isCurrentSession(cycle.session) ||
+      updateCycle !== cycle ||
+      cycle.running ||
+      cycle.timer !== null ||
+      !navigator.onLine
+    )
+      return;
+    cycle.timer = setTimeout(() => {
+      cycle.timer = null;
+      void runUpdateCycle(cycle);
+    }, cycle.delay);
+  }
+
+  async function runUpdateCycle(cycle: UpdateCycle): Promise<void> {
+    if (!isCurrentSession(cycle.session) || updateCycle !== cycle || !navigator.onLine) return;
+    const current = registration;
+    cycle.running = true;
+    cycle.attempts++;
+    const active = navigator.serviceWorker.controller ?? current?.active;
+    if (active) void prepareOffline(active, cycle.session);
+    try {
+      await update(cycle.session);
+      if (updateCycle === cycle) cancelUpdateCycle();
+    } catch (error) {
+      if (!isCurrentSession(cycle.session) || updateCycle !== cycle) return;
+      if (registration !== current) {
+        cancelUpdateCycle();
+        return;
+      }
+      const retryable =
+        error instanceof TypeError || (error instanceof Error && error.name === "NetworkError");
+      const exhausted = cycle.attempts > UPDATE_RETRY_DELAYS_MS.length;
+      // A single bounded, same-origin diagnostic per cycle. It never drives SW state.
+      cycle.diagnostic ??= diagnoseWorkerScript(options.baseUrl, cycle.diagnosticAbort.signal);
+      const diagnostic = await cycle.diagnostic;
+      if (!isCurrentSession(cycle.session) || updateCycle !== cycle) return;
+      if (registration !== current) {
+        cancelUpdateCycle();
+        return;
+      }
+      const usable = usableOfflineWorker();
+      const details = {
+        stage: PwaDiagnosticStage.Update,
+        attempt: cycle.attempts,
+        retry_exhausted: exhausted,
+        usable_worker: usable,
+        ...diagnostic,
+      };
+      if (!retryable || exhausted || !usable) report(error, details);
+      else console.warn("pwa_update_retry", { ...diagnosticContext(), ...details });
+      if (!retryable || exhausted) cancelUpdateCycle();
+      else cycle.delay = UPDATE_RETRY_DELAYS_MS[cycle.attempts - 1];
+    } finally {
+      cycle.running = false;
+      if (updateCycle === cycle) scheduleUpdate(cycle);
+    }
+  }
+
+  function reconnected(expectedSession: number): void {
+    if (!isCurrentSession(expectedSession) || !navigator.onLine) return;
+    repairAttempts = new WeakSet();
+    updateCycle ??= {
+      session: expectedSession,
+      attempts: 0,
+      running: false,
+      timer: null,
+      delay: ONLINE_DEBOUNCE_MS,
+      diagnostic: null,
+      diagnosticAbort: new AbortController(),
+    };
+    // Repeated online notifications cannot reset the attempt budget or backoff.
+    scheduleUpdate(updateCycle);
+  }
+
+  function disconnected(): void {
+    if (!updateCycle) return;
+    if (updateCycle.timer !== null) clearTimeout(updateCycle.timer);
+    updateCycle.timer = null;
+    updateCycle.diagnosticAbort.abort();
   }
 
   async function performRegistration(expectedSession: number): Promise<void> {
@@ -633,6 +753,8 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
 
   function stopSession(): void {
     session++;
+    cancelUpdateCycle();
+    workerVersions = new WeakMap();
     pendingRegistration = null;
     pendingUpdate = null;
     verifiedWorker = null;
@@ -667,12 +789,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
           const controller = navigator.serviceWorker.controller;
           if (controller) void prepareOffline(controller, currentSession);
         };
-        const reconnected = () => {
-          repairAttempts = new WeakSet();
-          const active = navigator.serviceWorker.controller ?? registration?.active;
-          if (active) void prepareOffline(active, currentSession);
-          void update(currentSession);
-        };
+        const online = () => reconnected(currentSession);
         const visible = () => {
           if (
             document.visibilityState !== "visible" ||
@@ -684,12 +801,14 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
         };
         navigator.serviceWorker.addEventListener("controllerchange", controllerChanged);
         navigator.serviceWorker.addEventListener("message", workerMessage);
-        window.addEventListener("online", reconnected);
+        window.addEventListener("online", online);
+        window.addEventListener("offline", disconnected);
         document.addEventListener("visibilitychange", visible);
         removers.push(() => {
           navigator.serviceWorker.removeEventListener("controllerchange", controllerChanged);
           navigator.serviceWorker.removeEventListener("message", workerMessage);
-          window.removeEventListener("online", reconnected);
+          window.removeEventListener("online", online);
+          window.removeEventListener("offline", disconnected);
           document.removeEventListener("visibilitychange", visible);
         });
         // A returning visit already has a controller; prepare from it immediately so a slow

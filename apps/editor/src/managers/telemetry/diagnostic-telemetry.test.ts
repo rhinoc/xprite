@@ -201,3 +201,46 @@ describe("diagnostic telemetry privacy", () => {
     );
   });
 });
+
+describe("worker script probe telemetry", () => {
+  it("projects only bounded diagnostic outcome/status and recovery policy fields", () => {
+    assert.deepEqual(
+      telemetryDiagnosticDetails(
+        record({
+          pwa: {
+            stage: "update",
+            attempt: 3,
+            retry_exhausted: true,
+            usable_worker: true,
+            script_probe_outcome: "http",
+            script_probe_status: 503,
+            script_probe_url: "https://private.test/sw.js?secret=1",
+            script_probe_headers: { authorization: "secret" },
+            script_probe_body: "private",
+            script_probe_error: "private",
+          },
+        }),
+      ),
+      {
+        pwa_stage: "update",
+        pwa_attempt: 3,
+        pwa_retry_exhausted: true,
+        pwa_usable_worker: true,
+        pwa_script_probe_outcome: "http",
+        pwa_script_probe_status: 503,
+      },
+    );
+    assert.deepEqual(
+      telemetryDiagnosticDetails(
+        record({
+          pwa: {
+            stage: "update",
+            script_probe_outcome: "private text",
+            script_probe_status: -1,
+          },
+        }),
+      ),
+      { pwa_stage: "update" },
+    );
+  });
+});
