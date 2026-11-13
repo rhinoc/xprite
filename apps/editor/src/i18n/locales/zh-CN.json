@@ -2557,5 +2557,9 @@
   "normal.mask.influence": "遮罩强度",
   "normal.mask": "光照遮罩",
   "ui.file.write.download.fallback": "原位置保存失败，已发起副本下载。",
-  "ui.file.write.download.failed": "原位置保存失败，下载也未能启动。请尝试另存为。"
+  "ui.file.write.download.failed": "原位置保存失败，下载也未能启动。请尝试另存为。",
+  "ui.file.output.recovery.failed": "文件已保存，但本地恢复副本未保存。请保持文档打开。",
+  "ui.file.download.recovery.failed": "已发起副本下载，但本地恢复副本未保存。请保持文档打开。",
+  "ui.file.output.receipt.missing": "文件保存完成，但缺少输出确认信息",
+  "ui.recovery.workspace.failed.status": "其他文档或工作区布局尚未保存在此浏览器中。"
 }

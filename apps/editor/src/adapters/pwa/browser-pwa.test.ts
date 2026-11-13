@@ -364,3 +364,120 @@ describe("stale chunk reporting", () => {
     assert.equal(details?.worker_version, "release-9");
   });
 });
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason: unknown) => void;
+  const promise = new Promise<T>((yes, no) => {
+    resolve = yes;
+    reject = no;
+  });
+  return { promise, resolve, reject };
+}
+function replyReady(worker: ReturnType<typeof harness>["worker"]) {
+  worker.postMessage.mockImplementation((_message, transfer) =>
+    transfer[0].postMessage({ type: STATUS_MESSAGE, ready: true, version: "fixture" }),
+  );
+}
+
+describe("SW request lifetime", () => {
+  it("coalesces startup/reconnect registration and ignores rejection after disposal", async () => {
+    const { port, worker, serviceWorker, errors } = harness();
+    replyReady(worker);
+    const pending = deferred<Awaited<ReturnType<typeof serviceWorker.register>>>();
+    serviceWorker.register.mockImplementation(() => pending.promise);
+    port.start();
+    for (let i = 0; i < 10; i++) window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(serviceWorker.register.mock.calls.length, 1);
+    port.dispose();
+    pending.reject(new TypeError("Failed to fetch"));
+    await vi.advanceTimersByTimeAsync(60_000);
+    assert.equal(serviceWorker.register.mock.calls.length, 1);
+    assert.equal(errors.length, 0);
+  });
+
+  it("coalesces concurrent updates, preserves genuine failure and does not self-retry", async () => {
+    const { port, worker, serviceWorker, errors } = harness();
+    replyReady(worker);
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const registration = await serviceWorker.register.mock.results[0].value;
+    const pending = deferred<void>();
+    registration.update.mockImplementationOnce(() => pending.promise);
+    for (let i = 0; i < 10; i++) window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(registration.update.mock.calls.length, 1);
+    pending.reject(new TypeError("Failed to fetch"));
+    await vi.advanceTimersByTimeAsync(60_000);
+    assert.equal(registration.update.mock.calls.length, 1);
+    assert.equal(serviceWorker.register.mock.calls.length, 1);
+    assert.equal(errors.filter((e) => e.diagnosticDetails?.pwa?.stage === "update").length, 1);
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(registration.update.mock.calls.length, 2, "a later explicit reconnect may retry");
+  });
+
+  for (const name of ["InvalidStateError", "TypeError"])
+    it(`ignores late ${name} update failure from a stopped session`, async () => {
+      const { port, worker, serviceWorker, errors } = harness();
+      replyReady(worker);
+      const stop = port.start();
+      await vi.advanceTimersByTimeAsync(0);
+      const registration = await serviceWorker.register.mock.results[0].value;
+      const pending = deferred<void>();
+      registration.update.mockImplementationOnce(() => pending.promise);
+      window.dispatchEvent(new Event("online"));
+      await vi.advanceTimersByTimeAsync(0);
+      stop();
+      port.start();
+      await vi.advanceTimersByTimeAsync(0);
+      pending.reject(Object.assign(new Error("late result"), { name }));
+      await vi.advanceTimersByTimeAsync(0);
+      assert.equal(serviceWorker.register.mock.calls.length, 2);
+      assert.equal(errors.length, 0);
+      assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Ready);
+    });
+
+  it("does not install a registration resolved after its session stopped", async () => {
+    const { port, worker, serviceWorker } = harness();
+    replyReady(worker);
+    const original = await serviceWorker.register();
+    serviceWorker.register.mockClear();
+    const pending = deferred<typeof original>();
+    const replacement = Object.assign(new EventTarget(), {
+      ...original,
+      update: vi.fn(async () => {}),
+    });
+    serviceWorker.register
+      .mockImplementationOnce(() => pending.promise)
+      .mockResolvedValue(replacement);
+    const stop = port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    stop();
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    pending.resolve(original);
+    await vi.advanceTimersByTimeAsync(0);
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(original.update.mock.calls.length, 0);
+    assert.equal(replacement.update.mock.calls.length, 1);
+  });
+
+  it("reports SecurityError once without retrying or invalidating a verified controller", async () => {
+    const { port, worker, serviceWorker, errors } = harness();
+    replyReady(worker);
+    const pending = deferred<Awaited<ReturnType<typeof serviceWorker.register>>>();
+    serviceWorker.register.mockImplementation(() => pending.promise);
+    port.start();
+    await vi.advanceTimersByTimeAsync(0);
+    assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Ready);
+    pending.reject(new DOMException("blocked by policy", "SecurityError"));
+    await vi.advanceTimersByTimeAsync(60_000);
+    assert.equal(serviceWorker.register.mock.calls.length, 1);
+    assert.equal(errors.length, 1);
+    assert.equal(errors[0].name, "SecurityError");
+    assert.equal(port.getState().offlineStatus, PwaOfflineStatus.Ready);
+  });
+});

@@ -2557,5 +2557,9 @@
   "normal.mask.influence": "Light Mask Influence",
   "normal.mask": "Light Mask",
   "ui.file.write.download.fallback": "The selected location could not be saved. A copy download was started.",
-  "ui.file.write.download.failed": "The file could not be saved to the selected location or downloaded. Try Save As."
+  "ui.file.write.download.failed": "The file could not be saved to the selected location or downloaded. Try Save As.",
+  "ui.file.output.recovery.failed": "The file was saved. Local recovery is not saved; keep this document open.",
+  "ui.file.download.recovery.failed": "A copy download was started. Local recovery is not saved; keep this document open.",
+  "ui.file.output.receipt.missing": "File save completed without an output receipt",
+  "ui.recovery.workspace.failed.status": "Other documents or the workspace layout are not saved in this browser."
 }

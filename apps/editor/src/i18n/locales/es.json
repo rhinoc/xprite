@@ -2557,5 +2557,9 @@
   "normal.mask.influence": "Influencia de la máscara",
   "normal.mask": "Máscara de luz",
   "ui.file.write.download.fallback": "No se pudo guardar en la ubicación seleccionada. Se inició la descarga de una copia.",
-  "ui.file.write.download.failed": "No se pudo guardar en la ubicación seleccionada ni descargar el archivo. Prueba Guardar como."
+  "ui.file.write.download.failed": "No se pudo guardar en la ubicación seleccionada ni descargar el archivo. Prueba Guardar como.",
+  "ui.file.output.recovery.failed": "El archivo se guardó, pero la recuperación local no. Mantén este documento abierto.",
+  "ui.file.download.recovery.failed": "Se inició la descarga de una copia, pero la recuperación local no se guardó. Mantén este documento abierto.",
+  "ui.file.output.receipt.missing": "El guardado del archivo terminó sin confirmación de salida",
+  "ui.recovery.workspace.failed.status": "Otros documentos o la disposición del espacio de trabajo no están guardados en este navegador."
 }

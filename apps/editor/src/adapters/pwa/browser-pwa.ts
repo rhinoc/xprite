@@ -399,6 +399,8 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     windowControlsOverlay.addEventListener("change", synchronizeInstallation);
   }
 
+  let verifiedWorker: ServiceWorker | null = null;
+
   async function readAndPrepareOffline(
     worker: ServiceWorker,
     expectedSession: number,
@@ -450,10 +452,12 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
           worker_state: worker.state,
         });
       clearPreparationTimeout();
+      verifiedWorker = worker;
       patch({ offlineStatus: PwaOfflineStatus.Ready });
     } catch (error) {
       if (!isCurrentWorker()) return;
       clearPreparationTimeout();
+      if (verifiedWorker === worker) verifiedWorker = null;
       patch({ offlineStatus: PwaOfflineStatus.Failed });
       const pwa = (error as Error & { diagnosticDetails?: { pwa?: PwaDetails } }).diagnosticDetails
         ?.pwa;
@@ -491,10 +495,71 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     changed();
   }
 
-  async function register(expectedSession: number): Promise<void> {
+  let pendingRegistration: { session: number; promise: Promise<void> } | null = null;
+  let pendingUpdate: {
+    session: number;
+    registration: ServiceWorkerRegistration;
+    promise: Promise<void>;
+  } | null = null;
+  const isCurrentSession = (expectedSession: number) =>
+    !disposed && session === expectedSession && references > 0;
+
+  function register(expectedSession: number): Promise<void> {
+    if (!isCurrentSession(expectedSession)) return Promise.resolve();
+    if (pendingRegistration?.session === expectedSession) return pendingRegistration.promise;
+    const request = {
+      session: expectedSession,
+      promise: Promise.resolve().then(() => performRegistration(expectedSession)),
+    };
+    pendingRegistration = request;
+    const finish = () => {
+      if (pendingRegistration === request) pendingRegistration = null;
+    };
+    void request.promise.then(finish, finish);
+    return request.promise;
+  }
+
+  function update(expectedSession: number): Promise<void> {
+    if (!isCurrentSession(expectedSession)) return Promise.resolve();
+    const current = registration;
+    if (!current) return register(expectedSession);
+    if (pendingUpdate?.session === expectedSession && pendingUpdate.registration === current)
+      return pendingUpdate.promise;
+    const request = {
+      session: expectedSession,
+      registration: current,
+      promise: Promise.resolve().then(async () => {
+        if (!isCurrentSession(expectedSession) || registration !== current) return;
+        try {
+          await current.update();
+        } catch (error) {
+          if (!isCurrentSession(expectedSession) || registration !== current) return;
+          // One guarded recovery from a detached registration; never recurse on fetch errors.
+          if (isInvalidStateError(error)) {
+            registration = null;
+            await register(expectedSession);
+          } else report(error, { stage: PwaDiagnosticStage.Update });
+        }
+      }),
+    };
+    pendingUpdate = request;
+    const finish = () => {
+      if (pendingUpdate === request) pendingUpdate = null;
+    };
+    void request.promise.then(finish, finish);
+    return request.promise;
+  }
+
+  async function performRegistration(expectedSession: number): Promise<void> {
+    if (!isCurrentSession(expectedSession)) return;
     const startedAt = performance.now();
     let registered = false;
-    patch({ offlineStatus: PwaOfflineStatus.Preparing });
+    if (
+      state.offlineStatus !== PwaOfflineStatus.Ready ||
+      !verifiedWorker ||
+      verifiedWorker !== navigator.serviceWorker.controller
+    )
+      patch({ offlineStatus: PwaOfflineStatus.Preparing });
     clearPreparationTimeout();
     // A returning visit already has a controller; start() prepares from it and register may hang
     // harmlessly. Only budget activation when this tab still needs a worker to appear.
@@ -528,6 +593,9 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       );
       if (session !== expectedSession || disposed) return;
       registered = true;
+      // Registration network IO is complete; cache preparation has its own single-flight.
+      // A detached registration must be replaceable even if that preparation is still pending.
+      if (pendingRegistration?.session === expectedSession) pendingRegistration = null;
       registration = current;
       const updateFound = () => {
         if (session !== expectedSession || disposed) return;
@@ -549,7 +617,13 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
     } catch (error) {
       if (session !== expectedSession || disposed) return;
       clearPreparationTimeout();
-      patch({ offlineStatus: PwaOfflineStatus.Failed });
+      // A failed refresh must not invalidate an already verified active controller.
+      if (
+        state.offlineStatus !== PwaOfflineStatus.Ready ||
+        !verifiedWorker ||
+        verifiedWorker !== navigator.serviceWorker.controller
+      )
+        patch({ offlineStatus: PwaOfflineStatus.Failed });
       report(error, {
         stage: PwaDiagnosticStage.Register,
         elapsed_ms: Math.round(performance.now() - startedAt),
@@ -559,6 +633,9 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
 
   function stopSession(): void {
     session++;
+    pendingRegistration = null;
+    pendingUpdate = null;
+    verifiedWorker = null;
     clearPreparationTimeout();
     for (const remove of removers.splice(0)) remove();
     pendingPreparations = new WeakMap();
@@ -594,18 +671,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
           repairAttempts = new WeakSet();
           const active = navigator.serviceWorker.controller ?? registration?.active;
           if (active) void prepareOffline(active, currentSession);
-          if (registration)
-            void registration.update().catch((error) => {
-              // The registration was unregistered or lost its worker (storage cleared, browser
-              // cleanup). That is expected after a long offline period: register again.
-              if (isInvalidStateError(error)) {
-                registration = null;
-                void register(currentSession);
-                return;
-              }
-              report(error, { stage: PwaDiagnosticStage.Update });
-            });
-          else void register(currentSession);
+          void update(currentSession);
         };
         const visible = () => {
           if (

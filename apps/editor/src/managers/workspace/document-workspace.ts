@@ -524,7 +524,10 @@ export class DocumentWorkspace {
     this.paneTabs.set("main", [...this.order]);
     this.paneActiveIds.set("main", this.activeId);
     this.snapshot = this.buildSnapshot();
-    this.unsubscribeRecovery = this.recovery.subscribe(() => this.notifyIfTabsChanged());
+    this.unsubscribeRecovery = this.recovery.subscribe(() => {
+      this.pruneFileOutputCheckpoints();
+      this.notifyIfTabsChanged();
+    });
     try {
       this.touchInputPreferences = normalizeTouchInputPreferences(
         this.preferenceStorage?.readJson(TOUCH_INPUT_PREFERENCE_KEY),
@@ -2770,6 +2773,94 @@ export class DocumentWorkspace {
         this.recovery.getSnapshot().error ??
         new Error("Workspace changes are still waiting to be saved")
       );
+  }
+
+  private readonly partialFileOutputs = new Map<
+    string,
+    { projectId: string | null; downloaded: boolean }
+  >();
+
+  private pruneFileOutputCheckpoints() {
+    for (const [documentId, output] of this.partialFileOutputs) {
+      const slot = this.slots.find(
+        (item) => item.documentId === documentId && !this.closed.has(item.id),
+      );
+      if (
+        !slot ||
+        output.projectId !== this.getProjectId(slot.id) ||
+        (!this.hasPendingDraft(slot.core) && !this.recovery.isSlotCheckpointUnpersisted(documentId))
+      )
+        this.partialFileOutputs.delete(documentId);
+    }
+  }
+
+  recordFileOutputCheckpoint(
+    slotId: string,
+    downloaded: boolean,
+    checkpoint: "saved" | "pending" | "failed",
+  ) {
+    const slot = this.slots.find((item) => item.id === slotId && !this.closed.has(item.id));
+    if (!slot) return;
+    if (checkpoint === "saved") this.partialFileOutputs.delete(slot.documentId);
+    else
+      this.partialFileOutputs.set(slot.documentId, {
+        projectId: this.getProjectId(slot.id),
+        downloaded,
+      });
+    this.notify();
+  }
+
+  /** Persistent, document-scoped status; ordinary transient notices must not hide it. */
+  getFileOutputRecoveryProblem(slotId: string): string | undefined {
+    const slot = this.slots.find((item) => item.id === slotId && !this.closed.has(item.id));
+    if (!slot) return;
+    const output = this.partialFileOutputs.get(slot.documentId);
+    if (!output || output.projectId !== this.getProjectId(slot.id)) return;
+    if (
+      !this.hasPendingDraft(slot.core) &&
+      !this.recovery.isSlotCheckpointUnpersisted(slot.documentId)
+    )
+      return;
+    return tUi(
+      output.downloaded ? "ui.file.download.recovery.failed" : "ui.file.output.recovery.failed",
+    );
+  }
+
+  /** Checkpoint only the acknowledged output's document, without committing newer live edits.
+   * Workspace manifest/other documents retain separate unload and close protections. */
+  async checkpointSavedFile(slotId: string): Promise<"saved" | "pending" | "failed"> {
+    if (!this.ready || this.disposed) throw new Error("Workspace is not ready to save");
+    const slot = this.slots.find((item) => item.id === slotId && !this.closed.has(item.id));
+    if (!slot) throw new Error("Document is no longer open");
+    const runtimeId = slot.core.getSnapshot().document?.id;
+    let checkpointed: boolean;
+    try {
+      checkpointed = await this.recovery.checkpointSlot(slot.documentId);
+    } catch (reason) {
+      const state = this.recovery.getSnapshot();
+      // Only this document's recorded storage failure is a partial output success.
+      if (reason == null || reason !== state.documents[slot.documentId]?.error) throw reason;
+      if (this.disposed || this.closed.has(slotId)) throw reason;
+      try {
+        this.onSessionError?.(reason, SessionOperation.Save);
+      } catch {
+        // An optional diagnostic observer cannot undo an acknowledged file output.
+      }
+      return "failed";
+    }
+    if (this.disposed || this.closed.has(slotId)) throw new Error("Document is no longer open");
+    await this.flushProjectAttachments();
+    if (
+      this.disposed ||
+      this.closed.has(slotId) ||
+      slot.core.getSnapshot().document?.id !== runtimeId
+    )
+      throw new Error("Document is no longer open");
+    return this.hasPendingDraft(slot.core) ||
+      !checkpointed ||
+      this.recovery.isSlotCheckpointUnpersisted(slot.documentId)
+      ? "pending"
+      : "saved";
   }
 
   async saveInBrowser(slotId: string) {
