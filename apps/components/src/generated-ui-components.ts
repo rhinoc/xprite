@@ -6409,6 +6409,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: false,
       },
       {
+        name: "selectOnFocus",
+        kind: "boolean",
+        required: false,
+        type: "boolean | undefined",
+        hostProp: false,
+      },
+      {
         name: "title",
         kind: "string",
         required: false,
@@ -6755,6 +6762,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         kind: "callback",
         required: false,
         type: "(() => void) | undefined",
+        hostProp: false,
+      },
+      {
+        name: "selectOnFocus",
+        kind: "boolean",
+        required: false,
+        type: "boolean | undefined",
         hostProp: false,
       },
       {

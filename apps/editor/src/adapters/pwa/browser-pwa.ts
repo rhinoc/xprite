@@ -265,7 +265,7 @@ export function createBrowserPwaPort(options: BrowserPwaOptions): PwaPort {
       verified_controller: hasVerifiedController(),
       status_pending: Boolean(
         navigator.serviceWorker.controller &&
-          pendingPreparations.has(navigator.serviceWorker.controller),
+        pendingPreparations.has(navigator.serviceWorker.controller),
       ),
     };
   }

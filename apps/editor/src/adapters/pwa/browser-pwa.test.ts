@@ -489,7 +489,6 @@ describe("SW request lifetime", () => {
   });
 });
 
-
 describe("SW update retries and diagnostics", () => {
   it("reports once after three failed retries and preserves the verified cache", async () => {
     const { port, worker, serviceWorker, errors } = harness();
