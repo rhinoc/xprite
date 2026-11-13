@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 import { afterEach, describe, it, vi } from "vitest";
 
-import { diagnoseWorkerScript } from "./worker-script-diagnostic";
+import { diagnoseWorkerScript } from "$/adapters/pwa/worker-script-diagnostic";
 
 function setup() {
   vi.useFakeTimers();

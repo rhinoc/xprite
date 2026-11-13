@@ -1,4 +1,8 @@
 import {
+  diagnoseWorkerScript,
+  type WorkerScriptDiagnostic,
+} from "$/adapters/pwa/worker-script-diagnostic";
+import {
   CHUNK_LOAD_FAILED_EVENT,
   failedChunkUrl,
   type ChunkLoadFailureDetail,
@@ -11,8 +15,6 @@ import {
   type PwaPlatformState,
   type PwaPort,
 } from "$/managers/ports/pwa";
-
-import { diagnoseWorkerScript, type WorkerScriptDiagnostic } from "./worker-script-diagnostic";
 
 const MESSAGE_TIMEOUT_MS = 15_000;
 const PREPARATION_TIMEOUT_MS = 120_000;
