@@ -2,7 +2,11 @@ import { MAX_DOCUMENT_PIXEL_BYTES } from "$/base/image-limits";
 import type { Rgba } from "$/base/primitives";
 import { cloneClipboardColorProfile } from "$/clipboard/image";
 import { cloneClipboardTileset, mergeClipboardTileset } from "$/clipboard/tile";
-import type { TimelineClipboard } from "$/clipboard/types";
+import {
+  TimelinePasteRejectionReason,
+  type TimelineClipboard,
+  type TimelinePastePlan,
+} from "$/clipboard/types";
 import { workingColorProfile } from "$/color/icc-profile";
 import type { AsepriteImageSamples } from "$/color/samples";
 import { cloneStoredPixelBuffer } from "$/document/pixel-storage";
@@ -12,7 +16,6 @@ import {
   adjustTimelineTags,
   isBackgroundLayer,
   layerAncestors,
-  layerEditable,
   MAX_TIMELINE_FRAMES,
   MAX_TIMELINE_LAYERS,
   type SpriteTimeline,
@@ -165,22 +168,34 @@ export function cloneTimelineClipboard(data: TimelineClipboard): TimelineClipboa
 }
 /** Timeline paste inserts frame ranges before the current frame, copies cels
  * starting at the active layer downwards, and appends copied layers at root. */
-function pasteTimelineClipboardRaw(t: SpriteTimeline, data: TimelineClipboard): SpriteTimeline {
-  if (!data.layers.length || !data.frames.length) return t;
+function pasteTimelineClipboardRaw(
+  t: SpriteTimeline,
+  data: TimelineClipboard,
+  sameDocument: boolean,
+): TimelinePastePlan {
+  const reject = (reason: TimelinePasteRejectionReason): TimelinePastePlan => ({
+    timeline: t,
+    result: { accepted: false, reason },
+  });
+  const accept = (timeline: SpriteTimeline): TimelinePastePlan => ({
+    timeline,
+    result: { accepted: true },
+  });
+  if (!data.layers.length || !data.frames.length)
+    return reject(TimelinePasteRejectionReason.EmptyRange);
   const images = new Set(t.frames.flatMap((f) => f.cels.flatMap((c) => (c ? [c.pixels] : []))));
   const added = new Set(data.frames.flatMap((f) => f.cels.flatMap((c) => (c ? [c.pixels] : []))));
   if (
     [...images, ...added].reduce((n, p) => n + p.width * p.height * 4, 0) > MAX_DOCUMENT_PIXEL_BYTES
   )
-    return t;
+    return reject(TimelinePasteRejectionReason.ImageBudgetExceeded);
   const clone = cloner(),
     clonePalette = paletteCloner();
   if (data.kind === "layers") {
-    if (
-      t.layers.length + data.layers.length > MAX_TIMELINE_LAYERS ||
-      data.frames.length > MAX_TIMELINE_FRAMES
-    )
-      return t;
+    if (t.layers.length + data.layers.length > MAX_TIMELINE_LAYERS)
+      return reject(TimelinePasteRejectionReason.LayerLimitExceeded);
+    if (data.frames.length > MAX_TIMELINE_FRAMES)
+      return reject(TimelinePasteRejectionReason.FrameLimitExceeded);
     const ids = new Set(t.layers.map((l) => l.id)),
       mapping = new Map<string, string>();
     for (const l of data.layers) {
@@ -221,16 +236,17 @@ function pasteTimelineClipboardRaw(t: SpriteTimeline, data: TimelineClipboard): 
     );
     const resultLayers = order.map((o) => (o.old >= 0 ? t.layers[o.old] : layers[o.fresh]));
     const selected = order.flatMap((o, i) => (o.fresh >= 0 ? [i] : []));
-    return {
+    return accept({
       ...t,
       layers: resultLayers,
       frames,
       activeLayer: selected[selected.length - 1],
       range: { kind: "layers", layers: selected, frames: frames.map((_, i) => i) },
-    };
+    });
   }
   if (data.kind === "frames") {
-    if (t.frames.length + data.frames.length > MAX_TIMELINE_FRAMES) return t;
+    if (t.frames.length + data.frames.length > MAX_TIMELINE_FRAMES)
+      return reject(TimelinePasteRejectionReason.FrameLimitExceeded);
     const mapped = data.frames.map((frame) => ({
       duration: frame.duration,
       palette: clonePalette(frame.palette),
@@ -246,23 +262,22 @@ function pasteTimelineClipboardRaw(t: SpriteTimeline, data: TimelineClipboard): 
     let result: SpriteTimeline = { ...t, frames };
     for (let i = 0; i < mapped.length; i++)
       result = adjustTimelineTags(result, t.activeFrame + i, 1);
-    return {
+    return accept({
       ...result,
       range: {
         kind: "frames",
         frames: mapped.map((_, i) => t.activeFrame + i),
         layers: t.layers.map((_, i) => i),
       },
-    };
+    });
   }
-  if (
-    t.activeFrame + data.frames.length > MAX_TIMELINE_FRAMES ||
-    t.activeLayer + 1 < data.layers.length
-  )
-    return t;
-  const first = t.activeLayer - data.layers.length + 1;
-  const targets = data.layers.map((_, i) => first + i);
-  if (targets.some((i) => !layerEditable(t, i) || isBackgroundLayer(t.layers[i]))) return t;
+  if (t.activeFrame + data.frames.length > MAX_TIMELINE_FRAMES)
+    return reject(TimelinePasteRejectionReason.FrameLimitExceeded);
+  if (sameDocument && t.activeLayer + 1 < data.layers.length)
+    return reject(TimelinePasteRejectionReason.InsufficientTargetLayers);
+  const destinationLayerCount = Math.min(data.layers.length, t.activeLayer + 1);
+  const first = t.activeLayer - destinationLayerCount + 1;
+  const targets = Array.from({ length: destinationLayerCount }, (_, i) => first + i);
   const frames = t.frames.map((frame) => ({ ...frame, cels: [...frame.cels] }));
   while (frames.length < t.activeFrame + data.frames.length)
     frames.push({
@@ -270,27 +285,35 @@ function pasteTimelineClipboardRaw(t: SpriteTimeline, data: TimelineClipboard): 
       palette: frames[frames.length - 1].palette,
       cels: t.layers.map(() => null),
     });
-  data.frames.forEach((frame, i) =>
-    frame.cels.forEach((cel, l) => {
-      frames[t.activeFrame + i].cels[first + l] = clone(cel);
-    }),
-  );
-  return {
+  data.frames.forEach((frame, frameOffset) => {
+    for (let sourceLayer = 0; sourceLayer < destinationLayerCount; sourceLayer++) {
+      const targetLayer = first + sourceLayer;
+      if (t.layers[targetLayer].kind === "group" || data.layers[sourceLayer].kind === "group")
+        continue;
+      frames[t.activeFrame + frameOffset].cels[targetLayer] = clone(frame.cels[sourceLayer]);
+    }
+  });
+  return accept({
     ...t,
     frames,
     range: { kind: "cels", frames: data.frames.map((_, i) => t.activeFrame + i), layers: targets },
-  };
+  });
 }
 
 /** Cross-document ids are local: clone Tilesets for new layers and remap tile
  * contents into existing layer Tilesets for cel/frame ranges. */
-export function pasteTimelineClipboard(
+export function pasteTimelineClipboardWithResult(
   t: SpriteTimeline,
   input: TimelineClipboard,
-): SpriteTimeline {
+  sameDocument = false,
+): TimelinePastePlan {
+  const reject = (reason: TimelinePasteRejectionReason): TimelinePastePlan => ({
+    timeline: t,
+    result: { accepted: false, reason },
+  });
   const hasTiles = input.layers.some((l) => l.kind === "tilemap");
   if (!hasTiles && !t.layers.some((l) => l.kind === "tilemap"))
-    return pasteTimelineClipboardRaw(t, input);
+    return pasteTimelineClipboardRaw(t, input, sameDocument);
   let data = cloneTimelineClipboard(input),
     sets = [...(t.tilesets ?? [])];
   if (data.kind === "layers") {
@@ -319,7 +342,7 @@ export function pasteTimelineClipboard(
         source = data.layers[li];
       if (!target || target.kind === "group" || source.kind === "group") continue;
       if (target.kind === "tilemap" && source.kind !== "tilemap")
-        throw new Error("Convert image layers to Tilemap before pasting cels");
+        return reject(TimelinePasteRejectionReason.IncompatibleTilemapLayer);
       if (source.kind !== "tilemap") continue;
       if (target.kind !== "tilemap") {
         data = {
@@ -360,6 +383,15 @@ export function pasteTimelineClipboard(
     }
   }
   const staging = { ...t, tilesets: sets },
-    result = pasteTimelineClipboardRaw(staging, data);
-  return result === staging ? t : refreshTilemapProjections(result);
+    plan = pasteTimelineClipboardRaw(staging, data, sameDocument);
+  if (!plan.result.accepted) return reject(plan.result.reason);
+  return { ...plan, timeline: refreshTilemapProjections(plan.timeline) };
+}
+
+export function pasteTimelineClipboard(
+  t: SpriteTimeline,
+  input: TimelineClipboard,
+  sameDocument = false,
+): SpriteTimeline {
+  return pasteTimelineClipboardWithResult(t, input, sameDocument).timeline;
 }

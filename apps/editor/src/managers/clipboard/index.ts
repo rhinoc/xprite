@@ -19,6 +19,7 @@ import {
 import {
   cloneTimelineClipboard,
   type TimelineClipboard,
+  type TimelinePasteRejectionReason,
   type TimelineRange,
 } from "@xprite/editor-core";
 import { effectiveLayerVisible, MAX_TIMELINE_LAYERS } from "@xprite/editor-core";
@@ -66,6 +67,11 @@ export class ImageClipboard {
    */
   private systemClipboardReadable = false;
   private timeline: TimelineClipboard | null = null;
+  private timelineCopyOrigin: {
+    coreIdentity: symbol;
+    documentId: number | undefined;
+  } | null = null;
+  private readonly coreIdentities = new WeakMap<RasterEditor, symbol>();
   private timelineCopySource: {
     core: RasterEditor;
     documentId: number | undefined;
@@ -78,6 +84,14 @@ export class ImageClipboard {
   private timelineSourceCleared = false;
   private listeners = new Set<() => void>();
   private version = 0;
+  private coreIdentity(core: RasterEditor): symbol {
+    let identity = this.coreIdentities.get(core);
+    if (!identity) {
+      identity = Symbol();
+      this.coreIdentities.set(core, identity);
+    }
+    return identity;
+  }
   getVersion = () => this.version;
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -169,15 +183,30 @@ export class ImageClipboard {
       return undefined;
     return source.range;
   }
+  isTimelineCopyFrom(core: RasterEditor | null): boolean {
+    const source = this.timelineCopyOrigin;
+    const document = core?.getSnapshot().document;
+    return (
+      !!this.timeline &&
+      !!source &&
+      !!core &&
+      source.coreIdentity === this.coreIdentity(core) &&
+      source.documentId === document?.id
+    );
+  }
   dismissTimelineCopyRange() {
     if (!this.timelineCopySource) return;
-    this.clearTimelineCopySource();
+    this.clearTimelineCopyRange();
     this.publish();
   }
-  private clearTimelineCopySource() {
+  private clearTimelineCopyRange() {
     this.unsubscribeTimelineCopySource?.();
     this.unsubscribeTimelineCopySource = null;
     this.timelineCopySource = null;
+  }
+  private clearTimelineCopySource() {
+    this.clearTimelineCopyRange();
+    this.timelineCopyOrigin = null;
   }
   async copyTimeline(data: TimelineClipboard, core?: RasterEditor) {
     this.clearTimelineCopySource();
@@ -185,6 +214,8 @@ export class ImageClipboard {
     const document = core?.getSnapshot().document;
     const timeline = document?.timeline;
     const range = timeline?.range;
+    this.timelineCopyOrigin =
+      core && document ? { coreIdentity: this.coreIdentity(core), documentId: document.id } : null;
     this.timelineCopySource =
       core && timeline && range
         ? {
@@ -354,6 +385,7 @@ export interface ClipboardActionOptions {
   createDocument(image: ClipboardImage): void | Promise<void>;
   getViewport?(): { width: number; height: number };
   onError?(message: string): void;
+  onTimelinePasteRejected?(reason: TimelinePasteRejectionReason): void;
   clipboard?: ImageClipboard;
 }
 export function createClipboardActions(options: ClipboardActionOptions) {
@@ -563,11 +595,12 @@ export function createClipboardActions(options: ClipboardActionOptions) {
       const timeline =
         !image && !request.hasEventImage && target === "current" ? clipboard.getTimeline() : null;
       if (timeline) {
+        const sameDocument = clipboard.isTimelineCopyFrom(core);
         clipboard.dismissTimelineCopyRange();
-        const accepted = core?.clipboard.pasteTimelineClipboard(timeline) ?? false;
-        if (!accepted)
-          options.onError?.("This timeline range cannot be pasted at the current layer or frame.");
-        return accepted;
+        const result = core?.clipboard.pasteTimelineClipboardResult(timeline, sameDocument);
+        if (!result) return false;
+        if (!result.accepted) options.onTimelinePasteRejected?.(result.reason);
+        return result.accepted;
       }
       if (!image) return false;
       if (target === "sprite" || !core?.getSnapshot().document) {

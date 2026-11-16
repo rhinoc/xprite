@@ -102,7 +102,7 @@ describe("clipboard [feature-1-6]", () => {
     assert.equal(pasted.frames[1].cels[0].pixels, pasted.frames[2].cels[0].pixels);
     assert.notEqual(pasted.frames[1].cels[0].pixels, range.frames[0].cels[0].pixels);
     const locked = { ...timeline, layers: [layer("bottom"), layer("top", { locked: true })] };
-    assert.equal(pasteTimelineClipboard(locked, range), locked);
+    assert.notEqual(pasteTimelineClipboard(locked, range, true), locked);
     const frames = copyTimelineSelection(timeline, { kind: "frames", frames: [1], layers: [0] });
     const before = pasteTimelineClipboard(timeline, frames);
     assert.equal(before.frames.length, 3);
@@ -166,7 +166,7 @@ describe("clipboard [feature-1-6]", () => {
       clipboard: {
         copySelection: () => copy,
         copyTimelineSelection: () => null,
-        pasteTimelineClipboard: () => false,
+        pasteTimelineClipboardResult: () => ({ accepted: false, reason: "editor-busy" }),
         beginImagePaste: () => {
           staged++;
           return true;
@@ -194,7 +194,8 @@ describe("clipboard [feature-1-6]", () => {
       ...mock,
       clipboard: {
         ...mock.clipboard,
-        pasteTimelineClipboard: (data) => data.kind === "cels",
+        pasteTimelineClipboardResult: (data) =>
+          data.kind === "cels" ? { accepted: true } : { accepted: false, reason: "editor-busy" },
       },
     };
     assert.equal(await actions.paste(), true);
@@ -336,9 +337,9 @@ describe("clipboard [feature-1-6]", () => {
       ...eventCore,
       clipboard: {
         ...eventCore.clipboard,
-        pasteTimelineClipboard: () => {
+        pasteTimelineClipboardResult: () => {
           eventTimelinePastes++;
-          return true;
+          return { accepted: true };
         },
       },
     };

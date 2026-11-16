@@ -20,10 +20,14 @@ import {
 import { pasteTilemapClipboard } from "$/clipboard/tile";
 import {
   copyTimelineSelection as copyTimelineRange,
-  pasteTimelineClipboard as pasteTimelineRange,
+  pasteTimelineClipboardWithResult as pasteTimelineRange,
   type TimelineClipboard,
 } from "$/clipboard/timeline";
-import type { FloatingPaste } from "$/clipboard/types";
+import {
+  TimelinePasteRejectionReason,
+  type FloatingPaste,
+  type TimelinePasteResult,
+} from "$/clipboard/types";
 import { libreSpriteWorkingBrushColor } from "$/color/operations/color-mode";
 import type { AsepriteIndexWriter } from "$/color/types";
 import {
@@ -36,6 +40,8 @@ import { cloneEditorProject, type EditorProject } from "$/document/project";
 import type { EditorDocument } from "$/document/types";
 import type { ToolSettings } from "$/drawing/tool-settings";
 import {
+  AsepriteClipboardPreparationError,
+  AsepriteClipboardPreparationFailure,
   prepareImageClipboardForDocument,
   prepareTimelineClipboardForDocument,
   transformClipboardAsepriteSamples,
@@ -160,17 +166,37 @@ export class ClipboardController {
     return document ? copyTimelineRange(ensureTimeline(document)) : null;
   }
 
-  pasteTimelineClipboard(data: TimelineClipboard): boolean {
+  pasteTimelineClipboardResult(data: TimelineClipboard, sameDocument = false): TimelinePasteResult {
     const document = this.port.getDocument();
-    if (!document || !this.port.canPasteTimelineSelection()) return false;
+    if (!document) return { accepted: false, reason: TimelinePasteRejectionReason.NoDocument };
+    if (!this.port.canPasteTimelineSelection())
+      return { accepted: false, reason: TimelinePasteRejectionReason.EditorBusy };
     const before = ensureTimeline(document);
-    const next = pasteTimelineRange(before, prepareTimelineClipboardForDocument(data, document));
-    if (next === before) return false;
+    let prepared: TimelineClipboard;
+    try {
+      prepared = prepareTimelineClipboardForDocument(data, document);
+    } catch (error) {
+      if (
+        error instanceof AsepriteClipboardPreparationError &&
+        error.reason === AsepriteClipboardPreparationFailure.IncompatibleTilemapPalette
+      )
+        return {
+          accepted: false,
+          reason: TimelinePasteRejectionReason.IncompatibleTilemapPalette,
+        };
+      throw error;
+    }
+    const plan = pasteTimelineRange(before, prepared, sameDocument);
+    if (!plan.result.accepted) return plan.result;
     this.port.commitDocumentEdit("Paste Cels", (current) => {
-      current.timeline = next;
-      activateTimelineCel(current, next.activeFrame, next.activeLayer);
+      current.timeline = plan.timeline;
+      activateTimelineCel(current, plan.timeline.activeFrame, plan.timeline.activeLayer);
     });
-    return true;
+    return plan.result;
+  }
+
+  pasteTimelineClipboard(data: TimelineClipboard, sameDocument = false): boolean {
+    return this.pasteTimelineClipboardResult(data, sameDocument).accepted;
   }
 
   beginImagePaste(image: ClipboardImage, position?: Point): boolean {

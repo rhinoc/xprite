@@ -25,6 +25,20 @@ import {
   type SelectionTransform,
 } from "$/selection/transform";
 
+export enum AsepriteClipboardPreparationFailure {
+  IncompatibleTilemapPalette = "incompatible-tilemap-palette",
+}
+
+export class AsepriteClipboardPreparationError extends Error {
+  constructor(
+    readonly reason: AsepriteClipboardPreparationFailure,
+    message: string,
+  ) {
+    super(message);
+    this.name = "AsepriteClipboardPreparationError";
+  }
+}
+
 function convertPalette(
   palette: readonly Rgba[] | undefined,
   from: ClipboardImage["sourceProfile"],
@@ -247,7 +261,8 @@ export function prepareTimelineClipboardForDocument(
         const a = result.asepritePixels ?? result.pixels,
           b = converted.asepritePixels ?? converted.pixels;
         if (a.length !== b.length || a.some((v, i) => v !== b[i]))
-          throw new Error(
+          throw new AsepriteClipboardPreparationError(
+            AsepriteClipboardPreparationFailure.IncompatibleTilemapPalette,
             "This shared Tileset needs different tile samples in different frame palettes. Paste one frame at a time.",
           );
       } else result = converted;
