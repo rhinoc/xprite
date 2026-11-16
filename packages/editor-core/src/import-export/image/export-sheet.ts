@@ -266,7 +266,6 @@ function layoutSamples(
 }
 export function renderSpriteSheet(doc: EditorDocument, o: SpriteSheetOptions): SpriteSheetResult {
   if (
-    !/\.png$/i.test(o.name) ||
     ![
       SheetLayout.Horizontal,
       SheetLayout.Vertical,
@@ -275,7 +274,7 @@ export function renderSpriteSheet(doc: EditorDocument, o: SpriteSheetOptions): S
       SheetLayout.Packed,
     ].includes(o.layout)
   )
-    throw new Error("Sprite sheet output must be a PNG image.");
+    throw new RangeError("Invalid sprite sheet layout.");
   for (const n of [o.borderPadding, o.shapePadding, o.innerPadding])
     if (!Number.isInteger(n) || n < 0 || n > 4096)
       throw new RangeError("Invalid sprite sheet padding.");

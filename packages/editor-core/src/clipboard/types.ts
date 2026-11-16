@@ -2,7 +2,28 @@ import type { AsepriteImageSamples } from "$/base/image";
 import type { PixelBuffer, PixelMask, Point, Rgba } from "$/base/primitives";
 import type { AsepriteColorProfile, AsepriteTileset } from "$/import-export/aseprite/model";
 import type { TilemapImage } from "$/tilemap/types";
-import type { TimelineFrame, TimelineLayer, TimelineRange } from "$/timeline/types";
+import type { SpriteTimeline, TimelineFrame, TimelineLayer, TimelineRange } from "$/timeline/types";
+
+export enum TimelinePasteRejectionReason {
+  NoDocument = "no-document",
+  EditorBusy = "editor-busy",
+  EmptyRange = "empty-range",
+  ImageBudgetExceeded = "image-budget-exceeded",
+  LayerLimitExceeded = "layer-limit-exceeded",
+  FrameLimitExceeded = "frame-limit-exceeded",
+  InsufficientTargetLayers = "insufficient-target-layers",
+  IncompatibleTilemapLayer = "incompatible-tilemap-layer",
+  IncompatibleTilemapPalette = "incompatible-tilemap-palette",
+}
+
+export type TimelinePasteResult =
+  | { accepted: true }
+  | { accepted: false; reason: TimelinePasteRejectionReason };
+
+export interface TimelinePastePlan {
+  timeline: SpriteTimeline;
+  result: TimelinePasteResult;
+}
 
 export interface TilemapClipboard {
   map: TilemapImage;
