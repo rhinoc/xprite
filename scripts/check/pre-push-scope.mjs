@@ -60,6 +60,14 @@ const VISUAL_PREFIXES = [
 
 const VISUAL_EXACT = new Set(["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"]);
 
+/** Headless scopes inside visual-triggering packages: platform glue and diagnostics never paint. */
+const VISUAL_EXCLUDED_PREFIXES = [
+  "apps/editor/src/adapters/pwa/",
+  "apps/editor/src/adapters/telemetry/",
+  "apps/editor/src/adapters/diagnostics/",
+  "apps/editor/src/managers/telemetry/",
+];
+
 /** Code the unit suite covers. Pure docs / license pushes skip this. */
 const UNIT_PREFIXES = ["packages/", "apps/", "services/", "scripts/", "infra/"];
 
@@ -75,9 +83,16 @@ function matches(file, prefixes, exact) {
   return prefixes.some((prefix) => file === prefix || file.startsWith(prefix));
 }
 
+function visualAffects(file) {
+  // Tests never reach the rendered page.
+  if (/(?:^|\/)[^/]+\.test\.[^/]+$/.test(file)) return false;
+  if (VISUAL_EXCLUDED_PREFIXES.some((prefix) => file.startsWith(prefix))) return false;
+  return matches(file, VISUAL_PREFIXES, VISUAL_EXACT);
+}
+
 export function classifyFiles(files) {
   const list = [...new Set(files.filter(Boolean))];
-  const visual = list.some((file) => matches(file, VISUAL_PREFIXES, VISUAL_EXACT));
+  const visual = list.some(visualAffects);
   const site = visual || list.some((file) => matches(file, SITE_PREFIXES, SITE_EXACT));
   const unit = list.some((file) => matches(file, UNIT_PREFIXES, UNIT_EXACT));
   return { always: true, unit, site, visual, files: list };

@@ -3,6 +3,7 @@ import { exportDocumentSpriteSheet } from "$/managers/files/export-animation";
 import { ExporterGroup, type ExporterDefinition } from "$/managers/files/exporter-registry";
 import { tilesetExportSource } from "$/managers/files/tileset-export-source";
 import { colorProfileToSrgb, workingColorProfile } from "@xprite/editor-core/color";
+import { SheetLayout } from "@xprite/editor-core/import-export";
 import type { SpriteSheetOptions } from "@xprite/editor-core/import-export";
 
 export enum SheetExporterId {
@@ -18,7 +19,11 @@ export interface SheetExporterSource {
 export function normalizeSheetExportOptions(value: unknown): SpriteSheetOptions | null {
   if (!value || typeof value !== "object") return null;
   const options = value as SpriteSheetOptions;
-  return typeof options.name === "string" && typeof options.dataName === "string" ? options : null;
+  if (typeof options.name !== "string" || typeof options.dataName !== "string") return null;
+  return {
+    ...options,
+    layout: Object.values(SheetLayout).includes(options.layout) ? options.layout : SheetLayout.Rows,
+  };
 }
 
 export function sheetExporterDefinition(

@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import type { ExportExecutionPorts } from "$/managers/files/export-animation";
+import { tUi } from "$/i18n";
+import {
+  SpriteSheetOutputEncoderUnavailableError,
+  SpriteSheetOutputFormat,
+  UnsupportedSpriteSheetOutputFormatError,
+  type ExportExecutionPorts,
+} from "$/managers/files/export-animation";
 import type {
   ExporterContext,
   ExporterResult,
@@ -38,6 +44,7 @@ interface DocumentOutputWorkflowOptions {
   canStartInteraction(): boolean;
   flushPendingLayerProperties(): void;
   openGeneratedDocument(): void;
+  showNotice(message: string): void;
 }
 
 /** Owns committed output snapshots, export preferences, and output dialog lifetimes. */
@@ -138,6 +145,27 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
       },
       completed,
       (reason) => {
+        if (reason instanceof SpriteSheetOutputEncoderUnavailableError) {
+          options.showNotice(
+            reason.format === SpriteSheetOutputFormat.Webp
+              ? tUi("ui.webp.export.unavailable")
+              : tUi("ui.image.encoding.unsupported", { format: "image/jpeg" }),
+          );
+          telemetry.featureUsed(TelemetryFeature.Export, TelemetryFeatureAction.Rejected, {
+            ...(exporter ? { exporter_id: exporter } : {}),
+            format: reason.format,
+            reason: "encoder-unavailable",
+          });
+          return;
+        }
+        if (reason instanceof UnsupportedSpriteSheetOutputFormatError) {
+          options.showNotice(tUi("ui.sprite.sheet.output.format.unsupported"));
+          telemetry.featureUsed(TelemetryFeature.Export, TelemetryFeatureAction.Rejected, {
+            ...(exporter ? { exporter_id: exporter } : {}),
+            reason: "unsupported-image-format",
+          });
+          return;
+        }
         if (!(reason instanceof Error && reason.name === "AbortError")) session.reportError(reason);
       },
     );

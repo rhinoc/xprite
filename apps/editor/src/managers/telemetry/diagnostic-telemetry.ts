@@ -5,6 +5,7 @@ import {
   PwaScriptProbeOutcome,
   type DiagnosticRecord,
 } from "$/managers/ports/diagnostics";
+import { PwaOfflineStatus } from "$/managers/ports/pwa";
 import type { TelemetryProperties } from "$/managers/ports/telemetry";
 
 enum WorkerState {
@@ -41,6 +42,7 @@ const PERMISSION_STATES = Object.values(PermissionState);
 const PWA_TEXT_FIELDS: Readonly<Record<string, readonly string[]>> = {
   stage: Object.values(PwaDiagnosticStage),
   failure: Object.values(PwaFailure),
+  offline_status: Object.values(PwaOfflineStatus),
   worker_state: WORKER_STATES,
   controller_state: WORKER_STATES,
   active_state: WORKER_STATES,
@@ -63,6 +65,8 @@ const PWA_BOOLEAN_FIELDS = [
   "register_native",
   "controlled",
   "chunk_in_worker_build",
+  "verified_controller",
+  "status_pending",
   "retry_exhausted",
   "usable_worker",
 ];

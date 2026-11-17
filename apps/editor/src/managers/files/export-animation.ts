@@ -13,6 +13,7 @@ import {
   encodePngBlob as encodePng,
   encodeImageBlob,
   ImageEncodingFormat,
+  isImageEncodingSupported,
 } from "@xprite/bedrock/browser/images";
 import type { JsonStoragePort } from "@xprite/bedrock/browser/json-storage";
 import type { ExportFileOptions } from "@xprite/editor-core";
@@ -43,6 +44,41 @@ export interface ExportExecutionPorts {
   storage?: JsonStoragePort;
   rememberExport?(record: ExportRecord): void;
 }
+export enum SpriteSheetOutputFormat {
+  Png = "png",
+  Jpeg = "jpeg",
+  Gif = "gif",
+  Webp = "webp",
+  Apng = "apng",
+}
+const SPRITE_SHEET_FRAME_DURATION_MS = 100;
+const SPRITE_SHEET_SOURCE_FRAME_INDEX = 0;
+const SINGLE_SPRITE_SHEET_PLAY_COUNT = 1;
+const IMAGE_QUALITY_PERCENT_SCALE = 100;
+
+export class UnsupportedSpriteSheetOutputFormatError extends Error {
+  constructor() {
+    super("Unsupported sprite sheet output format.");
+    this.name = "UnsupportedSpriteSheetOutputFormatError";
+  }
+}
+
+export class SpriteSheetOutputEncoderUnavailableError extends Error {
+  constructor(readonly format: SpriteSheetOutputFormat) {
+    super(`The ${format} sprite sheet encoder is unavailable.`);
+    this.name = "SpriteSheetOutputEncoderUnavailableError";
+  }
+}
+
+function spriteSheetOutputFormat(name: string): SpriteSheetOutputFormat | null {
+  if (/\.png$/i.test(name)) return SpriteSheetOutputFormat.Png;
+  if (/\.jpe?g$/i.test(name)) return SpriteSheetOutputFormat.Jpeg;
+  if (/\.gif$/i.test(name)) return SpriteSheetOutputFormat.Gif;
+  if (/\.webp$/i.test(name)) return SpriteSheetOutputFormat.Webp;
+  if (/\.apng$/i.test(name)) return SpriteSheetOutputFormat.Apng;
+  return null;
+}
+
 export async function downloadExportArtifact({ name, blob }: ExportArtifact): Promise<void> {
   downloadBlob(blob, name);
 }
@@ -144,11 +180,78 @@ export async function exportDocumentSpriteSheet(
 ): Promise<SpriteSheetResult & { names: string[] }> {
   const result = renderSpriteSheet(doc, options),
     artifacts: ExportArtifact[] = [];
-  if (options.imageEnabled)
-    artifacts.push({
-      name: options.name,
-      blob: await (ports.encodePng ?? encodePng)(result.pixels),
-    });
+  if (options.imageEnabled) {
+    const format = spriteSheetOutputFormat(options.name);
+    if (!format) throw new UnsupportedSpriteSheetOutputFormatError();
+    const frame = {
+      pixels: result.pixels,
+      duration: SPRITE_SHEET_FRAME_DURATION_MS,
+      sourceFrame: SPRITE_SHEET_SOURCE_FRAME_INDEX,
+    };
+    let blob: Blob;
+    switch (format) {
+      case SpriteSheetOutputFormat.Png:
+        blob = await (ports.encodePng ?? encodePng)(result.pixels);
+        break;
+      case SpriteSheetOutputFormat.Jpeg:
+        if (!(await isImageEncodingSupported(ImageEncodingFormat.Jpeg)))
+          throw new SpriteSheetOutputEncoderUnavailableError(format);
+        blob = await (ports.encodeImage ?? encodeImageBlob)(
+          result.pixels,
+          ImageEncodingFormat.Jpeg,
+          (options.imageQualityPercent ?? DEFAULT_IMAGE_EXPORT_QUALITY) /
+            IMAGE_QUALITY_PERCENT_SCALE,
+        );
+        break;
+      case SpriteSheetOutputFormat.Gif:
+        blob = new Blob(
+          [
+            new Uint8Array(encodeGif([frame], { loopCount: SINGLE_SPRITE_SHEET_PLAY_COUNT }))
+              .buffer as ArrayBuffer,
+          ],
+          { type: "image/gif" },
+        );
+        break;
+      case SpriteSheetOutputFormat.Webp: {
+        if (!ports.webp) throw new SpriteSheetOutputEncoderUnavailableError(format);
+        const losslessAvailable = ports.webp.supportsLossless();
+        const compression =
+          options.webpCompression ??
+          (losslessAvailable ? WebpCompression.Lossless : WebpCompression.Lossy);
+        if (compression === WebpCompression.Lossless && !losslessAvailable)
+          throw new SpriteSheetOutputEncoderUnavailableError(format);
+        if (
+          compression === WebpCompression.Lossy &&
+          !(await isImageEncodingSupported(ImageEncodingFormat.Webp))
+        )
+          throw new SpriteSheetOutputEncoderUnavailableError(format);
+        const encodedFrame = options.openGenerated
+          ? { ...frame, pixels: { ...frame.pixels, data: frame.pixels.data.slice() } }
+          : frame;
+        blob = await ports.webp.encode([encodedFrame], {
+          compression,
+          qualityPercent: options.imageQualityPercent ?? DEFAULT_IMAGE_EXPORT_QUALITY,
+          animated: false,
+          loopCount: SINGLE_SPRITE_SHEET_PLAY_COUNT,
+        });
+        if (blob.type.toLowerCase() !== ImageEncodingFormat.Webp)
+          throw new Error(tUi("ui.webp.export.type.unexpected"));
+        break;
+      }
+      case SpriteSheetOutputFormat.Apng:
+        blob = new Blob(
+          [
+            new Uint8Array(encodeApng([frame], SINGLE_SPRITE_SHEET_PLAY_COUNT))
+              .buffer as ArrayBuffer,
+          ],
+          { type: "image/apng" },
+        );
+        break;
+      default:
+        throw new UnsupportedSpriteSheetOutputFormatError();
+    }
+    artifacts.push({ name: options.name, blob });
+  }
   if (options.dataEnabled)
     artifacts.push({
       name: options.dataName,

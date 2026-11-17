@@ -78,6 +78,7 @@ export enum TelemetryFeature {
   Support = "support",
   SaveAs = "save_as",
   Export = "export",
+  Clipboard = "clipboard",
 }
 
 export enum TelemetryFeatureAction {
@@ -87,6 +88,7 @@ export enum TelemetryFeatureAction {
   Reset = "reset",
   Resize = "resize",
   Cancel = "cancel",
+  Rejected = "rejected",
 }
 
 export enum TelemetryDownloadKind {

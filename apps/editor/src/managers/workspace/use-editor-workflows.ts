@@ -90,6 +90,7 @@ import {
   canExecuteEditorAction,
   executeEditorCommand,
   hexToRgba,
+  TimelinePasteRejectionReason,
   validateBitmapText,
 } from "@xprite/editor-core";
 import type { EditorCommand, RasterEditor } from "@xprite/editor-core";
@@ -438,6 +439,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     flushPendingLayerProperties: () => timelineActionsRef.current?.flushPendingLayerProperties?.(),
     openGeneratedDocument: () =>
       editor.openTab("document", automaticViewTransition(EditorViewChangeReason.DocumentGenerated)),
+    showNotice: editor.setNotice,
   });
   const modalBlockers = [
     ...(aboutOpen ? [InteractionBlocker.AboutDialog] : []),
@@ -717,6 +719,37 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
         : workspace.createDocumentFromImage(payload.pixels, payload.palette),
     getViewport: () => measuredEditorViewport(workspace.active.core, editor.timelineVisible),
     onError: (message) => workspace.active.session.reportError(message),
+    onTimelinePasteRejected: (reason) => {
+      const message = (() => {
+        switch (reason) {
+          case TimelinePasteRejectionReason.NoDocument:
+            return tUi("ui.timeline.paste.no.document");
+          case TimelinePasteRejectionReason.EditorBusy:
+            return tUi("ui.timeline.paste.editor.busy");
+          case TimelinePasteRejectionReason.EmptyRange:
+            return tUi("ui.timeline.paste.empty.range");
+          case TimelinePasteRejectionReason.ImageBudgetExceeded:
+            return tUi("ui.timeline.paste.image.budget.exceeded");
+          case TimelinePasteRejectionReason.LayerLimitExceeded:
+            return tUi("ui.timeline.paste.layer.limit.exceeded");
+          case TimelinePasteRejectionReason.FrameLimitExceeded:
+            return tUi("ui.timeline.paste.frame.limit.exceeded");
+          case TimelinePasteRejectionReason.InsufficientTargetLayers:
+            return tUi("ui.timeline.paste.insufficient.target.layers");
+          case TimelinePasteRejectionReason.IncompatibleTilemapLayer:
+            return tUi("ui.timeline.paste.incompatible.tilemap.layer");
+          case TimelinePasteRejectionReason.IncompatibleTilemapPalette:
+            return tUi("ui.timeline.paste.incompatible.tilemap.palette");
+          default:
+            return tUi("ui.timeline.paste.empty.range");
+        }
+      })();
+      editor.setNotice(message);
+      telemetry.featureUsed(TelemetryFeature.Clipboard, TelemetryFeatureAction.Rejected, {
+        operation: "paste-timeline-range",
+        reason,
+      });
+    },
   });
   useSyncExternalStore(clipboard.subscribe, clipboard.getVersion, clipboard.getVersion);
   useEffect(() => {

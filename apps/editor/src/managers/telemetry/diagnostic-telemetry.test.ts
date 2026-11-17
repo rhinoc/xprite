@@ -107,6 +107,10 @@ describe("diagnostic telemetry privacy", () => {
             elapsed_ms: 15000,
             attempt: 2,
             register_native: false,
+            offline_status: "ready",
+            verified_controller: true,
+            status_pending: true,
+            retry_exhausted: false,
             worker_version: "release_123",
             script_url: "https://example.test/sw.js?secret=1",
             file_name: "private.aseprite",
@@ -128,6 +132,10 @@ describe("diagnostic telemetry privacy", () => {
         pwa_elapsed_ms: 15000,
         pwa_attempt: 2,
         pwa_register_native: false,
+        pwa_offline_status: "ready",
+        pwa_verified_controller: true,
+        pwa_status_pending: true,
+        pwa_retry_exhausted: false,
         pwa_worker_version: "release_123",
         file_write_stage: "permission",
         file_write_permission: "denied",
@@ -148,6 +156,10 @@ describe("diagnostic telemetry privacy", () => {
             elapsed_ms: -1,
             attempt: "2",
             visible: "true",
+            offline_status: "private.aseprite",
+            verified_controller: "true",
+            status_pending: "pending",
+            retry_exhausted: 1,
             worker_version: "https://example.test/?secret=1",
           },
           fileWrite: { stage: "private.aseprite", permission: "denied" },
@@ -241,6 +253,43 @@ describe("worker script probe telemetry", () => {
         }),
       ),
       { pwa_stage: "update" },
+    );
+  });
+
+  it("projects main controller context and bounded probe context together without private extras", () => {
+    assert.deepEqual(
+      telemetryDiagnosticDetails(
+        record({
+          pwa: {
+            stage: "update",
+            offline_status: "ready",
+            verified_controller: true,
+            status_pending: true,
+            usable_worker: true,
+            retry_exhausted: false,
+            script_probe_outcome: "http",
+            script_probe_status: 503,
+            worker_version: "verified_123",
+            attempt: 1,
+            url: "https://example.test/sw.js?secret=1",
+            headers: { authorization: "secret" },
+            body: "private document",
+            cause: { message: "private network info" },
+          },
+        }),
+      ),
+      {
+        pwa_stage: "update",
+        pwa_offline_status: "ready",
+        pwa_verified_controller: true,
+        pwa_status_pending: true,
+        pwa_usable_worker: true,
+        pwa_retry_exhausted: false,
+        pwa_script_probe_outcome: "http",
+        pwa_script_probe_status: 503,
+        pwa_worker_version: "verified_123",
+        pwa_attempt: 1,
+      },
     );
   });
 });
