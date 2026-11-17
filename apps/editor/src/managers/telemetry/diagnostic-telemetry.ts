@@ -2,6 +2,7 @@ import {
   FileWriteStage,
   PwaDiagnosticStage,
   PwaFailure,
+  PwaScriptProbeOutcome,
   type DiagnosticRecord,
 } from "$/managers/ports/diagnostics";
 import { PwaOfflineStatus } from "$/managers/ports/pwa";
@@ -47,6 +48,7 @@ const PWA_TEXT_FIELDS: Readonly<Record<string, readonly string[]>> = {
   active_state: WORKER_STATES,
   installing_state: WORKER_STATES,
   waiting_state: WORKER_STATES,
+  script_probe_outcome: Object.values(PwaScriptProbeOutcome),
 };
 const FILE_WRITE_TEXT_FIELDS: Readonly<Record<string, readonly string[]>> = {
   stage: Object.values(FileWriteStage),
@@ -66,9 +68,10 @@ const PWA_BOOLEAN_FIELDS = [
   "verified_controller",
   "status_pending",
   "retry_exhausted",
+  "usable_worker",
 ];
 const FILE_WRITE_BOOLEAN_FIELDS = ["user_activation"];
-const PWA_NUMBER_FIELDS = ["timeout_ms", "elapsed_ms", "attempt", "status"];
+const PWA_NUMBER_FIELDS = ["timeout_ms", "elapsed_ms", "attempt", "status", "script_probe_status"];
 const FILE_WRITE_NUMBER_FIELDS = ["elapsed_ms"];
 const OPFS_NUMBER_FIELDS = ["line", "column"];
 const MAX_DIAGNOSTIC_NUMBER = 24 * 60 * 60 * 1000;
