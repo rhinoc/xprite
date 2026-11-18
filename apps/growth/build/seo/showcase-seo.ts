@@ -9,8 +9,9 @@ import {
 import { localizedSiteHref, pickText, publicLanguage } from "../../content/site/language.ts";
 import { languageSwitchLinks, showcaseLabel } from "../../content/site/navigation.ts";
 import {
+  LISTING_BADGES_HTML,
   publicDesktopNavigation,
-  publicSiteFooterWithBadges,
+  publicSiteFooter,
   publicUiScope,
 } from "../public-theme.ts";
 import { renderPublicUi } from "../static-ui-renderer.ts";
@@ -64,7 +65,7 @@ function landingPage(language: keyof typeof SHOWCASE_PAGES): string {
     ],
   });
   return publicUiScope(
-    `<div data-showcase-static-page><header>${navigation}</header><main>${renderPublicUi("landing", { language })}</main>${publicSiteFooterWithBadges(language)}</div>`,
+    `<div data-showcase-static-page><header>${navigation}</header><main>${renderPublicUi("landing", { language })}</main>${publicSiteFooter(language)}${LISTING_BADGES_HTML}</div>`,
     language,
   );
 }

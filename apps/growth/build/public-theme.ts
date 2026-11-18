@@ -74,22 +74,17 @@ export function publicDesktopWindow(
 export function publicDesktopNavigation(props: Record<string, unknown>): string {
   return renderPublicUi("navigation", props);
 }
-/** Third-party listing badges required by directory verification. */
-const LISTING_BADGES_HTML = [
+/** Third-party listing badges required by directory verification, appended below the footer. */
+export const LISTING_BADGES_HTML = `<div data-site-listing-badges style="display:flex;justify-content:center;gap:16px;padding:16px 24px;border-top:1px solid var(--ui-color-line)">${[
   `<a href="https://saascity.io" target="_blank" rel="noopener"><img src="https://saascity.io/badges/featured-dark.svg" alt="Featured on SaaSCity" width="150" height="54" /></a>`,
   `<a href="https://www.indietools.app/products/xprite" target="_blank" rel="noopener"><img src="https://www.indietools.app/badges/listed-on-indietools-light.png" alt="Listed on IndieTools" width="176" height="56" /></a>`,
-].join("");
+].join("")}</div>`;
 
-export function publicSiteFooter(language = "en", trailingHtml?: string): string {
+export function publicSiteFooter(language = "en"): string {
   return renderPublicUi("site-footer", {
     language,
     groups: siteFooterGroups(language),
-    trailingHtml,
   });
-}
-/** About-page footer with listing badges used for directory verification. */
-export function publicSiteFooterWithBadges(language = "en"): string {
-  return publicSiteFooter(language, LISTING_BADGES_HTML);
 }
 export function publicDesktopButton(href: string, label: string, className?: string): string {
   return renderPublicUi("button", { href, label, className });

@@ -37,13 +37,6 @@
 .disclosures {
   display: none;
 }
-.trailing {
-  align-self: end;
-  justify-self: end;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
 @media (max-width: 640px) {
   .footer {
     padding: 16px 12px;
