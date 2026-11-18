@@ -10,6 +10,8 @@ export interface SiteFooterGroup {
 export interface SiteFooterProps {
   groups: readonly SiteFooterGroup[];
   label?: string;
+  /** Optional content rendered at the footer trailing edge (e.g. listing badges). */
+  trailing?: React.ReactNode;
 }
 
 function FooterLinks({ group }: { group: SiteFooterGroup }) {
@@ -29,7 +31,7 @@ function FooterLinks({ group }: { group: SiteFooterGroup }) {
 }
 
 /** One navigation source supports columns and narrow-screen disclosures. */
-export function SiteFooter({ groups, label = "Website navigation" }: SiteFooterProps) {
+export function SiteFooter({ groups, label = "Website navigation", trailing }: SiteFooterProps) {
   return (
     <footer className={styles.footer} aria-label={label} data-site-footer>
       <div className={styles.columns}>
@@ -41,6 +43,7 @@ export function SiteFooter({ groups, label = "Website navigation" }: SiteFooterP
             <FooterLinks group={group} />
           </section>
         ))}
+        {trailing ? <div className={styles.trailing}>{trailing}</div> : null}
       </div>
       <div className={styles.disclosures}>
         {groups.map((group) => (
@@ -48,6 +51,7 @@ export function SiteFooter({ groups, label = "Website navigation" }: SiteFooterP
             <FooterLinks group={group} />
           </Disclosure>
         ))}
+        {trailing ? <div className={styles.trailing}>{trailing}</div> : null}
       </div>
     </footer>
   );

@@ -102,13 +102,16 @@ export function PublicReaderScroll({
 export function PublicFooter({
   language = "en",
   groups = siteFooterGroups(language),
+  trailingHtml,
 }: {
   language?: string;
   groups?: SiteFooterProps["groups"];
+  trailingHtml?: string;
 }) {
   return (
     <SiteFooter
       groups={groups}
+      trailing={trailingHtml ? <PublicHtml html={trailingHtml} /> : undefined}
       label={pickText(
         publicLanguage(language),
         "Website navigation",
