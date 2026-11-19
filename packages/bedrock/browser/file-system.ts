@@ -36,6 +36,52 @@ type BrowserFilePickers = typeof globalThis & {
   showSaveFilePicker?: SaveFilePicker;
 };
 
+/** Browser wording for a second showOpenFilePicker / showSaveFilePicker while one is open. */
+function isFilePickerAlreadyActiveError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error as { name?: unknown }).name === "NotAllowedError" &&
+    "message" in error &&
+    /file picker already active/i.test(String((error as { message?: unknown }).message))
+  );
+}
+
+function filePickerAlreadyActiveAbort(): DOMException {
+  return new DOMException("File picker already active.", "AbortError");
+}
+
+function normalizeNativePickerError(error: unknown): unknown {
+  return isFilePickerAlreadyActiveError(error) ? filePickerAlreadyActiveAbort() : error;
+}
+
+/** One native open/save picker at a time. Does not cover later file reads or writes. */
+let nativeFilePicker: object | null = null;
+
+/** Invokes `start` immediately, then holds the guard until that picker promise settles. */
+function requestNativeFilePicker<T>(start: () => PromiseLike<T> | T): Promise<T> {
+  if (nativeFilePicker) return Promise.reject(filePickerAlreadyActiveAbort());
+  let started: Promise<T>;
+  try {
+    started = Promise.resolve(start());
+  } catch (error) {
+    return Promise.reject(normalizeNativePickerError(error));
+  }
+  const token = {};
+  nativeFilePicker = token;
+  return started.then(
+    (value) => {
+      if (nativeFilePicker === token) nativeFilePicker = null;
+      return value;
+    },
+    (error) => {
+      if (nativeFilePicker === token) nativeFilePicker = null;
+      throw normalizeNativePickerError(error);
+    },
+  );
+}
+
 /** Native file pickers require the same origin as the top-level page. */
 function sharesTopLevelOrigin(): boolean {
   if (typeof window === "undefined") return true;
@@ -58,7 +104,8 @@ export function pickOpenFiles(
   options?: OpenFilePickerOptions,
 ): Promise<ReadableFileHandle[]> | null {
   const picker = (globalThis as BrowserFilePickers).showOpenFilePicker;
-  return sharesTopLevelOrigin() && typeof picker === "function" ? picker(options) : null;
+  if (!(sharesTopLevelOrigin() && typeof picker === "function")) return null;
+  return requestNativeFilePicker(() => picker(options));
 }
 
 export interface BrowserFileSelectionOptions extends OpenFilePickerOptions {
@@ -136,7 +183,8 @@ export function canPickSaveFile(): boolean {
 /** Calls the native picker immediately so the caller can preserve user activation. */
 export function pickSaveFile(options: SaveFilePickerOptions): Promise<WritableFileHandle> | null {
   const picker = (globalThis as BrowserFilePickers).showSaveFilePicker;
-  return sharesTopLevelOrigin() && typeof picker === "function" ? picker(options) : null;
+  if (!(sharesTopLevelOrigin() && typeof picker === "function")) return null;
+  return requestNativeFilePicker(() => picker(options));
 }
 
 export function requestFileWritePermission(

@@ -358,6 +358,26 @@ describe("browser-images", () => {
       check(anchors.length, 0);
       check(createdUrls.length, 0);
 
+      // A second save while a native picker is open is cancelled, not downloaded.
+      resetCounters();
+      let savePickerCalls = 0;
+      let finishFirst;
+      globalThis.showSaveFilePicker = () => {
+        savePickerCalls += 1;
+        return new Promise((resolve, reject) => {
+          finishFirst = { resolve, reject };
+        });
+      };
+      const firstSave = images.savePng(sourcePixels, "first");
+      await rejects(images.savePng(sourcePixels, "second"), (error) => error.name === "AbortError");
+      check(savePickerCalls, 1);
+      check(anchors.length, 0);
+      check(createdUrls.length, 0);
+      finishFirst.reject(abort);
+      await rejects(firstSave, (error) => error === abort);
+      check(anchors.length, 0);
+      check(createdUrls.length, 0);
+
       // A saved PNG handle whose write permission is not granted never writes or downloads:
       // a dismissed dialog cancels like a closed picker, a refusal says so.
       for (const [permission, name] of [
