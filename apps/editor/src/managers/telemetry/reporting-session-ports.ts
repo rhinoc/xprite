@@ -59,6 +59,7 @@ export function reportingSessionPorts(
     listRecentImages: ports.listRecentImages?.bind(ports),
     readRecentImage: ports.readRecentImage?.bind(ports),
     saveRecentImages: ports.saveRecentImages?.bind(ports),
+    recentPersistenceRetry: ports.recentPersistenceRetry,
     identifySource: ports.identifySource?.bind(ports),
     decodeProject: ports.decodeProject?.bind(ports),
     decode: ports.decode.bind(ports),
