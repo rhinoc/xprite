@@ -378,6 +378,7 @@ export class DocumentWorkspace {
       listRecentImages: ports.listRecentImages?.bind(ports),
       readRecentImage: ports.readRecentImage?.bind(ports),
       saveRecentImages: ports.saveRecentImages?.bind(ports),
+      recentPersistenceRetry: ports.recentPersistenceRetry,
       decodeProject: ports.decodeProject?.bind(ports),
       identifySource: ports.identifySource?.bind(ports),
       decode: (...args) => ports.decode(...args),
@@ -901,6 +902,7 @@ export class DocumentWorkspace {
         );
         await this.recovery.deleteClosedProjects(projectIds);
       }
+      for (const slot of this.slots) slot.session.cancelRecentPersistenceRetry();
       const remainingImages = this.recent
         .getPersistenceSnapshot()
         .filter((item) => item.id !== recentId);

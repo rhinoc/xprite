@@ -63,6 +63,22 @@ describe("session-browser-ports", () => {
     );
     try {
       const ports = new BrowserSessionPorts();
+      assert.equal(
+        ports.recentPersistenceRetry.shouldRetry(
+          new DOMException(
+            "Connection to Indexed Database server lost. Refresh the page to try again",
+            "UnknownError",
+          ),
+        ),
+        true,
+      );
+      for (const reason of [
+        new DOMException("Quota exceeded", "QuotaExceededError"),
+        new DOMException("Access denied", "SecurityError"),
+        new DOMException("Other storage failure", "UnknownError"),
+        new Error("Recent files changed in another tab. Retry saving the document."),
+      ])
+        assert.equal(ports.recentPersistenceRetry.shouldRetry(reason), false);
       assert.equal(calls.length, 0, "constructing ports has no browser side effects");
       const file = new File(["pixels"], "sample.png", { type: "image/png" }),
         source = ports.registerFile(file);

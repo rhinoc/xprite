@@ -85,6 +85,7 @@ export class IndexedDbRecentImages {
   private writes: Promise<void> = Promise.resolve();
   private versions = new Map<string, SavedVersion>();
   private catalogRevision = 0;
+  private retryBaseline: readonly RecentImageMetadata[] | null = null;
   private codec?: RecoveryCodecClient;
   private closed = false;
   constructor(options: IndexedDbRecentImagesOptions = {}) {
@@ -140,6 +141,7 @@ export class IndexedDbRecentImages {
         // A delete/clear may commit after this read captured its catalog. Retry
         // the lightweight directory rather than returning entries it removed.
         if (revision !== this.catalogRevision) continue;
+        this.retryBaseline ??= records;
         return records
           .sort((a, b) => a.order - b.order)
           .map((record) => {
@@ -250,16 +252,16 @@ export class IndexedDbRecentImages {
       db.close();
     }
   }
-  save(images: readonly SessionRecentEntry[]): Promise<void> {
+  save(images: readonly SessionRecentEntry[], options?: { retry: boolean }): Promise<void> {
     if (this.closed) return Promise.reject(new Error("Recent-file storage is closed"));
     // Versioned store entries are immutable. Capture unversioned callers now,
     // before a queued write yields; never detach a document or undo buffer.
     const snapshot = images.map((item) => (item.contentVersion ? { ...item } : cloneGraph(item)));
-    const write = this.writes.then(() => this.saveOnce(snapshot));
+    const write = this.writes.then(() => this.saveOnce(snapshot, options?.retry ?? false));
     this.writes = write.catch(() => {});
     return write;
   }
-  private async saveOnce(images: readonly SessionRecentEntry[]): Promise<void> {
+  private async saveOnce(images: readonly SessionRecentEntry[], retry: boolean): Promise<void> {
     if (
       new Set(images.map((image) => image.id)).size !== images.length ||
       images.some(
@@ -275,6 +277,19 @@ export class IndexedDbRecentImages {
     const db = await this.open();
     try {
       const previous = await this.metadata(db);
+      if (retry) {
+        const baseline = this.retryBaseline;
+        const expected = new Map(baseline?.map((record) => [record.id, record]));
+        if (
+          !baseline ||
+          previous.length !== baseline.length ||
+          previous.some((record) => {
+            const old = expected.get(record.id);
+            return !old || !sameMetadata(record, old);
+          })
+        )
+          throw new Error("Recent files changed in another tab. Retry saving the document.");
+      }
       const byId = new Map(previous.map((record) => [record.id, record]));
       const records: RecentImageMetadata[] = [];
       const changed: {
@@ -385,6 +400,7 @@ export class IndexedDbRecentImages {
       });
       // Failed transactions leave the last committed content versions intact.
       this.versions = versions;
+      this.retryBaseline = records;
       this.catalogRevision++;
     } finally {
       db.close();
