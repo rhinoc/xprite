@@ -26,6 +26,10 @@ export interface EditorActions {
   deleteRecoveryProjects?: (ids: readonly string[]) => void;
   refreshRecovery?: () => void;
   clipboardCapabilities: ClipboardCapabilities;
+  canUndo: boolean;
+  canRedo: boolean;
+  undo: () => void;
+  redo: () => void;
   canSave: boolean;
   canStartInteraction: boolean;
   canOpenModal: boolean;

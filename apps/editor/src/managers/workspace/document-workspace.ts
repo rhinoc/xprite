@@ -190,6 +190,21 @@ export interface WorkspacePaneSnapshot {
   activeId: string;
 }
 
+const MAX_TAB_DOCK_HISTORY = 32;
+type TabDockDirection = "undo" | "redo";
+type TabDockLayout = {
+  tree: WorkspaceDockNode;
+  panes: readonly WorkspacePaneSnapshot[];
+  order: readonly string[];
+};
+type TabDockChange = {
+  tabId: string;
+  before: TabDockLayout;
+  after: TabDockLayout;
+  documentPosition: symbol;
+  undoneAt?: symbol;
+};
+
 export interface DocumentWorkspaceSnapshot {
   activeId: string;
   activePaneId: string;
@@ -330,6 +345,8 @@ export class DocumentWorkspace {
   private paneActiveIds = new Map<string, string>();
   private paneSerial = 0;
   private splitSerial = 0;
+  private tabDockHistory: TabDockChange[] = [];
+  private tabDockIndex = 0;
   private closed = new Set<string>();
   private order: string[] = [];
   private listeners = new Set<() => void>();
@@ -1357,17 +1374,11 @@ export class DocumentWorkspace {
   }
 
   private buildSnapshot(): DocumentWorkspaceSnapshot {
-    const paneIds = this.paneIds(this.dockTree);
-    const panes = paneIds.map((id) => {
-      const tabs = (this.paneTabs.get(id) ?? []).filter((tab) => !this.closed.has(tab));
-      const selected = this.paneActiveIds.get(id) ?? tabs[0] ?? "";
-      return { id, tabs, activeId: tabs.includes(selected) ? selected : (tabs[0] ?? "") };
-    });
     return {
       activeId: this.activeId,
       activePaneId: this.activePaneId,
       dockTree: this.dockTree,
-      panes,
+      panes: this.capturePaneTabs(),
       exitRequests: this.exitRequests,
       closedProjects: this.closedProjects,
       canReopenClosedFile: this.closedDocuments.length > 0,
@@ -1381,6 +1392,14 @@ export class DocumentWorkspace {
           modified: this.isTabModified(slot),
         })),
     };
+  }
+
+  private capturePaneTabs(): WorkspacePaneSnapshot[] {
+    return this.paneIds(this.dockTree).map((id) => {
+      const tabs = (this.paneTabs.get(id) ?? []).filter((tab) => !this.closed.has(tab));
+      const selected = this.paneActiveIds.get(id) ?? tabs[0] ?? "";
+      return { id, tabs, activeId: tabs.includes(selected) ? selected : (tabs[0] ?? "") };
+    });
   }
 
   private notify() {
@@ -1666,6 +1685,7 @@ export class DocumentWorkspace {
     const from = tabs?.indexOf(id) ?? -1,
       to = tabs?.indexOf(targetId) ?? -1;
     if (!tabs || from < 0 || to < 0 || from === to) return;
+    this.clearTabDockHistory();
     tabs.splice(from, 1);
     tabs.splice(to, 0, id);
     const globalFrom = this.order.indexOf(id),
@@ -1684,29 +1704,32 @@ export class DocumentWorkspace {
     const target = this.paneTabs.get(targetPaneId);
     if (!sourcePaneId || !source || !target || !this.paneIds(this.dockTree).includes(targetPaneId))
       return false;
-    if (sourcePaneId === targetPaneId) {
-      if (!targetId) return false;
-      const from = target.indexOf(id),
-        to = target.indexOf(targetId);
-      if (from < 0 || to < 0 || from === to) return false;
+    const from = source.indexOf(id);
+    const anchor = targetId ? target.indexOf(targetId) : -1;
+    const samePane = sourcePaneId === targetPaneId;
+    const insertion = anchor < 0 ? target.length : anchor + (before ? 0 : 1);
+    const adjusted = samePane && from < insertion ? insertion - 1 : insertion;
+    if (from < 0 || (samePane && (anchor < 0 || from === adjusted)) || !this.select(id))
+      return false;
+
+    const previousLayout = samePane ? null : this.captureTabDockLayout();
+    if (samePane) {
+      this.clearTabDockHistory();
       target.splice(from, 1);
-      const adjusted = target.indexOf(targetId) + (before ? 0 : 1);
       target.splice(adjusted, 0, id);
     } else {
-      const from = source.indexOf(id);
-      if (from < 0) return false;
       source.splice(from, 1);
-      const anchor = targetId ? target.indexOf(targetId) : -1;
-      target.splice(anchor < 0 ? target.length : anchor + (before ? 0 : 1), 0, id);
+      target.splice(insertion, 0, id);
       if (this.paneActiveIds.get(sourcePaneId) === id)
         this.paneActiveIds.set(sourcePaneId, source[Math.min(from, source.length - 1)] ?? "");
-      if (!source.length && sourcePaneId !== targetPaneId) {
+      if (!source.length) {
         const remaining = this.removePane(this.dockTree, sourcePaneId);
         if (remaining) this.dockTree = remaining;
         this.paneTabs.delete(sourcePaneId);
         this.paneActiveIds.delete(sourcePaneId);
       }
     }
+    this.activePaneId = targetPaneId;
     this.paneActiveIds.set(targetPaneId, id);
     const globalFrom = this.order.indexOf(id);
     if (globalFrom >= 0) {
@@ -1718,7 +1741,7 @@ export class DocumentWorkspace {
         id,
       );
     }
-    this.select(id);
+    if (previousLayout) this.recordTabDockChange(id, previousLayout);
     this.notify();
     this.rememberLayout();
     return true;
@@ -1731,11 +1754,9 @@ export class DocumentWorkspace {
     if (!sourcePaneId || !source || !target || !this.paneIds(this.dockTree).includes(targetPaneId))
       return false;
     if (sourcePaneId === targetPaneId && source.length < 2) return false;
-    const targetNodeExists = this.paneIds(this.dockTree).includes(targetPaneId);
-    if (!targetNodeExists) return false;
-
     const sourceIndex = source.indexOf(id);
-    if (sourceIndex < 0) return false;
+    if (sourceIndex < 0 || !this.select(id)) return false;
+    const previousLayout = this.captureTabDockLayout();
     source.splice(sourceIndex, 1);
     if (this.paneActiveIds.get(sourcePaneId) === id)
       this.paneActiveIds.set(sourcePaneId, source[Math.min(sourceIndex, source.length - 1)] ?? "");
@@ -1768,9 +1789,62 @@ export class DocumentWorkspace {
       this.paneTabs.delete(sourcePaneId);
       this.paneActiveIds.delete(sourcePaneId);
     }
-    this.activeId = id;
     this.activePaneId = paneId;
-    this.select(id);
+    this.recordTabDockChange(id, previousLayout);
+    this.notify();
+    this.rememberLayout();
+    return true;
+  }
+
+  private captureTabDockLayout(): TabDockLayout {
+    return { tree: this.dockTree, panes: this.capturePaneTabs(), order: [...this.order] };
+  }
+
+  private clearTabDockHistory() {
+    this.tabDockHistory = [];
+    this.tabDockIndex = 0;
+  }
+
+  private recordTabDockChange(tabId: string, before: TabDockLayout) {
+    this.tabDockHistory = this.tabDockHistory.slice(0, this.tabDockIndex);
+    this.tabDockHistory.push({
+      tabId,
+      before,
+      after: this.captureTabDockLayout(),
+      documentPosition: this.active.core.history.getSnapshot().position,
+    });
+    if (this.tabDockHistory.length > MAX_TAB_DOCK_HISTORY) this.tabDockHistory.shift();
+    this.tabDockIndex = this.tabDockHistory.length;
+  }
+
+  private nextTabDockChange(direction: TabDockDirection) {
+    const change = this.tabDockHistory[this.tabDockIndex + (direction === "undo" ? -1 : 0)];
+    if (!change || change.tabId !== this.activeId) return;
+    const { core } = this.active;
+    if (core.hasPendingDocumentEdit() || core.getSnapshot().inlineText) return;
+    const history = core.history.getSnapshot();
+    // Traverse document edits made after the drop before undoing the layout.
+    if (history.position !== change.documentPosition) return;
+    if (direction === "redo" && change.undoneAt !== history.latestEdit) return;
+    return change;
+  }
+
+  canTraverseTabDock(direction: TabDockDirection): boolean {
+    return !!this.nextTabDockChange(direction);
+  }
+
+  traverseTabDock(direction: TabDockDirection): boolean {
+    const change = this.nextTabDockChange(direction);
+    if (!change) return false;
+    const undo = direction === "undo";
+    const layout = undo ? change.before : change.after;
+    if (undo) change.undoneAt = this.active.core.history.getSnapshot().latestEdit;
+    this.tabDockIndex += undo ? -1 : 1;
+    this.dockTree = layout.tree;
+    this.order = [...layout.order];
+    this.paneTabs = new Map(layout.panes.map((pane) => [pane.id, [...pane.tabs]]));
+    this.paneActiveIds = new Map(layout.panes.map((pane) => [pane.id, pane.activeId]));
+    this.activePaneId = this.paneForTab(this.activeId)!;
     this.notify();
     this.rememberLayout();
     return true;
@@ -1800,6 +1874,7 @@ export class DocumentWorkspace {
     const open = this.order.filter((key) => !this.closed.has(key));
     const index = open.indexOf(id);
     if (index < 0) return;
+    this.clearTabDockHistory();
     const closedSnapshot = this.pendingCloseSnapshots.get(id);
     this.pendingCloseSnapshots.delete(id);
     const closedProjectId = this.pendingCloseProjectIds.get(id) ?? this.getProjectId(id);
@@ -2104,6 +2179,7 @@ export class DocumentWorkspace {
     for (const slot of this.slots) slot.core.drawing.settings.setSettings(settings);
   }
   private appendSlot(name = "Untitled") {
+    this.clearTabDockHistory();
     const slot = this.createSlot(`document-${this.createId()}`, name);
     slot.core.drawing.settings.applyPreferences(
       this.active.core.drawing.settings.capturePreferences(),
@@ -2126,6 +2202,7 @@ export class DocumentWorkspace {
     if (!source || !source.core.getSnapshot().document || !source.session.canStartInteraction())
       return false;
     if (!this.select(id) || !source.core.finishViewEdit()) return false;
+    this.clearTabDockHistory();
     const cloneId = `${VIEW_SLOT_ID_PREFIX}${this.createId()}`;
     const key = `${SLOT_PREFERENCE_PREFIX}${cloneId}`;
     this.documentPreferences.copy(this.getDocumentPreferenceId(id), key);

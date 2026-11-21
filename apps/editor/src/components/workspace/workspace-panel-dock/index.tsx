@@ -2281,7 +2281,7 @@ export function WorkspacePanelDock({
             data-workspace-float-id={pane.id}
             data-workspace-pane-tabs={displayedPane.tabs.join(",")}
             data-single-tab={displayedPane.tabs.length === 1 ? "true" : undefined}
-            role="dialog"
+            role="region"
             aria-label={tUiSource(panelLabel(displayedPane.active))}
             onPointerDownCapture={
               layoutEditing ? (event) => beginBlankPress(event, pane, true) : undefined

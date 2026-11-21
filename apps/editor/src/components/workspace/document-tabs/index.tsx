@@ -84,7 +84,6 @@ export function DocumentTabs({
   const { style } = useUi();
   const fullscreen = useBrowserFullscreen();
   const [contextTab, setContextTab] = useState("home");
-  const visible = visibleDocumentIds ? new Set(visibleDocumentIds) : undefined;
   const sourceTabs = useMemo(
     () =>
       documentTabs
@@ -94,7 +93,7 @@ export function DocumentTabs({
             ...(showGlobalTabs && editor.openTabs.includes(HelpDocumentTab.Guide)
               ? [HelpDocumentTab.Guide]
               : []),
-            ...documentTabs.filter((tab) => !visible || visible.has(tab.id)).map((tab) => tab.id),
+            ...(visibleDocumentIds ?? documentTabs.map((tab) => tab.id)),
           ]
         : [...editor.openTabs, ...(recoveryTabOpen ? [RECOVERY_TAB_ID] : [])],
     [documentTabs, editor.openTabs, showGlobalTabs, visibleDocumentIds, recoveryTabOpen],
@@ -103,13 +102,18 @@ export function DocumentTabs({
   useEffect(() => {
     setTabOrder((order) => order.filter((tab) => sourceTabs.includes(tab)));
   }, [sourceTabs]);
-  const tabs = useMemo(
-    () => [
+  const tabs = useMemo(() => {
+    const ordered = [
       ...tabOrder.filter((tab) => sourceTabs.includes(tab)),
       ...sourceTabs.filter((tab) => !tabOrder.includes(tab)),
-    ],
-    [sourceTabs, tabOrder],
-  );
+    ];
+    if (!documentTabs || !tabOrder.length) return ordered;
+    // Keep utility tabs in their local positions while documents follow the pane order.
+    const documentIds = new Set(documentTabs.map((tab) => tab.id));
+    const documents = sourceTabs.filter((id) => documentIds.has(id));
+    let index = 0;
+    return ordered.map((id) => (documentIds.has(id) ? documents[index++] : id));
+  }, [documentTabs, sourceTabs, tabOrder]);
   const infoFor = (id: string) => documentTabs?.find((tab) => tab.id === id);
   const activeTab = recoverySelected
     ? RECOVERY_TAB_ID

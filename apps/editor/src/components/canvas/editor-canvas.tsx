@@ -4,6 +4,10 @@ import {
   presentationToCanvasLogical,
   presentationDeltaToCanvasLogical,
 } from "$/components/canvas/create-canvas-command-context";
+import {
+  editorCanvasRasterBounds,
+  editorCanvasRasterOrigin,
+} from "$/components/canvas/editor-canvas-projection";
 import { EditorInlineTextEditor } from "$/components/canvas/inline-text-editor";
 import {
   SlicePropertiesDialog,
@@ -141,6 +145,7 @@ import {
   presentCanvasPixels,
   surfaceLayout,
   CanvasRenderer,
+  RASTER_SCALE,
   resizeCanvasBuffer,
 } from "@xprite/ui/canvas";
 import {
@@ -157,7 +162,7 @@ import styles from "$/components/canvas/editor-canvas.module.css";
 
 const SYMMETRY_AUXILIARY_ALPHA_DIVISOR = 4;
 const PIVOT_HANDLE_HIT_RADIUS = 3;
-const CANVAS_BACKING_SCALE = 2;
+const CANVAS_BACKING_SCALE = RASTER_SCALE;
 const PAINTING_CURSOR_SCALE_AT_STANDARD_UI = 2;
 const RGBA_CHANNEL_COUNT = 4;
 const PAINTING_CURSOR_CENTER = 3;
@@ -249,19 +254,6 @@ function paintCheckerboard(
           cell.height,
         );
   context.restore();
-}
-
-function canvasRasterBounds(bounds: SurfaceBounds, origin: Point, zoom: number): SurfaceBounds {
-  const project = (value: number, offset: number) =>
-    Math.trunc((offset + value * zoom) * CANVAS_BACKING_SCALE) / CANVAS_BACKING_SCALE;
-  const x = project(bounds.x, origin.x);
-  const y = project(bounds.y, origin.y);
-  return {
-    x,
-    y,
-    width: project(bounds.x + bounds.width, origin.x) - x,
-    height: project(bounds.y + bounds.height, origin.y) - y,
-  };
 }
 
 function paintGridLines(
@@ -1410,8 +1402,7 @@ export function EditorCanvas({
         state.settings.autoGuidesColor ?? DEFAULT_GUIDE_SLICE_PREFERENCES.autoGuidesColor;
       const [guideRed, guideGreen, guideBlue] = parseEditorColor(autoGuidesColor);
       const guideTextColor = cursorNeedsWhite(guideRed, guideGreen, guideBlue) ? "#fff" : "#000";
-      const projectedOrigin = documentToScreen({ x: 0, y: 0 }, v, doc, state.view),
-        origin = { x: Math.trunc(projectedOrigin.x), y: Math.trunc(projectedOrigin.y) },
+      const origin = editorCanvasRasterOrigin(v, doc, state.view),
         zoom = state.view.zoom;
       const tiledMode = state.view.tiledMode ?? 0,
         tiles = tiledCanvasLayout(doc.width, doc.height, tiledMode),
@@ -1421,7 +1412,7 @@ export function EditorCanvas({
           width: tiles.width,
           height: tiles.height,
         };
-      const rasterBounds = canvasRasterBounds(tileBounds, origin, zoom);
+      const rasterBounds = editorCanvasRasterBounds(tileBounds, origin, zoom);
       const right = rasterBounds.x + rasterBounds.width;
       const bottom = rasterBounds.y + rasterBounds.height;
       const floating = state.floatingPaste;
@@ -1945,7 +1936,7 @@ export function EditorCanvas({
           }
           if (key.pivot) context.strokeRect(b.x + key.pivot.x, b.y + key.pivot.y, 1, 1);
           if (state.settings.tool === "slice" && selected.includes(slice.id)) {
-            const bounds = canvasRasterBounds(b, origin, zoom);
+            const bounds = editorCanvasRasterBounds(b, origin, zoom);
             context.save();
             context.setTransform(1, 0, 0, 1, 0, 0);
             paintUiPart(

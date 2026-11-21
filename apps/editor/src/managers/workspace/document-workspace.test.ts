@@ -4,6 +4,7 @@ import path from "node:path";
 import { build, type PluginBuild } from "esbuild";
 import { afterEach, describe, it } from "vitest";
 
+import { DockEdge } from "$/managers/workspace/dock-edge";
 import { createJsonStorage } from "@xprite/bedrock/browser/json-storage";
 import { TilemapDisplayMode } from "@xprite/editor-core";
 
@@ -265,6 +266,45 @@ describe("document-workspace [feature-1-6]", () => {
       for (const slot of w.slots) slot.core.document.loadImage(blank(), slot.name);
       return w;
     };
+    {
+      const w = workspace();
+      const first = w.active;
+      dirty(first.core);
+      w.createDocument({ width: 4, height: 4 });
+      const second = w.active;
+
+      assert.ok(w.splitTab(first.id, "main", DockEdge.Right));
+      const split = w.getSnapshot();
+      assert.ok(w.moveTabToPane(first.id, "main", second.id, true));
+      const merged = w.getSnapshot();
+      assert.deepEqual(
+        merged.panes.map((pane) => pane.tabs),
+        [[first.id, second.id]],
+      );
+
+      first.core.drawing.settings.setSettings({ tool: "pencil", foreground: [0, 0, 255, 255] });
+      first.core.pointerDown({ x: 0, y: 0 });
+      first.core.pointerUp();
+      assert.equal(w.traverseTabDock("undo"), false, "the newer stroke takes priority");
+      first.core.history.undo();
+
+      assert.ok(w.traverseTabDock("undo"));
+      assert.deepEqual(w.getSnapshot().dockTree, split.dockTree);
+      assert.deepEqual(w.getSnapshot().panes, split.panes);
+      assert.equal(w.getSnapshot().activeId, first.id);
+      assert.equal(w.getSnapshot().activePaneId, split.activePaneId);
+      assert.equal(first.core.getSnapshot().canUndo, true, "the earlier stroke remains in history");
+      assert.ok(w.traverseTabDock("redo"));
+      assert.deepEqual(w.getSnapshot().panes, merged.panes);
+
+      assert.ok(w.traverseTabDock("undo"));
+      assert.ok(w.traverseTabDock("undo"), "the original split can also be undone");
+      assert.deepEqual(
+        w.getSnapshot().panes.map((pane) => pane.tabs),
+        [[first.id, second.id]],
+      );
+      w.dispose();
+    }
     const waitForImportState = async (condition) => {
       for (let attempt = 0; attempt < 100 && !condition(); attempt++) await tick();
       assert.ok(condition(), "the import reaches its expected decision state");

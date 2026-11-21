@@ -2,6 +2,7 @@ import { Suspense, useCallback, useEffect, useRef, type ReactNode } from "react"
 
 import { createCanvasCommandContext } from "$/components/canvas/create-canvas-command-context";
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
+import { readActiveEditorCanvas } from "$/components/canvas/use-editor-canvas-geometry";
 import { Alert } from "$/components/dialogs/alert";
 import { useEffectActions } from "$/components/dialogs/effect-actions";
 import { FormDialog } from "$/components/dialogs/form-dialog";
@@ -30,7 +31,7 @@ import {
   type EditorWorkflowOptions,
 } from "$/managers/workspace/use-editor-workflows";
 import { Button, Text, TextVariant, TooltipProvider } from "@xprite/ui";
-import { clientPoint, clientRect } from "@xprite/ui/utils";
+import { clientPoint } from "@xprite/ui/utils";
 
 import styles from "$/components/shell/editor-workflows.module.css";
 
@@ -138,17 +139,9 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     pointer.current = null;
   }, []);
   const getCommandContext = useCallback(() => {
-    const canvas = rootElement.current?.querySelector<HTMLCanvasElement>(
-      "canvas[data-editor-canvas]",
-    );
-    if (!canvas) return undefined;
-    const surfaceBounds = {
-      x: Number(canvas.dataset.uiX ?? 8),
-      y: Number(canvas.dataset.uiY ?? 8),
-      width: Number(canvas.dataset.uiWidth ?? 0),
-      height: Number(canvas.dataset.uiHeight ?? 0),
-    };
-    return createCanvasCommandContext(surfaceBounds, clientRect(canvas), pointer.current);
+    const canvas = readActiveEditorCanvas(rootElement.current);
+    if (!canvas?.surface) return undefined;
+    return createCanvasCommandContext(canvas.surface, canvas.rect, pointer.current);
   }, [rootElement]);
   const {
     workspaceSnapshot,

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { CanvasSizeOverlay } from "$/components/canvas/canvas-size-overlay";
 import { useSceneBounds } from "$/components/canvas/scene-bounds";
+import type { EditorCanvasGeometry } from "$/components/canvas/use-editor-canvas-geometry";
 import { EditorDialog, useEditorDialogInitialFocus } from "$/components/dialogs/overlay";
 import { tUi, tUiSource } from "$/i18n";
 import {
@@ -48,10 +49,8 @@ export interface DocumentSizeDialogsProps {
   onCanvasSize: (bounds: DialogRect, trimOutside: boolean) => void | boolean;
   /** Position Canvas Size beside the active editor's top-right corner. */
   editorBounds?: SurfaceBounds;
-  canvasViewportBounds?: SurfaceBounds;
+  canvasViewport?: EditorCanvasGeometry;
   view?: DialogViewTransform;
-  /** Preview adapter owns document-space rulers; accepting commits once. */
-  onCanvasPreview?: (bounds: DialogRect | null) => void;
 }
 const clampSize = (n: number) => Math.max(1, Math.min(DIALOG_IMAGE_DIMENSION_MAX, Math.trunc(n)));
 const valid = validDialogImageSize;
@@ -86,8 +85,7 @@ function SizeDialog({
   onSpriteSize,
   onCanvasSize,
   editorBounds,
-  onCanvasPreview,
-  canvasViewportBounds,
+  canvasViewport,
   view,
   suspended = false,
   allowTrimOutside = true,
@@ -125,11 +123,24 @@ function SizeDialog({
   }, [kind, suspended, allowTrimOutside]);
   const width = numeric(values.width),
     height = numeric(values.height);
+  const left = numeric(values.left),
+    top = numeric(values.top);
+  const canvasBounds = {
+    x: -Math.trunc(left ?? 0),
+    y: -Math.trunc(top ?? 0),
+    width: clampSize(width ?? ow),
+    height: clampSize(height ?? oh),
+  };
   const allValid =
     width !== null &&
     height !== null &&
     valid(width, height) &&
-    (["left", "right", "top", "bottom"] as const).every((k) => numeric(values[k]) !== null);
+    (kind === "sprite" ||
+      (canvasBounds.width === Math.trunc(width) &&
+        canvasBounds.height === Math.trunc(height) &&
+        [left, top, numeric(values.right), numeric(values.bottom)].every(
+          (border) => border !== null && Number.isSafeInteger(Math.trunc(border)),
+        )));
   const borders = (w: number, h: number, a = anchor) => {
     const dx = Math.trunc(w) - ow,
       dy = Math.trunc(h) - oh,
@@ -153,14 +164,14 @@ function SizeDialog({
     setValues((old) => {
       const next = { ...old, [key]: text };
       if (n === null) return next;
-      if (kind === "canvas")
-        return {
-          ...next,
-          ...borders(
-            key === "width" ? n : (numeric(old.width) ?? ow),
-            key === "height" ? n : (numeric(old.height) ?? oh),
-          ),
-        };
+      if (kind === "canvas") {
+        if (key === "width") {
+          const { left, right } = borders(n, oh);
+          return { ...next, left, right };
+        }
+        const { top, bottom } = borders(ow, n);
+        return { ...next, top, bottom };
+      }
       const horizontal = key.startsWith("width"),
         base = horizontal ? ow : oh,
         pixels = key.endsWith("Percent") ? Math.trunc((base * n) / 100) : Math.trunc(n),
@@ -200,33 +211,13 @@ function SizeDialog({
       }
       return next;
     });
-  const previewRef = useRef(onCanvasPreview);
-  previewRef.current = onCanvasPreview;
-  useEffect(() => {
-    if (kind === "canvas" && allValid)
-      previewRef.current?.({
-        x: -(numeric(values.left) ?? 0),
-        y: -(numeric(values.top) ?? 0),
-        width: clampSize(numeric(values.width) ?? 0),
-        height: clampSize(numeric(values.height) ?? 0),
-      });
-  }, [kind, allValid, values.left, values.top, values.width, values.height]);
-  useEffect(() => () => previewRef.current?.(null), []);
   const accept = () => {
     if (!allValid || suspended) return;
     inputPreferences.writeDocumentSizePreferences({ lockRatio, method, trim });
     const accepted =
       kind === "sprite"
         ? onSpriteSize(clampSize(width!), clampSize(height!), method)
-        : onCanvasSize(
-            {
-              x: -Math.trunc(numeric(values.left) ?? 0),
-              y: -Math.trunc(numeric(values.top) ?? 0),
-              width: clampSize(width!),
-              height: clampSize(height!),
-            },
-            trim,
-          );
+        : onCanvasSize(canvasBounds, trim);
     if (accepted !== false) onClose();
   };
   const field = (
@@ -270,20 +261,16 @@ function SizeDialog({
       relativeTo={client}
     />
   );
-  const canvasBounds = {
-    x: -Math.trunc(numeric(values.left) ?? 0),
-    y: -Math.trunc(numeric(values.top) ?? 0),
-    width: Math.max(0, Math.trunc(width ?? ow)),
-    height: Math.max(0, Math.trunc(height ?? oh)),
-  };
-  const rulerOverlay = kind === "canvas" && canvasViewportBounds && view;
   return (
     <SizeDialogShell
       suspended={suspended}
       overlay={
-        rulerOverlay && (
+        !suspended &&
+        kind === "canvas" &&
+        canvasViewport &&
+        view && (
           <CanvasSizeOverlay
-            viewportBounds={canvasViewportBounds}
+            viewport={canvasViewport}
             documentWidth={ow}
             documentHeight={oh}
             view={view}

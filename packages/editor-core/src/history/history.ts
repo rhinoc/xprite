@@ -45,6 +45,8 @@ interface HistoryStateSnapshot {
 export interface HistorySnapshot extends UndoOptions {
   readonly states: readonly HistoryStateSnapshot[];
   readonly currentIndex: number;
+  readonly position: symbol;
+  readonly latestEdit: symbol;
   readonly initialSaved: boolean;
   readonly savedStateLost: boolean;
 }
@@ -120,6 +122,7 @@ interface Entry {
   command: CommandTransaction;
   parent: Entry | null;
   label: string;
+  position: symbol;
   beforeId: number;
   afterId: number;
   beforeRasterId: number;
@@ -245,6 +248,8 @@ export class EditorHistory {
   private rasterId = 0;
   private baseId = 0;
   private baseRasterId = 0;
+  private basePosition = Symbol();
+  private latestEdit = this.basePosition;
   private historySnapshot: HistorySnapshot | null = null;
   private pixelBufferVersions = new WeakMap<Uint8ClampedArray, number>();
   private persistenceEpoch = 0;
@@ -326,6 +331,7 @@ export class EditorHistory {
     this.rasterId = this.id;
     this.baseId = this.id;
     this.baseRasterId = this.id;
+    this.basePosition = this.latestEdit = Symbol();
     this.invalidateHistorySnapshot();
   }
   markSaved() {
@@ -374,6 +380,8 @@ export class EditorHistory {
         saved: entry === this.savedState,
       })),
       currentIndex: this.current ? this.past.indexOf(this.current) : -1,
+      position: this.current?.position ?? this.basePosition,
+      latestEdit: this.latestEdit,
       initialSaved: !this.savedStateLost && this.savedState === null,
       savedStateLost: this.savedStateLost,
       ...this.getOptions(),
@@ -516,6 +524,7 @@ export class EditorHistory {
       command: new CommandTransaction(a.label, commands),
       parent: this.current,
       label: a.label,
+      position: Symbol(),
       beforeId: this.id,
       // Selection tools / DeselectMask use DoesntModifyDocument upstream.
       // Keep their undo entry without advancing the saved content identity.
@@ -525,6 +534,7 @@ export class EditorHistory {
     };
     this.id = entry.afterId;
     this.rasterId = entry.afterRasterId;
+    this.latestEdit = entry.position;
     this.recordPersistenceMutation(entry.command);
     if (!this.allowNonlinear) this.clearRedo();
     this.past.push(entry);
@@ -681,6 +691,7 @@ export class EditorHistory {
     nextFirst.parent = null;
     this.baseId = nextFirst.beforeId;
     this.baseRasterId = nextFirst.beforeRasterId;
+    this.basePosition = first.position;
     return true;
   }
   private enforceLimit() {

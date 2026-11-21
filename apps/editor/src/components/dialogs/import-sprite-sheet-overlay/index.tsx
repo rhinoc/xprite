@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useRef, useState, type PointerEvent } from "react";
 
-import { useSceneBounds } from "$/components/canvas/scene-bounds";
+import { createEditorCanvasProjection } from "$/components/canvas/editor-canvas-projection";
+import {
+  useEditorCanvasGeometry,
+  type EditorCanvasGeometry,
+} from "$/components/canvas/use-editor-canvas-geometry";
 import { tUi } from "$/i18n";
 import {
   dragImportSheetOverlayRulers,
   getImportSheetOverlayGeometry,
   hitImportSheetOverlayRulers,
-  projectImportSheetDocumentPoint,
-  unprojectImportSheetDocumentPoint,
   useImportSheetEditor,
   type ImportSheetPoint,
   type ImportSheetRuler,
@@ -17,7 +19,7 @@ import {
 } from "$/managers/dialogs/import-sprite-sheet";
 import { CanvasSurface, Text, TextVariant, type SurfaceBounds } from "@xprite/ui";
 import { centerUiPixel, useUiAssets } from "@xprite/ui/assets";
-import { surfaceLayout } from "@xprite/ui/canvas";
+import { RASTER_SCALE, surfaceLayout } from "@xprite/ui/canvas";
 import {
   clientPoint,
   clientToSurface,
@@ -28,7 +30,7 @@ import {
 } from "@xprite/ui/utils";
 
 interface ImportSpriteSheetOverlayProps {
-  viewportBounds: SurfaceBounds;
+  viewport: EditorCanvasGeometry;
   documentWidth: number;
   documentHeight: number;
   view: ImportSheetView;
@@ -40,23 +42,18 @@ interface ImportSpriteSheetOverlayProps {
 }
 
 function visibleDocumentBounds(
-  logicalViewport: { width: number; height: number },
-  image: { width: number; height: number },
-  view: ImportSheetView,
+  viewport: SurfaceBounds,
+  unproject: (point: ImportSheetPoint) => ImportSheetPoint,
+  zoom: number,
 ) {
-  const first = unprojectImportSheetDocumentPoint({ x: 0, y: 0 }, logicalViewport, image, view);
+  const first = unproject(viewport);
   // Cover the last scaled source pixel that can touch the canvas surface,
   // then round outward so partially visible edge pixels receive the overlay.
-  const edge = Math.trunc(view.zoom);
-  const last = unprojectImportSheetDocumentPoint(
-    {
-      x: logicalViewport.width + edge,
-      y: logicalViewport.height + edge,
-    },
-    logicalViewport,
-    image,
-    view,
-  );
+  const edge = Math.trunc(zoom) * RASTER_SCALE;
+  const last = unproject({
+    x: viewport.x + viewport.width + edge,
+    y: viewport.y + viewport.height + edge,
+  });
   const x = Math.floor(first.x);
   const y = Math.floor(first.y);
   return { x, y, width: Math.ceil(last.x) - x, height: Math.ceil(last.y) - y };
@@ -77,7 +74,7 @@ function rulerCursor(
 }
 
 function ImportSpriteSheetOverlay({
-  viewportBounds: viewport,
+  viewport: { surface: viewport, scene },
   documentWidth,
   documentHeight,
   view,
@@ -100,22 +97,16 @@ function ImportSpriteSheetOverlay({
   );
 
   const image = { width: documentWidth, height: documentHeight };
-  const logicalViewport = { width: viewport.width / 2, height: viewport.height / 2 };
-  const project = (point: ImportSheetPoint) => {
-    const screen = projectImportSheetDocumentPoint(point, logicalViewport, image, view);
-    return {
-      x: viewport.x + Math.trunc(screen.x) * 2,
-      y: viewport.y + Math.trunc(screen.y) * 2,
-    };
-  };
-  const documentViewport = visibleDocumentBounds(logicalViewport, image, view);
+  const {
+    viewport: logicalViewport,
+    project,
+    unproject,
+  } = createEditorCanvasProjection(viewport, image, view);
+  const documentViewport = visibleDocumentBounds(viewport, unproject, view.zoom);
   const geometry = getImportSheetOverlayGeometry(image, options, documentViewport, view.zoom);
-  const layout = surfaceLayout(viewport);
 
-  const eventPoint = (event: PointerEvent<HTMLDivElement>) => {
-    const screen = clientToSurface(event.currentTarget, clientPoint(event), logicalViewport);
-    return unprojectImportSheetDocumentPoint(screen, logicalViewport, image, view);
-  };
+  const eventPoint = (event: PointerEvent<HTMLDivElement>) =>
+    unproject(clientToSurface(event.currentTarget, clientPoint(event), viewport));
 
   const finish = (event: PointerEvent<HTMLDivElement>) => {
     if (drag.current?.id !== event.pointerId && pan.current?.id !== event.pointerId) return;
@@ -150,7 +141,16 @@ function ImportSpriteSheetOverlay({
 
       <div
         aria-label={tUi("ui.import.sprite.sheet.rulers")}
-        style={{ position: "absolute", ...layout, zIndex: 0, cursor, touchAction: "none" }}
+        style={{
+          position: "absolute",
+          left: scene.x,
+          top: scene.y,
+          width: scene.width,
+          height: scene.height,
+          zIndex: 0,
+          cursor,
+          touchAction: "none",
+        }}
         onContextMenu={(event) => event.preventDefault()}
         {...stylusPointerInputProps()}
         onPointerDown={(event) => {
@@ -251,7 +251,13 @@ function ImportSpriteSheetOverlay({
           aria-hidden
           bounds={viewport}
           dependencies={[assets, geometry, view.zoom, view.pan.x, view.pan.y, viewport]}
-          style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            width: "100%",
+            height: "100%",
+          }}
           paint={(context) => {
             context.save();
             context.beginPath();
@@ -261,12 +267,8 @@ function ImportSpriteSheetOverlay({
             context.fillStyle = "rgba(0,0,0,0.5019607843137255)";
             for (const band of geometry.shade) {
               const corner = project(band);
-              context.fillRect(
-                corner.x,
-                corner.y,
-                Math.trunc(band.width * view.zoom) * 2,
-                Math.trunc(band.height * view.zoom) * 2,
-              );
+              const end = project({ x: band.x + band.width, y: band.y + band.height });
+              context.fillRect(corner.x, corner.y, end.x - corner.x, end.y - corner.y);
             }
 
             context.fillStyle = assets?.style.colors.select_box_grid ?? "#64c864";
@@ -299,8 +301,6 @@ function ImportSpriteSheetOverlay({
   );
 }
 
-/** Scene-scoped measuring adapter. Canvas-authored Aseprite bounds are the source
- * of truth; draft/paint updates never modify the document or undo history. */
 export function ImportSpriteSheetOverlayHost({
   options,
   onChange,
@@ -310,66 +310,22 @@ export function ImportSpriteSheetOverlayHost({
 }) {
   const editor = useImportSheetEditor();
   const snapshot = editor.snapshot;
-  const sceneBounds = useSceneBounds();
-  const marker = useRef<HTMLSpanElement>(null);
-  const [viewport, setViewport] = useState<SurfaceBounds | null>(null);
-
-  useEffect(() => {
-    const scene = marker.current?.closest("[data-ui-scene]");
-    if (!scene) return;
-
-    const read = () => {
-      const canvas = scene.querySelector<HTMLCanvasElement>("canvas[data-editor-canvas]");
-      if (!canvas) return;
-      const next = {
-        x: Number(canvas.dataset.uiX),
-        y: Number(canvas.dataset.uiY),
-        width: Number(canvas.dataset.uiWidth),
-        height: Number(canvas.dataset.uiHeight),
-      };
-      if (Object.values(next).every(Number.isFinite) && next.width > 0 && next.height > 0) {
-        setViewport((old) =>
-          old &&
-          Object.keys(next).every(
-            (key) => old[key as keyof SurfaceBounds] === next[key as keyof SurfaceBounds],
-          )
-            ? old
-            : next,
-        );
-      }
-    };
-
-    read();
-    const observer = new MutationObserver(read);
-    observer.observe(scene, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ["data-ui-x", "data-ui-y", "data-ui-width", "data-ui-height"],
-    });
-    return () => observer.disconnect();
-  }, []);
-
   const document = snapshot.document;
+  const { marker, viewport, contextBounds } = useEditorCanvasGeometry(!!document);
   return (
     <>
       <span hidden ref={marker} />
       {document && viewport && (
         <ImportSpriteSheetOverlay
           key={`${document.id ?? document.name}`}
-          viewportBounds={viewport}
+          viewport={viewport}
           documentWidth={document.width}
           documentHeight={document.height}
           view={snapshot.view}
           options={options}
           onChange={onChange}
           onViewChange={editor.setView}
-          contextBounds={{
-            x: viewport.x - 6,
-            y: viewport.y - 42,
-            width: sceneBounds.width - (viewport.x - 6),
-            height: 36,
-          }}
+          contextBounds={contextBounds ?? undefined}
         />
       )}
     </>
