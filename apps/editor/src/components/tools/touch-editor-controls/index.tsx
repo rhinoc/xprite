@@ -233,18 +233,18 @@ export function TouchShortcutRail({
     {
       id: TouchShortcutId.Undo,
       label: TouchShortcutId.Undo,
-      onClick: () => run("undo"),
+      onClick: () => actions?.undo(),
       repeat: true,
       pixelIcon: "undo",
-      disabled: !state.canUndo && !state.floatingPaste && !state.inlineText,
+      disabled: !actions?.canUndo,
     },
     {
       id: TouchShortcutId.Redo,
       label: TouchShortcutId.Redo,
-      onClick: () => run("redo"),
+      onClick: () => actions?.redo(),
       repeat: true,
       pixelIcon: "redo",
-      disabled: !state.canRedo && !state.inlineText,
+      disabled: !actions?.canRedo,
     },
     {
       id: TouchShortcutId.Grid,

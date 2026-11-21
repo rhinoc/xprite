@@ -13,12 +13,12 @@ export interface DialogEditorTarget {
 }
 
 /** Internal manager hook: component-facing hooks must project a narrower model. */
-export function useDialogEditorSource(documentSlotId?: string) {
+export function useDialogEditorSource(documentSlotId?: string, includePan = false) {
   const manager = useEditorManagerContext();
   const runtime = useEditorRuntimeManagerContext();
   const slot = documentSlotId ? runtime.workspace.getSlot(documentSlotId) : undefined;
   const core = documentSlotId ? (slot?.core ?? null) : manager.core;
-  const snapshot = useEditorSnapshot(core);
+  const snapshot = useEditorSnapshot(core, includePan);
   const owner = useMemo(() => ({}), [core]);
   const document = snapshot?.document ?? null;
   const documentKey = document ? (document.id ?? document.name) : null;

@@ -37,6 +37,7 @@
 }
 :global(.xse-tool-rail [data-slot="button"]) {
   z-index: 4;
+  cursor: var(--ui-cursor-default, default);
 }
 :global(.xse-tool-rail[data-layout="row"]) {
   display: flex;

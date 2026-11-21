@@ -8,6 +8,7 @@ import {
   PixelResizeMethod,
   MAX_IMAGE_DIMENSION,
   MAX_IMAGE_PIXELS,
+  type ViewSettings,
 } from "@xprite/editor-core";
 
 export interface DialogRect {
@@ -17,15 +18,7 @@ export interface DialogRect {
   height: number;
 }
 
-interface DialogPan {
-  x: number;
-  y: number;
-}
-
-export interface DialogViewTransform {
-  zoom: number;
-  pan: DialogPan;
-}
+export type DialogViewTransform = Pick<ViewSettings, "zoom" | "pan" | "tiledMode">;
 
 export const DialogCanvasAnchor = Object.freeze({
   TopLeft: CanvasAnchor.TopLeft,

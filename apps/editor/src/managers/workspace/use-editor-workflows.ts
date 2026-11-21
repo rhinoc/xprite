@@ -902,8 +902,18 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       }
     }
   };
+  const documentScene = editor.tab === "document" && !recoveryOpen;
+  const canRunHistory = (direction: "undo" | "redo") =>
+    canDispatchEditorInput() &&
+    documentScene &&
+    (workspace.canTraverseTabDock(direction) ||
+      canExecuteEditorAction(direction, core.getSnapshot(), editorSceneForTab(editor.tab)));
   const actions = {
     clipboardCapabilities: clipboard.getCapabilities(),
+    canUndo: canRunHistory("undo"),
+    canRedo: canRunHistory("redo"),
+    undo: () => command({ type: "undo" }),
+    redo: () => command({ type: "redo" }),
     recoveryProblem: presentRecoveryProblem({
       outputProblem: workspace.getFileOutputRecoveryProblem(workspaceSnapshot.activeId),
       failure: recoveryFailure,
@@ -1174,12 +1184,14 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       paneId ? workspace.reorderInPane(paneId, id, targetId) : workspace.reorder(id, targetId),
     moveDocumentTab: (id: string, paneId: string, targetId?: string, before?: boolean) => {
       if (!canStartInteraction()) return;
+      timelineActionsRef.current?.flushPendingLayerProperties?.();
       setRecoveryOpen(false);
       workspace.moveTabToPane(id, paneId, targetId, before);
       editor.openTab("document");
     },
     splitDocumentTab: (id: string, paneId: string, edge: DockEdge) => {
       if (!canStartInteraction()) return;
+      timelineActionsRef.current?.flushPendingLayerProperties?.();
       setRecoveryOpen(false);
       workspace.splitTab(id, paneId, edge);
       editor.openTab("document");
@@ -1256,6 +1268,11 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     presentationContext = managerOptions.getCommandContext?.(),
   ) => {
     if (!canDispatchEditorInput()) return;
+    if (cmd.type === "undo" || cmd.type === "redo") {
+      if (!documentScene) return;
+      timelineActionsRef.current?.flushPendingLayerProperties?.();
+      if (workspace.traverseTabDock(cmd.type)) return;
+    }
     if (cmd.type === "cancel") clipboard.dismissTimelineCopyRange();
     const viewport =
       presentationContext?.viewport.width && presentationContext.viewport.height

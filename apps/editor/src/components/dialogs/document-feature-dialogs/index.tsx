@@ -10,20 +10,21 @@ import {
   type ReactNode,
 } from "react";
 
+import { useEditorCanvasGeometry } from "$/components/canvas/use-editor-canvas-geometry";
 import { Alert } from "$/components/dialogs/alert";
 import { lazyChunk } from "$/components/shared/lazy-chunk";
+import { tUi } from "$/i18n";
 import { useDocumentFeatureManager } from "$/managers/dialogs/document-feature-manager";
 import type { DialogEditorTarget } from "$/managers/dialogs/internal-editor-source";
+import { Text, TextVariant } from "@xprite/ui";
+import { useUiAssets } from "@xprite/ui/assets";
+import { surfaceLayout } from "@xprite/ui/canvas";
+
 const DocumentSizeDialogs = lazyChunk(() =>
   import("$/components/dialogs/size-dialogs").then((module) => ({
     default: module.DocumentSizeDialogs,
   })),
 );
-import { useSceneBounds } from "$/components/canvas/scene-bounds";
-import { tUi } from "$/i18n";
-import { Text, TextVariant, type SurfaceBounds } from "@xprite/ui";
-import { useUiAssets } from "@xprite/ui/assets";
-import { surfaceLayout } from "@xprite/ui/canvas";
 
 export interface DocumentFeatureActions {
   openSpriteSize: () => void;
@@ -53,36 +54,23 @@ export function useDocumentFeatureActions() {
 export interface DocumentFeatureDialogsProps {
   /** Disable on Home/recovery; changing this closes any uncommitted dialog. */
   enabled?: boolean;
-  editorBounds?: SurfaceBounds;
-  canvasViewportBounds?: SurfaceBounds;
 }
-/** Scene-root host. Geometry may be supplied explicitly; otherwise it reads
- * Scene-root host. Geometry may be supplied explicitly; otherwise reads this scene's canvas-authored bounds so mockups need no layout code.
- * Observers run only while a dialog is open and track dock/viewport resizing. */
-export function DocumentFeatureDialogs({
-  enabled = true,
-  editorBounds,
-  canvasViewportBounds,
-}: DocumentFeatureDialogsProps) {
+export function DocumentFeatureDialogs({ enabled = true }: DocumentFeatureDialogsProps) {
   const registry = useContext(DocumentFeatureActionsContext);
-  const assets = useUiAssets(),
-    sceneBounds = useSceneBounds();
-  const manager = useDocumentFeatureManager();
+  const assets = useUiAssets();
+  const [kind, setKind] = useState<"sprite" | "canvas" | null>(null);
+  const manager = useDocumentFeatureManager(kind === "canvas");
   const snapshot = manager.current;
   const [sizeError, setSizeError] = useState<string | null>(null);
-  const [kind, setKind] = useState<"sprite" | "canvas" | null>(null);
   const managerRef = useRef(manager);
   managerRef.current = manager;
   const openedTarget = useRef<DialogEditorTarget | null>(null);
   const currentlyEnabled = useRef(enabled);
   currentlyEnabled.current = enabled;
-  const marker = useRef<HTMLSpanElement>(null);
-  const [measuredCanvas, setMeasuredCanvas] = useState<SurfaceBounds | null>(null);
   const close = useCallback(() => {
     setKind(null);
     openedTarget.current = null;
     setSizeError(null);
-    setMeasuredCanvas(null);
   }, []);
   const open = useCallback(
     (next: "sprite" | "canvas") => {
@@ -103,61 +91,19 @@ export function DocumentFeatureDialogs({
     [registry?.register, open],
   );
   const targetCurrent = manager.isCurrentTarget(openedTarget.current);
+  const { marker, viewport, contextBounds } = useEditorCanvasGeometry(
+    enabled && targetCurrent && kind === "canvas",
+  );
   useEffect(() => {
     if (!enabled || !snapshot?.document || (kind && !targetCurrent)) close();
   }, [enabled, snapshot?.document, kind, targetCurrent, close]);
-  useEffect(() => {
-    if (!kind || !targetCurrent || canvasViewportBounds) return;
-    const scene = marker.current?.closest("[data-ui-scene]");
-    if (!scene) return;
-    const read = () => {
-      const canvas = scene.querySelector<HTMLElement>(
-        "canvas[data-ui-x][data-ui-y][data-ui-width][data-ui-height]",
-      );
-      if (!canvas) {
-        setMeasuredCanvas(null);
-        return;
-      }
-      const bounds = {
-        x: Number(canvas.dataset.uiX),
-        y: Number(canvas.dataset.uiY),
-        width: Number(canvas.dataset.uiWidth),
-        height: Number(canvas.dataset.uiHeight),
-      };
-      if (!Object.values(bounds).every(Number.isFinite) || bounds.width <= 0 || bounds.height <= 0)
-        return;
-      setMeasuredCanvas((old) =>
-        old &&
-        old.x === bounds.x &&
-        old.y === bounds.y &&
-        old.width === bounds.width &&
-        old.height === bounds.height
-          ? old
-          : bounds,
-      );
-    };
-    read();
-    const observer = new MutationObserver(read);
-    observer.observe(scene, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ["data-ui-x", "data-ui-y", "data-ui-width", "data-ui-height"],
-    });
-    return () => observer.disconnect();
-  }, [kind, targetCurrent, canvasViewportBounds]);
-  const canvas = canvasViewportBounds ?? measuredCanvas ?? undefined;
+  const canvas = viewport?.scene;
   // View's client starts three GUI pixels inside its top/left; right/bottom
   // …nine-GUI-pixel scrollbars.
-  const editor =
-    editorBounds ??
-    (canvas
-      ? { x: canvas.x - 6, y: canvas.y - 6, width: canvas.width + 24, height: canvas.height + 24 }
-      : undefined);
+  const editor = canvas
+    ? { x: canvas.x - 6, y: canvas.y - 6, width: canvas.width + 24, height: canvas.height + 24 }
+    : undefined;
   const doc = snapshot?.document;
-  const contextBounds = editor
-    ? { x: editor.x, y: editor.y - 36, width: sceneBounds.width - editor.x, height: 36 }
-    : null;
   const apply = (operation: () => boolean) => {
     // Reject a queued callback even before React's document-change effect runs.
     const target = openedTarget.current;
@@ -202,7 +148,7 @@ export function DocumentFeatureDialogs({
             documentWidth={doc.width}
             documentHeight={doc.height}
             editorBounds={editor}
-            canvasViewportBounds={canvas}
+            canvasViewport={viewport ?? undefined}
             view={snapshot.view}
             onClose={close}
             onSpriteSize={(width, height, method) =>

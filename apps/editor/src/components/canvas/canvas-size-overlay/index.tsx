@@ -1,13 +1,14 @@
 import { useRef, useState, type PointerEvent } from "react";
 
+import { createEditorCanvasProjection } from "$/components/canvas/editor-canvas-projection";
+import type { EditorCanvasGeometry } from "$/components/canvas/use-editor-canvas-geometry";
 import { tUi } from "$/i18n";
 import type { Point, Rect, ViewSettings } from "$/managers/canvas/canvas-presentation";
-import { documentToScreen, screenToDocument } from "$/managers/canvas/canvas-presentation";
 import { resolvePointerActionModifiers } from "$/managers/input/policies/action-modifiers";
 import { useShortcutManager } from "$/managers/shortcuts/use-shortcut-manager";
-import { CanvasSurface, type SurfaceBounds } from "@xprite/ui";
+import { CanvasSurface } from "@xprite/ui";
 import { useUiAssets } from "@xprite/ui/assets";
-import { surfaceLayout } from "@xprite/ui/canvas";
+import { RASTER_SCALE } from "@xprite/ui/canvas";
 import {
   clientPoint,
   clientToSurface,
@@ -17,10 +18,10 @@ import {
 } from "@xprite/ui/utils";
 
 export interface CanvasSizeOverlayProps {
-  viewportBounds: SurfaceBounds;
+  viewport: EditorCanvasGeometry;
   documentWidth: number;
   documentHeight: number;
-  view: Pick<ViewSettings, "zoom" | "pan">;
+  view: Pick<ViewSettings, "zoom" | "pan" | "tiledMode">;
   bounds: Rect;
   onBoundsChange: (bounds: Rect) => void;
 }
@@ -28,7 +29,7 @@ export interface CanvasSizeOverlayProps {
  * Rulers and DarkOutside. Edge hit regions extend outward; dragging inside
  * translates all four rulers. */
 export function CanvasSizeOverlay({
-  viewportBounds: viewport,
+  viewport: { surface: viewport, scene },
   documentWidth,
   documentHeight,
   view,
@@ -37,12 +38,11 @@ export function CanvasSizeOverlay({
 }: CanvasSizeOverlayProps) {
   const shortcuts = useShortcutManager();
   const assets = useUiAssets();
-  const logical = { width: viewport.width / 2, height: viewport.height / 2 };
-  const document = { width: documentWidth, height: documentHeight };
-  const project = (p: Point) => {
-    const s = documentToScreen(p, logical, document, view);
-    return { x: viewport.x + 2 * s.x, y: viewport.y + 2 * s.y };
-  };
+  const { project, unproject } = createEditorCanvasProjection(
+    viewport,
+    { width: documentWidth, height: documentHeight },
+    view,
+  );
   const first = project(bounds),
     last = project({ x: bounds.x + bounds.width, y: bounds.y + bounds.height });
   const [cursor, setCursor] = useState("move");
@@ -57,13 +57,8 @@ export function CanvasSizeOverlay({
     return clientToSurface(event.currentTarget, clientPoint(event), viewport);
   };
   const toDocument = (p: Point) => {
-    const result = screenToDocument(
-      { x: (p.x - viewport.x) / 2, y: (p.y - viewport.y) / 2 },
-      logical,
-      document,
-      view,
-    );
-    return { x: Math.floor(result.x), y: Math.floor(result.y) };
+    const point = unproject(p);
+    return { x: Math.floor(point.x), y: Math.floor(point.y) };
   };
   const hits = (p: Point) => {
     const moving: number[] = [];
@@ -83,17 +78,16 @@ export function CanvasSizeOverlay({
           : moving.includes(0) || moving.includes(1)
             ? "ns-resize"
             : "ew-resize";
-  const layout = surfaceLayout(viewport);
   return (
     <div
       {...stylusPointerInputProps()}
       aria-label={tUi("ui.canvas.size.rulers")}
       style={{
         position: "absolute",
-        left: layout.left,
-        top: layout.top,
-        width: layout.width,
-        height: layout.height,
+        left: scene.x,
+        top: scene.y,
+        width: scene.width,
+        height: scene.height,
         zIndex: 0,
         cursor,
         touchAction: "none",
@@ -144,8 +138,8 @@ export function CanvasSizeOverlay({
         onBoundsChange({
           x: Math.min(next[2], next[3]),
           y: Math.min(next[0], next[1]),
-          width: Math.abs(next[3] - next[2]),
-          height: Math.abs(next[1] - next[0]),
+          width: Math.max(1, Math.abs(next[3] - next[2])),
+          height: Math.max(1, Math.abs(next[1] - next[0])),
         });
         event.preventDefault();
         event.stopPropagation();
@@ -168,7 +162,13 @@ export function CanvasSizeOverlay({
         aria-hidden
         bounds={viewport}
         dependencies={[assets, first.x, first.y, last.x, last.y]}
-        style={{ pointerEvents: "none", position: "absolute", inset: 0 }}
+        style={{
+          pointerEvents: "none",
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+        }}
         paint={(ctx) => {
           ctx.fillStyle = "rgba(0,0,0,0.5019607843137255)";
           ctx.beginPath();
@@ -176,10 +176,10 @@ export function CanvasSizeOverlay({
           ctx.rect(first.x, first.y, Math.max(0, last.x - first.x), Math.max(0, last.y - first.y));
           ctx.fill("evenodd");
           ctx.fillStyle = assets?.style.colors.select_box_ruler ?? "#0000ff";
-          ctx.fillRect(Math.trunc(first.x / 2) * 2, viewport.y, 2, viewport.height);
-          ctx.fillRect(Math.trunc(last.x / 2) * 2, viewport.y, 2, viewport.height);
-          ctx.fillRect(viewport.x, Math.trunc(first.y / 2) * 2, viewport.width, 2);
-          ctx.fillRect(viewport.x, Math.trunc(last.y / 2) * 2, viewport.width, 2);
+          ctx.fillRect(first.x, viewport.y, RASTER_SCALE, viewport.height);
+          ctx.fillRect(last.x, viewport.y, RASTER_SCALE, viewport.height);
+          ctx.fillRect(viewport.x, first.y, viewport.width, RASTER_SCALE);
+          ctx.fillRect(viewport.x, last.y, viewport.width, RASTER_SCALE);
         }}
       />
     </div>

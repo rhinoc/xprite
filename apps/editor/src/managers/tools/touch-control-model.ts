@@ -7,18 +7,9 @@ import { isSelectionToolMode, isTwoPointToolShape } from "$/managers/tools/tool-
 import { measuredEditorViewport } from "$/managers/workspace/editor-layout";
 import { executeEditorCommand } from "@xprite/editor-core";
 
-type TouchEditorCommand =
-  | "undo"
-  | "redo"
-  | "finish-edit"
-  | "discard-edit"
-  | "fit-screen"
-  | "zoom-in"
-  | "zoom-out";
+type TouchEditorCommand = "finish-edit" | "discard-edit" | "fit-screen" | "zoom-in" | "zoom-out";
 
 export interface TouchEditorSnapshotModel {
-  canUndo: boolean;
-  canRedo: boolean;
   hasDocument: boolean;
   hasSelection: boolean;
   floatingPaste: boolean;
@@ -58,8 +49,6 @@ export function useTouchEditorSnapshotModel(): TouchEditorSnapshotModel {
       ["curve", "polygon", "polygonal_lasso"].includes(snapshot.preview.tool),
     );
     const next: TouchEditorSnapshotModel = {
-      canUndo: hasDocument && (snapshot?.canUndo ?? false),
-      canRedo: hasDocument && (snapshot?.canRedo ?? false),
       hasDocument,
       hasSelection: hasDocument && Boolean(snapshot?.document?.selection),
       floatingPaste: hasDocument && Boolean(snapshot?.floatingPaste),

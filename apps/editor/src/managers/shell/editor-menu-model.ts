@@ -216,7 +216,6 @@ export function useEditorMenuModel() {
       setOnionSkin: (settings: { active: boolean }) => core?.timeline.setOnionSkin(settings),
       addGroup: () => core?.timeline.addGroup(),
     },
-    history: { undo: () => core?.history.undo(), redo: () => core?.history.redo() },
     canvas: {
       setGridBounds: (bounds: { x: number; y: number; width: number; height: number }) =>
         core?.canvas.setGridBounds(bounds),

@@ -257,11 +257,8 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
       onSelect: () => editorCommands.timeline.toggleActiveGroup(),
       disabled: !hasDocumentTimeline || timeline?.layers[timeline.activeLayer].kind !== "group",
     },
-    Undo: {
-      onSelect: () => editorCommands.history.undo(),
-      disabled: !can("undo"),
-    },
-    Redo: { onSelect: () => editorCommands.history.redo(), disabled: !can("redo") },
+    Undo: { onSelect: actions.undo, disabled: !actions.canUndo },
+    Redo: { onSelect: actions.redo, disabled: !actions.canRedo },
     UndoHistory: { onSelect: () => setUndoHistoryOpen(true), disabled: documentUnavailable },
     PasteText: {
       onSelect: actions.text,

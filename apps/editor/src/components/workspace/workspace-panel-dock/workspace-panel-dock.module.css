@@ -245,6 +245,7 @@
   display: flex;
   flex: 1 1 auto;
   overflow: hidden;
+  cursor: var(--ui-cursor-default, default);
 }
 :global(
   .xse-workspace-panel-pane[data-workspace-pane-tabs="context"] .xse-workspace-panel-content
@@ -307,8 +308,11 @@
   min-height: 0;
 }
 :global(.xse-floating-workspace-titlebar) {
-  cursor: var(--ui-cursor-move, move);
   touch-action: none;
+}
+:global(.xse-workspace-panel-dock[data-layout-editing="true"] .xse-floating-workspace-titlebar),
+:global(.xse-floating-workspace-titlebar:active) {
+  cursor: var(--ui-cursor-move, move);
 }
 :global(.xse-floating-workspace-resize) {
   position: absolute;

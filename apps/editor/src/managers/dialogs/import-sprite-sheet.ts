@@ -1,6 +1,5 @@
 import { useEditorManagerContext } from "$/managers/editor/editor-state-manager";
 import { useEditorSnapshot } from "$/managers/editor/use-editor-snapshot";
-import { documentToScreen, screenToDocument } from "@xprite/editor-core";
 import {
   dragImportSheetRulers,
   hitImportSheetRulers,
@@ -45,24 +44,6 @@ export interface ImportSheetOverlayGeometryView {
   grid: { from: ImportSheetPoint; to: ImportSheetPoint }[];
   rulers: number[];
   rulerGuides: { axis: "horizontal" | "vertical"; position: number }[];
-}
-
-export function projectImportSheetDocumentPoint(
-  point: ImportSheetPoint,
-  viewport: { width: number; height: number },
-  image: { width: number; height: number },
-  view: ImportSheetView,
-) {
-  return documentToScreen(point, viewport, image, view);
-}
-
-export function unprojectImportSheetDocumentPoint(
-  point: ImportSheetPoint,
-  viewport: { width: number; height: number },
-  image: { width: number; height: number },
-  view: ImportSheetView,
-) {
-  return screenToDocument(point, viewport, image, view);
 }
 
 export function hitImportSheetOverlayRulers(
