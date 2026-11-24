@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 
-import { describe, it } from "vitest";
+import { describe, it, vi } from "vitest";
 
 import { RasterEditor } from "$/editor/RasterEditor";
+import { asepriteFromProject } from "$/import-export/aseprite/project";
 import { projectPngImage } from "$/import-export/image/project-preview";
 import { EditorSession } from "$/session/editor-session";
 import {
@@ -13,8 +14,52 @@ import {
   type SessionWriteResult,
 } from "$/session/types";
 import { TilesetMode, TilemapDisplayMode } from "$/tilemap/types";
+import * as timelineRenderer from "$/timeline/timeline";
 
 describe("immutable project save snapshots", () => {
+  it("writes an Aseprite project under preview allocation pressure without misreporting the save", async () => {
+    const blank = { width: 1, height: 1, data: Uint8ClampedArray.of(1, 2, 3, 255) };
+    const core = new RasterEditor(blank, "Artwork.aseprite");
+    core.color.setPalette([[1, 2, 3, 255]]);
+    const errors: string[] = [];
+    const render = vi.spyOn(timelineRenderer, "renderTimelineFrame");
+    const session = new EditorSession(
+      core,
+      {
+        decode: async () => blank,
+        analyze: async () => {
+          throw new Error("Unexpected analysis");
+        },
+        pixelate: async (image) => image,
+        write: async () => {
+          throw new Error("Expected project writer");
+        },
+        writeProject: async (project) => {
+          assert.equal(render.mock.calls.length, 0);
+          assert.equal(asepriteFromProject(project).width, 1);
+          return { method: "download", name: "Artwork.aseprite", format: "aseprite" };
+        },
+      },
+      undefined,
+      undefined,
+      "memory-save",
+      (_reason, operation) => errors.push(operation),
+    );
+    try {
+      render.mockImplementation(() => {
+        throw new RangeError("Array buffer allocation failed");
+      });
+      assert.equal(await session.save(SessionSaveIntent.Save), SessionOutcome.Created);
+      assert.equal(core.getSnapshot().dirty, false);
+      assert.equal(session.getSnapshot().saving, false);
+      assert.deepEqual(errors, ["recent"]);
+      assert.equal(session.getSnapshot().error?.operation, "recent");
+    } finally {
+      render.mockRestore();
+      session.dispose();
+    }
+  });
+
   for (const continueEditing of [false, true])
     it(`completes a fallback download while preserving newer edits: ${continueEditing}`, async () => {
       const blank = { width: 1, height: 1, data: new Uint8ClampedArray([10, 20, 30, 255]) };

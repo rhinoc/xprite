@@ -225,6 +225,14 @@ function sameRasterTimeline(a: State["timeline"], b: State["timeline"]): boolean
     return f.cels.length === g.cels.length && f.cels.every((c, j) => c === g.cels[j]);
   });
 }
+/** Exact metadata equality, without reading lazy pixel storage. */
+function sameExcept(a: object, b: object, omitted: string): boolean {
+  const left = a as Record<string, unknown>,
+    right = b as Record<string, unknown>;
+  const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+  return [...keys].every((key) => key === omitted || left[key] === right[key]);
+}
+
 /** Copy-on-write tile history: pointer movements capture each touched tile only once. */
 export class EditorHistory {
   // Default is no limit; a positive limit is in bytes.
@@ -439,6 +447,80 @@ export class EditorHistory {
     restoreState(doc, this.active.before);
     this.active = null;
   }
+  /** Expansion followed by trimming commonly returns to the original cel
+   * bounds. Retaining that replacement in every undo entry defeats tile history:
+   * a one-pixel stroke keeps another entire cel alive. Fold only pure raster
+   * replacements back into the existing writable image, with tile-sized undo.
+   * Changed geometry, sample metadata and linked-cel topology stay structural. */
+  private compactRasterReplacement(doc: EditorDocument): void {
+    const active = this.active!;
+    const before = active.before;
+    const previous = active.image;
+    const image = doc.layer.pixels;
+    if (
+      image === previous ||
+      active.patches.size ||
+      image.width !== previous.width ||
+      image.height !== previous.height ||
+      before.width !== doc.width ||
+      before.height !== doc.height ||
+      !sameExcept(before.layer, doc.layer, "pixels") ||
+      encodedPixels(image) ||
+      encodedPixels(previous)
+    )
+      return;
+    syncTimeline(doc);
+    const a = before.timeline,
+      b = doc.timeline;
+    if (!a || !b || !sameExcept(a, b, "frames") || a.frames.length !== b.frames.length) return;
+    for (let fi = 0; fi < a.frames.length; fi++) {
+      const f = a.frames[fi],
+        g = b.frames[fi];
+      if (!sameExcept(f, g, "cels") || f.cels.length !== g.cels.length) return;
+      for (let li = 0; li < f.cels.length; li++) {
+        const c = f.cels[li],
+          d = g.cels[li];
+        if (c?.pixels === previous || d?.pixels === image) {
+          if (
+            !c ||
+            !d ||
+            c.pixels !== previous ||
+            d.pixels !== image ||
+            c.asepriteSamples ||
+            d.asepriteSamples ||
+            c.tilemap ||
+            d.tilemap ||
+            !sameExcept(c, d, "pixels")
+          )
+            return;
+        } else if (c !== d) return;
+      }
+    }
+    // Allocate all undo patches before mutating the original. If allocation
+    // fails, cancellation still restores the untouched original graph/pixels.
+    const source = image.data,
+      target = previous.data;
+    for (let top = 0; top < image.height; top += TILE)
+      for (let left = 0; left < image.width; left += TILE) {
+        const width = Math.min(TILE, image.width - left);
+        const height = Math.min(TILE, image.height - top);
+        let changed = false;
+        for (let y = top; y < top + height && !changed; y++) {
+          const end = (y * image.width + left + width) * 4;
+          for (let at = (y * image.width + left) * 4; at < end; at++)
+            if (source[at] !== target[at]) {
+              changed = true;
+              break;
+            }
+        }
+        if (changed) this.capture(previous, { x: left, y: top, width, height });
+      }
+    target.set(source);
+    doc.layer = { ...doc.layer, pixels: previous };
+    // Keep the replacement transaction's identity even for identical pixels
+    // (e.g. committing a floating paste still publishes a persistence change).
+    doc.timeline = { ...a };
+  }
   commit(
     doc: EditorDocument,
     replacesSelection = false,
@@ -446,10 +528,17 @@ export class EditorHistory {
   ) {
     const a = this.active;
     if (!a) return false;
+    if (!extraCommands.length) this.compactRasterReplacement(doc);
     this.active = null;
     const patches = [...a.patches.values()].filter((p) => {
-      const after = read(p.image, p);
-      return p.buffer.some((v, i) => v !== after[i]);
+      const data = p.image.data;
+      for (let y = 0; y < p.height; y++) {
+        const from = ((p.y + y) * p.image.width + p.x) * 4;
+        const saved = y * p.width * 4;
+        for (let i = 0; i < p.width * 4; i++)
+          if (p.buffer[saved + i] !== data[from + i]) return true;
+      }
+      return false;
     });
     // A visible new mask supersedes any previously hidden mask.
     if (doc.selection) doc.hiddenSelection = null;

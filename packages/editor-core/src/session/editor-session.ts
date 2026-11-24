@@ -1324,7 +1324,15 @@ export class EditorSession<Source> {
             : writeRecentId && writeRecentId !== beforeRecentId
               ? writeRecentId
               : (beforeRecentId ?? writeRecentId);
-      const savedRecent = this.remember(pixels, result.name, recentIdentity, project, true);
+      // The file has already been written. A memory failure while generating
+      // the optional recent-file preview must not turn a successful save into
+      // a failed save or leave the document incorrectly marked dirty.
+      let savedRecent: string | null = null;
+      try {
+        savedRecent = this.remember(pixels, result.name, recentIdentity, project, true);
+      } catch (reason) {
+        this.reportError(reason, SessionOperation.Recent);
+      }
       if (savedRecent && intent !== SessionSaveIntent.Export && result.recentIdentity)
         this.recentIdentities?.link(result.recentIdentity, savedRecent);
       if (
