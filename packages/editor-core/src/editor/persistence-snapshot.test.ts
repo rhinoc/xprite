@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { EditorDocument } from "$/document/types";
 import { EditorKernel, type EditorSnapshotDraft } from "$/editor/kernel";
@@ -6,6 +6,8 @@ import {
   isCommittedPersistenceSnapshot,
   projectFromCommittedPersistenceSnapshot,
 } from "$/editor/persistence-snapshot";
+import { asepriteFromProject } from "$/import-export/aseprite/project";
+import * as timelineRenderer from "$/timeline/timeline";
 
 function fixture() {
   const image = { width: 1, height: 1, data: Uint8ClampedArray.of(1, 2, 3, 255) };
@@ -38,6 +40,30 @@ function fixture() {
 }
 
 describe("committed persistence sharing", () => {
+  it("saves the cel graph without allocating a display composite, and renders it only once on demand", () => {
+    const { snapshot } = fixture();
+    const render = vi.spyOn(timelineRenderer, "renderTimelineFrame");
+    try {
+      render.mockImplementationOnce(() => {
+        throw new RangeError("Array buffer allocation failed");
+      });
+      const project = projectFromCommittedPersistenceSnapshot(snapshot(), {
+        activeFrame: 2,
+        activeLayer: 0,
+      });
+      expect(project.image.width).toBe(1);
+      expect(asepriteFromProject(project).width).toBe(1);
+      expect(render).not.toHaveBeenCalled();
+      expect(() => project.image.data).toThrow("Array buffer allocation failed");
+      // A failed optional preview is not cached as success; a subsequent read retries.
+      expect(Array.from(project.image.data)).toEqual([4, 5, 6, 255]);
+      expect(project.image.data).toBe(project.image.data);
+      expect(render).toHaveBeenCalledTimes(2);
+    } finally {
+      render.mockRestore();
+    }
+  });
+
   it("creates a full-canvas save view at current navigation without copying its stored cel graph", () => {
     const { document, kernel, publish, snapshot } = fixture();
     document.width = 2;

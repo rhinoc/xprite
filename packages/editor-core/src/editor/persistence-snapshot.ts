@@ -20,7 +20,8 @@ export function isCommittedPersistenceSnapshot(
 
 /** Read-only project view over an already detached commit. Navigation is copied
  * from the current view without sampling live or staged raster data. The image
- * is a fresh full-document display composite, including reference layers. */
+ * is a lazy full-document display composite, including reference layers. Merely
+ * saving Aseprite needs its dimensions and cel graph, not another RGBA canvas. */
 export function projectFromCommittedPersistenceSnapshot(
   snapshot: Readonly<EditorPersistenceSnapshot>,
   view: Pick<SpriteTimeline, "activeFrame" | "activeLayer" | "range">,
@@ -45,13 +46,21 @@ export function projectFromCommittedPersistenceSnapshot(
     range: cloneGraph(view.range),
   };
   const frame = timeline.frames[timeline.activeFrame];
+  let data: Uint8ClampedArray | undefined;
+  const image: PixelBuffer = {
+    width: snapshot.document.width,
+    height: snapshot.document.height,
+    get data() {
+      return (data ??= renderTimelineFrame(
+        timeline,
+        image.width,
+        image.height,
+        timeline.activeFrame,
+      ).data);
+    },
+  };
   return {
-    image: renderTimelineFrame(
-      timeline,
-      snapshot.document.width,
-      snapshot.document.height,
-      timeline.activeFrame,
-    ),
+    image,
     timeline,
     palette: frame.palette ?? snapshot.document.palette,
   };
