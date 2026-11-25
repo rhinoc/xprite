@@ -20,6 +20,12 @@ export const TILE_INDEX_MASK = 0x1fffffff,
   TILE_X_FLIP = 0x80000000,
   TILE_Y_FLIP = 0x40000000,
   TILE_DIAGONAL_FLIP = 0x20000000;
+const TILE_FLIP_MASK = TILE_X_FLIP | TILE_Y_FLIP | TILE_DIAGONAL_FLIP;
+const RGBA_BYTES_PER_PIXEL = 4;
+const UINT32_ALIGNMENT_MASK = 3;
+const UINT32_SHIFT = 2;
+const FNV1A_OFFSET_BASIS = 0x811c9dc5;
+const FNV1A_PRIME = 0x01000193;
 export type TilemapEditMode = TilesetMode;
 function size(width: number, height: number) {
   assertDimension(width, "tilemap width");
@@ -107,22 +113,50 @@ export function rasterizeTilemap(
     height = map.height * h;
   size(width, height);
   if (map.tiles.length !== map.width * map.height) throw new Error("Invalid tilemap cells");
-  const data = new Uint8ClampedArray(width * height * 4),
-    src = setPixels(set, depth, palette, transparentIndex);
+  const data = new Uint8ClampedArray(width * height * RGBA_BYTES_PER_PIXEL),
+    src = setPixels(set, depth, palette, transparentIndex),
+    rowBytes = w * RGBA_BYTES_PER_PIXEL,
+    tileStride = h * rowBytes,
+    minDim = Math.min(w, h);
   for (let cell = 0; cell < map.tiles.length; cell++) {
     const tile = map.tiles[cell],
       id = tile & TILE_INDEX_MASK;
     if (!id) continue;
     if (id >= set.tileCount) throw new RangeError("Tile index outside Tileset");
     const ox = (cell % map.width) * w,
-      oy = Math.floor(cell / map.width) * h;
-    for (let y = 0; y < h; y++)
-      for (let x = 0; x < w; x++) {
-        const p = sourcePoint(x, y, w, h, tile);
-        if (!p) continue;
-        const at = ((id * h + p[1]) * w + p[0]) * 4;
-        data.set(src.subarray(at, at + 4), ((oy + y) * width + ox + x) * 4);
+      oy = Math.floor(cell / map.width) * h,
+      tileBase = id * tileStride;
+    if ((tile & TILE_FLIP_MASK) === 0) {
+      for (let y = 0; y < h; y++) {
+        const srcRow = tileBase + y * rowBytes;
+        const dstRow = ((oy + y) * width + ox) * RGBA_BYTES_PER_PIXEL;
+        data.set(src.subarray(srcRow, srcRow + rowBytes), dstRow);
       }
+      continue;
+    }
+    const xFlip = (tile & TILE_X_FLIP) !== 0;
+    const yFlip = (tile & TILE_Y_FLIP) !== 0;
+    const diagFlip = (tile & TILE_DIAGONAL_FLIP) !== 0;
+    for (let y = 0; y < h; y++) {
+      const baseSy = yFlip ? h - 1 - y : y;
+      const dstRowBase = (oy + y) * width + ox;
+      for (let x = 0; x < w; x++) {
+        let sx = xFlip ? w - 1 - x : x;
+        let sy = baseSy;
+        if (diagFlip) {
+          const tmp = sx;
+          sx = sy;
+          sy = tmp;
+          if (sx >= minDim || sy >= minDim) continue;
+        }
+        const at = tileBase + (sy * w + sx) * RGBA_BYTES_PER_PIXEL;
+        const to = (dstRowBase + x) * RGBA_BYTES_PER_PIXEL;
+        data[to] = src[at];
+        data[to + 1] = src[at + 1];
+        data[to + 2] = src[at + 2];
+        data[to + 3] = src[at + 3];
+      }
+    }
   }
   return { width, height, data };
 }
@@ -276,17 +310,149 @@ export function createTilemapLayer(
     activeLayer: li,
   };
 }
-function same(a: Uint8Array, b: Uint8Array) {
-  return a.length === b.length && a.every((v, i) => v === b[i]);
+function same(a: Uint8Array, b: Uint8Array): boolean {
+  const length = a.length;
+  if (length !== b.length) return false;
+  if (
+    length >= RGBA_BYTES_PER_PIXEL &&
+    (a.byteOffset & UINT32_ALIGNMENT_MASK) === 0 &&
+    (b.byteOffset & UINT32_ALIGNMENT_MASK) === 0
+  ) {
+    const wordCount = length >>> UINT32_SHIFT;
+    const wordsA = new Uint32Array(a.buffer, a.byteOffset, wordCount);
+    const wordsB = new Uint32Array(b.buffer, b.byteOffset, wordCount);
+    for (let i = 0; i < wordCount; i++) {
+      if (wordsA[i] !== wordsB[i]) return false;
+    }
+    for (let i = wordCount << UINT32_SHIFT; i < length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+  for (let i = 0; i < length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+function hashBytes(
+  bytes: Uint8Array | Uint8ClampedArray,
+  start = 0,
+  length = bytes.length - start,
+): number {
+  let value = FNV1A_OFFSET_BASIS;
+  const end = start + length;
+  for (let i = start; i < end; i++) {
+    value = Math.imul(value ^ bytes[i], FNV1A_PRIME);
+  }
+  return value >>> 0;
+}
+function isBlockTransparent(block: Uint8Array): boolean {
+  for (let at = RGBA_BYTES_PER_PIXEL - 1; at < block.length; at += RGBA_BYTES_PER_PIXEL) {
+    if (block[at] !== 0) return false;
+  }
+  return true;
+}
+function addTileToHashIndex(
+  index: Map<number, number[]>,
+  hash: number,
+  tileIndex: number,
+  sorted = false,
+): void {
+  const bucket = index.get(hash);
+  if (!bucket) {
+    index.set(hash, [tileIndex]);
+    return;
+  }
+  if (!sorted || bucket.length === 0 || bucket[bucket.length - 1] < tileIndex) {
+    bucket.push(tileIndex);
+    return;
+  }
+  let pos = bucket.length;
+  while (pos > 0 && bucket[pos - 1] > tileIndex) pos--;
+  bucket.splice(pos, 0, tileIndex);
+}
+function removeTileFromHashIndex(
+  index: Map<number, number[]>,
+  hash: number,
+  tileIndex: number,
+): void {
+  const bucket = index.get(hash);
+  if (!bucket) return;
+  const pos = bucket.indexOf(tileIndex);
+  if (pos >= 0) bucket.splice(pos, 1);
+  if (bucket.length === 0) index.delete(hash);
+}
+function matchesProjectedTile(
+  block: Uint8Array,
+  source: Uint8Array | Uint8ClampedArray,
+  tileCount: number,
+  previous: number,
+  w: number,
+  h: number,
+): boolean {
+  const id = previous & TILE_INDEX_MASK;
+  if (!id) return false;
+  if (id >= tileCount) throw new RangeError("Tile index outside Tileset");
+  const stride = w * h * RGBA_BYTES_PER_PIXEL;
+  const tileBase = id * stride;
+  if ((previous & TILE_FLIP_MASK) === 0) {
+    for (let i = 0; i < stride; i++) {
+      if (block[i] !== source[tileBase + i]) return false;
+    }
+    return true;
+  }
+  const xFlip = (previous & TILE_X_FLIP) !== 0;
+  const yFlip = (previous & TILE_Y_FLIP) !== 0;
+  const diagFlip = (previous & TILE_DIAGONAL_FLIP) !== 0;
+  const minDim = Math.min(w, h);
+  for (let yy = 0; yy < h; yy++) {
+    const baseSy = yFlip ? h - 1 - yy : yy;
+    const rowOffset = yy * w;
+    for (let xx = 0; xx < w; xx++) {
+      let sx = xFlip ? w - 1 - xx : xx;
+      let sy = baseSy;
+      const dst = (rowOffset + xx) * RGBA_BYTES_PER_PIXEL;
+      if (diagFlip) {
+        const tmp = sx;
+        sx = sy;
+        sy = tmp;
+        if (sx >= minDim || sy >= minDim) {
+          if (
+            block[dst] !== 0 ||
+            block[dst + 1] !== 0 ||
+            block[dst + 2] !== 0 ||
+            block[dst + 3] !== 0
+          )
+            return false;
+          continue;
+        }
+      }
+      const src = tileBase + (sy * w + sx) * RGBA_BYTES_PER_PIXEL;
+      if (
+        block[dst] !== source[src] ||
+        block[dst + 1] !== source[src + 1] ||
+        block[dst + 2] !== source[src + 2] ||
+        block[dst + 3] !== source[src + 3]
+      )
+        return false;
+    }
+  }
+  return true;
 }
 function sampleBlock(pixels: PixelBuffer, x: number, y: number, w: number, h: number) {
-  const result = new Uint8Array(w * h * 4);
-  for (let yy = 0; yy < h; yy++)
-    for (let xx = 0; xx < w; xx++) {
-      if (xx + x < 0 || yy + y < 0 || xx + x >= pixels.width || yy + y >= pixels.height) continue;
-      const at = ((yy + y) * pixels.width + xx + x) * 4;
-      result.set(pixels.data.subarray(at, at + 4), (yy * w + xx) * 4);
+  const result = new Uint8Array(w * h * RGBA_BYTES_PER_PIXEL);
+  const startY = Math.max(0, -y);
+  const endY = Math.min(h, pixels.height - y);
+  const startX = Math.max(0, -x);
+  const endX = Math.min(w, pixels.width - x);
+  if (startX < endX && startY < endY) {
+    const copyBytes = (endX - startX) * RGBA_BYTES_PER_PIXEL;
+    for (let yy = startY; yy < endY; yy++) {
+      const srcAt = ((yy + y) * pixels.width + startX + x) * RGBA_BYTES_PER_PIXEL;
+      const dstAt = (yy * w + startX) * RGBA_BYTES_PER_PIXEL;
+      result.set(pixels.data.subarray(srcAt, srcAt + copyBytes), dstAt);
     }
+  }
   return result;
 }
 export function commitTilemapPixels(
@@ -331,14 +497,25 @@ export function commitTilemapPixels(
         });
       }
     });
-  const stride = w * h * 4,
+  const stride = w * h * RGBA_BYTES_PER_PIXEL,
     source = setPixels(set, t.colorDepth, t.frames[fi].palette, t.transparentIndex),
     blocks = Array.from(
       { length: set.tileCount },
       (_, i) => new Uint8Array(source.slice(i * stride, (i + 1) * stride)),
     ),
     tiles = new Uint32Array(width * height),
-    modified = new Set<number>();
+    modified = new Set<number>(),
+    blocksByHash = new Map<number, number[]>(),
+    blockHashes: number[] = [];
+  if (mode !== TilesetMode.Manual) {
+    blockHashes.push(0);
+    for (let i = 1; i < blocks.length; i++) {
+      const blockHash = hashBytes(blocks[i], 0, stride);
+      blockHashes.push(blockHash);
+      addTileToHashIndex(blocksByHash, blockHash, i);
+    }
+  }
+  const minDim = Math.min(w, h);
   for (let gy = 0; gy < height; gy++)
     for (let gx = 0; gx < width; gx++) {
       const ox = gx + left,
@@ -349,57 +526,87 @@ export function commitTilemapPixels(
             : 0,
         id = previous & TILE_INDEX_MASK;
       const block = sampleBlock(pixels, bx + ox * w - x, by + oy * h - y, w, h);
-      for (let at = 0; at < block.length; at += 4)
-        if (block[at + 3] === 0) block.fill(0, at, at + 4);
+      for (let at = 0; at < block.length; at += RGBA_BYTES_PER_PIXEL) {
+        if (block[at + 3] === 0) {
+          block[at] = 0;
+          block[at + 1] = 0;
+          block[at + 2] = 0;
+        }
+      }
       if (mode === TilesetMode.Manual) {
         tiles[gy * width + gx] = previous;
         if (!id) continue;
         const target = blocks[id].slice();
-        for (let yy = 0; yy < h; yy++)
+        const xFlip = (previous & TILE_X_FLIP) !== 0;
+        const yFlip = (previous & TILE_Y_FLIP) !== 0;
+        const diagFlip = (previous & TILE_DIAGONAL_FLIP) !== 0;
+        const tileBase = id * stride;
+        for (let yy = 0; yy < h; yy++) {
+          const baseSy = yFlip ? h - 1 - yy : yy;
+          const rowOffset = yy * w;
           for (let xx = 0; xx < w; xx++) {
-            const p = sourcePoint(xx, yy, w, h, previous);
-            if (p) {
-              const at = (yy * w + xx) * 4,
-                original = (id * w * h + p[1] * w + p[0]) * 4;
-              if (
-                !same(
-                  block.subarray(at, at + 4),
-                  new Uint8Array(source.subarray(original, original + 4)),
-                )
-              )
-                target.set(block.subarray(at, at + 4), (p[1] * w + p[0]) * 4);
+            let sx = xFlip ? w - 1 - xx : xx;
+            let sy = baseSy;
+            if (diagFlip) {
+              const tmp = sx;
+              sx = sy;
+              sy = tmp;
+              if (sx >= minDim || sy >= minDim) continue;
+            }
+            const at = (rowOffset + xx) * RGBA_BYTES_PER_PIXEL;
+            const localPixel = (sy * w + sx) * RGBA_BYTES_PER_PIXEL;
+            const original = tileBase + localPixel;
+            if (
+              block[at] !== source[original] ||
+              block[at + 1] !== source[original + 1] ||
+              block[at + 2] !== source[original + 2] ||
+              block[at + 3] !== source[original + 3]
+            ) {
+              target[localPixel] = block[at];
+              target[localPixel + 1] = block[at + 1];
+              target[localPixel + 2] = block[at + 2];
+              target[localPixel + 3] = block[at + 3];
             }
           }
+        }
         blocks[id] = target;
         continue;
       }
       // Preserve existing flipped references when the visual tile did not change.
-      if (
-        id &&
-        same(
-          block,
-          new Uint8Array(
-            rasterizeTilemap(
-              { width: 1, height: 1, tiles: Uint32Array.of(previous) },
-              { ...set, pixels: new Uint8Array(source), asepritePixels: undefined },
-            ).data,
-          ),
-        )
-      ) {
+      if (id && matchesProjectedTile(block, source, set.tileCount, previous, w, h)) {
         tiles[gy * width + gx] = previous;
         continue;
       }
       modified.add(id);
-      let match = block.every((v, i) => i % 4 !== 3 || v === 0)
-        ? 0
-        : blocks.findIndex((b, i) => i > 0 && same(b, block));
+      let match = -1;
+      let blockHash = 0;
+      if (isBlockTransparent(block)) {
+        match = 0;
+      } else {
+        blockHash = hashBytes(block, 0, stride);
+        const bucket = blocksByHash.get(blockHash);
+        if (bucket) {
+          for (let k = 0; k < bucket.length; k++) {
+            const candidate = bucket[k];
+            if (same(blocks[candidate], block)) {
+              match = candidate;
+              break;
+            }
+          }
+        }
+      }
       if (match < 0) {
         if (mode === TilesetMode.Auto && id > 0 && usage.get(id) === 1) {
+          removeTileFromHashIndex(blocksByHash, blockHashes[id], id);
           match = id;
           blocks[id] = block;
+          blockHashes[id] = blockHash;
+          addTileToHashIndex(blocksByHash, blockHash, id, true);
         } else {
           match = blocks.length;
           blocks.push(block);
+          blockHashes.push(blockHash);
+          addTileToHashIndex(blocksByHash, blockHash, match);
         }
       }
       tiles[gy * width + gx] = match >>> 0;
@@ -658,14 +865,9 @@ export function remapTilesetReferencesByContent(
     oldStride = old.length / oldSet.tileCount;
   if (!Number.isInteger(stride) || stride !== oldStride)
     throw new RangeError("Tileset samples changed");
-  const hash = (bytes: Uint8Array, start: number) => {
-    let value = 2166136261;
-    for (let i = 0; i < stride; i++) value = Math.imul(value ^ bytes[start + i], 16777619);
-    return value >>> 0;
-  };
   const matches = new Map<number, number[]>();
   for (let index = 0; index < set.tileCount; index++) {
-    const key = hash(current, index * stride),
+    const key = hashBytes(current, index * stride, stride),
       bucket = matches.get(key) ?? [];
     bucket.push(index);
     matches.set(key, bucket);
@@ -673,7 +875,7 @@ export function remapTilesetReferencesByContent(
   const remap = Array.from({ length: oldSet.tileCount }, (_, index) => {
     if (index === 0) return 0;
     const start = index * stride,
-      bucket = matches.get(hash(old, start)) ?? [];
+      bucket = matches.get(hashBytes(old, start, stride)) ?? [];
     for (const candidate of bucket) {
       const target = candidate * stride;
       let equal = true;
@@ -981,11 +1183,17 @@ function commitTilemapSamples(
   // Use an injective surrogate color per Aseprite sample so matching, Auto
   // reuse and Manual writes share one algorithm without collapsing equal colors.
   const surrogate = (samples: Uint8Array) => {
-    const out = new Uint8Array((samples.length / bpp) * 4);
-    for (let i = 0; i < samples.length / bpp; i++) {
-      const v = samples[i * bpp],
-        a = depth === 8 ? (v === mask ? 0 : UINT8_MAX) : samples[i * bpp + 1];
-      out.set([v, depth === 16 ? a : 0, 0, a], i * 4);
+    const sampleCount = samples.length / bpp;
+    const out = new Uint8Array(sampleCount * RGBA_BYTES_PER_PIXEL);
+    for (let i = 0; i < sampleCount; i++) {
+      const sampleAt = i * bpp;
+      const v = samples[sampleAt];
+      const a = depth === 8 ? (v === mask ? 0 : UINT8_MAX) : samples[sampleAt + 1];
+      const outAt = i * RGBA_BYTES_PER_PIXEL;
+      out[outAt] = v;
+      out[outAt + 1] = depth === 16 ? a : 0;
+      out[outAt + 2] = 0;
+      out[outAt + 3] = a;
     }
     return out;
   };
@@ -1002,16 +1210,17 @@ function commitTilemapSamples(
       mask,
     ).data;
   const fake = { ...set, pixels: surrogate(samples), asepritePixels: undefined };
-  const proxy = refreshTilemapProjections({
+  const proxy: SpriteTimeline = {
     ...t,
     colorDepth: 32,
     tilesets: t.tilesets!.map((s) => (s.id === set.id ? fake : s)),
-  });
+  };
+  const patchSurrogate = surrogate(asepriteSamples.data);
   const result = commitTilemapPixels(
       proxy,
       fi,
       li,
-      { ...pixels, data: new Uint8ClampedArray(surrogate(asepriteSamples.data)) },
+      { ...pixels, data: new Uint8ClampedArray(patchSurrogate.buffer) },
       x,
       y,
       mode,
