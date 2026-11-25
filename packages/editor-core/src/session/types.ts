@@ -142,6 +142,8 @@ export interface SessionPendingImport {
   readonly width: number;
   readonly height: number;
   readonly classification: PixelArtClassification;
+  readonly frameCount: number;
+  readonly previewFrame: number;
 }
 export interface SessionReplacement {
   readonly kind: "import" | "new" | "recent" | "close" | "exit";

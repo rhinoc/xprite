@@ -1437,6 +1437,7 @@ function EditorTimelineContent({
                     {...stylusPointerInputProps()}
                     data-timeline-kind="layers"
                     data-layer={index}
+                    title={layer.name}
                     aria-label={tUi("ui.select.layer.name", { name: layer.name })}
                     aria-pressed={selected}
                     onClick={(event) => {

@@ -251,6 +251,95 @@ describe("import dialog algorithm switching", () => {
     session.dispose();
   });
 
+  test("an animated project exposes frame count, switches preview frames, and commits every frame in order", async () => {
+    const makeSolidFrame = (r: number, g: number, b: number) => {
+      const pixels = createBlankImage(16, 16);
+      for (let i = 0; i < pixels.data.length; i += 4) {
+        pixels.data[i] = r;
+        pixels.data[i + 1] = g;
+        pixels.data[i + 2] = b;
+        pixels.data[i + 3] = 255;
+      }
+      return pixels;
+    };
+    const frames = [
+      { pixels: makeSolidFrame(220, 20, 20), durationMs: 80 },
+      { pixels: makeSolidFrame(20, 220, 20), durationMs: 120 },
+      { pixels: makeSolidFrame(20, 20, 220), durationMs: 160 },
+    ];
+    const editor = new RasterEditor(createBlankImage(2, 2), "Original");
+    const session = new EditorSession(editor, {
+      decode: async () => frames[0].pixels,
+      decodeProject: async () =>
+        rasterAnimationProject({
+          width: frames[0].pixels.width,
+          height: frames[0].pixels.height,
+          frames,
+        }),
+      analyze: async () => {
+        throw new Error("animations never run grid analysis");
+      },
+      pixelate: async (pixels, options) => pixelateImage(pixels, options),
+      write: async (_pixels, name) => ({ method: "download", name }),
+      releaseSource: () => {},
+      dispose: () => {},
+      getImportPreference: () => ({ choice: "always-ask", algorithm: Auto }),
+    } as ConstructorParameters<typeof EditorSession>[1]);
+
+    try {
+      await session.requestImport({ source: "anim-frames", name: "anim-frames.gif" });
+      await settle(session);
+      expect(session.getSnapshot().pendingImport).toMatchObject({
+        frameCount: 3,
+        previewFrame: 0,
+      });
+      expect(Array.from(session.getSnapshot().pendingImport!.pixels.data.slice(0, 4))).toEqual([
+        220, 20, 20, 255,
+      ]);
+
+      // Stepping backward from frame 0 wraps to the last frame and previews that frame's pixels.
+      session.setImportPreviewFrame(-1);
+      await settle(session);
+      expect(session.getSnapshot().pendingImport).toMatchObject({
+        frameCount: 3,
+        previewFrame: 2,
+      });
+      expect(Array.from(session.getSnapshot().pendingImport!.pixels.data.slice(0, 4))).toEqual([
+        20, 20, 220, 255,
+      ]);
+      expect(Array.from(session.getSnapshot().pixelationPreview!.data.slice(0, 4))).toEqual([
+        20, 20, 220, 255,
+      ]);
+
+      // Stepping forward wraps back to frame 0, then advance to frame 1.
+      session.setImportPreviewFrame(3);
+      await settle(session);
+      expect(session.getSnapshot().pendingImport?.previewFrame).toBe(0);
+      session.setImportPreviewFrame(1);
+      await settle(session);
+      expect(session.getSnapshot().pendingImport?.previewFrame).toBe(1);
+      expect(Array.from(session.getSnapshot().pixelationPreview!.data.slice(0, 4))).toEqual([
+        20, 220, 20, 255,
+      ]);
+
+      // Confirming Pixelate while previewing frame 1 keeps all frames in their original slots.
+      await session.pixelate();
+      const document = editor.getSnapshot().document!;
+      expect(document.timeline.frames.length).toBe(3);
+      expect(
+        document.timeline.frames.map((frame) => Array.from(frame.cels[0]!.pixels.data.slice(0, 3))),
+      ).toEqual([
+        [220, 20, 20],
+        [20, 220, 20],
+        [20, 20, 220],
+      ]);
+      // Active frame 0 image matches frame 0 (not the previewed frame 1).
+      expect(Array.from(document.layer.pixels.data.slice(0, 3))).toEqual([220, 20, 20]);
+    } finally {
+      session.dispose();
+    }
+  });
+
   test("a decoded aseprite project opens directly without the import dialog", async () => {
     const animation = rasterAnimationProject({
       width: 64,

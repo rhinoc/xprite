@@ -682,6 +682,8 @@ export class EditorSession<Source> {
             width: candidate.pixels.width,
             height: candidate.pixels.height,
             classification: candidate.classification,
+            frameCount: candidate.project?.timeline.frames.length ?? 1,
+            previewFrame: 0,
           },
           pixelationOptions: this.silentOptions(candidate, pref.pixelation),
           pixelationPreview: null,
@@ -720,6 +722,8 @@ export class EditorSession<Source> {
         width: candidate.pixels.width,
         height: candidate.pixels.height,
         classification: candidate.classification,
+        frameCount: candidate.project?.timeline.frames.length ?? 1,
+        previewFrame: 0,
       },
       pixelationOptions: this.defaultOptions(candidate),
       pixelationPreview: null,
@@ -861,6 +865,39 @@ export class EditorSession<Source> {
     await this.previewPixelation();
   }
 
+  /** Switch which animation frame the pending import dialog previews before committing. */
+  setImportPreviewFrame(frame: number): void {
+    const pending = this.state.pendingImport;
+    const candidate = this.candidate;
+    if (this.disposed || this.state.busy || !candidate || !pending) return;
+    const frameCount = pending.frameCount;
+    if (frameCount <= 1) return;
+    const nextFrame = ((Math.trunc(frame) % frameCount) + frameCount) % frameCount;
+    if (nextFrame === pending.previewFrame) return;
+    const pixels = this.candidateFramePixels(candidate, nextFrame);
+    this.publish({
+      pendingImport: { ...pending, previewFrame: nextFrame, pixels },
+      pixelationPreview: null,
+      pixelationPalette: [],
+    });
+    void this.previewPixelation();
+  }
+
+  private candidateFramePixels(candidate: Candidate, frameIndex: number): PixelBuffer {
+    const project = candidate.project;
+    if (!project || frameIndex <= 0) return candidate.pixels;
+    const clamped = Math.max(0, Math.min(project.timeline.frames.length - 1, frameIndex));
+    if (clamped === 0) return candidate.pixels;
+    return renderTimelineFrame(
+      project.timeline,
+      project.image.width,
+      project.image.height,
+      clamped,
+      undefined,
+      false,
+    );
+  }
+
   private analyzeImport(candidate: Candidate, algorithm: PixelationAlgorithm) {
     const size = this.importSize;
     const key = `${algorithm}:${size?.width ?? ""}:${size?.height ?? ""}`;
@@ -931,8 +968,9 @@ export class EditorSession<Source> {
       const current = this.candidate;
       if (!current) return;
       const settings = this.state.pixelationOptions;
-      const options = pixelationSettingsOptions(settings, current.pixels, current.grid);
-      const pixels = await this.ports.pixelate(current.pixels, options);
+      const sourcePixels = this.state.pendingImport?.pixels ?? current.pixels;
+      const options = pixelationSettingsOptions(settings, sourcePixels, current.grid);
+      const pixels = await this.ports.pixelate(sourcePixels, options);
       if (this.valid(generation) && version === this.previewVersion)
         this.publish({
           pixelationPreview: pixels,
@@ -1024,11 +1062,14 @@ export class EditorSession<Source> {
       // preview pixels: pixelate every frame with the same options so the document matches
       // what the dialog showed.
       if (candidate.project) {
+        const previewFrame = this.state.pendingImport?.previewFrame ?? 0;
+        const pixelatedProject = await this.pixelateProject(candidate, pixels, previewFrame);
         candidate = {
           ...candidate,
-          project: await this.pixelateProject(candidate, pixels),
+          project: pixelatedProject,
         };
         if (!this.valid(generation)) return SessionOutcome.Ignored;
+        pixels = pixelatedProject.image;
       }
       this.invalidate();
       completionGeneration = this.generation;
@@ -1062,7 +1103,8 @@ export class EditorSession<Source> {
    */
   private async pixelateProject(
     candidate: Candidate,
-    firstFrame: PixelBuffer,
+    previewPixels: PixelBuffer,
+    previewFrame = 0,
   ): Promise<SessionProject> {
     const project = candidate.project!;
     const settings = this.state.pixelationOptions;
@@ -1078,8 +1120,8 @@ export class EditorSession<Source> {
         false,
       );
       const pixels =
-        index === 0
-          ? firstFrame
+        index === previewFrame
+          ? previewPixels
           : await this.ports.pixelate(
               composite,
               pixelationSettingsOptions(settings, composite, undefined),
@@ -1095,8 +1137,8 @@ export class EditorSession<Source> {
     return {
       ...rasterAnimationProject({
         ...(timeline.loopCount === undefined ? {} : { loopCount: timeline.loopCount }),
-        width: firstFrame.width,
-        height: firstFrame.height,
+        width: previewPixels.width,
+        height: previewPixels.height,
         frames,
       }),
       palette,

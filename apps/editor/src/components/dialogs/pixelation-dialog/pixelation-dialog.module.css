@@ -23,3 +23,13 @@
 .advanced.disabled > summary {
   cursor: default;
 }
+.frameStepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-2, 4px);
+}
+.frameStepperLabel {
+  padding: 0 var(--ui-space-2, 4px);
+  white-space: nowrap;
+}
