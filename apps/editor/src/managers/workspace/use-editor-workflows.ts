@@ -1572,9 +1572,11 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     session.setPixelationOptions(patch);
   const setImportAlgorithm = (...args: Parameters<typeof session.setImportAlgorithm>) =>
     void session.setImportAlgorithm(...args);
-  const acceptOriginalImport = (pixels?: PixelBuffer) => session.acceptOriginal(pixels);
-  const acceptPixelatedImport = (overridePixels?: PixelBuffer) =>
-    void session.pixelate(undefined, overridePixels);
+  const setImportPreviewFrame = (frame: number) => session.setImportPreviewFrame(frame);
+  const acceptOriginalImport = (...args: Parameters<typeof session.acceptOriginal>) =>
+    session.acceptOriginal(...args);
+  const acceptPixelatedImport = (transform?: (pixels: PixelBuffer) => PixelBuffer) =>
+    void session.pixelate(undefined, transform);
   const updateRecoverySettings = (
     settings: Parameters<typeof workspace.recovery.setRecoverySettings>[0],
   ) => {
@@ -1865,6 +1867,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     discardEmptyImport,
     setPixelationOptions,
     setImportAlgorithm,
+    setImportPreviewFrame,
     acceptOriginalImport,
     acceptPixelatedImport,
     updateRecoverySettings,

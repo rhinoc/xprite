@@ -5,6 +5,22 @@ import { EditorDialog } from "$/components/dialogs/overlay";
 import { ImportAdvanced } from "$/components/dialogs/pixelation-dialog/import-advanced";
 import { ImportCompare } from "$/components/dialogs/pixelation-dialog/import-compare";
 import { ImportMode } from "$/components/dialogs/pixelation-dialog/import-mode";
+import {
+  computePixelationDialogHeight,
+  computePixelationPreviewHeight,
+  DIALOG_MIN_WIDTH,
+  DIALOG_WIDTH,
+  FIELD_LABEL_HEIGHT,
+  FOOTER_HEIGHT,
+  FOOTER_STACK_HEIGHT,
+  FRAME_STEPPER_HEIGHT,
+  GAP,
+  HINT_HEIGHT,
+  OPTION_HEIGHT,
+  ROW_HEIGHT,
+  SECTION_GAP,
+  SECTION_HEIGHT,
+} from "$/components/dialogs/pixelation-dialog/pixelation-dialog-layout";
 import { tUi, tUiSource, useUiLanguage } from "$/i18n";
 import {
   DEFAULT_REMOVE_BACKGROUND,
@@ -36,8 +52,10 @@ import {
   useModalFocus,
   ScrollArea,
 } from "@xprite/ui";
-import { FIELD_ROW_HEIGHT } from "@xprite/ui/canvas";
-import { useElementSize } from "@xprite/ui/utils";
+import { FIELD_ROW_HEIGHT, RASTER_SCALE, UI_SCALE_Y } from "@xprite/ui/canvas";
+import { useElementSize, viewportContentSize } from "@xprite/ui/utils";
+
+import styles from "$/components/dialogs/pixelation-dialog/pixelation-dialog.module.css";
 
 type Workflow = Pick<
   ReturnType<typeof useEditorWorkflows>,
@@ -48,6 +66,7 @@ type Workflow = Pick<
   | "pixelationError"
   | "setPixelationOptions"
   | "setImportAlgorithm"
+  | "setImportPreviewFrame"
   | "setFilePreferences"
   | "getFilePreferences"
   | "busy"
@@ -56,23 +75,6 @@ type Workflow = Pick<
   | "acceptPixelatedImport"
 >;
 
-/** Same shell as New Sprite: a small fixed-size window, section dividers, button set, OK / Cancel. */
-const DIALOG_WIDTH = 380;
-const DIALOG_MIN_WIDTH = 280;
-const DIALOG_HEIGHT = 560;
-const PREVIEW_MIN = 72;
-const PREVIEW_MAX = 280;
-const PREVIEW_SHARE = 0.52;
-const PARAMETER_MIN_HEIGHT = 64;
-const GAP = 8;
-const SECTION_HEIGHT = 22;
-const OPTION_HEIGHT = 34;
-const HINT_HEIGHT = 58;
-const ROW_HEIGHT = 24;
-/** At least the label font's height: the shared Text centres its glyphs and clips what overflows the box. */
-const FIELD_LABEL_HEIGHT = 18;
-const FOOTER_HEIGHT = 34;
-const FOOTER_STACK_HEIGHT = ROW_HEIGHT + GAP + FOOTER_HEIGHT;
 const BUTTON_WIDTH = 120;
 const BUTTON_GAP = 8;
 const SIZE_SEPARATOR = 16;
@@ -192,31 +194,46 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         : {}),
       ...(rememberChoice ? { importAsk: false } : {}),
     });
-    if (pixelate) {
-      const base = workflow.pixelationPreview;
-      if (!base) return;
-      workflow.acceptPixelatedImport(
-        removeBg.enabled ? removeBackground(base, removeBgOptions) : undefined,
-      );
-    } else {
-      workflow.acceptOriginalImport(
-        removeBg.enabled ? removeBackground(pending.pixels, removeBgOptions) : undefined,
-      );
-    }
+    const transform: Parameters<Workflow["acceptOriginalImport"]>[0] = removeBg.enabled
+      ? (pixels) =>
+          pixels === removeBgSource && processedPreview
+            ? processedPreview
+            : removeBackground(pixels, removeBgOptions)
+      : undefined;
+    if (pixelate) workflow.acceptPixelatedImport(transform);
+    else workflow.acceptOriginalImport(transform);
   };
 
   const showGridSource = showAdvanced && base[PixelationSlot.GridSource].visible;
+  const showDither = showAdvanced && workflow.pixelationOptions.reduceColors;
+  const hasMultiFrame = pending.frameCount > 1;
+  const pixelateMessage = workflow.pixelationError ? tUiSource(workflow.pixelationError) : null;
+  const message = pixelate ? pixelateMessage : null;
+  const viewportHeight =
+    typeof window === "undefined" ? 0 : Math.floor(viewportContentSize(window).height / UI_SCALE_Y);
+  const availableHeight =
+    viewportHeight > 0 && sceneBounds.height > 0
+      ? Math.min(sceneBounds.height, viewportHeight)
+      : viewportHeight > 0
+        ? viewportHeight
+        : sceneBounds.height;
   const dialogWidth = Math.min(DIALOG_WIDTH, Math.max(DIALOG_MIN_WIDTH, sceneBounds.width));
-  const dialogHeight = Math.min(DIALOG_HEIGHT, Math.max(1, sceneBounds.height - 16));
+  const dialogHeight = computePixelationDialogHeight({
+    availableHeight,
+    hasMultiFrame,
+    hasMessage: !!message,
+    showAdvanced,
+    showGridSource,
+    showDither,
+    removeBgEnabled: removeBg.enabled,
+    removeBgManual: removeBg.mode === RemoveBackgroundMode.Manual,
+  });
   const bounds = {
     x: sceneBounds.x + Math.round((sceneBounds.width - dialogWidth) / 2),
     y: sceneBounds.y + Math.max(0, Math.round((sceneBounds.height - dialogHeight) / 2)),
     width: dialogWidth,
     height: dialogHeight,
   };
-
-  const pixelateMessage = workflow.pixelationError ? tUiSource(workflow.pixelationError) : null;
-  const message = pixelate ? pixelateMessage : null;
 
   return (
     <EditorDialog
@@ -236,16 +253,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       }}
     >
       {({ clientBounds: client }) => {
-        const showDither = showAdvanced && workflow.pixelationOptions.reduceColors;
-        const previewHeight = Math.max(
-          PREVIEW_MIN,
-          Math.min(
-            PREVIEW_MAX,
-            Math.round(client.height * PREVIEW_SHARE),
-            client.height - FOOTER_STACK_HEIGHT - PARAMETER_MIN_HEIGHT - GAP * 2,
-          ),
-        );
-        const parameterTop = previewHeight + GAP;
+        const previewHeight = computePixelationPreviewHeight(client.height, {
+          showAdvanced,
+          hasMultiFrame,
+        });
+        const frameStepperSpace = hasMultiFrame ? FRAME_STEPPER_HEIGHT + GAP : 0;
+        const parameterTop = previewHeight + frameStepperSpace + GAP;
         const parameterHeight = Math.max(
           0,
           client.height - parameterTop - FOOTER_STACK_HEIGHT - GAP,
@@ -257,10 +270,10 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
           y += height + extra;
           return { x: client.x, y: client.y + top, width, height };
         };
-        const sectionBounds = at(SECTION_HEIGHT, 4);
+        const sectionBounds = at(SECTION_HEIGHT, SECTION_GAP);
         const optionY = y;
         y += OPTION_HEIGHT + GAP;
-        const hintBounds = pixelateMessage ? at(HINT_HEIGHT, GAP) : null;
+        const hintBounds = message ? at(HINT_HEIGHT, GAP) : null;
         const advancedRow = at(ROW_HEIGHT, GAP);
         const algorithmLabel = showAdvanced ? at(FIELD_LABEL_HEIGHT) : null;
         const algorithmCombo = showAdvanced ? at(FIELD_ROW_HEIGHT, GAP) : null;
@@ -332,6 +345,46 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 }}
               />
             </div>
+            {hasMultiFrame && (
+              <div
+                className={styles.frameStepper}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: previewHeight + GAP,
+                  width: client.width,
+                  height: FRAME_STEPPER_HEIGHT,
+                }}
+              >
+                <Button
+                  icon="ani_previous"
+                  tintIcon
+                  aria-label={tUi("normal.preview.prevFrame")}
+                  part="buttonset_item_normal"
+                  hotPart="buttonset_item_hot"
+                  disabled={workflow.busy}
+                  onClick={() => workflow.setImportPreviewFrame(pending.previewFrame - 1)}
+                />
+                <span className={styles.frameStepperLabel}>
+                  <Text variant={TextVariant.Inline} scale={RASTER_SCALE}>
+                    {tUi("normal.preview.frame", {
+                      value1: pending.previewFrame + 1,
+                      value2: pending.previewFrame + 1,
+                      value3: pending.frameCount,
+                    })}
+                  </Text>
+                </span>
+                <Button
+                  icon="ani_next"
+                  tintIcon
+                  aria-label={tUi("normal.preview.nextFrame")}
+                  part="buttonset_item_normal"
+                  hotPart="buttonset_item_hot"
+                  disabled={workflow.busy}
+                  onClick={() => workflow.setImportPreviewFrame(pending.previewFrame + 1)}
+                />
+              </div>
+            )}
             <ScrollArea
               scrollX={false}
               scrollY

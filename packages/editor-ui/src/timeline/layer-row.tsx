@@ -99,16 +99,25 @@ export function ReadOnlyLayerRow({
             : []),
         ]}
       />
-      <button
-        className={styles.layerNameHit}
-        style={{ left: (group ? GROUP_FLAG_COUNT : LAYER_FLAG_COUNT) * FLAG_CELL_WIDTH }}
-        aria-label={layer.name}
-        aria-pressed={selected}
-        type="button"
-        title={layer.name}
-        onClick={() => onSelect?.(index)}
-        disabled={!onSelect}
-      />
+      {onSelect ? (
+        <button
+          className={styles.layerNameHit}
+          style={{ left: (group ? GROUP_FLAG_COUNT : LAYER_FLAG_COUNT) * FLAG_CELL_WIDTH }}
+          aria-label={layer.name}
+          aria-pressed={selected}
+          type="button"
+          title={layer.name}
+          onClick={() => onSelect(index)}
+        />
+      ) : (
+        <span
+          className={styles.layerNameHit}
+          style={{ left: (group ? GROUP_FLAG_COUNT : LAYER_FLAG_COUNT) * FLAG_CELL_WIDTH }}
+          title={layer.name}
+        >
+          <span className={styles.layerNameText}>{layer.name}</span>
+        </span>
+      )}
     </div>
   );
 }

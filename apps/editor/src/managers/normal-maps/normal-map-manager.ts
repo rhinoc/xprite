@@ -21,6 +21,10 @@ import {
   patchNormalMapDraft,
   type NormalMapDraft,
 } from "$/managers/normal-maps/normal-map-draft";
+import {
+  resolveNormalMapSourceDocument,
+  type NormalMapRealDocumentRecord,
+} from "$/managers/normal-maps/normal-map-source";
 import { useNormalMapProcessorFactory } from "$/managers/normal-maps/processing-context";
 import type { NormalLightingScene } from "$/managers/normal-maps/use-normal-map-light-surface";
 import { useProcessedPixels } from "$/managers/normal-maps/use-processed-pixels";
@@ -148,8 +152,17 @@ export function useNormalMapManager(enabled: boolean) {
     associations.current.set(source.core, association);
   }
   const outputs = association?.layers ?? new Map<string, string>();
-  const snapshot = source.snapshot;
-  const document = source.document;
+  const lastRealSource = useRef<NormalMapRealDocumentRecord | null>(null);
+  const resolvedSource = resolveNormalMapSourceDocument(
+    source.core,
+    source.snapshot,
+    source.owner,
+    source.documentKey,
+    lastRealSource.current,
+  );
+  lastRealSource.current = resolvedSource.realRecord;
+  const document = resolvedSource.document;
+  const pixelRevision = resolvedSource.pixelRevision;
   const timeline = document?.timeline;
   const frame = timeline?.activeFrame ?? 0;
   const frameCount = timeline?.frames.length ?? 1;
@@ -222,7 +235,7 @@ export function useNormalMapManager(enabled: boolean) {
     setSourceId(NORMAL_VISIBLE_SOURCE);
     setShadingSourceId(PAINTED_LIGHT_FROM_SOURCE);
     setDiffuseId(NORMAL_VISIBLE_SOURCE);
-    const current = source.core?.getSnapshot().document;
+    const current = document;
     const candidate = current?.timeline?.layers.find((layer) => NORMAL_LAYER_NAME.test(layer.name));
     setNormalId(candidate?.id ?? NORMAL_FLAT_SOURCE);
     const mask = current?.timeline?.layers.find((layer) => LIGHT_MASK_LAYER_NAME.test(layer.name));
@@ -260,7 +273,7 @@ export function useNormalMapManager(enabled: boolean) {
     generationOpen,
     source.owner,
     source.documentKey,
-    snapshot?.pixelRevision,
+    pixelRevision,
     layerKey,
     previewFrame,
     sourceId,
@@ -282,7 +295,7 @@ export function useNormalMapManager(enabled: boolean) {
     shadingSourceId,
     source.owner,
     source.documentKey,
-    snapshot?.pixelRevision,
+    pixelRevision,
     layerKey,
     previewFrame,
     excludedKey,
@@ -358,7 +371,7 @@ export function useNormalMapManager(enabled: boolean) {
     lightingOpen,
     source.owner,
     source.documentKey,
-    snapshot?.pixelRevision,
+    pixelRevision,
     layerKey,
     frame,
     diffuseId,
@@ -367,27 +380,11 @@ export function useNormalMapManager(enabled: boolean) {
   const normals = useMemo(() => {
     if (!lightingOpen || !document || normalId === NORMAL_FLAT_SOURCE) return EMPTY_SOURCE;
     return renderSource(document, frame, normalId, [], false);
-  }, [
-    lightingOpen,
-    source.owner,
-    source.documentKey,
-    snapshot?.pixelRevision,
-    layerKey,
-    frame,
-    normalId,
-  ]);
+  }, [lightingOpen, source.owner, source.documentKey, pixelRevision, layerKey, frame, normalId]);
   const mask = useMemo(() => {
     if (!lightingOpen || !document || maskId === NORMAL_FLAT_SOURCE) return EMPTY_SOURCE;
     return renderSource(document, frame, maskId, [], false);
-  }, [
-    lightingOpen,
-    source.owner,
-    source.documentKey,
-    snapshot?.pixelRevision,
-    layerKey,
-    frame,
-    maskId,
-  ]);
+  }, [lightingOpen, source.owner, source.documentKey, pixelRevision, layerKey, frame, maskId]);
   const generationNormals = useMemo(() => {
     if (!generationOpen || !generatingMask || !document || normalId === NORMAL_FLAT_SOURCE)
       return EMPTY_SOURCE;
@@ -397,7 +394,7 @@ export function useNormalMapManager(enabled: boolean) {
     generatingMask,
     source.owner,
     source.documentKey,
-    snapshot?.pixelRevision,
+    pixelRevision,
     layerKey,
     previewFrame,
     normalId,
@@ -411,7 +408,7 @@ export function useNormalMapManager(enabled: boolean) {
     generatingMask,
     source.owner,
     source.documentKey,
-    snapshot?.pixelRevision,
+    pixelRevision,
     layerKey,
     previewFrame,
     maskId,

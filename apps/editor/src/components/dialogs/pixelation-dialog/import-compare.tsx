@@ -324,7 +324,7 @@ export function ImportCompare({
               style={{ left: `${clampSplit(split)}%` }}
               role="slider"
               tabIndex={0}
-              aria-label={tUi("import.dialog.zoom.preview")}
+              aria-label={labels.slider}
               aria-valuemin={SPLIT_MIN}
               aria-valuemax={SPLIT_MAX}
               aria-valuenow={Math.round(split)}

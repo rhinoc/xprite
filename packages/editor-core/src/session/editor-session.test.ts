@@ -323,6 +323,8 @@ describe("editor-session", () => {
         width: 80,
         height: 40,
         classification: "uncertain",
+        frameCount: 1,
+        previewFrame: 0,
       });
       assert.deepEqual([pixels.width, pixels.height], [80, 40]);
       assert.equal(grid, null);

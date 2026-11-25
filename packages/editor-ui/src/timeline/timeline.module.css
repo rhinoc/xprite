@@ -35,6 +35,14 @@
   background: transparent;
   cursor: var(--ui-cursor-default, default);
 }
+.layerNameText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .layerNameHit:focus-visible,
 .hit:focus-visible {
   outline: 1px solid var(--ui-focus-ring-color);
