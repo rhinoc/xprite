@@ -265,6 +265,62 @@ describe("browser-images", () => {
         [1, 1, [9, 8, 7, 6]],
       );
 
+      // Wide PNGs (> 16,384 px wide, <= 32,768 px, <= 64M px) round-trip through
+      // encodePng, savePng, and decodeImage via the portable PNG codec.
+      resetCounters();
+      const wideWidth = 20_480;
+      const wideHeight = 2;
+      const wideData = new Uint8ClampedArray(wideWidth * wideHeight * 4);
+      wideData.set([12, 34, 56, 255], 0);
+      wideData.set([210, 180, 150, 200], (wideWidth * wideHeight - 1) * 4);
+      const widePixels = { width: wideWidth, height: wideHeight, data: wideData };
+      const wideBlob = await images.encodePng(widePixels);
+      check(wideBlob.type, "image/png");
+      check(canvasContexts.length, 0);
+      const wideDecoded = await images.decodeImage(wideBlob);
+      check([wideDecoded.width, wideDecoded.height], [wideWidth, wideHeight]);
+      check(Array.from(wideDecoded.data.subarray(0, 4)), [12, 34, 56, 255]);
+      check(Array.from(wideDecoded.data.subarray(-4)), [210, 180, 150, 200]);
+      // Explicit caller limits still override the wide PNG default.
+      await rejects(
+        images.decodeImage(wideBlob, { maxDimension: 16_384 }),
+        (error) => error?.name === "ImageDimensionError" && /20480 × 2/.test(error.message),
+      );
+      // PNGs exceeding editor pixel budget (64M px) fail fast on the IHDR header.
+      const hugePngHeader = new Uint8Array(33);
+      hugePngHeader.set([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82], 0);
+      const hugeView = new DataView(hugePngHeader.buffer);
+      hugeView.setUint32(16, 20_480);
+      hugeView.setUint32(20, 4_000);
+      await rejects(
+        images.decodeImage(new Blob([hugePngHeader], { type: "image/png" })),
+        (error) => error?.name === "ImageDimensionError" && /20480 × 4000/.test(error.message),
+      );
+      // savePng also accepts wide portable PNGs without tripping the 16,384 canvas limit.
+      globalThis.showSaveFilePicker = undefined;
+      const wideSaved = await images.savePng(widePixels, "wide-sheet", { mode: "download" });
+      check(wideSaved, { method: "download", name: "wide-sheet.png" });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Non-PNG canvas decodes retain the 16,384 browser 2D canvas dimension limit.
+      resetCounters();
+      let wideBitmapClosed = 0;
+      globalThis.OffscreenCanvas = FakeCanvas;
+      globalThis.createImageBitmap = async () => ({
+        width: 20_480,
+        height: 2,
+        close() {
+          wideBitmapClosed += 1;
+        },
+      });
+      await rejects(
+        images.decodeImage(new Blob(["not-a-png"], { type: "image/webp" })),
+        (error) => error?.name === "ImageDimensionError" && /20480 × 2/.test(error.message),
+      );
+      check(wideBitmapClosed, 1);
+      globalThis.OffscreenCanvas = undefined;
+      globalThis.createImageBitmap = undefined;
+
       // Picker is called before its promise yields, preserving a save-button gesture.
       resetCounters();
       let pickerCalled = false;

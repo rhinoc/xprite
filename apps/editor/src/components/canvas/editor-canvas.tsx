@@ -39,8 +39,14 @@ import {
   useCanvasInputController,
   useCanvasManager,
   useCanvasOverlayState,
-  rasterUploadLayout,
+  buildViewportSampleMaps,
   canOffsetRaster,
+  copyCroppedRasterPixels,
+  isCroppedUploadCovered,
+  planRasterUpload,
+  RasterUploadMode,
+  sampleViewportRasterPixels,
+  type ViewportSampleMaps,
 } from "$/managers/canvas/canvas-manager";
 import {
   workingColorProfile,
@@ -81,6 +87,7 @@ import {
   type Point,
   type PointerInput,
   type PixelMask,
+  type Rect,
   clampCanvasPan,
   documentToScreen,
   screenToDocument,
@@ -495,15 +502,76 @@ export function EditorCanvas({
       transformModifier = false;
     let quickTool: CanvasQuickTool | null = null;
     let modifierKeys = { altKey: false, ctrlKey: false, metaKey: false, shiftKey: false };
+    let imageDocumentId: number | undefined;
     let imageData: ImageData | null = null;
+    let uploadImageData: ImageData | null = null;
+    let imageSourceBuffer: ArrayBufferLike | null = null;
+    let imageSourceByteOffset = -1;
+    let imageSourceWidth = 0;
+    let imageSourceHeight = 0;
+    let imageUploadMode: RasterUploadMode | null = null;
     let imageX = 0,
       imageY = 0;
+    let imageUploadWidth = 0,
+      imageUploadHeight = 0;
     let imageWriteX = 0,
       imageWriteY = 0,
       imageRasterScale = 0;
-    let imageTiled: boolean | null = null;
+    let imageFullRect: Rect | null = null;
+    let imageViewportDstX = 0,
+      imageViewportDstY = 0,
+      imageViewportDstWidth = 0,
+      imageViewportDstHeight = 0;
+    let imageViewportOriginX = Number.NaN,
+      imageViewportOriginY = Number.NaN;
+    let imageViewportBackingWidth = 0,
+      imageViewportBackingHeight = 0;
+    let imageViewportRasterX = 0,
+      imageViewportRasterY = 0;
+    let imageViewportMaps: ViewportSampleMaps | null = null;
+    let imageTiledMode: number | null = null;
     let imageBorrowMode: boolean | null = null;
     let imageProfile: unknown = null;
+    const resetImageUpload = () => {
+      if (imageCanvas.width !== 0) imageCanvas.width = 0;
+      if (imageCanvas.height !== 0) imageCanvas.height = 0;
+      imageDocumentId = undefined;
+      imageRevision = -1;
+      imageData = null;
+      uploadImageData = null;
+      imageSourceBuffer = null;
+      imageSourceByteOffset = -1;
+      imageSourceWidth = 0;
+      imageSourceHeight = 0;
+      imageUploadMode = null;
+      imageX = 0;
+      imageY = 0;
+      imageUploadWidth = 0;
+      imageUploadHeight = 0;
+      imageWriteX = 0;
+      imageWriteY = 0;
+      imageRasterScale = 0;
+      imageFullRect = null;
+      imageViewportDstX = 0;
+      imageViewportDstY = 0;
+      imageViewportDstWidth = 0;
+      imageViewportDstHeight = 0;
+      imageViewportOriginX = Number.NaN;
+      imageViewportOriginY = Number.NaN;
+      imageViewportBackingWidth = 0;
+      imageViewportBackingHeight = 0;
+      imageViewportRasterX = 0;
+      imageViewportRasterY = 0;
+      imageViewportMaps = null;
+      imageTiledMode = null;
+      imageBorrowMode = null;
+      imageProfile = null;
+      imageFloating = null;
+      imageInline = null;
+      imagePreview = null;
+      imageLinePreview = null;
+      imageSettings = null;
+    };
     let hoveredTransform: SelectionHandle | null = null;
     const transformTargets = () => {
       const state = getSnapshot(),
@@ -1393,6 +1461,7 @@ export function EditorCanvas({
       paintingCursorZoom = state.view.zoom;
       if (!doc) {
         presentationColors.clear();
+        resetImageUpload();
         stopAntsTimer();
         present();
         updatePaintingCursor();
@@ -1476,25 +1545,54 @@ export function EditorCanvas({
         context.scale(zoom, zoom);
         paintCheckerboard(context, displayPreferences, tileBounds, origin, zoom, v, rasterBounds);
         if (tiledMode || !drawReferenceViewport(context, origin, v, CANVAS_BACKING_SCALE)) {
-          if (
+          if (imageDocumentId !== undefined && imageDocumentId !== doc.id) {
+            resetImageUpload();
+          }
+          const rasterScale = zoom * CANVAS_BACKING_SCALE;
+          const profile = workingColorProfile(doc.timeline);
+          const contentChanged =
+            imageDocumentId !== doc.id ||
             imageRevision !== state.pixelRevision ||
-            imageTiled !== Boolean(tiledMode) ||
+            imageTiledMode !== tiledMode ||
             imageBorrowMode !== borrowRaster ||
-            imageRasterScale !== zoom * CANVAS_BACKING_SCALE ||
-            imageProfile !== workingColorProfile(doc.timeline) ||
+            imageRasterScale !== rasterScale ||
+            imageProfile !== profile ||
             imageFloating !== state.floatingPaste ||
             imageInline !== state.inlineText ||
             imagePreview !== state.preview ||
             imageLinePreview !== state.linePreview ||
             (state.preview && imageSettings !== state.settings) ||
-            (state.linePreview && imageSettings !== state.settings)
-          ) {
+            (state.linePreview && imageSettings !== state.settings);
+          const croppedViewChanged =
+            !contentChanged &&
+            imageUploadMode === RasterUploadMode.Cropped &&
+            imageFullRect !== null &&
+            !isCroppedUploadCovered(
+              { x: imageX, y: imageY, width: imageUploadWidth, height: imageUploadHeight },
+              imageFullRect,
+              doc,
+              {
+                viewport: v,
+                origin,
+                zoom,
+                backingScale: CANVAS_BACKING_SCALE,
+                tiledMode,
+              },
+            );
+          const viewportViewChanged =
+            !contentChanged &&
+            imageUploadMode === RasterUploadMode.Viewport &&
+            (imageViewportOriginX !== origin.x ||
+              imageViewportOriginY !== origin.y ||
+              imageViewportBackingWidth !== width ||
+              imageViewportBackingHeight !== height);
+          if (contentChanged || croppedViewChanged || viewportViewChanged) {
             const raster = tiledMode
               ? { pixels: editor.previewComposite(), x: 0, y: 0 }
               : editor.previewRaster(borrowRaster);
             const image = presentationColors.convert(
               raster.pixels,
-              workingColorProfile(doc.timeline),
+              profile,
               state.preview ||
                 state.linePreview ||
                 state.inlineText ||
@@ -1504,74 +1602,278 @@ export function EditorCanvas({
                 : state.pixelRevision,
               state.rasterChange,
             );
-            const upload = rasterUploadLayout(raster, doc, zoom * CANVAS_BACKING_SCALE);
-            const uploadWidth = Math.max(1, upload.width);
-            const uploadHeight = Math.max(1, upload.height);
+            const clipLeft = Math.max(0, Math.round(rasterBounds.x * CANVAS_BACKING_SCALE));
+            const clipTop = Math.max(0, Math.round(rasterBounds.y * CANVAS_BACKING_SCALE));
+            const clipRight = Math.min(
+              width,
+              Math.round((rasterBounds.x + rasterBounds.width) * CANVAS_BACKING_SCALE),
+            );
+            const clipBottom = Math.min(
+              height,
+              Math.round((rasterBounds.y + rasterBounds.height) * CANVAS_BACKING_SCALE),
+            );
+            const uploadView = {
+              viewport: v,
+              origin,
+              zoom,
+              backingScale: CANVAS_BACKING_SCALE,
+              backingViewportRect: {
+                x: clipLeft,
+                y: clipTop,
+                width: Math.max(0, clipRight - clipLeft),
+                height: Math.max(0, clipBottom - clipTop),
+              },
+              tiledMode,
+            };
+            const upload = planRasterUpload({
+              raster,
+              document: doc,
+              view: uploadView,
+              cachedCroppedRect:
+                imageUploadMode === RasterUploadMode.Cropped &&
+                imageUploadWidth > 0 &&
+                imageUploadHeight > 0
+                  ? { x: imageX, y: imageY, width: imageUploadWidth, height: imageUploadHeight }
+                  : null,
+            });
             const pixelsData = image.data;
             const sameSource =
-              imageData?.data.buffer === pixelsData.buffer &&
-              imageData.data.byteOffset === pixelsData.byteOffset &&
-              imageData.width === image.width &&
-              imageData.height === image.height;
-            const sameGeometry =
-              imageCanvas.width === uploadWidth &&
-              imageCanvas.height === uploadHeight &&
-              imageX === upload.x &&
-              imageY === upload.y &&
-              imageWriteX === upload.writeX &&
-              imageWriteY === upload.writeY;
-            if (imageCanvas.width !== uploadWidth) imageCanvas.width = uploadWidth;
-            if (imageCanvas.height !== uploadHeight) imageCanvas.height = uploadHeight;
-            if (!sameSource)
-              imageData = new ImageData(
-                pixelsData as Uint8ClampedArray<ArrayBuffer>,
-                image.width,
-                image.height,
-              );
+              imageSourceBuffer === pixelsData.buffer &&
+              imageSourceByteOffset === pixelsData.byteOffset &&
+              imageSourceWidth === image.width &&
+              imageSourceHeight === image.height;
             const change = state.rasterChange;
-            const unchangedPixels =
+            const canPartialChange =
               sameSource &&
-              sameGeometry &&
-              imageRevision === state.pixelRevision &&
-              imageProfile === workingColorProfile(doc.timeline);
-            if (unchangedPixels) {
-              rasterUploadMode = RasterUploadDiagnosticMode.Unchanged;
-              // New pointer/preview descriptors can still refer to the same
-              // unchanged raster. Keep the existing upload in that case.
-            } else if (
-              sameSource &&
-              sameGeometry &&
-              upload.width > 0 &&
-              upload.height > 0 &&
               change?.pixels === raster.pixels &&
               change.fromRevision <= imageRevision &&
-              change.revision === state.pixelRevision
-            ) {
-              rasterUploadMode = RasterUploadDiagnosticMode.Partial;
-              const bounds = change.bounds;
-              imageContext.putImageData(
-                imageData!,
-                upload.writeX,
-                upload.writeY,
-                bounds.x,
-                bounds.y,
-                bounds.width,
-                bounds.height,
-              );
+              change.revision === state.pixelRevision;
+            if (upload.mode === RasterUploadMode.Full) {
+              uploadImageData = null;
+              imageFullRect = null;
+              imageViewportMaps = null;
+              const uploadWidth = Math.max(1, upload.width);
+              const uploadHeight = Math.max(1, upload.height);
+              const sameGeometry =
+                imageUploadMode === RasterUploadMode.Full &&
+                imageCanvas.width === uploadWidth &&
+                imageCanvas.height === uploadHeight &&
+                imageX === upload.x &&
+                imageY === upload.y &&
+                imageWriteX === upload.writeX &&
+                imageWriteY === upload.writeY;
+              if (imageCanvas.width !== uploadWidth) imageCanvas.width = uploadWidth;
+              if (imageCanvas.height !== uploadHeight) imageCanvas.height = uploadHeight;
+              if (!sameSource || !imageData)
+                imageData = new ImageData(
+                  pixelsData as Uint8ClampedArray<ArrayBuffer>,
+                  image.width,
+                  image.height,
+                );
+              const unchangedPixels =
+                sameSource &&
+                sameGeometry &&
+                imageRevision === state.pixelRevision &&
+                imageProfile === profile;
+              if (unchangedPixels) {
+                rasterUploadMode = RasterUploadDiagnosticMode.Unchanged;
+                // New pointer/preview descriptors can still refer to the same
+                // unchanged raster. Keep the existing upload in that case.
+              } else if (
+                canPartialChange &&
+                sameGeometry &&
+                upload.width > 0 &&
+                upload.height > 0
+              ) {
+                rasterUploadMode = RasterUploadDiagnosticMode.Partial;
+                const bounds = change.bounds;
+                imageContext.putImageData(
+                  imageData,
+                  upload.writeX,
+                  upload.writeY,
+                  bounds.x,
+                  bounds.y,
+                  bounds.width,
+                  bounds.height,
+                );
+              } else {
+                rasterUploadMode = RasterUploadDiagnosticMode.Full;
+                imageContext.clearRect(0, 0, uploadWidth, uploadHeight);
+                if (upload.width && upload.height)
+                  imageContext.putImageData(imageData, upload.writeX, upload.writeY);
+              }
+              imageUploadMode = RasterUploadMode.Full;
+              imageX = upload.x;
+              imageY = upload.y;
+              imageUploadWidth = upload.width;
+              imageUploadHeight = upload.height;
+              imageWriteX = upload.writeX;
+              imageWriteY = upload.writeY;
+            } else if (upload.mode === RasterUploadMode.Cropped) {
+              imageData = null;
+              imageViewportMaps = null;
+              if (upload.width === 0 || upload.height === 0) {
+                if (imageCanvas.width !== 0) imageCanvas.width = 0;
+                if (imageCanvas.height !== 0) imageCanvas.height = 0;
+                uploadImageData = null;
+                rasterUploadMode = RasterUploadDiagnosticMode.Unchanged;
+              } else {
+                const sameGeometry =
+                  imageUploadMode === RasterUploadMode.Cropped &&
+                  imageCanvas.width === upload.width &&
+                  imageCanvas.height === upload.height &&
+                  uploadImageData?.width === upload.width &&
+                  uploadImageData?.height === upload.height &&
+                  imageX === upload.x &&
+                  imageY === upload.y &&
+                  imageWriteX === upload.writeX &&
+                  imageWriteY === upload.writeY;
+                if (imageCanvas.width !== upload.width) imageCanvas.width = upload.width;
+                if (imageCanvas.height !== upload.height) imageCanvas.height = upload.height;
+                if (
+                  !uploadImageData ||
+                  uploadImageData.width !== upload.width ||
+                  uploadImageData.height !== upload.height
+                )
+                  uploadImageData = imageContext.createImageData(upload.width, upload.height);
+                const unchangedPixels =
+                  sameSource &&
+                  sameGeometry &&
+                  imageRevision === state.pixelRevision &&
+                  imageProfile === profile;
+                if (unchangedPixels) {
+                  rasterUploadMode = RasterUploadDiagnosticMode.Unchanged;
+                } else if (canPartialChange && sameGeometry) {
+                  rasterUploadMode = RasterUploadDiagnosticMode.Partial;
+                  const dirty = copyCroppedRasterPixels(
+                    image,
+                    uploadImageData,
+                    upload,
+                    change.bounds,
+                  );
+                  if (dirty)
+                    imageContext.putImageData(
+                      uploadImageData,
+                      0,
+                      0,
+                      dirty.x,
+                      dirty.y,
+                      dirty.width,
+                      dirty.height,
+                    );
+                } else {
+                  rasterUploadMode = RasterUploadDiagnosticMode.Full;
+                  copyCroppedRasterPixels(image, uploadImageData, upload);
+                  imageContext.putImageData(uploadImageData, 0, 0);
+                }
+              }
+              imageUploadMode = RasterUploadMode.Cropped;
+              imageX = upload.x;
+              imageY = upload.y;
+              imageUploadWidth = upload.width;
+              imageUploadHeight = upload.height;
+              imageWriteX = upload.writeX;
+              imageWriteY = upload.writeY;
+              imageFullRect = upload.fullRect;
             } else {
-              rasterUploadMode = RasterUploadDiagnosticMode.Full;
-              imageContext.clearRect(0, 0, uploadWidth, uploadHeight);
-              if (upload.width && upload.height)
-                imageContext.putImageData(imageData!, upload.writeX, upload.writeY);
+              imageData = null;
+              imageFullRect = null;
+              if (upload.width === 0 || upload.height === 0) {
+                if (imageCanvas.width !== 0) imageCanvas.width = 0;
+                if (imageCanvas.height !== 0) imageCanvas.height = 0;
+                uploadImageData = null;
+                imageViewportMaps = null;
+                rasterUploadMode = RasterUploadDiagnosticMode.Unchanged;
+              } else {
+                const sameGeometry =
+                  imageUploadMode === RasterUploadMode.Viewport &&
+                  imageCanvas.width === upload.width &&
+                  imageCanvas.height === upload.height &&
+                  uploadImageData?.width === upload.width &&
+                  uploadImageData?.height === upload.height &&
+                  imageViewportDstX === upload.dstX &&
+                  imageViewportDstY === upload.dstY &&
+                  imageViewportDstWidth === upload.dstWidth &&
+                  imageViewportDstHeight === upload.dstHeight &&
+                  imageViewportOriginX === origin.x &&
+                  imageViewportOriginY === origin.y &&
+                  imageRasterScale === rasterScale &&
+                  imageTiledMode === tiledMode &&
+                  imageViewportRasterX === raster.x &&
+                  imageViewportRasterY === raster.y &&
+                  imageSourceWidth === image.width &&
+                  imageSourceHeight === image.height &&
+                  imageViewportMaps !== null;
+                if (imageCanvas.width !== upload.width) imageCanvas.width = upload.width;
+                if (imageCanvas.height !== upload.height) imageCanvas.height = upload.height;
+                if (
+                  !uploadImageData ||
+                  uploadImageData.width !== upload.width ||
+                  uploadImageData.height !== upload.height
+                )
+                  uploadImageData = imageContext.createImageData(upload.width, upload.height);
+                if (!sameGeometry) {
+                  imageViewportMaps = buildViewportSampleMaps(
+                    upload,
+                    { x: raster.x, y: raster.y, width: image.width, height: image.height },
+                    doc,
+                    uploadView,
+                  );
+                }
+                const unchangedPixels =
+                  sameSource &&
+                  sameGeometry &&
+                  imageRevision === state.pixelRevision &&
+                  imageProfile === profile;
+                if (unchangedPixels) {
+                  rasterUploadMode = RasterUploadDiagnosticMode.Unchanged;
+                } else if (canPartialChange && sameGeometry && imageViewportMaps) {
+                  rasterUploadMode = RasterUploadDiagnosticMode.Partial;
+                  const dirty = sampleViewportRasterPixels(
+                    image,
+                    uploadImageData,
+                    imageViewportMaps,
+                    change.bounds,
+                  );
+                  if (dirty)
+                    imageContext.putImageData(
+                      uploadImageData,
+                      0,
+                      0,
+                      dirty.x,
+                      dirty.y,
+                      dirty.width,
+                      dirty.height,
+                    );
+                } else if (imageViewportMaps) {
+                  rasterUploadMode = RasterUploadDiagnosticMode.Full;
+                  sampleViewportRasterPixels(image, uploadImageData, imageViewportMaps);
+                  imageContext.putImageData(uploadImageData, 0, 0);
+                }
+              }
+              imageUploadMode = RasterUploadMode.Viewport;
+              imageUploadWidth = upload.width;
+              imageUploadHeight = upload.height;
+              imageViewportDstX = upload.dstX;
+              imageViewportDstY = upload.dstY;
+              imageViewportDstWidth = upload.dstWidth;
+              imageViewportDstHeight = upload.dstHeight;
+              imageViewportOriginX = origin.x;
+              imageViewportOriginY = origin.y;
+              imageViewportBackingWidth = width;
+              imageViewportBackingHeight = height;
+              imageViewportRasterX = raster.x;
+              imageViewportRasterY = raster.y;
             }
-            imageX = upload.x;
-            imageY = upload.y;
-            imageWriteX = upload.writeX;
-            imageWriteY = upload.writeY;
-            imageRasterScale = zoom * CANVAS_BACKING_SCALE;
-            imageTiled = Boolean(tiledMode);
+            imageDocumentId = doc.id;
+            imageSourceBuffer = pixelsData.buffer;
+            imageSourceByteOffset = pixelsData.byteOffset;
+            imageSourceWidth = image.width;
+            imageSourceHeight = image.height;
+            imageRasterScale = rasterScale;
+            imageTiledMode = tiledMode;
             imageBorrowMode = borrowRaster;
-            imageProfile = workingColorProfile(doc.timeline);
+            imageProfile = profile;
             imageRevision = state.pixelRevision;
             imageFloating = state.floatingPaste;
             imageInline = state.inlineText;
@@ -1579,12 +1881,37 @@ export function EditorCanvas({
             imageLinePreview = state.linePreview;
             imageSettings = state.settings;
           }
-          for (const tile of tiles.tiles)
-            context.drawImage(
-              imageCanvas,
-              tile.x - tiles.mainTile.x + imageX,
-              tile.y - tiles.mainTile.y + imageY,
-            );
+          if (imageUploadMode === RasterUploadMode.Viewport) {
+            if (
+              imageUploadWidth > 0 &&
+              imageUploadHeight > 0 &&
+              imageViewportDstWidth > 0 &&
+              imageViewportDstHeight > 0
+            ) {
+              context.save();
+              context.setTransform(1, 0, 0, 1, 0, 0);
+              context.imageSmoothingEnabled = false;
+              context.drawImage(
+                imageCanvas,
+                0,
+                0,
+                imageUploadWidth,
+                imageUploadHeight,
+                imageViewportDstX,
+                imageViewportDstY,
+                imageViewportDstWidth,
+                imageViewportDstHeight,
+              );
+              context.restore();
+            }
+          } else if (imageUploadWidth > 0 && imageUploadHeight > 0) {
+            for (const tile of tiles.tiles)
+              context.drawImage(
+                imageCanvas,
+                tile.x - tiles.mainTile.x + imageX,
+                tile.y - tiles.mainTile.y + imageY,
+              );
+          }
         }
         if (state.view.pixelGrid) {
           const pixelGrid = libreSpritePixelGridGeometry(
@@ -3295,6 +3622,14 @@ export function EditorCanvas({
       window.removeEventListener("blur", blur);
       document.removeEventListener("visibilitychange", visibilityChanged);
       clearReferenceViewport();
+      presentationColors.clear();
+      resetImageUpload();
+      baseCanvas.width = 0;
+      baseCanvas.height = 0;
+      hoverCanvas.width = 0;
+      hoverCanvas.height = 0;
+      sourceCanvas.width = 0;
+      sourceCanvas.height = 0;
       paintingCursorRenderer.dispose();
     };
   }, [

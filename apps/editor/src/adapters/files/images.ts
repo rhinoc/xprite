@@ -13,10 +13,15 @@ import {
   ImageDimensionError,
   decodeImageBlob,
   encodePngBlob,
-  validateRgbaImage,
   type ImageDecodeOptions,
 } from "@xprite/bedrock/browser/images";
-import { pngFileName } from "@xprite/editor-core";
+import { hasPngSignature } from "@xprite/bedrock/common/png";
+import {
+  assertPixelBuffer,
+  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_PIXELS,
+  pngFileName,
+} from "@xprite/editor-core";
 import type { PixelBuffer } from "@xprite/editor-core";
 
 export type { ImageDecodeOptions } from "@xprite/bedrock/browser/images";
@@ -36,14 +41,38 @@ export interface SavePngOptions {
   onFileDataSaved?: (blob: Blob, name: string) => void;
 }
 
+const PNG_SIGNATURE_BYTES = 8;
+
 function describeError(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
   if (typeof error === "string") return error;
   return "unknown browser error";
 }
 
-export function decodeImage(blob: Blob, options: ImageDecodeOptions = {}): Promise<PixelBuffer> {
-  return decodeImageBlob(blob, options);
+async function isPngBlob(blob: Blob): Promise<boolean> {
+  if (blob.size < PNG_SIGNATURE_BYTES) return false;
+  const header = new Uint8Array(await blob.slice(0, PNG_SIGNATURE_BYTES).arrayBuffer());
+  return hasPngSignature(header);
+}
+
+/** Decode PNGs with the portable decoder up to editor document limits; non-PNGs retain canvas limits. */
+export async function decodeImage(
+  blob: Blob,
+  options: ImageDecodeOptions = {},
+): Promise<PixelBuffer> {
+  if (!(blob instanceof Blob)) return decodeImageBlob(blob, options);
+  const effectiveOptions =
+    options.maxDimension === undefined &&
+    options.maxWidth === undefined &&
+    options.maxHeight === undefined &&
+    (await isPngBlob(blob))
+      ? {
+          maxDimension: MAX_IMAGE_DIMENSION,
+          maxPixels: MAX_IMAGE_PIXELS,
+          ...options,
+        }
+      : options;
+  return decodeImageBlob(blob, effectiveOptions);
 }
 
 export function encodePng(pixels: PixelBuffer): Promise<Blob> {
@@ -51,7 +80,7 @@ export function encodePng(pixels: PixelBuffer): Promise<Blob> {
 }
 
 function validatePixelBuffer(pixels: PixelBuffer): void {
-  validateRgbaImage(pixels);
+  assertPixelBuffer(pixels);
 }
 
 /**

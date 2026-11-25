@@ -2,7 +2,16 @@ import { useCallback, useMemo, useSyncExternalStore } from "react";
 
 import { workingColorProfile } from "@xprite/editor-core/color";
 export { cursorPreviewGeometry, cursorPreviewRaster } from "$/managers/canvas/cursor-preview";
-export { rasterUploadLayout, canOffsetRaster } from "$/managers/canvas/raster-upload-layout";
+export {
+  buildViewportSampleMaps,
+  canOffsetRaster,
+  copyCroppedRasterPixels,
+  isCroppedUploadCovered,
+  planRasterUpload,
+  RasterUploadMode,
+  sampleViewportRasterPixels,
+  type ViewportSampleMaps,
+} from "$/managers/canvas/raster-upload-layout";
 import type { StoreApi } from "zustand/vanilla";
 
 import { executeEditorCommand, stepZoomPercent } from "$/managers/canvas/canvas-presentation";
