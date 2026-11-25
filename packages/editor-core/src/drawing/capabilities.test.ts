@@ -1,33 +1,20 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { build, transform } from "esbuild";
+import { build } from "esbuild";
 import { describe, it } from "vitest";
-
-import { PaintInk, UINT8_MAX } from "$/index";
 
 describe("tool-settings", () => {
   it("tool-settings behavior", async () => {
-    const source = (
-      await readFile(
-        new URL(
-          "../../../../apps/editor/src/managers/preferences/tool-ink-settings.ts",
-          import.meta.url,
-        ),
-        "utf8",
-      )
-    )
-      .replace(
-        /^import \{ PaintInk \} from "@xprite\/editor-core";\r?\n/m,
-        `const PaintInk = ${JSON.stringify(PaintInk)};\n`,
-      )
-      .replace(
-        /^import \{ UINT8_MAX \} from "@xprite\/editor-core";\r?\n/m,
-        `const UINT8_MAX = ${UINT8_MAX};\n`,
-      );
-    const { code } = await transform(source, { loader: "ts", format: "esm" });
+    const { outputFiles } = await build({
+      entryPoints: ["apps/editor/src/managers/preferences/tool-ink-settings.ts"],
+      bundle: true,
+      platform: "node",
+      format: "esm",
+      write: false,
+    });
     const { updateToolInkSettings: update } = await import(
-      `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`
+      `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
     );
     const tools = ["pencil", "line", "eraser"];
     const original = {

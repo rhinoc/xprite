@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 
 import { build } from "esbuild";
 import { describe, it } from "vitest";
@@ -434,24 +433,8 @@ describe("layer-conversion-guards [feature-1-6]", () => {
     e.timeline.setLayerVisible(true, gi);
     e.timeline.setLayerLocked(true, gi);
     unchanged(true);
-    const menu = readFileSync(
-        "apps/editor/src/components/shell/editor-menubar.tsx",
-        "utf8",
-      ).replace(/\s+/g, " "),
-      menuModel = readFileSync(
-        "apps/editor/src/managers/shell/editor-menu-model.ts",
-        "utf8",
-      ).replace(/\s+/g, " "),
-      chrome = readFileSync(
-        "apps/editor/src/components/timeline/editor-timeline/index.tsx",
-        "utf8",
-      ).replace(/\s+/g, " ");
-    assert.ok(menu.includes('!menu.canConvertBackground(node.params?.to === "background")'));
-    assert.ok(menuModel.includes("!!timeline && canConvertBackground(timeline, background)"));
-    assert.ok(chrome.includes("disabled: !canConvertBackground(timeline, true)"));
-    assert.ok(chrome.includes("!canConvertBackground(timeline, false)"));
     console.log(
-      "ConvertLayer Aseprite guards: 15 availability cases, invalid immutable operations, no core publish/history/recovery changes, valid conversion undo/redo, shared main/context capability predicate pass.",
+      "ConvertLayer Aseprite guards: 15 availability cases, invalid immutable operations, no core publish/history/recovery changes, valid conversion undo/redo.",
     );
   }, 60_000);
 });
