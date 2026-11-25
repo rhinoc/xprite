@@ -805,6 +805,7 @@ export function EditorMenubar({ presentation }: { presentation?: "bar" | "rail" 
         Despeckle: MenuEffectKind.MedianBlur,
         ConvolutionMatrix: MenuEffectKind.ConvolutionMatrix,
         ColorCurve: MenuEffectKind.ColorCurve,
+        CleanPixels: MenuEffectKind.CleanPixels,
       };
       if (node.command && effectKinds[node.command])
         return {

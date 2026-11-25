@@ -43,6 +43,7 @@ export const MenuEffectKind = Object.freeze({
   MedianBlur: EffectKind.MedianBlur,
   ConvolutionMatrix: EffectKind.ConvolutionMatrix,
   ColorCurve: EffectKind.ColorCurve,
+  CleanPixels: EffectKind.CleanPixels,
 });
 export type MenuEffectKind = (typeof MenuEffectKind)[keyof typeof MenuEffectKind];
 export const MenuFlipOrientation = Object.freeze({

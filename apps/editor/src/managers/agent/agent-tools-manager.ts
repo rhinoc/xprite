@@ -35,10 +35,12 @@ import {
   buildPaletteRamp,
   compositeDocumentFrame,
   effectiveLayerVisible,
+  isBackgroundLayer,
   layerEditable,
   MAX_IMAGE_PIXELS,
   paletteColorHex,
   paletteUsageAcrossFrames,
+  PixelCleanupPass,
   quantizePalette,
   renderTimelineFrame,
   snapDocumentToPalette,
@@ -1698,12 +1700,42 @@ export class AgentToolsManager {
           options.expect = parsed;
         }
         const doc = slot.core.getSnapshot().document!;
+        const validation = validateDocument(doc, options);
+        const timeline = doc.timeline!;
+        const findings = validation.findings.map((finding) => {
+          if (timeline.colorDepth && timeline.colorDepth !== 32) return finding;
+          const pass =
+            finding.check === "strays"
+              ? PixelCleanupPass.RemoveOrphans
+              : finding.check === "antialiasing"
+                ? PixelCleanupPass.CrispAlpha
+                : finding.check === "palette" && finding.severity === "warning"
+                  ? PixelCleanupPass.SnapToPalette
+                  : undefined;
+          if (!pass) return finding;
+          const { layerId, frameIndex } = finding;
+          if (layerId !== undefined) {
+            const index = timeline.layers.findIndex((layer) => layer.id === layerId);
+            if (!layerEditable(timeline, index) || isBackgroundLayer(timeline.layers[index]))
+              return finding;
+          }
+          return {
+            ...finding,
+            cleanup: {
+              type: BatchEditKind.CleanPixels,
+              layerId,
+              frameIndex,
+              options: { [pass]: true },
+            },
+          };
+        });
         return {
           ok: true,
           data: {
             documentId: slot.documentId,
             revision: slot.core.getContentRevision(),
-            ...validateDocument(doc, options),
+            ...validation,
+            findings,
           },
         };
       }

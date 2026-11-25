@@ -28,6 +28,67 @@ function createTestManager(editor: RasterEditor) {
 }
 
 describe("agent applyBatch error diagnostics", () => {
+  it("applies cleanup operations suggested by validate and verifies the result", async () => {
+    const pixels = {
+      width: 6,
+      height: 1,
+      data: Uint8ClampedArray.of(
+        255,
+        0,
+        0,
+        255,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        255,
+        0,
+        127,
+        0,
+        255,
+        0,
+        255,
+        0,
+        255,
+        0,
+        255,
+      ),
+    };
+    const editor = new RasterEditor(pixels);
+    const layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    const manager = createTestManager(editor);
+    const input = { documentId: "doc-1", checks: ["strays", "antialiasing"] };
+    const validation = await manager.execute(AgentToolName.Validate, input);
+    if (!validation.ok) throw new Error(validation.error.message);
+    const data = validation.data as {
+      revision: number;
+      findings: { cleanup: unknown }[];
+    };
+    const operations = data.findings.map(({ cleanup }) => cleanup);
+    expect(operations).toEqual([
+      { type: BatchEditKind.CleanPixels, layerId, frameIndex: 0, options: { removeOrphans: true } },
+      { type: BatchEditKind.CleanPixels, layerId, frameIndex: 0, options: { crispAlpha: true } },
+    ]);
+    const cleaned = await manager.execute(AgentToolName.ApplyBatch, {
+      documentId: input.documentId,
+      expectedRevision: data.revision,
+      label: "Clean validated pixels",
+      operations,
+    });
+    expect(cleaned.ok).toBe(true);
+    const after = await manager.execute(AgentToolName.Validate, input);
+    expect(after).toMatchObject({ ok: true, data: { findings: [] } });
+    expect(editor.canvas.composite().data[3]).toBe(0);
+    editor.history.undo();
+    expect(editor.canvas.composite().data).toEqual(pixels.data);
+    expect(editor.getSnapshot().canUndo).toBe(false);
+  });
+
   it("reports the failing operations[i] index when an operation fails input validation", async () => {
     const editor = new RasterEditor(
       { width: 4, height: 4, data: new Uint8ClampedArray(64) },

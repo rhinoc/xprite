@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import {
   useDialogEditorSource,
@@ -6,6 +6,7 @@ import {
 } from "$/managers/dialogs/internal-editor-source";
 import {
   canOpenEffect,
+  cleanupEffectAvailability,
   defaultEffect,
   effectChannels,
   EffectKind,
@@ -19,10 +20,11 @@ import {
   ConvolutionPreset,
   convolutionKernel,
   normalizeColorCurve,
+  PixelCleanupPass,
   MAX_MEDIAN_SIZE,
   UINT8_MAX,
 } from "@xprite/editor-core";
-import type { EffectSpec, Rgba } from "@xprite/editor-core";
+import type { EffectSpec, PixelCleanupOptions, Rgba } from "@xprite/editor-core";
 
 export const DialogEffectKind = Object.freeze({
   ReplaceColor: EffectKind.ReplaceColor,
@@ -54,7 +56,12 @@ export type DialogHueSaturationMode =
 export const DIALOG_OUTLINE_MATRICES = OUTLINE_MATRICES;
 export const DIALOG_OUTLINE_DARKENING = OUTLINE_DARKENING;
 export const DialogOutlineColorMode = OutlineColorMode;
+export const DIALOG_CLEAN_PIXELS_KIND = EffectKind.CleanPixels;
 export type DialogEffectSpec = EffectSpec;
+export type DialogCleanupSpec = Extract<EffectSpec, { kind: EffectKind.CleanPixels }>;
+export type DialogCleanupOptions = PixelCleanupOptions;
+export { PixelCleanupPass as DialogCleanupPass };
+export type DialogCleanupAvailability = ReturnType<typeof cleanupEffectAvailability>;
 export type DialogColor = Rgba;
 export const MAX_DIALOG_MEDIAN_SIZE = MAX_MEDIAN_SIZE;
 export const DIALOG_CONVOLUTION_PRESETS = [
@@ -139,6 +146,13 @@ export function useEffectDialogManager() {
   useEffect(() => () => source.core?.imageEditing.previewEffect(null), [source.core]);
   const snapshot = source.snapshot;
   const document = snapshot?.document;
+  const cleanupAvailability = useCallback(
+    (target: DialogEffectTarget): DialogCleanupAvailability =>
+      document
+        ? cleanupEffectAvailability(document, target)
+        : { cleanDoubles: false, snapToPalette: false, crispAlpha: false },
+    [document],
+  );
   const timeline = document?.timeline;
   const layer = timeline?.layers[timeline.activeLayer];
   const backgroundLayer = !!layer && isBackgroundLayer(layer);
@@ -171,21 +185,26 @@ export function useEffectDialogManager() {
 
   return {
     current,
+    cleanupAvailability,
     isCurrentTarget: source.isCurrentTarget,
     begin(target: DialogEditorTarget): boolean {
       if (!source.core || !source.isCurrentTarget(target)) return false;
       return source.core.imageEditing.beginEffect();
     },
-    open(_kind: DialogEffectKind): DialogEditorTarget | null {
+    open(): DialogEditorTarget | null {
       if (!source.core || !current?.canOpen || !source.core.imageEditing.beginEffect()) return null;
       return current.target;
     },
     clearPreview(target: DialogEditorTarget | null): void {
       if (target && source.isCurrentTarget(target)) source.core?.imageEditing.previewEffect(null);
     },
-    preview(target: DialogEditorTarget, spec: DialogEffectSpec | null): boolean {
+    preview(
+      target: DialogEditorTarget,
+      spec: DialogEffectSpec | null,
+      effectTarget?: DialogEffectTarget,
+    ): boolean {
       if (!source.core || !source.isCurrentTarget(target)) return false;
-      source.core.imageEditing.previewEffect(spec);
+      source.core.imageEditing.previewEffect(spec, effectTarget);
       return true;
     },
     apply(

@@ -28,6 +28,7 @@ import {
   type BatchEditOperation,
   type BatchEditResult,
 } from "$/editor/batch-edit-types";
+import { cleanPixels, PixelCleanupPass } from "$/image-editing";
 import {
   ConvolutionPreset,
   DEFAULT_MEDIAN_SIZE,
@@ -56,6 +57,7 @@ import {
   ellipseSelection,
   modifySelection,
   rectangleSelection,
+  selectionLayerReference,
 } from "$/selection/operations";
 import { SelectionMode, SelectionModifier } from "$/selection/types";
 import {
@@ -2080,6 +2082,51 @@ export function applyDocumentBatch(
                     source.data[at + 3],
                   ];
                   if (next.some((v, c) => v !== image.data[at + c])) write(px, py, next);
+                }
+              break;
+            }
+            case BatchEditKind.CleanPixels: {
+              const cleanup = op.options;
+              const passes = Object.values(PixelCleanupPass);
+              if (
+                !cleanup ||
+                typeof cleanup !== "object" ||
+                Array.isArray(cleanup) ||
+                Object.keys(cleanup).some(
+                  (key) =>
+                    !passes.includes(key as PixelCleanupPass) ||
+                    typeof cleanup[key as PixelCleanupPass] !== "boolean",
+                ) ||
+                !passes.some((pass) => cleanup[pass] === true)
+              )
+                throw new BatchEditError(
+                  BatchEditErrorCode.InvalidInput,
+                  "cleanPixels options must enable at least one cleanup pass using booleans",
+                );
+              const bounds = op.rect
+                ? batchRect(op.rect, doc.width, doc.height)
+                : { x: 0, y: 0, width: doc.width, height: doc.height };
+              const source = selectionLayerReference(currentCel, doc.width, doc.height);
+              const cleaned = cleanPixels(source, cleanup, {
+                bounds,
+                selection: doc.selection,
+                background: isBackgroundLayer(layer),
+                palette: timeline.frames[frameIndex].palette ?? doc.palette,
+              });
+              if (cleaned === source) break;
+              for (let py = bounds.y; py < bounds.y + bounds.height; py++)
+                for (let px = bounds.x; px < bounds.x + bounds.width; px++) {
+                  const at = (py * doc.width + px) * CHANNELS;
+                  const next: Rgba = [
+                    cleaned.data[at],
+                    cleaned.data[at + 1],
+                    cleaned.data[at + 2],
+                    cleaned.data[at + 3],
+                  ];
+                  if (next.some((value, c) => value !== source.data[at + c])) {
+                    const p = local({ x: px, y: py });
+                    write(p.x, p.y, next);
+                  }
                 }
               break;
             }

@@ -10,6 +10,7 @@ import {
   BATCH_EDIT_LIMITS,
   OutlineColorMode,
   OUTLINE_DARKENING,
+  PixelCleanupPass,
 } from "@xprite/editor-core";
 
 const integer = { type: "integer", minimum: 0 };
@@ -420,6 +421,43 @@ const operations = {
       ["layerId", "frameIndex"],
     ),
     operation(
+      BatchEditKind.CleanPixels,
+      {
+        ...target,
+        rect,
+        options: {
+          ...object(
+            {
+              [PixelCleanupPass.RemoveOrphans]: {
+                type: "boolean",
+                description:
+                  "Erase opaque pixels without an orthogonal neighbor and replace interior color strays with their opaque-neighbor majority.",
+              },
+              [PixelCleanupPass.CleanDoubles]: {
+                type: "boolean",
+                description: "Thin redundant corners in one-pixel outlines.",
+              },
+              [PixelCleanupPass.SnapToPalette]: {
+                type: "boolean",
+                description:
+                  "Snap RGB to the nearest opaque frame palette color in CIELAB, preserving alpha.",
+              },
+              [PixelCleanupPass.CrispAlpha]: {
+                type: "boolean",
+                description: "Threshold partial alpha at 128.",
+              },
+            },
+            [],
+          ),
+          anyOf: Object.values(PixelCleanupPass).map((pass) => ({
+            required: [pass],
+            properties: { [pass]: { const: true } },
+          })),
+        },
+      },
+      ["layerId", "frameIndex", "options"],
+    ),
+    operation(
       BatchEditKind.Effect,
       {
         ...target,
@@ -710,7 +748,7 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.Validate,
     readOnly: true,
     description:
-      "Lint a document against pixel-art rules and report concrete, located problems. checks limits the run to a subset (omit for all): off-palette and near-duplicate colours (palette), orphan pixels (strays), broken outlines (outline), banding, semi-transparent pixels (antialiasing), empty layers (layers), untagged frames and optional character timing review (animation), empty document (export_readiness). strict treats warnings as failures. expect runs independently of checks whenever given: layerFrames maps layerId to zero-based [from,to] frame ranges that must hold ink; mustNotOverlap lists [layerId, layerId] pairs whose opaque pixels must never intersect on a frame. Returns passed, checksRun, counts (errors/warnings/notes), findings categorized as technical or visual_review, and a summary. Isolated pixels and edge heuristics are review suggestions, not certain errors. visualReviewRequired is always true; this is not an artwork quality assessment. animationIntent is unspecified (default), character, ambient or mechanical; only character asks for expressive timing review. Frame indices are zero-based.",
+      "Lint a document against pixel-art rules and report concrete, located problems. checks limits the run to a subset (omit for all): off-palette and near-duplicate colours (palette), orphan pixels (strays), broken outlines (outline), banding, semi-transparent pixels (antialiasing), empty layers (layers), untagged frames and optional character timing review (animation), empty document (export_readiness). strict treats warnings as failures. expect runs independently of checks whenever given: layerFrames maps layerId to zero-based [from,to] frame ranges that must hold ink; mustNotOverlap lists [layerId, layerId] pairs whose opaque pixels must never intersect on a frame. Returns passed, checksRun, counts (errors/warnings/notes), findings categorized as technical or visual_review, and a summary. Where applicable, findings carry a cleanPixels operation in cleanup; supply layerId and frameIndex for document-wide findings and review the target before applying. Isolated pixels and edge heuristics are review suggestions, not certain errors. visualReviewRequired is always true; this is not an artwork quality assessment. animationIntent is unspecified (default), character, ambient or mechanical; only character asks for expressive timing review. Frame indices are zero-based.",
     inputSchema: object(
       {
         ...document,
@@ -782,7 +820,7 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.ApplyBatch,
     readOnly: false,
     description:
-      "Apply 1–128 operations atomically as one undo step to an RGBA document. All coordinates are sprite pixels, all frame indices zero-based. Explicit colors replace RGBA, including transparency; current selection clips painting. Locked, hidden, reference and non-image layers cannot be painted. Linked cels remain linked. moveLayer uses the editor's move-to-target order. addFrame inserts after afterFrameIndex and defaults to duplicating it. Existing active layer/frame and brush settings are preserved. A revision conflict or pending user edit rejects the batch; read context again.",
+      "Apply 1–128 operations atomically as one undo step to an RGBA document. All coordinates are sprite pixels, all frame indices zero-based. Explicit colors replace RGBA, including transparency; current selection clips painting. Locked, hidden, reference and non-image layers cannot be painted. Linked cels remain linked. cleanPixels applies opt-in cleanup passes to a cel within the current selection and optional rect. Use the cleanup payload on validate findings as a starting point. moveLayer uses the editor's move-to-target order. addFrame inserts after afterFrameIndex and defaults to duplicating it. Existing active layer/frame and brush settings are preserved. A revision conflict or pending user edit rejects the batch; read context again.",
     inputSchema: object({
       ...writeDocument,
       label: id,

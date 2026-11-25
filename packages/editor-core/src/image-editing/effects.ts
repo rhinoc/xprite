@@ -1,6 +1,6 @@
 import { BYTE_ROUNDING_BIAS, UINT8_MAX, BITS_PER_BYTE } from "$/base/numeric-constants";
 import type { PixelBuffer, PixelMask, Rect, Rgba } from "$/base/primitives";
-import { labToRgb } from "$/color";
+import { createOpaquePaletteMatcher, labToRgb } from "$/color";
 import {
   updateAsepriteFramePalette,
   normalizeAsepriteDocument,
@@ -27,6 +27,11 @@ import {
   medianSamples,
   type ColorCurvePoint,
 } from "$/image-editing/advanced-filters";
+import {
+  cleanPixels,
+  hasSemiTransparentPixels,
+  type PixelCleanupOptions,
+} from "$/image-editing/pixel-cleanup";
 import {
   darkenOutlineSample,
   selectiveOutlinePaletteMatcher,
@@ -60,6 +65,7 @@ export enum EffectKind {
   MedianBlur = "median-blur",
   ConvolutionMatrix = "convolution-matrix",
   ColorCurve = "color-curve",
+  CleanPixels = "clean-pixels",
 }
 export enum EffectTarget {
   Selected = "selected",
@@ -121,6 +127,7 @@ export type EffectSpec = Channels &
         kind: EffectKind.ColorCurve;
         points: readonly ColorCurvePoint[];
       }
+    | { kind: EffectKind.CleanPixels; options: PixelCleanupOptions }
     | {
         kind: EffectKind.Outline;
         colorMode?: OutlineColorMode;
@@ -246,6 +253,8 @@ export function defaultEffect(
           { x: UINT8_MAX, y: UINT8_MAX },
         ],
       };
+    case EffectKind.CleanPixels:
+      return { kind, options: {} };
     case EffectKind.Outline:
       return {
         kind,
@@ -472,7 +481,11 @@ export function effectPixel(
     return color.map((v, c) => (channels & (1 << c) ? map[v] : v)) as unknown as Rgba;
   }
   // Neighborhood transforms require a source snapshot; they have no single-pixel fallback.
-  if (spec.kind === EffectKind.MedianBlur || spec.kind === EffectKind.ConvolutionMatrix)
+  if (
+    spec.kind === EffectKind.MedianBlur ||
+    spec.kind === EffectKind.ConvolutionMatrix ||
+    spec.kind === EffectKind.CleanPixels
+  )
     return color;
   const brightness = clamp(spec.brightness, -100, 100) / 100,
     contrast = clamp(spec.contrast, -100, 100) / 100;
@@ -802,10 +815,17 @@ export function applyEffectPixels(
   selection: PixelMask | null = null,
   background = false,
   depth: 8 | 16 | 32 = 32,
+  palette: readonly Rgba[] = [],
 ): PixelBuffer {
   assertDimension(source.width, "filter width");
   assertDimension(source.height, "filter height");
   assertPixelCount(source.width, source.height, "filter");
+  if (spec.kind === EffectKind.CleanPixels)
+    return cleanPixels(source, spec.options, {
+      selection,
+      background,
+      palette: cleanupPalette(palette, depth),
+    });
   const channels = effectChannels(spec, background, depth);
   const pixelSpec = depth === 16 ? grayscaleSpec(spec, channels) : spec;
   const pixelChannels = effectChannels(pixelSpec, background);
@@ -896,6 +916,57 @@ function editable(t: SpriteTimeline, layer: number) {
     !(t.layers[layer].flags & LAYER_REFERENCE)
   );
 }
+
+function effectCelScope(t: SpriteTimeline, target: EffectTarget, preview: boolean) {
+  const range = !preview && target === EffectTarget.Selected ? t.range : undefined;
+  return {
+    frames: preview
+      ? [t.activeFrame]
+      : target === EffectTarget.All || range?.kind === "layers"
+        ? t.frames.map((_, i) => i)
+        : (range?.frames ?? [t.activeFrame]),
+    layers: preview
+      ? [t.activeLayer]
+      : target === EffectTarget.All || range?.kind === "frames"
+        ? t.layers.map((_, i) => i)
+        : (range?.layers ?? [t.activeLayer]),
+  };
+}
+
+function cleanupPalette(palette: readonly Rgba[], depth: 8 | 16 | 32): readonly Rgba[] {
+  if (depth === 8) return [];
+  return depth === 16 ? palette.filter(([r, g, b]) => r === g && g === b) : palette;
+}
+
+export function cleanupEffectAvailability(document: EditorDocument, target: EffectTarget) {
+  const availability = { cleanDoubles: false, snapToPalette: false, crispAlpha: false };
+  const t = document.timeline ?? ensureTimeline({ ...document });
+  const { frames, layers } = effectCelScope(t, target, false);
+  const visited = new Set<unknown>();
+  for (const fi of frames)
+    for (const li of layers) {
+      const cel = t.frames[fi]?.cels[li];
+      if (!cel || !editable(t, li)) continue;
+      const identity = cel.tilemap ?? cel.asepriteSamples ?? cel.pixels;
+      if (visited.has(identity)) continue;
+      visited.add(identity);
+      const palette = t.frames[fi].palette ?? document.palette ?? [];
+      if (!availability.snapToPalette)
+        availability.snapToPalette = cleanupPalette(palette, t.colorDepth ?? 32).some(
+          (color) => color[3] === UINT8_MAX,
+        );
+      if (isBackgroundLayer(t.layers[li])) continue;
+      availability.cleanDoubles = true;
+      const selection = document.selection;
+      if (!availability.crispAlpha)
+        availability.crispAlpha = hasSemiTransparentPixels(cel.pixels, {
+          bounds: { x: -cel.x, y: -cel.y, width: document.width, height: document.height },
+          selection: selection && { ...selection, x: selection.x - cel.x, y: selection.y - cel.y },
+        });
+      if (availability.snapToPalette && availability.crispAlpha) return availability;
+    }
+  return availability;
+}
 /** Effects require an active image and cannot target a reference layer. */
 export function canOpenEffect(doc: EditorDocument | null): boolean {
   if (!doc) return false;
@@ -934,6 +1005,7 @@ function patchEffectCel(
   result: PixelBuffer,
   changed: Rect,
   background: boolean,
+  keepHiddenRgb = false,
 ): TimelineCel | null {
   const x = Math.min(cel.x, changed.x),
     y = Math.min(cel.y, changed.y),
@@ -962,13 +1034,15 @@ function patchEffectCel(
     x1 = -1,
     y1 = -1;
   for (let v = 0; v < height; v++)
-    for (let u = 0; u < width; u++)
-      if (data[(v * width + u) * 4 + 3]) {
+    for (let u = 0; u < width; u++) {
+      const at = (v * width + u) * RGBA_BYTES_PER_PIXEL;
+      if (data[at + 3] || (keepHiddenRgb && (data[at] || data[at + 1] || data[at + 2]))) {
         x0 = Math.min(x0, u);
         y0 = Math.min(y0, v);
         x1 = Math.max(x1, u);
         y1 = Math.max(y1, v);
       }
+    }
   if (x1 < 0) return null;
   const w = x1 - x0 + 1,
     h = y1 - y0 + 1,
@@ -989,6 +1063,8 @@ export function applyDocumentEffect(
   preview = false,
   mode: TilemapEditMode = TilesetMode.Auto,
 ): EditorDocument {
+  if (spec.kind === EffectKind.CleanPixels && !Object.values(spec.options).some(Boolean))
+    return document;
   if (document.timeline?.layers.some((layer) => layer.kind === "tilemap")) {
     if (
       document.timeline.colorDepth === 8 &&
@@ -1001,21 +1077,7 @@ export function applyDocumentEffect(
   const doc = { ...document, layer: { ...document.layer } },
     t = ensureTimeline(doc);
   if (t.colorDepth === 8) return applyIndexedDocumentEffect(document, spec, target, preview);
-  const range = !preview && target === EffectTarget.Selected ? t.range : undefined;
-  const frameIds = preview
-    ? [t.activeFrame]
-    : target === EffectTarget.All
-      ? t.frames.map((_, i) => i)
-      : range?.kind === "layers"
-        ? t.frames.map((_, i) => i)
-        : (range?.frames ?? [t.activeFrame]);
-  const layerIds = preview
-    ? [t.activeLayer]
-    : target === EffectTarget.All
-      ? t.layers.map((_, i) => i)
-      : range?.kind === "frames"
-        ? t.layers.map((_, i) => i)
-        : (range?.layers ?? [t.activeLayer]);
+  const { frames: frameIds, layers: layerIds } = effectCelScope(t, target, preview);
   let timeline = t,
     changed = false;
   const visited = new Set<PixelBuffer>();
@@ -1031,10 +1093,18 @@ export function applyDocumentEffect(
           doc.selection,
           isBackgroundLayer(t.layers[li]),
           t.colorDepth ?? 32,
-        ),
-        bounds = affectedBounds(source, output);
+          t.frames[fi].palette ?? doc.palette,
+        );
+      if (output === source) continue;
+      const bounds = affectedBounds(source, output);
       if (!bounds) continue;
-      const patch = patchEffectCel(cel, output, bounds, isBackgroundLayer(t.layers[li]));
+      const patch = patchEffectCel(
+        cel,
+        output,
+        bounds,
+        isBackgroundLayer(t.layers[li]),
+        spec.kind === EffectKind.CleanPixels,
+      );
       changed = true;
       timeline = {
         ...timeline,
@@ -1065,7 +1135,8 @@ export const previewDocumentEffect = (
   doc: EditorDocument,
   spec: EffectSpec,
   mode: TilemapEditMode = TilesetMode.Auto,
-) => applyDocumentEffect(doc, spec, EffectTarget.Selected, true, mode);
+  target = EffectTarget.Selected,
+) => applyDocumentEffect(doc, spec, target, spec.kind !== EffectKind.CleanPixels, mode);
 function grayscaleSpec(spec: EffectSpec, channels: number): EffectSpec {
   const gray = (c: Rgba): Rgba => {
     const v = Math.trunc((Math.max(c[0], c[1], c[2]) + Math.min(c[0], c[1], c[2])) / 2);
@@ -1086,6 +1157,25 @@ function asepriteIndexFor(
 ): number {
   if (explicit !== undefined) return Math.max(0, Math.min(UINT8_MAX, Math.trunc(explicit)));
   return asepriteBestFit(...c, paletteForColors(palette), mask);
+}
+
+function indexedCleanupColors(palette: readonly Rgba[], mask: number) {
+  const usable = palette.slice(0, BYTE_VALUE_COUNT);
+  const indices = new Map<string, number>();
+  usable.forEach((color, index) => {
+    if (index === mask) return;
+    const key = color.join(",");
+    if (!indices.has(key)) indices.set(key, index);
+  });
+  const nearest = createOpaquePaletteMatcher(usable.filter((_, index) => index !== mask));
+  return (filtered: Rgba, originalIndex: number): number => {
+    if (!filtered[3] && mask >= 0) return mask;
+    const exact = indices.get(filtered.join(","));
+    if (exact !== undefined) return exact;
+    // Promoting a partial-alpha swatch may require a different opaque entry.
+    if (filtered[3] !== UINT8_MAX || !nearest) return originalIndex;
+    return indices.get(nearest(filtered[0], filtered[1], filtered[2]).join(",")) ?? originalIndex;
+  };
 }
 /** Indexed documents keep their index bytes for direct index edits. Hue and
  * brightness changes without a mask update the palette while retaining cel
@@ -1109,17 +1199,7 @@ function applyIndexedDocumentEffect(
     updateAsepriteFramePalette(doc, next);
     return doc;
   }
-  const range = !preview && target === EffectTarget.Selected ? t.range : undefined;
-  const frameIds = preview
-    ? [t.activeFrame]
-    : target === EffectTarget.All || range?.kind === "layers"
-      ? t.frames.map((_, i) => i)
-      : (range?.frames ?? [t.activeFrame]);
-  const layerIds = preview
-    ? [t.activeLayer]
-    : target === EffectTarget.All || range?.kind === "frames"
-      ? t.layers.map((_, i) => i)
-      : (range?.layers ?? [t.activeLayer]);
+  const { frames: frameIds, layers: layerIds } = effectCelScope(t, target, preview);
   let timeline = t,
     changed = false;
   const visited = new Set<AsepriteImageSamples | PixelBuffer>();
@@ -1161,7 +1241,24 @@ function applyIndexedDocumentEffect(
       let advancedIndices: Uint8ClampedArray | null = null;
       let advancedColors: PixelBuffer | null = null;
       let originalColors: PixelBuffer | null = null;
-      if (advanced) {
+      let cleanupIndex: ReturnType<typeof indexedCleanupColors> | undefined;
+      if (spec.kind === EffectKind.CleanPixels) {
+        originalColors = {
+          width: doc.width,
+          height: doc.height,
+          data: expandAsepriteSamples(
+            { depth: 8, width: doc.width, height: doc.height, data: source },
+            pal,
+            mask,
+          ),
+        };
+        advancedColors = cleanPixels(originalColors, spec.options, {
+          selection: doc.selection,
+          background,
+        });
+        if (advancedColors === originalColors) continue;
+        cleanupIndex = indexedCleanupColors(palette, mask);
+      } else if (advanced) {
         const writable = (x: number, y: number) =>
           !doc.selection || selectionContains(doc.selection, x, y);
         if (channels & 32) {
@@ -1271,7 +1368,9 @@ function applyIndexedDocumentEffect(
             const original = colorAt(originalColors, x, y);
             // Equal-color edits retain duplicate palette-index identity.
             if (filtered.some((value, channel) => value !== original[channel]))
-              next = asepriteBestFit(...filtered, pal, mask);
+              next = cleanupIndex
+                ? cleanupIndex(filtered, index)
+                : asepriteBestFit(...filtered, pal, mask);
           } else if (spec.kind === EffectKind.ReplaceColor) {
             if (channels & 32) {
               if (index >= from && index - from <= clamp(spec.tolerance, 0, UINT8_MAX)) next = to;
@@ -1401,18 +1500,8 @@ function applyTilemapDocumentEffect(
   preview: boolean,
   mode: TilemapEditMode,
 ): EditorDocument {
-  const original = document.timeline!,
-    range = !preview && target === EffectTarget.Selected ? original.range : undefined;
-  const frames = preview
-    ? [original.activeFrame]
-    : target === EffectTarget.All || range?.kind === "layers"
-      ? original.frames.map((_, i) => i)
-      : (range?.frames ?? [original.activeFrame]);
-  const layers = preview
-    ? [original.activeLayer]
-    : target === EffectTarget.All || range?.kind === "frames"
-      ? original.layers.map((_, i) => i)
-      : (range?.layers ?? [original.activeLayer]);
+  const original = document.timeline!;
+  const { frames, layers } = effectCelScope(original, target, preview);
   let timeline = original,
     changed = false;
   const visited = new Set<unknown>();
