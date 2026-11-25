@@ -11,7 +11,7 @@ describe("export-dialog-flow [feature-7-12]", () => {
   it("export-dialog-flow behavior", async () => {
     // Execute the real shared component with a small deterministic hook dispatcher.
     // UI primitives are element stubs; callbacks/state and browser prefs are real.
-    const hookSource = `export const useState=(value)=>globalThis.__exportDialogHooks.state(value);export const useEffect=()=>{};export const useRef=(current)=>({current});export const useSyncExternalStore=(_,get)=>get();`;
+    const hookSource = `export const useState=(value)=>globalThis.__exportDialogHooks.state(value);export const useEffect=(fn,deps)=>globalThis.__exportDialogHooks.effect(fn,deps);export const useRef=(current)=>globalThis.__exportDialogHooks.ref(current);export const useSyncExternalStore=(_,get)=>get();`;
     const result = await build({
       entryPoints: ["apps/editor/src/components/dialogs/export-file-dialog/index.tsx"],
       bundle: true,
@@ -60,7 +60,7 @@ describe("export-dialog-flow [feature-7-12]", () => {
                     : args.path === "export-output-format"
                       ? `export const ExportOutputFormat={Png:"png",Gif:"gif",Apng:"apng",Jpeg:"jpg",Webp:"webp"};`
                       : args.path === "export-file-model"
-                        ? `export const MAX_EXPORT_LOOP_COUNT=65536;export const MAX_WEBP_EXPORT_LOOP_COUNT=65535;export const ExportTagDirection={Forward:"forward",Reverse:"reverse",PingPong:"ping-pong",PingPongReverse:"ping-pong-reverse"};export function useExportFileDialogModel(){const document=globalThis.__exportDialogDocument;return{document,imageEncoding:globalThis.__exportImageEncoding??{jpeg:true,webp:true,webpLossless:true,webpLossy:true,checked:true},createInitialOptions:()=>({name:"animation.gif",scalePercent:100,area:"canvas",layers:"visible",frame:0,frames:"all",loopCount:document.loopCount}),inspect:()=>globalThis.__exportInspection??({valid:true,frameCount:2})}}`
+                        ? `export const MAX_EXPORT_LOOP_COUNT=65536;export const MAX_WEBP_EXPORT_LOOP_COUNT=65535;export const ExportTagDirection={Forward:"forward",Reverse:"reverse",PingPong:"ping-pong",PingPongReverse:"ping-pong-reverse"};export function useExportFileDialogModel(){const document=globalThis.__exportDialogDocument;return{document,imageEncoding:globalThis.__exportImageEncoding??{jpeg:true,webp:true,webpLossless:true,webpLossy:true,checked:true},createInitialOptions:()=>({name:"animation.gif",scalePercent:100,area:"canvas",layers:"visible",frame:0,frames:"all",loopCount:document.loopCount,...(globalThis.__exportInitialOptions??{})}),inspect:()=>globalThis.__exportInspection??({valid:true,frameCount:document.frameCount??2})}}`
                         : `export function FormDialog(){};export function Alert(){}`,
               loader: "js",
             }));
@@ -92,9 +92,10 @@ describe("export-dialog-flow [feature-7-12]", () => {
       activeFrame: 0,
       indexed: false,
       opaqueIndexed: false,
-      tags: [],
+      tags: [{ name: "Reveal" }],
       pixelWidth: 1,
       pixelHeight: 1,
+      frameCount: 20,
       selection: null,
       layer: { name: "Layer", pixels: image, x: 0, y: 0, visible: true, locked: false },
       timeline: {
@@ -110,29 +111,65 @@ describe("export-dialog-flow [feature-7-12]", () => {
       },
     };
     Object.assign(globalThis, { __exportDialogDocument: document });
-    function mount() {
-      let state = [],
-        cursor = 0,
-        closed = 0,
-        exports = [];
+    function mount(extraProps: Record<string, unknown> = {}) {
+      const state: unknown[] = [];
+      const refs: { current: unknown }[] = [];
+      const effectDeps: (readonly unknown[] | undefined)[] = [];
+      let stateCursor = 0,
+        refCursor = 0,
+        effectCursor = 0,
+        closed = 0;
+      const exports: Record<string, unknown>[] = [];
+      const pendingEffects: (() => void)[] = [];
       globalThis.__exportDialogHooks = {
-        state(initial) {
-          const i = cursor++;
+        state(initial: unknown) {
+          const i = stateCursor++;
           if (!(i in state)) state[i] = typeof initial === "function" ? initial() : initial;
           return [
             state[i],
-            (value) => (state[i] = typeof value === "function" ? value(state[i]) : value),
+            (value: unknown) => (state[i] = typeof value === "function" ? value(state[i]) : value),
           ];
+        },
+        ref(initial: unknown) {
+          const i = refCursor++;
+          if (!(i in refs)) refs[i] = { current: initial };
+          return refs[i];
+        },
+        effect(fn: () => void, deps?: readonly unknown[]) {
+          const i = effectCursor++;
+          const prev = effectDeps[i];
+          const changed =
+            !prev ||
+            !deps ||
+            deps.length !== prev.length ||
+            deps.some((d, j) => !Object.is(d, prev[j]));
+          if (changed) {
+            effectDeps[i] = deps;
+            pendingEffects.push(fn);
+          }
         },
       };
       return {
-        render() {
-          cursor = 0;
-          return ExportFileDialog({
-            onClose: () => closed++,
-            onExport: (o) => exports.push(o),
-            documentKey: "test-slot",
-          }).props;
+        render(overrideProps: Record<string, unknown> = {}) {
+          let result;
+          for (let pass = 0; pass < 4; pass++) {
+            stateCursor = 0;
+            refCursor = 0;
+            effectCursor = 0;
+            pendingEffects.length = 0;
+            result = ExportFileDialog({
+              onClose: () => closed++,
+              onExport: (o: Record<string, unknown>) => exports.push(o),
+              documentKey: "test-slot",
+              ...extraProps,
+              ...overrideProps,
+            }).props;
+            if (!pendingEffects.length) break;
+            const snapshot = [...state];
+            for (const fn of pendingEffects.splice(0)) fn();
+            if (state.every((value, index) => Object.is(value, snapshot[index]))) break;
+          }
+          return result;
         },
         get closed() {
           return closed;
@@ -156,40 +193,41 @@ describe("export-dialog-flow [feature-7-12]", () => {
       const dialog = mount();
       let p = dialog.render();
       assert.equal(p.title, "Export File");
-      p.actions.find((a) => a.label === "Export").onClick();
-      p = dialog.render();
-      assert.equal(p.title, "GIF Options");
-      p.fields.find((f) => f.key === "dontShow").onChange(true);
+      assert.equal(
+        p.fields.some((f) => f.key === "loop"),
+        false,
+        "GIF omits redundant Animation Loop checkbox since Play Count controls looping",
+      );
+      assert.equal(
+        p.fields.some((f) => f.key === "dontShow"),
+        false,
+        "1-step inline GIF flow omits step-2 Don't Show alert checkbox",
+      );
       p.fields.find((f) => f.key === "interlaced").onChange(true);
       p = dialog.render();
       if (reason === "button") p.actions.find((a) => a.label === "Cancel").onClick();
       else p.onOpenChange(false);
-      assert.equal(dialog.closed, 1, `${reason} exits the whole export flow`);
+      assert.equal(dialog.closed, 1, `${reason} exits the export flow`);
       assert.equal(dialog.exports.length, 0);
-      assert.equal(saved.size, 0, `${reason} discards all GIF format drafts including Don't Show`);
+      assert.equal(saved.size, 0, `${reason} discards all inline GIF drafts without saving prefs`);
     }
     const accepted = mount();
-    accepted
-      .render()
-      .actions.find((a) => a.label === "Export")
-      .onClick();
     let p = accepted.render();
-    p.fields.find((f) => f.key === "dontShow").onChange(true);
     p.fields.find((f) => f.key === "interlaced").onChange(true);
-    p.fields.find((f) => f.key === "loop").onChange(false);
+    p.fields.find((f) => f.key === "loopCount").onChange(1);
     p = accepted.render();
-    p.actions.find((a) => a.label === "OK").onClick();
+    p.actions.find((a) => a.label === "Export").onClick();
     assert.equal(accepted.closed, 0);
-    assert.equal(accepted.exports.length, 1);
+    assert.equal(accepted.exports.length, 1, "GIF exports in one step with inline options");
     assert.equal(accepted.exports[0].gifInterlaced, true);
     assert.equal(accepted.exports[0].loopCount, 1);
     assert.equal(saved.size, 1);
     const next = mount();
-    next
-      .render()
-      .actions.find((a) => a.label === "Export")
-      .onClick();
-    assert.equal(next.exports.length, 1, "global Dont Show skips GIF Options next time");
+    const nextForm = next.render();
+    assert.equal(nextForm.fields.find((f) => f.key === "interlaced").value, true);
+    assert.equal(nextForm.fields.find((f) => f.key === "loopCount").value, 1);
+    nextForm.actions.find((a) => a.label === "Export").onClick();
+    assert.equal(next.exports.length, 1, "saved GIF preferences carry into the next export");
     assert.equal(next.exports[0].gifInterlaced, true);
     assert.equal(next.exports[0].loopCount, 1);
     const countedDocument = document as typeof document & { loopCount?: number };
@@ -223,23 +261,37 @@ describe("export-dialog-flow [feature-7-12]", () => {
         format === "jpg",
       );
       assert.equal(draft.fields.find((field) => field.key === "anidir").disabled, format === "jpg");
-      if (format === "webp")
+      assert.equal(
+        draft.fields.some((field) => field.key === "interlaced"),
+        false,
+        `GIF-only options are hidden on ${format}`,
+      );
+      assert.equal(
+        draft.fields.some((field) => field.key === "jpegMatte"),
+        format === "jpg",
+        `Background color picker is inline only for JPEG`,
+      );
+      if (format === "webp") {
+        assert.equal(
+          draft.fields.find((field) => field.key === "quality").disabled,
+          true,
+          "WebP quality is disabled in Lossless mode",
+        );
         draft.fields.find((field) => field.key === "webpCompression").onChange("lossy");
-      draft.actions.find((action) => action.label === "Export").onClick();
-      draft = staticDialog.render();
-      assert.equal(draft.title, format === "jpg" ? "JPEG Options" : "WebP Options");
+        draft = staticDialog.render();
+        assert.equal(draft.fields.find((field) => field.key === "quality").disabled, false);
+      }
       draft.fields.find((field) => field.key === "quality").onChange(72);
       if (format === "jpg")
         draft.fields.find((field) => field.key === "jpegMatte").onChange("#12345680");
       draft = staticDialog.render();
-      draft.actions.find((action) => action.label === "Cancel").onClick();
-      assert.equal(staticDialog.exports.length, 0);
-      assert.equal(saved.size, 1, "canceling image options never persists format drafts");
-      draft = staticDialog.render();
+      assert.equal(
+        draft.actions.map((action) => action.label).join(","),
+        "Export,Cancel",
+        `${format} uses unified 1-step Export / Cancel actions`,
+      );
       draft.actions.find((action) => action.label === "Export").onClick();
-      draft = staticDialog.render();
-      draft.actions.find((action) => action.label === "Export").onClick();
-      assert.equal(staticDialog.exports.length, 1);
+      assert.equal(staticDialog.exports.length, 1, `${format} exports in one step`);
       assert.equal(staticDialog.exports[0].frames, format === "jpg" ? "current" : "all");
       assert.equal(staticDialog.exports[0].name, `animation.${format}`);
       assert.equal(staticDialog.exports[0].imageQualityPercent, 72);
@@ -263,6 +315,118 @@ describe("export-dialog-flow [feature-7-12]", () => {
       assert.match(option.label, /unavailable in this browser/);
     }
     delete globalThis.__exportImageEncoding;
+
+    // Bug 1: Switching GIF -> JPEG -> APNG/GIF/WebP/PNG must restore multi-frame scope
+    // and disable Animation Direction + animation-only checkboxes while JPEG is selected.
+    for (const target of ["apng", "gif", "webp", "png"]) {
+      const switchDialog = mount();
+      let form = switchDialog.render();
+      assert.equal(form.fields.find((field) => field.key === "frames").value, "all");
+      assert.equal(form.fields.find((field) => field.key === "anidir").disabled, false);
+
+      form.fields.find((field) => field.key === "format").onChange("jpg");
+      form = switchDialog.render();
+      const jpegFrames = form.fields.find((field) => field.key === "frames");
+      assert.equal(jpegFrames.value, "current");
+      assert.equal(jpegFrames.options.find((option) => option.value === "all").disabled, true);
+      assert.equal(
+        jpegFrames.options.find((option) => option.value === "tag:Reveal").disabled,
+        true,
+      );
+      assert.equal(form.fields.find((field) => field.key === "anidir").disabled, true);
+      assert.equal(form.fields.find((field) => field.key === "forTwitter").disabled, true);
+      assert.equal(form.fields.find((field) => field.key === "ignoreEmpty").disabled, true);
+      // Even if frames onChange fires while on JPEG, the multi-frame choice must stay intact.
+      jpegFrames.onChange("current");
+      form = switchDialog.render();
+
+      form.fields.find((field) => field.key === "format").onChange(target);
+      form = switchDialog.render();
+      assert.equal(
+        form.fields.find((field) => field.key === "frames").value,
+        "all",
+        `switching GIF -> JPEG -> ${target} restores All frames`,
+      );
+      assert.equal(form.fields.find((field) => field.key === "anidir").disabled, false);
+      assert.equal(form.fields.find((field) => field.key === "ignoreEmpty").disabled, false);
+      assert.equal(
+        form.fields.find((field) => field.key === "forTwitter").disabled,
+        target === "webp",
+      );
+      if (target === "apng") {
+        form.actions.find((action) => action.label === "Export").onClick();
+        assert.equal(switchDialog.exports.length, 1);
+        assert.equal(switchDialog.exports[0].frames, "all");
+        assert.equal(switchDialog.exports[0].name, "animation.apng");
+      }
+    }
+
+    // Custom multi-frame selections (selected frames, tag, or explicit current frame) survive JPEG round-trips.
+    for (const choice of ["selected", "tag:Reveal", "current"]) {
+      const customDialog = mount();
+      let form = customDialog.render();
+      form.fields.find((field) => field.key === "frames").onChange(choice);
+      form = customDialog.render();
+      form.fields.find((field) => field.key === "format").onChange("jpg");
+      form = customDialog.render();
+      assert.equal(form.fields.find((field) => field.key === "frames").value, "current");
+      assert.equal(form.fields.find((field) => field.key === "anidir").disabled, true);
+      form.fields.find((field) => field.key === "format").onChange("apng");
+      form = customDialog.render();
+      assert.equal(form.fields.find((field) => field.key === "frames").value, choice);
+      assert.equal(form.fields.find((field) => field.key === "anidir").disabled, false);
+    }
+
+    // Opening on a remembered single-frame JPEG export on a multi-frame document still exports
+    // Current frame for JPEG, and restores All frames when switching to APNG.
+    Object.assign(globalThis, {
+      __exportInitialOptions: { name: "animation.jpg", frames: "current" },
+    });
+    const rememberedJpeg = mount();
+    let jpegForm = rememberedJpeg.render();
+    assert.equal(jpegForm.fields.find((field) => field.key === "frames").value, "current");
+    assert.equal(jpegForm.fields.find((field) => field.key === "anidir").disabled, true);
+    jpegForm.fields.find((field) => field.key === "format").onChange("apng");
+    jpegForm = rememberedJpeg.render();
+    assert.equal(jpegForm.fields.find((field) => field.key === "frames").value, "all");
+    assert.equal(jpegForm.fields.find((field) => field.key === "anidir").disabled, false);
+    delete (globalThis as Record<string, unknown>).__exportInitialOptions;
+
+    // Embedded ExportDialog path: formatRequest transitions GIF -> JPEG -> APNG and draft restoration
+    // across panel unmount/remount.
+    let savedDraft: unknown;
+    const embedded = mount({
+      embedded: true,
+      onDraftChange: (next: unknown) => {
+        savedDraft = next;
+      },
+    });
+    let embeddedForm = embedded.render();
+    embeddedForm.fields.find((field) => field.key === "frames").onChange("selected");
+    embeddedForm.fields.find((field) => field.key === "resize").onChange("200.00");
+    embeddedForm = embedded.render({ formatRequest: { format: "jpg" } });
+    assert.equal(embeddedForm.fields.find((field) => field.key === "frames").value, "current");
+    assert.equal(embeddedForm.fields.find((field) => field.key === "anidir").disabled, true);
+    embeddedForm = embedded.render({ formatRequest: { format: "apng" } });
+    assert.equal(embeddedForm.fields.find((field) => field.key === "frames").value, "selected");
+    assert.equal(embeddedForm.fields.find((field) => field.key === "anidir").disabled, false);
+    assert.ok(savedDraft, "embedded ExportFileDialog publishes draft state for unmount/remount");
+
+    // Remounting from the saved draft (e.g. after switching to Sprite Sheet and back to APNG) preserves settings.
+    const remounted = mount({
+      embedded: true,
+      initialDraft: savedDraft,
+      formatRequest: { format: "apng" },
+    });
+    const remountedForm = remounted.render();
+    assert.equal(remountedForm.fields.find((field) => field.key === "frames").value, "selected");
+    assert.equal(remountedForm.fields.find((field) => field.key === "resize").value, "200.00");
+    remountedForm.actions.find((action) => action.label === "Export").onClick();
+    assert.equal(remounted.exports.length, 1);
+    assert.equal(remounted.exports[0].frames, "selected");
+    assert.equal(remounted.exports[0].scalePercent, 200);
+    assert.equal(remounted.exports[0].name, "animation.apng");
+
     globalThis.localStorage = previousStorage;
     delete globalThis.__exportDialogHooks;
     console.log(

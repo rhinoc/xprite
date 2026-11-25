@@ -21,9 +21,17 @@ import {
 import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 
+export interface ExportFileDialogDraft {
+  options: ExportFileDialogOptions;
+  resize: string;
+  outputFormat: ExportOutputFormat;
+}
+
 export interface ExportFileDialogProps {
   embedded?: boolean;
   formatRequest?: { format: ExportOutputFormat };
+  initialDraft?: ExportFileDialogDraft;
+  onDraftChange?: (draft: ExportFileDialogDraft) => void;
   onFormatChange?: (format: ExportOutputFormat) => void;
   imageCapabilities?: ImageExportCapabilities;
   onLayoutSizeChange?: (size: { width: number; height: number }) => void;
@@ -33,10 +41,25 @@ export interface ExportFileDialogProps {
   documentKey?: string;
   filePreferences?: FilePreferences;
 }
+
+function formatFromFileName(name: string): ExportOutputFormat {
+  return /\.gif$/i.test(name)
+    ? ExportOutputFormat.Gif
+    : /\.apng$/i.test(name)
+      ? ExportOutputFormat.Apng
+      : /\.jpe?g$/i.test(name)
+        ? ExportOutputFormat.Jpeg
+        : /\.webp$/i.test(name)
+          ? ExportOutputFormat.Webp
+          : ExportOutputFormat.Png;
+}
+
 /** Export dialog field order and label strings. Unsupported outputs stay visibly disabled. */
 export function ExportFileDialog({
   embedded = false,
   formatRequest,
+  initialDraft,
+  onDraftChange,
   onFormatChange,
   imageCapabilities,
   onLayoutSizeChange,
@@ -50,57 +73,58 @@ export function ExportFileDialog({
   const document = manager.document;
   const indexed = document.indexed;
   const opaqueIndexed = document.opaqueIndexed;
-  const [gifPrefs, setGifPrefs] = useState(readGifExportPreferences);
+  const [gifPrefs] = useState(readGifExportPreferences);
   const [options, setOptions] = useState<ExportFileDialogOptions>(() => {
+    if (initialDraft) return initialDraft.options;
     const base = manager.createInitialOptions();
     const loopCount = base.loopCount ?? (gifPrefs.loop ? 0 : 1);
+    const baseFormat = formatFromFileName(base.name);
     return {
       ...base,
+      // Single-frame JPEG exports always save frames="current"; restore "all" as the
+      // underlying multi-frame scope on multi-frame documents so switching formats works.
+      frames:
+        baseFormat === ExportOutputFormat.Jpeg && document.frameCount > 1
+          ? "all"
+          : (base.frames ?? "all"),
       gifInterlaced: gifPrefs.interlaced,
       loopCount,
       gifPreservePaletteOrder: indexed && (opaqueIndexed || gifPrefs.preservePaletteOrder),
     };
   });
-  const [gifOptions, setGifOptions] = useState(false);
-  const [imageOptions, setImageOptions] = useState(false);
-  const [resize, setResize] = useState(options.scalePercent.toFixed(2));
+  const [resize, setResize] = useState(
+    () => initialDraft?.resize ?? options.scalePercent.toFixed(2),
+  );
   const update = <K extends keyof ExportFileDialogOptions>(
     key: K,
     value: ExportFileDialogOptions[K],
   ) => setOptions((old) => ({ ...old, [key]: value }));
-  const changeLoop = (enabled: boolean) =>
-    setOptions((old) => ({
-      ...old,
-      loopCount: enabled ? (old.loopCount === 1 ? 0 : (old.loopCount ?? 0)) : 1,
-    }));
-  const initialFormat = /\.gif$/i.test(options.name)
-    ? ExportOutputFormat.Gif
-    : /\.apng$/i.test(options.name)
-      ? ExportOutputFormat.Apng
-      : /\.jpe?g$/i.test(options.name)
-        ? ExportOutputFormat.Jpeg
-        : /\.webp$/i.test(options.name)
-          ? ExportOutputFormat.Webp
-          : ExportOutputFormat.Png;
+  const initialFormat = initialDraft?.outputFormat ?? formatFromFileName(options.name);
   const [outputFormat, setOutputFormat] = useState(formatRequest?.format ?? initialFormat);
+  const gifImage = outputFormat === ExportOutputFormat.Gif;
   const staticImage = outputFormat === ExportOutputFormat.Jpeg;
   const webpImage = outputFormat === ExportOutputFormat.Webp;
   const applyOutputFormat = (selected: ExportOutputFormat, name: string) => {
     setOutputFormat(selected);
-    if (selected === ExportOutputFormat.Jpeg || selected === ExportOutputFormat.Webp) {
-      const prefs = readImageExportPreferences(
-        selected === ExportOutputFormat.Jpeg ? ImageExportFormat.Jpeg : ImageExportFormat.Webp,
-      );
+    if (selected === ExportOutputFormat.Jpeg) {
+      const prefs = readImageExportPreferences(ImageExportFormat.Jpeg);
+      setOptions((old) => ({
+        ...old,
+        name,
+        // Keep the user's multi-frame selection intact; staticImage forces "current" in UI & plan.
+        imageQualityPercent: prefs.qualityPercent,
+        jpegMatte: prefs.jpegMatte,
+      }));
+    } else if (selected === ExportOutputFormat.Webp) {
+      const prefs = readImageExportPreferences(ImageExportFormat.Webp);
       setOptions((old) => ({
         ...old,
         name,
         frames:
-          selected === ExportOutputFormat.Jpeg ||
-          (document.frameCount === 1 && document.loopCount === undefined)
+          document.frameCount === 1 && document.loopCount === undefined
             ? "current"
             : (old.frames ?? "all"),
         imageQualityPercent: prefs.qualityPercent,
-        jpegMatte: prefs.jpegMatte,
         webpCompression: prefs.webpCompression,
       }));
     } else update("name", name);
@@ -119,30 +143,43 @@ export function ExportFileDialog({
     const stem = options.name.trim().replace(/\.[^.]*$/, "") || "untitled";
     applyOutputFormat(selected, `${stem}.${selected}`);
   };
-  const appliedFormatRequest = useRef<ExportFileDialogProps["formatRequest"]>();
+  const appliedFormatRequest = useRef<ExportFileDialogProps["formatRequest"]>(
+    initialDraft && formatRequest && initialDraft.outputFormat === formatRequest.format
+      ? formatRequest
+      : undefined,
+  );
   useEffect(() => {
     if (!formatRequest || appliedFormatRequest.current === formatRequest || busy) return;
     appliedFormatRequest.current = formatRequest;
     chooseOutputFormat(formatRequest.format);
-    setGifOptions(false);
-    setImageOptions(false);
   }, [formatRequest, busy, chooseOutputFormat]);
   useEffect(() => {
     onFormatChange?.(outputFormat);
   }, [outputFormat, onFormatChange]);
+  useEffect(() => {
+    onDraftChange?.({ options, resize, outputFormat });
+  }, [options, resize, outputFormat, onDraftChange]);
   const nameStem = options.name.trim().replace(/\.[^.]*$/, "") || "untitled";
+  const jpegPrefs = staticImage ? readImageExportPreferences(ImageExportFormat.Jpeg) : null;
+  const webpPrefs = webpImage ? readImageExportPreferences(ImageExportFormat.Webp) : null;
   const plan = {
     ...options,
     name: `${nameStem}.${outputFormat}`,
     scalePercent: resize.trim() ? Number(resize) : NaN,
     ...(staticImage
-      ? { frames: "current" as const, ignoreEmpty: false, forTwitter: false, playSubtags: false }
+      ? {
+          frames: "current" as const,
+          ignoreEmpty: false,
+          forTwitter: false,
+          playSubtags: false,
+          imageQualityPercent: options.imageQualityPercent ?? jpegPrefs!.qualityPercent,
+          jpegMatte: options.jpegMatte ?? jpegPrefs!.jpegMatte,
+        }
       : {}),
     ...(webpImage
       ? {
-          webpCompression:
-            options.webpCompression ??
-            readImageExportPreferences(ImageExportFormat.Webp).webpCompression,
+          webpCompression: options.webpCompression ?? webpPrefs!.webpCompression,
+          imageQualityPercent: options.imageQualityPercent ?? webpPrefs!.qualityPercent,
           forTwitter: false,
         }
       : {}),
@@ -152,154 +189,16 @@ export function ExportFileDialog({
   const tags = document.tags;
   const submit = () => {
     if (!busy && valid) {
-      if (/\.gif$/i.test(plan.name) && !gifPrefs.dontShow) setGifOptions(true);
-      else if (staticImage || webpImage) setImageOptions(true);
-      else onExport(plan);
+      if (gifImage) {
+        writeGifExportPreferences({
+          interlaced: !!plan.gifInterlaced,
+          loop: plan.loopCount !== 1,
+          preservePaletteOrder: !!plan.gifPreservePaletteOrder,
+        });
+      }
+      onExport(plan);
     }
   };
-  if (imageOptions) {
-    const format =
-      outputFormat === ExportOutputFormat.Jpeg ? ImageExportFormat.Jpeg : ImageExportFormat.Webp;
-    const prefs = readImageExportPreferences(format);
-    return (
-      <FormDialog
-        embedded={embedded}
-        onLayoutSizeChange={onLayoutSizeChange}
-        key="image-options"
-        open
-        title={format === ImageExportFormat.Jpeg ? "JPEG Options" : "WebP Options"}
-        width={480}
-        message={
-          format === ImageExportFormat.Jpeg
-            ? "Exports the current frame. Transparent pixels are composited over the selected background."
-            : plan.webpCompression === WebpCompression.Lossless
-              ? "Lossless WebP preserves exact RGBA pixels, including colors under transparency. Frame selection and play count apply to animations."
-              : "Lossy WebP uses browser compression with the selected quality. Frame selection and play count apply to animations."
-        }
-        fields={[
-          {
-            key: "quality",
-            label: "Quality (%)",
-            type: "number",
-            min: 0,
-            max: 100,
-            step: 1,
-            value: options.imageQualityPercent ?? prefs.qualityPercent,
-            onChange: (value) => update("imageQualityPercent", value),
-            disabled: busy || (webpImage && plan.webpCompression === WebpCompression.Lossless),
-          },
-          ...(format === ImageExportFormat.Jpeg
-            ? [
-                {
-                  key: "jpegMatte",
-                  label: "Background",
-                  type: "color" as const,
-                  value: options.jpegMatte ?? prefs.jpegMatte,
-                  onChange: (value: string) => update("jpegMatte", value.slice(0, 7)),
-                  disabled: busy,
-                },
-              ]
-            : []),
-        ]}
-        onOpenChange={(open) => {
-          if (!open && !busy) setImageOptions(false);
-        }}
-        actions={[
-          {
-            label: "Export",
-            disabled: busy || !valid,
-            onClick: () => {
-              onExport({
-                ...plan,
-                imageQualityPercent: options.imageQualityPercent ?? prefs.qualityPercent,
-                jpegMatte: options.jpegMatte ?? prefs.jpegMatte,
-              });
-            },
-          },
-          ...(embedded
-            ? [
-                {
-                  label: tUi("ui.export.back"),
-                  disabled: busy,
-                  onClick: () => setImageOptions(false),
-                },
-              ]
-            : []),
-          {
-            label: "Cancel",
-            disabled: busy,
-            onClick: embedded ? onClose : () => setImageOptions(false),
-          },
-        ]}
-      />
-    );
-  }
-  if (gifOptions)
-    return (
-      <FormDialog
-        embedded={embedded}
-        onLayoutSizeChange={onLayoutSizeChange}
-        key="gif-options"
-        open
-        title="GIF Options"
-        width={548}
-        layoutMode="flow"
-        sections={[{ before: "interlaced", text: "General Options:" }]}
-        fields={[
-          {
-            key: "interlaced",
-            label: "Interlaced",
-            disabled: busy,
-            type: "checkbox",
-            value: !!options.gifInterlaced,
-            onChange: (v) => update("gifInterlaced", v),
-          },
-          {
-            key: "loop",
-            label: "Animation Loop",
-            disabled: busy,
-            type: "checkbox",
-            value: options.loopCount !== 1,
-            onChange: changeLoop,
-          },
-          {
-            key: "palette",
-            label: "Preserve palette order",
-            type: "checkbox",
-            value: !!options.gifPreservePaletteOrder,
-            onChange: (v) => update("gifPreservePaletteOrder", v),
-            disabled: busy || !indexed || opaqueIndexed,
-          },
-          {
-            key: "dontShow",
-            label: "Don't show this alert again",
-            disabled: busy,
-            type: "checkbox",
-            value: gifPrefs.dontShow,
-            onChange: (value) => setGifPrefs((old) => ({ ...old, dontShow: value })),
-          },
-        ]}
-        onOpenChange={(open) => {
-          if (!open && !busy) onClose();
-        }}
-        actions={[
-          {
-            label: "OK",
-            disabled: busy,
-            onClick: () => {
-              writeGifExportPreferences({
-                dontShow: gifPrefs.dontShow,
-                interlaced: !!plan.gifInterlaced,
-                loop: plan.loopCount !== 1,
-                preservePaletteOrder: !!plan.gifPreservePaletteOrder,
-              });
-              onExport(plan);
-            },
-          },
-          { label: "Cancel", disabled: busy, onClick: onClose },
-        ]}
-      />
-    );
   const showSubtags =
     !staticImage &&
     tags.length > 0 &&
@@ -307,7 +206,7 @@ export function ExportFileDialog({
     options.frames !== "current";
   const showPixelRatio = document.pixelWidth !== 1 || document.pixelHeight !== 1;
   const showPlayCount =
-    outputFormat === ExportOutputFormat.Gif ||
+    gifImage ||
     outputFormat === ExportOutputFormat.Apng ||
     (webpImage && options.frames !== "current");
   let preferred = 1;
@@ -351,10 +250,36 @@ export function ExportFileDialog({
         },
       ],
     },
+    ...(staticImage
+      ? [
+          {
+            key: "quality",
+            row: "jpeg-options",
+            label: "Quality (%)",
+            type: "number" as const,
+            min: 0,
+            max: 100,
+            step: 1,
+            value: plan.imageQualityPercent ?? jpegPrefs!.qualityPercent,
+            onChange: (value: number) => update("imageQualityPercent", value),
+            disabled: busy,
+          },
+          {
+            key: "jpegMatte",
+            row: "jpeg-options",
+            label: "Background",
+            type: "color" as const,
+            value: plan.jpegMatte ?? jpegPrefs!.jpegMatte,
+            onChange: (value: string) => update("jpegMatte", value.slice(0, 7)),
+            disabled: busy,
+          },
+        ]
+      : []),
     ...(webpImage
       ? [
           {
             key: "webpCompression",
+            row: "webp-options",
             label: "Compression:",
             type: "select" as const,
             value: plan.webpCompression ?? WebpCompression.Lossless,
@@ -376,6 +301,18 @@ export function ExportFileDialog({
                 disabled: !manager.imageEncoding.webpLossy,
               },
             ],
+          },
+          {
+            key: "quality",
+            row: "webp-options",
+            label: "Quality (%)",
+            type: "number" as const,
+            min: 0,
+            max: 100,
+            step: 1,
+            value: plan.imageQualityPercent ?? webpPrefs!.qualityPercent,
+            onChange: (value: number) => update("imageQualityPercent", value),
+            disabled: busy || plan.webpCompression === WebpCompression.Lossless,
           },
         ]
       : []),
@@ -425,7 +362,9 @@ export function ExportFileDialog({
       label: "Frames:",
       type: "select",
       value: staticImage ? "current" : (options.frames ?? "all"),
-      onChange: (value) => update("frames", value as ExportFileDialogOptions["frames"]),
+      onChange: (value) => {
+        if (!staticImage) update("frames", value as ExportFileDialogOptions["frames"]);
+      },
       disabled: busy,
       options: [
         { value: "all", label: "All frames", disabled: staticImage },
@@ -487,6 +426,26 @@ export function ExportFileDialog({
         disabled:
           busy || (staticImage && key !== "pixelRatio") || (webpImage && key === "forTwitter"),
       })),
+    ...(gifImage
+      ? [
+          {
+            key: "interlaced",
+            label: "Interlaced",
+            disabled: busy,
+            type: "checkbox" as const,
+            value: !!options.gifInterlaced,
+            onChange: (v: boolean) => update("gifInterlaced", v),
+          },
+          {
+            key: "palette",
+            label: "Preserve palette order",
+            type: "checkbox" as const,
+            value: !!options.gifPreservePaletteOrder,
+            onChange: (v: boolean) => update("gifPreservePaletteOrder", v),
+            disabled: busy || !indexed || opaqueIndexed,
+          },
+        ]
+      : []),
     ...(!staticImage && !webpImage && options.forTwitter && Number(resize) < preferred * 100
       ? [
           {

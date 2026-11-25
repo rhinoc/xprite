@@ -1,7 +1,7 @@
 import { tUi } from "$/i18n";
 import { exportDocumentSpriteSheet } from "$/managers/files/export-animation";
 import { ExporterGroup, type ExporterDefinition } from "$/managers/files/exporter-registry";
-import { tilesetExportSource } from "$/managers/files/tileset-export-source";
+import { hasExportableTileset, tilesetExportSource } from "$/managers/files/tileset-export-source";
 import { colorProfileToSrgb, workingColorProfile } from "@xprite/editor-core/color";
 import { SheetLayout } from "@xprite/editor-core/import-export";
 import type { SpriteSheetOptions } from "@xprite/editor-core/import-export";
@@ -36,12 +36,10 @@ export function sheetExporterDefinition(
     group: ExporterGroup.Sheets,
     initialSize: { width: 562, height: 282 },
     helpUrl: "https://www.aseprite.org/docs/sprite-sheet/#export",
-    available: ({ document }) =>
-      !tiles || document.timeline?.layers[document.timeline.activeLayer]?.kind === "tilemap",
+    available: ({ document }) => !tiles || hasExportableTileset(document),
     normalizeOptions: normalizeSheetExportOptions,
     canRepeat: ({ document }, options) =>
-      options.source !== "tilesets" ||
-      document.timeline?.layers[document.timeline.activeLayer]?.kind === "tilemap",
+      options.source !== "tilesets" || hasExportableTileset(document),
     createSource: ({ documentKey, preview }) => ({
       documentKey,
       initialSource: tiles ? "tilesets" : "sprite",

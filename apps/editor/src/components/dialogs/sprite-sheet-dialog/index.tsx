@@ -16,9 +16,19 @@ import {
   type SpriteSheetImageView,
   type SpriteSheetPreviewResult,
 } from "$/managers/dialogs/sprite-sheet-dialog-model";
+
+export interface SpriteSheetDialogDraft {
+  options: SpriteSheetDialogOptions;
+  tab: string;
+  preview: boolean;
+  expanded: boolean;
+}
+
 export interface SpriteSheetDialogProps {
   embedded?: boolean;
   active?: boolean;
+  initialDraft?: SpriteSheetDialogDraft;
+  onDraftChange?: (draft: SpriteSheetDialogDraft) => void;
   onLayoutSizeChange?: (size: { width: number; height: number }) => void;
   onPreview?: (result: SpriteSheetPreviewResult | null) => void;
   initialSource?: SpriteSheetDialogOptions["source"];
@@ -31,6 +41,8 @@ export interface SpriteSheetDialogProps {
 export function SpriteSheetDialog({
   embedded = false,
   active = true,
+  initialDraft,
+  onDraftChange,
   onLayoutSizeChange,
   onPreview,
   initialSource,
@@ -43,12 +55,15 @@ export function SpriteSheetDialog({
   const modelRef = useRef(model);
   modelRef.current = model;
   const document = model.document;
-  const [o, set] = useState(() => {
-      return model.createInitialOptions(initialSource);
-    }),
-    [tab, setTab] = useState("layout"),
-    [preview, setPreview] = useState(true),
-    [expanded, setExpanded] = useState(false);
+  const [o, set] = useState(
+      () => initialDraft?.options ?? model.createInitialOptions(initialSource),
+    ),
+    [tab, setTab] = useState(initialDraft?.tab ?? "layout"),
+    [preview, setPreview] = useState(initialDraft?.preview ?? true),
+    [expanded, setExpanded] = useState(initialDraft?.expanded ?? false);
+  useEffect(() => {
+    onDraftChange?.({ options: o, tab, preview, expanded });
+  }, [o, tab, preview, expanded, onDraftChange]);
   useEffect(() => {
     if (!onPreview) return;
     if (!active) {

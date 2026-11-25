@@ -36,6 +36,7 @@ type AnimalCrossingExportSnapshot = Pick<
   pending: boolean;
   grid: AnimalCrossingGrid | null;
 };
+export type AnimalCrossingExportDraft = Pick<AnimalCrossingExportSnapshot, "settings" | "selected">;
 const PREVIEW_DELAY_MS = 200;
 const GEOMETRY_KEYS = [
   "cellWidth",
@@ -61,16 +62,18 @@ export class AnimalCrossingExportManager {
     private readonly source: AnimalCrossingExportSource,
     private readonly port: AnimalCrossingExportPort,
     private readonly onExported?: (options: AnimalCrossingExportOptions) => void,
+    initialDraft?: AnimalCrossingExportDraft,
   ) {
+    const settings = initialDraft?.settings ?? source.settings;
     this.snapshot = {
-      settings: { ...source.settings },
+      settings: { ...settings },
       result: null,
       qr: null,
-      selected: 0,
+      selected: initialDraft?.selected ?? 0,
       error: null,
       busy: false,
       pending: true,
-      grid: this.gridFor(source.settings),
+      grid: this.gridFor(settings),
     };
   }
   private gridFor(settings: AnimalCrossingSettings) {
@@ -250,10 +253,11 @@ export function useAnimalCrossingExport(
   port: AnimalCrossingExportPort,
   onExported?: (options: AnimalCrossingExportOptions) => void,
   active = true,
+  initialDraft?: AnimalCrossingExportDraft,
 ) {
   const manager = useMemo(
-    () => new AnimalCrossingExportManager(source, port, onExported),
-    [source, port, onExported],
+    () => new AnimalCrossingExportManager(source, port, onExported, initialDraft),
+    [source, port, onExported, initialDraft],
   );
   useEffect(manager.connect, [manager]);
   useEffect(() => manager.setActive(active), [manager, active]);

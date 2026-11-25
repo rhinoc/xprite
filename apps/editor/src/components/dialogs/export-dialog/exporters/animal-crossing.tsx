@@ -1,4 +1,5 @@
 import { lazyChunk } from "$/components/shared/lazy-chunk";
+import type { AnimalCrossingExportDraft } from "$/managers/files/animal-crossing-export";
 import type { AnimalCrossingExportOptions } from "$/managers/files/animal-crossing-export-options";
 import { registerExporter, type ExporterViewProps } from "$/managers/files/exporter-registry";
 import {
@@ -20,6 +21,8 @@ function AnimalCrossingExporterView(
       active={props.active}
       source={props.source.image}
       port={props.source.port}
+      initialDraft={props.draft as AnimalCrossingExportDraft | undefined}
+      onDraftChange={props.onDraftChange}
       onClose={props.onClose}
       onBusyChange={props.onBusyChange}
       onExported={props.onExported}

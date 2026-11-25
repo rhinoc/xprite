@@ -7,9 +7,6 @@
 .panel {
   min-width: 0;
 }
-.panel[hidden] {
-  display: none;
-}
 
 .menuArrow {
   display: flex;

@@ -7,7 +7,6 @@ export interface GifExportPreferences {
   interlaced: boolean;
   loop: boolean;
   preservePaletteOrder: boolean;
-  dontShow: boolean;
 }
 
 const key = "xse.export.gif-options.v1";
@@ -24,7 +23,6 @@ export function readGifExportPreferences(store = storage()): GifExportPreference
     interlaced: saved.interlaced === true,
     loop: saved.loop !== false,
     preservePaletteOrder: saved.preservePaletteOrder === true,
-    dontShow: saved.dontShow === true,
   };
 }
 export function writeGifExportPreferences(value: GifExportPreferences, store = storage()): void {

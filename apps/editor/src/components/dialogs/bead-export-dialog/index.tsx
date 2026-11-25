@@ -15,6 +15,7 @@ import {
   BeadOutputFormat,
   type BeadBoardRect,
   type BeadExportSource,
+  type BeadExportDraft,
   type BeadExportOptions,
   BEAD_BOARD_PRESETS,
 } from "$/managers/files/bead-export";
@@ -141,10 +142,14 @@ function beadLayout(
 export function BeadExportDialog(props: ExporterViewProps<BeadExportSource, BeadExportOptions>) {
   useUiLanguage();
   const scene = useSceneBounds();
-  const model = useBeadExport(props.source);
+  const model = useBeadExport(props.source, props.draft as BeadExportDraft | undefined);
   const uiAssets = useUiAssets();
   const progress = useBeadExportProgress();
-  const { settings, grid } = model;
+  const { settings, grid, draft } = model;
+  const onDraftChange = props.onDraftChange;
+  useEffect(() => {
+    onDraftChange?.({ settings, board: draft });
+  }, [settings, draft, onDraftChange]);
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
   /** Display pixels per bead; null fits the whole pattern or the picked board. */
   const [zoom, setZoom] = useState<number | null>(null);

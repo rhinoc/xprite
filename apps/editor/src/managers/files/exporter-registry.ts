@@ -39,6 +39,8 @@ export interface ExporterViewProps<Source, Options> {
   busy: boolean;
   filePreferences: FilePreferences;
   choiceRequest?: { id: string };
+  draft?: unknown;
+  onDraftChange?(draft: unknown): void;
   onChoiceChange(id: string): void;
   onChoicesChange(choices: readonly ExporterChoice[]): void;
   onLayoutSizeChange(size: { width: number; height: number }): void;

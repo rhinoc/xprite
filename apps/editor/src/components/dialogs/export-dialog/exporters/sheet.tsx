@@ -1,3 +1,4 @@
+import type { SpriteSheetDialogDraft } from "$/components/dialogs/sprite-sheet-dialog";
 import { lazyChunk } from "$/components/shared/lazy-chunk";
 import type { SpriteSheetDialogOptions } from "$/managers/dialogs/sprite-sheet-dialog-model";
 import { registerExporter, type ExporterViewProps } from "$/managers/files/exporter-registry";
@@ -20,6 +21,8 @@ function SheetExporterView(
     <Dialog
       embedded
       active={props.active}
+      initialDraft={props.draft as SpriteSheetDialogDraft | undefined}
+      onDraftChange={props.onDraftChange}
       documentKey={props.source.documentKey}
       initialSource={props.source.initialSource}
       onPreview={props.source.preview}
