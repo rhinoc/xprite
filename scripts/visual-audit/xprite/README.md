@@ -8,7 +8,7 @@ Aseprite document/algorithm compatibility checks and widget geometry fixtures
 remain separate.
 
 Each scene is captured in wide (1440 × 900) and compact (390 × 844) layout:
-24 screenshots per language, 48 in total for Chinese and English. Scene names and dimensions are defined in `scenes.mjs`.
+22 screenshots per language, 44 in total for Chinese and English. Scene names and dimensions are defined in `scenes.mjs`.
 The saved set has been confirmed and locked by the user. Each screenshot's
 capture point is recorded in the manifest. Later UI changes are candidates to
 compare with this set, rather than a reason to update baselines automatically.
@@ -22,7 +22,6 @@ compare with this set, rather than a reason to update baselines automatically.
 | `new-sprite`       | New Sprite dialog, initial draft, no sprite created                               | [PNG](../baselines/xprite/zh/new-sprite-wide.png)       | [PNG](../baselines/xprite/zh/new-sprite-compact.png)       |
 | `save-as`          | Save As dialog for the example, default destination, no save submitted            | [PNG](../baselines/xprite/zh/save-as-wide.png)          | [PNG](../baselines/xprite/zh/save-as-compact.png)          |
 | `export-file`      | Unified Export dialog for the example, current output format, no export submitted | [PNG](../baselines/xprite/zh/export-file-wide.png)      | [PNG](../baselines/xprite/zh/export-file-compact.png)      |
-| `gif-options`      | GIF Options after selecting GIF in Export format, no export confirmed             | [PNG](../baselines/xprite/zh/gif-options-wide.png)      | [PNG](../baselines/xprite/zh/gif-options-compact.png)      |
 | `recovery`         | Recovery tab in fresh storage, no previous user sessions                          | [PNG](../baselines/xprite/zh/recovery-wide.png)         | [PNG](../baselines/xprite/zh/recovery-compact.png)         |
 | `color-picker`     | Foreground popup opened from the color button, white RGB color                    | [PNG](../baselines/xprite/zh/color-picker-wide.png)     | [PNG](../baselines/xprite/zh/color-picker-compact.png)     |
 | `tooltip`          | Hover the Pencil tool until its tooltip is visible                                | [PNG](../baselines/xprite/zh/tooltip-wide.png)          | [PNG](../baselines/xprite/zh/tooltip-compact.png)          |

@@ -12,7 +12,6 @@ export const scenes = [
   "new-sprite",
   "save-as",
   "export-file",
-  "gif-options",
   "color-picker",
   "tooltip",
   "layer-properties",

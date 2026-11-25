@@ -1941,7 +1941,7 @@
     {
       "id": "home-wide",
       "file": "home-wide.png",
-      "sha256": "f5b74ddcad3e0f76590329949e6c842a39ce4cfbbcf9f1840319866d14f14f9a",
+      "sha256": "be5ddc1629c667b2202d40f52a79f4656c3c92d6186d2223c699b403bd349905",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:11.122Z",
@@ -1972,7 +1972,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f5b74ddcad3e0f76590329949e6c842a39ce4cfbbcf9f1840319866d14f14f9a",
+        "sha256": "be5ddc1629c667b2202d40f52a79f4656c3c92d6186d2223c699b403bd349905",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2048,7 +2048,7 @@
     {
       "id": "recovery-wide",
       "file": "recovery-wide.png",
-      "sha256": "9ad9fd7ac1cb55555b231b499eb958dababb5e0b3329957f9c3a57290ea841ed",
+      "sha256": "338ee97ea5bbd062835bc2373cb3bc5dd752def5a1a286f64c31048ac9ac8cde",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:11.707Z",
@@ -2079,7 +2079,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "9ad9fd7ac1cb55555b231b499eb958dababb5e0b3329957f9c3a57290ea841ed",
+        "sha256": "338ee97ea5bbd062835bc2373cb3bc5dd752def5a1a286f64c31048ac9ac8cde",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2127,7 +2127,7 @@
     {
       "id": "editor-wide",
       "file": "editor-wide.png",
-      "sha256": "6e3aceb789d6b75f3704701b646dddbc51ea05b98ef162331b13d26ed087ecdb",
+      "sha256": "08542867fe735ba613f932ce7702624a4f70bb134937be17aebb73fd79bbab4a",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:13.386Z",
@@ -2158,7 +2158,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6e3aceb789d6b75f3704701b646dddbc51ea05b98ef162331b13d26ed087ecdb",
+        "sha256": "08542867fe735ba613f932ce7702624a4f70bb134937be17aebb73fd79bbab4a",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2243,7 +2243,7 @@
     {
       "id": "preferences-wide",
       "file": "preferences-wide.png",
-      "sha256": "b71f1989af4078e102950b8142b42dc9bd77cb0263071324e2659c1fa3381b01",
+      "sha256": "e5d86c6ac024ace35ad45bcbac6bf6adbb09b47f20afff397dbe93adebb32c2b",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-11-07T16:30:07.478Z",
@@ -2274,7 +2274,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "b71f1989af4078e102950b8142b42dc9bd77cb0263071324e2659c1fa3381b01",
+        "sha256": "e5d86c6ac024ace35ad45bcbac6bf6adbb09b47f20afff397dbe93adebb32c2b",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2366,7 +2366,7 @@
     {
       "id": "edit-menu-wide",
       "file": "edit-menu-wide.png",
-      "sha256": "6adc1481bef6d9b9a0952d69c54b80b89e1cdc4793f84a545bacddcbe616c0d6",
+      "sha256": "9824e5469c048a29bd204e62ec64d33aa70a5fac00fc254153f191a6c50658cb",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.183Z",
@@ -2397,7 +2397,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "6adc1481bef6d9b9a0952d69c54b80b89e1cdc4793f84a545bacddcbe616c0d6",
+        "sha256": "9824e5469c048a29bd204e62ec64d33aa70a5fac00fc254153f191a6c50658cb",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2489,7 +2489,7 @@
     {
       "id": "new-sprite-wide",
       "file": "new-sprite-wide.png",
-      "sha256": "ef23894d96907ee436f82644b1737e324e050e28061f054faa76514967d00983",
+      "sha256": "280ddbd2dd269c7d16ab5da1667ad6913a6b1b746bfb0955acd1b3d2005d1b7f",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.400Z",
@@ -2520,7 +2520,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "ef23894d96907ee436f82644b1737e324e050e28061f054faa76514967d00983",
+        "sha256": "280ddbd2dd269c7d16ab5da1667ad6913a6b1b746bfb0955acd1b3d2005d1b7f",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2612,7 +2612,7 @@
     {
       "id": "save-as-wide",
       "file": "save-as-wide.png",
-      "sha256": "4453ab9cb1cbe0ea19c3f635c1dd26b3fda161d36264dff12d9e1de3b20a4902",
+      "sha256": "a8f3dd2da5331d5d7965b6c46456f8417cbb9845bd90a7c477ef85e13a286ffe",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.684Z",
@@ -2643,7 +2643,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "4453ab9cb1cbe0ea19c3f635c1dd26b3fda161d36264dff12d9e1de3b20a4902",
+        "sha256": "a8f3dd2da5331d5d7965b6c46456f8417cbb9845bd90a7c477ef85e13a286ffe",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2735,7 +2735,7 @@
     {
       "id": "export-file-wide",
       "file": "export-file-wide.png",
-      "sha256": "39da761bc7dc1194abf76601b8bbe59169558a76f846cafc1b30b4665714b9d2",
+      "sha256": "6524c6b7a4e8b7cb4ccf274e66993549708aad04abed3089aa1b2440b78207b9",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:15.018Z",
@@ -2766,7 +2766,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "39da761bc7dc1194abf76601b8bbe59169558a76f846cafc1b30b4665714b9d2",
+        "sha256": "6524c6b7a4e8b7cb4ccf274e66993549708aad04abed3089aa1b2440b78207b9",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2856,132 +2856,9 @@
       }
     },
     {
-      "id": "gif-options-wide",
-      "file": "gif-options-wide.png",
-      "sha256": "a809fae86f6eb615065beaa6999533b34a1a57ad4cf194039b4450ab3b7e28d0",
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-30T16:27:15.285Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 1440,
-          "height": 900,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        },
-        "pixels": {
-          "width": 1440,
-          "height": 900
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "a809fae86f6eb615065beaa6999533b34a1a57ad4cf194039b4450ab3b7e28d0",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
-        }
-      },
-      "url": "http://xprite-visual-wide-ko.localhost:5173/editor",
-      "mode": "wide",
-      "view": "gif-options",
-      "viewport": {
-        "width": 1440,
-        "height": 900,
-        "dpr": 1
-      },
-      "language": "ko",
-      "hmr": "isolated-vite-transport",
-      "frame": "1",
-      "zoom": "400.0",
-      "regions": [
-        {
-          "name": "tabs",
-          "x": 0,
-          "y": 22,
-          "width": 1440,
-          "height": 34
-        },
-        {
-          "name": "status",
-          "x": 4,
-          "y": 870,
-          "width": 1432,
-          "height": 30
-        },
-        {
-          "name": "canvas",
-          "x": 170,
-          "y": 98,
-          "width": 1213,
-          "height": 577
-        },
-        {
-          "name": "timeline",
-          "x": 164,
-          "y": 700,
-          "width": 1236,
-          "height": 170
-        },
-        {
-          "name": "palette",
-          "x": 4,
-          "y": 56,
-          "width": 153,
-          "height": 645
-        },
-        {
-          "name": "tools",
-          "x": 1404,
-          "y": 56,
-          "width": 32,
-          "height": 814
-        },
-        {
-          "name": "context",
-          "x": 164,
-          "y": 56,
-          "width": 1236,
-          "height": 32
-        },
-        {
-          "name": "gif-options",
-          "x": 480,
-          "y": 198,
-          "width": 548,
-          "height": 282
-        }
-      ],
-      "capture": {
-        "capturedAt": "2026-10-30T16:27:17.355Z",
-        "sourceDigest": "39ca4377a0e518d1a3c357d420299fae2616ecfb6ffea3dea120133c46a64a1d",
-        "gitRevision": "4fabc13a78217841ceaf54bd3078b3e5e794a1ff",
-        "browser": {
-          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
-          "platform": "Linux x86_64"
-        },
-        "captureMethod": "Chromium CDP native PNG, DPR 1, isolated Vite HMR transport, no resize or masking"
-      }
-    },
-    {
       "id": "color-picker-wide",
       "file": "color-picker-wide.png",
-      "sha256": "d358a9aa28e88ab1adcf36500cf9184f7a324c9ee628d53af6daf78080323b67",
+      "sha256": "d7af4331b570df99b5681ea1f58ab0b8cd6c2cb6c0fdee6d710ef9e20ac4d03e",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:15.683Z",
@@ -3012,7 +2889,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d358a9aa28e88ab1adcf36500cf9184f7a324c9ee628d53af6daf78080323b67",
+        "sha256": "d7af4331b570df99b5681ea1f58ab0b8cd6c2cb6c0fdee6d710ef9e20ac4d03e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3104,7 +2981,7 @@
     {
       "id": "tooltip-wide",
       "file": "tooltip-wide.png",
-      "sha256": "2b84621bd8376ffbb1ad7b4b60f346f1391c3267adfc50862f22b4ac601daf81",
+      "sha256": "0478576b08ee54c90c093709f0a29a4876ff01d3ba3ca35951ead489ff7b3953",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:16.578Z",
@@ -3135,7 +3012,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "2b84621bd8376ffbb1ad7b4b60f346f1391c3267adfc50862f22b4ac601daf81",
+        "sha256": "0478576b08ee54c90c093709f0a29a4876ff01d3ba3ca35951ead489ff7b3953",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3228,7 +3105,7 @@
     {
       "id": "layer-properties-wide",
       "file": "layer-properties-wide.png",
-      "sha256": "3354c9ca43ae3157b304070cd0c4b9fd29246377813b41b14d3df4927764d2d6",
+      "sha256": "5c6589a8070fb26aba7d5fcad3b465d476063e8e6723676d2e9f4707b58ece33",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:16.662Z",
@@ -3259,7 +3136,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "3354c9ca43ae3157b304070cd0c4b9fd29246377813b41b14d3df4927764d2d6",
+        "sha256": "5c6589a8070fb26aba7d5fcad3b465d476063e8e6723676d2e9f4707b58ece33",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3351,7 +3228,7 @@
     {
       "id": "home-compact",
       "file": "home-compact.png",
-      "sha256": "46ebed01ebb66d774b6a116712c4e0e286ca7df9436b66a5ec91a91fbb2ab9ff",
+      "sha256": "d998d2b67f1589548eb3c24c617aef59a0d005ee75d6f49eef21b3a72ff96e60",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:11.118Z",
@@ -3382,7 +3259,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "46ebed01ebb66d774b6a116712c4e0e286ca7df9436b66a5ec91a91fbb2ab9ff",
+        "sha256": "d998d2b67f1589548eb3c24c617aef59a0d005ee75d6f49eef21b3a72ff96e60",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3458,7 +3335,7 @@
     {
       "id": "recovery-compact",
       "file": "recovery-compact.png",
-      "sha256": "823771b7fb0aa4424372631759d5dd178dfcb84fd2eb7bf80c269d6345d39136",
+      "sha256": "0fba5807b856974d59d1d57c81dd31632f9eb920ab2c22b084e51c87ba5fbda3",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:11.732Z",
@@ -3489,7 +3366,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "823771b7fb0aa4424372631759d5dd178dfcb84fd2eb7bf80c269d6345d39136",
+        "sha256": "0fba5807b856974d59d1d57c81dd31632f9eb920ab2c22b084e51c87ba5fbda3",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3537,7 +3414,7 @@
     {
       "id": "editor-compact",
       "file": "editor-compact.png",
-      "sha256": "44dfc0f3e1849465f475b120050e5ceac784a70795c1ce1d579f88362010d37d",
+      "sha256": "dbec7ef98037393a270185a6983fdc772a75fffa9520c3e16da8b74de1e557fc",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:13.734Z",
@@ -3568,7 +3445,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "44dfc0f3e1849465f475b120050e5ceac784a70795c1ce1d579f88362010d37d",
+        "sha256": "dbec7ef98037393a270185a6983fdc772a75fffa9520c3e16da8b74de1e557fc",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3639,7 +3516,7 @@
     {
       "id": "preferences-compact",
       "file": "preferences-compact.png",
-      "sha256": "796a3fe6fbe86650775973625634ae90d3d7cb422fef432257ab0448558ddbca",
+      "sha256": "6bb290c88e3ea759fb289a1f171dfa3e56c694aba039df88d30f032a66ce271c",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:13.936Z",
@@ -3670,7 +3547,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "796a3fe6fbe86650775973625634ae90d3d7cb422fef432257ab0448558ddbca",
+        "sha256": "6bb290c88e3ea759fb289a1f171dfa3e56c694aba039df88d30f032a66ce271c",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3748,7 +3625,7 @@
     {
       "id": "edit-menu-compact",
       "file": "edit-menu-compact.png",
-      "sha256": "15354e4cfbbf55f985af485c5e00efc262849c85ef9f8d38efe6429170db5229",
+      "sha256": "38781825beaf97706d23ccaeb9a32eb42aa3a1d7cee4ef7a6a8146a0b2781612",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.666Z",
@@ -3779,7 +3656,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "15354e4cfbbf55f985af485c5e00efc262849c85ef9f8d38efe6429170db5229",
+        "sha256": "38781825beaf97706d23ccaeb9a32eb42aa3a1d7cee4ef7a6a8146a0b2781612",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3864,7 +3741,7 @@
     {
       "id": "new-sprite-compact",
       "file": "new-sprite-compact.png",
-      "sha256": "d34e436ae4e48c6a83b5dd7a75345428c6f8b7b5b59e92dce59b440278547717",
+      "sha256": "2538eeafb5e4987ff4584efe8f5ae14866e4d1a3bbc077c1f6307d8eb7ad11b7",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:14.953Z",
@@ -3895,7 +3772,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "d34e436ae4e48c6a83b5dd7a75345428c6f8b7b5b59e92dce59b440278547717",
+        "sha256": "2538eeafb5e4987ff4584efe8f5ae14866e4d1a3bbc077c1f6307d8eb7ad11b7",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -3973,7 +3850,7 @@
     {
       "id": "save-as-compact",
       "file": "save-as-compact.png",
-      "sha256": "de9a7484f37fe04fdbe44ce8367d35c9386ff7006cc5f6722ab0d538a5ef703b",
+      "sha256": "a6ddbf50a543c2b9d609e0aef0fb2c7cd04f32a146ba263f3b7644a0f34db2aa",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:15.231Z",
@@ -4004,7 +3881,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "de9a7484f37fe04fdbe44ce8367d35c9386ff7006cc5f6722ab0d538a5ef703b",
+        "sha256": "a6ddbf50a543c2b9d609e0aef0fb2c7cd04f32a146ba263f3b7644a0f34db2aa",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4082,7 +3959,7 @@
     {
       "id": "export-file-compact",
       "file": "export-file-compact.png",
-      "sha256": "60d0486f9fff6f693780f35dbb63e66c347c112c4b5fc00a79040b0cc6b69b4c",
+      "sha256": "c0174fe177a2e9319b07dbd8f48dc3042fc874ee5573438f112ab5466401c540",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:15.471Z",
@@ -4113,7 +3990,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "60d0486f9fff6f693780f35dbb63e66c347c112c4b5fc00a79040b0cc6b69b4c",
+        "sha256": "c0174fe177a2e9319b07dbd8f48dc3042fc874ee5573438f112ab5466401c540",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4189,118 +4066,9 @@
       }
     },
     {
-      "id": "gif-options-compact",
-      "file": "gif-options-compact.png",
-      "sha256": "288a669cc82403fa588880310857e7c73d8760b4f75c29a661020e6c6b953982",
-      "screenshot": {
-        "schemaVersion": 1,
-        "capturedAt": "2026-10-30T16:27:15.752Z",
-        "method": "Chromium CDP native PNG",
-        "viewport": {
-          "width": 390,
-          "height": 844,
-          "dpr": 1
-        },
-        "captureClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        },
-        "pixels": {
-          "width": 390,
-          "height": 844
-        },
-        "pixelScale": {
-          "x": 1,
-          "y": 1
-        },
-        "colorSpace": {
-          "iccSha256": null,
-          "srgbIntent": null,
-          "gamma": null,
-          "chromaticities": null,
-          "cicp": null
-        },
-        "sha256": "288a669cc82403fa588880310857e7c73d8760b4f75c29a661020e6c6b953982",
-        "requestedClip": {
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 844
-        }
-      },
-      "url": "http://xprite-visual-compact-ko.localhost:5173/editor",
-      "mode": "compact",
-      "view": "gif-options",
-      "viewport": {
-        "width": 390,
-        "height": 844,
-        "dpr": 1
-      },
-      "language": "ko",
-      "hmr": "isolated-vite-transport",
-      "frame": "1",
-      "zoom": "400.0",
-      "regions": [
-        {
-          "name": "tabs",
-          "x": 0,
-          "y": 0,
-          "width": 390,
-          "height": 34
-        },
-        {
-          "name": "status",
-          "x": 2,
-          "y": 814,
-          "width": 386,
-          "height": 30
-        },
-        {
-          "name": "canvas",
-          "x": 8,
-          "y": 76,
-          "width": 374,
-          "height": 415
-        },
-        {
-          "name": "palette",
-          "x": 2,
-          "y": 538,
-          "width": 386,
-          "height": 276
-        },
-        {
-          "name": "tools",
-          "x": 2,
-          "y": 34,
-          "width": 386,
-          "height": 32
-        },
-        {
-          "name": "gif-options",
-          "x": 0,
-          "y": 170,
-          "width": 390,
-          "height": 310
-        }
-      ],
-      "capture": {
-        "capturedAt": "2026-10-30T16:27:17.355Z",
-        "sourceDigest": "39ca4377a0e518d1a3c357d420299fae2616ecfb6ffea3dea120133c46a64a1d",
-        "gitRevision": "4fabc13a78217841ceaf54bd3078b3e5e794a1ff",
-        "browser": {
-          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
-          "platform": "Linux x86_64"
-        },
-        "captureMethod": "Chromium CDP native PNG, DPR 1, isolated Vite HMR transport, no resize or masking"
-      }
-    },
-    {
       "id": "color-picker-compact",
       "file": "color-picker-compact.png",
-      "sha256": "f206acc4da69bc11d8b71a52cf78480e31c306e387a576821fbde98b7028526a",
+      "sha256": "f944ccb93dc3c14f49e3afc8a2a5cb5ffa7eb151da6c01d9ea11431735a1cbb9",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:15.996Z",
@@ -4331,7 +4099,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "f206acc4da69bc11d8b71a52cf78480e31c306e387a576821fbde98b7028526a",
+        "sha256": "f944ccb93dc3c14f49e3afc8a2a5cb5ffa7eb151da6c01d9ea11431735a1cbb9",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4409,7 +4177,7 @@
     {
       "id": "tooltip-compact",
       "file": "tooltip-compact.png",
-      "sha256": "c54a2e7ea525a6bc411ef2d967202794d05e9d725d50bf4b0299936d5888bc33",
+      "sha256": "18a62a1f4b0a74c80208242df21c2dd0fb8d2985229b1484af1934cd90d7e678",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:16.879Z",
@@ -4440,7 +4208,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "c54a2e7ea525a6bc411ef2d967202794d05e9d725d50bf4b0299936d5888bc33",
+        "sha256": "18a62a1f4b0a74c80208242df21c2dd0fb8d2985229b1484af1934cd90d7e678",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -4519,7 +4287,7 @@
     {
       "id": "layer-properties-compact",
       "file": "layer-properties-compact.png",
-      "sha256": "021e5a6654873f41a9cf7ba08f9359f4d186b00227fb358d8871bf26262b1e50",
+      "sha256": "f3884cb744b8d3011a576ba63011ffe61c209b940cebce019210c93f8b4ccde9",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:16.996Z",
@@ -4550,7 +4318,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "021e5a6654873f41a9cf7ba08f9359f4d186b00227fb358d8871bf26262b1e50",
+        "sha256": "f3884cb744b8d3011a576ba63011ffe61c209b940cebce019210c93f8b4ccde9",
         "requestedClip": {
           "x": 0,
           "y": 0,

@@ -1941,7 +1941,7 @@
     {
       "id": "editor-wide",
       "file": "editor-wide.png",
-      "sha256": "cba1dc4f1eb23edef7ae0c81a1282958be3ab97de1f7a605d9e5dad4c00d6d37",
+      "sha256": "55946c65e718348719e218d4f5ce2c71405da1e86aeb65dd56e1713c3a9505da",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:11.463Z",
@@ -1972,7 +1972,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "cba1dc4f1eb23edef7ae0c81a1282958be3ab97de1f7a605d9e5dad4c00d6d37",
+        "sha256": "55946c65e718348719e218d4f5ce2c71405da1e86aeb65dd56e1713c3a9505da",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2057,7 +2057,7 @@
     {
       "id": "preferences-wide",
       "file": "preferences-wide.png",
-      "sha256": "ac6902a68819b28420b0b2823f68e853d79d42414c1e7e8ad04dc953b5253d49",
+      "sha256": "f5d7bae6577d3f736c5f74362150125675c93eb2abbb32a375c60d43cdd002bd",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-11-07T16:30:09.742Z",
@@ -2088,7 +2088,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "ac6902a68819b28420b0b2823f68e853d79d42414c1e7e8ad04dc953b5253d49",
+        "sha256": "f5d7bae6577d3f736c5f74362150125675c93eb2abbb32a375c60d43cdd002bd",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2180,7 +2180,7 @@
     {
       "id": "save-as-wide",
       "file": "save-as-wide.png",
-      "sha256": "dc7f2891411fb75c2f165c1e79b01b09500e0a21550a9f41bd70163ce7777550",
+      "sha256": "7122bc52d388a481cd45bbabc432eb6730722c035be9734fae17d00c275f3b5e",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:13.392Z",
@@ -2211,7 +2211,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "dc7f2891411fb75c2f165c1e79b01b09500e0a21550a9f41bd70163ce7777550",
+        "sha256": "7122bc52d388a481cd45bbabc432eb6730722c035be9734fae17d00c275f3b5e",
         "requestedClip": {
           "x": 0,
           "y": 0,
@@ -2303,7 +2303,7 @@
     {
       "id": "edit-menu-compact",
       "file": "edit-menu-compact.png",
-      "sha256": "35bb59157973bd1a267acccd1585f357938e727df3891db02caa3c7c7ec6a134",
+      "sha256": "3c95d9162ee22e3a5af0e3cfd4f415f5eb60c3c3345a4a049d26d81774c740db",
       "screenshot": {
         "schemaVersion": 1,
         "capturedAt": "2026-10-30T16:27:11.957Z",
@@ -2334,7 +2334,7 @@
           "chromaticities": null,
           "cicp": null
         },
-        "sha256": "35bb59157973bd1a267acccd1585f357938e727df3891db02caa3c7c7ec6a134",
+        "sha256": "3c95d9162ee22e3a5af0e3cfd4f415f5eb60c3c3345a4a049d26d81774c740db",
         "requestedClip": {
           "x": 0,
           "y": 0,

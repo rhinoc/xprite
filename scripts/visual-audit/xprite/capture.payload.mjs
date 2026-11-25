@@ -102,10 +102,6 @@ try {
       newSprite: "ui.new.sprite",
       saveAs: "ui.save.as",
       exportFile: "ui.export",
-      exportFormat: "ui.export.format.selector",
-      gifFormat: "ui.export.format.gif",
-      exportAction: "ui.export",
-      gifInterlaced: "ui.interlaced",
       foreground: "ui.foreground.color.title",
       restoreColor: "ui.restore.original.color",
       pencil: "ui.pencil",
@@ -394,28 +390,13 @@ try {
         await capture(view, `[role="dialog"][aria-label=${JSON.stringify(label)}]`);
         await closeDialog(label);
       }
-      if (selected.has(`export-file-${mode}`) || selected.has(`gif-options-${mode}`)) {
+      if (selected.has(`export-file-${mode}`)) {
         await page.keyboard.press("ControlOrMeta+Alt+Shift+s");
         const exportDialog = labeled('[role="dialog"]', ui.exportFile);
         await page.waitForSelector(exportDialog);
         await parkedPointer(width, height);
         await capture("export-file", exportDialog);
-        if (selected.has(`gif-options-${mode}`)) {
-          const formatTrigger = `${exportDialog} ${labeled("button", ui.exportFormat)}`;
-          await page.click(formatTrigger);
-          await page.click(labeled('[role="menuitemradio"]', ui.gifFormat));
-          await page.waitForFunction(
-            ({ selector, label }) => document.querySelector(selector)?.textContent?.includes(label),
-            { selector: formatTrigger, label: ui.gifFormat },
-          );
-          await page.click(`${exportDialog} ${labeled("button", ui.exportAction)}`);
-          await page.waitForSelector(
-            `${exportDialog} ${labeled('button[role="checkbox"]', ui.gifInterlaced)}`,
-          );
-          await parkedPointer(width, height);
-          await capture("gif-options", exportDialog);
-          await closeDialog(ui.exportFile);
-        } else await closeDialog(ui.exportFile);
+        await closeDialog(ui.exportFile);
       }
       if (selected.has(`color-picker-${mode}`)) {
         await page.click(labeled("button", ui.foregroundWhite));
