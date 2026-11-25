@@ -10,14 +10,20 @@ import {
 } from "react";
 
 import { EffectDialogs } from "$/components/dialogs/effect-dialogs";
+import { CleanPixelsDialog } from "$/components/dialogs/effect-dialogs/clean-pixels-dialog";
 import {
+  DIALOG_CLEAN_PIXELS_KIND,
   useEffectDialogManager,
   type DialogEffectKind,
+  type DialogEffectSpec,
+  type DialogEffectTarget,
 } from "$/managers/dialogs/effect-dialog-manager";
 import type { DialogEditorTarget } from "$/managers/dialogs/internal-editor-source";
 
+type EffectActionKind = DialogEffectKind | typeof DIALOG_CLEAN_PIXELS_KIND;
+
 export interface EffectActions {
-  openEffect: (kind: DialogEffectKind) => void;
+  openEffect: (kind: EffectActionKind) => void;
 }
 interface Registry {
   actions: EffectActions | null;
@@ -43,7 +49,7 @@ export function EffectDialogsHost({ enabled = true }: { enabled?: boolean }) {
   managerRef.current = manager;
   const enabledRef = useRef(enabled);
   enabledRef.current = enabled;
-  const [kind, setKind] = useState<DialogEffectKind | null>(null);
+  const [kind, setKind] = useState<EffectActionKind | null>(null);
   const openedTargetRef = useRef<DialogEditorTarget | null>(null);
   const [openedTarget, setOpenedTarget] = useState<DialogEditorTarget | null>(null);
   const owns = () =>
@@ -56,9 +62,9 @@ export function EffectDialogsHost({ enabled = true }: { enabled?: boolean }) {
     setOpenedTarget(null);
     setKind(null);
   }, []);
-  const open = useCallback((next: DialogEffectKind) => {
+  const open = useCallback((next: EffectActionKind) => {
     if (!enabledRef.current) return;
-    const target = managerRef.current.open(next);
+    const target = managerRef.current.open();
     if (!target) return;
     openedTargetRef.current = target;
     setOpenedTarget(target);
@@ -71,9 +77,32 @@ export function EffectDialogsHost({ enabled = true }: { enabled?: boolean }) {
     if (kind && (!valid || !view)) close();
   }, [kind, valid, !!view, close]);
   if (!kind || !valid || !view) return null;
+  const key = `${kind}:${openedTarget.documentKey}`;
+  const onPreview = (spec: DialogEffectSpec | null, effectTarget?: DialogEffectTarget) => {
+    const target = openedTargetRef.current;
+    if (!target) return;
+    if (spec === null) managerRef.current.clearPreview(target);
+    else if (owns()) managerRef.current.preview(target, spec, effectTarget);
+  };
+  const onApply = (spec: DialogEffectSpec, target: DialogEffectTarget) => {
+    const opened = openedTargetRef.current;
+    if (!opened || !owns()) return;
+    managerRef.current.apply(opened, spec, target);
+    if (!managerRef.current.canOpenCurrent()) close();
+  };
+  if (kind === DIALOG_CLEAN_PIXELS_KIND)
+    return (
+      <CleanPixelsDialog
+        key={key}
+        availabilityFor={manager.cleanupAvailability}
+        onPreview={onPreview}
+        onApply={onApply}
+        onClose={close}
+      />
+    );
   return (
     <EffectDialogs
-      key={`${kind}:${openedTarget.documentKey}`}
+      key={key}
       kind={kind}
       depth={view.depth}
       foreground={view.foreground}
@@ -85,18 +114,8 @@ export function EffectDialogsHost({ enabled = true }: { enabled?: boolean }) {
       backgroundPixel={view.backgroundPixel}
       tiledMode={view.tiledMode}
       onClose={close}
-      onPreview={(spec) => {
-        const target = openedTargetRef.current;
-        if (!target) return;
-        if (spec === null) managerRef.current.clearPreview(target);
-        else if (owns()) managerRef.current.preview(target, spec);
-      }}
-      onApply={(spec, target) => {
-        const opened = openedTargetRef.current;
-        if (!opened || !owns()) return;
-        managerRef.current.apply(opened, spec, target);
-        if (!managerRef.current.canOpenCurrent()) close();
-      }}
+      onPreview={onPreview}
+      onApply={onApply}
     />
   );
 }

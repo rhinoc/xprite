@@ -345,7 +345,7 @@ export function validateDocument(
         let first: { x: number; y: number } | undefined;
         for (let y = 0; y < h; y++)
           for (let x = 0; x < w; x++) {
-            if (!opaque(data, (y * w + x) * CHANNELS)) continue;
+            if (data[(y * w + x) * CHANNELS + 3] !== UINT8_MAX) continue;
             let neighbours = 0;
             for (const [dx, dy] of DIRECTIONS) {
               const nx = x + dx,

@@ -158,6 +158,37 @@ function rgbToLab([r, g, b]: readonly number[]): Lab {
 
 const deltaE = (a: Lab, b: Lab) => Math.hypot(a.l - b.l, a.a - b.a, a.b - b.b);
 
+const PALETTE_MATCH_CACHE_SIZE = 4096;
+
+/** Match opaque entries in CIELAB, breaking equal-distance ties by palette order. */
+export function createOpaquePaletteMatcher(palette: readonly Rgba[]) {
+  const opaque = palette.filter((color) => color[3] === UINT8_MAX);
+  if (!opaque.length) return null;
+  const labs = opaque.map(rgbToLab);
+  const rgbKey = (r: number, g: number, b: number) => r | (g << 8) | (b << 16);
+  const exact = new Map<number, Rgba>();
+  for (const color of opaque) exact.set(rgbKey(color[0], color[1], color[2]), color);
+  const cache = new Map<number, Rgba>();
+  return (r: number, g: number, b: number): Rgba => {
+    const key = rgbKey(r, g, b);
+    const cached = exact.get(key) ?? cache.get(key);
+    if (cached) return cached;
+    const lab = rgbToLab([r, g, b]);
+    let nearest = 0,
+      distance = Infinity;
+    for (let index = 0; index < labs.length; index++) {
+      const delta = deltaE(lab, labs[index]);
+      if (delta < distance) {
+        distance = delta;
+        nearest = index;
+      }
+    }
+    const color = opaque[nearest];
+    if (cache.size < PALETTE_MATCH_CACHE_SIZE) cache.set(key, color);
+    return color;
+  };
+}
+
 export interface PaletteSnapRegion {
   layerId: string;
   frameIndex: number;
@@ -183,11 +214,8 @@ export function snapDocumentToPalette(
   const timeline = document.timeline;
   if (!timeline || !palette.length) return { regions: [], skippedLayers: [] };
   const onPalette = new Set(palette.map((color) => color.join(",")));
-  const opaque = palette
-    .map((color, index) => ({ color, index }))
-    .filter(({ color }) => color[3] === UINT8_MAX);
-  if (!opaque.length) return { regions: [], skippedLayers: [] };
-  const labs = opaque.map(({ color }) => rgbToLab(color));
+  const nearest = createOpaquePaletteMatcher(palette);
+  if (!nearest) return { regions: [], skippedLayers: [] };
   const regions: PaletteSnapRegion[] = [];
   const skippedLayers: string[] = [];
   for (let frameIndex = 0; frameIndex < timeline.frames.length; frameIndex++) {
@@ -208,17 +236,7 @@ export function snapDocumentToPalette(
         if (!alpha) continue;
         const key = `${data[at]},${data[at + 1]},${data[at + 2]},${alpha}`;
         if (onPalette.has(key)) continue;
-        const lab = rgbToLab([data[at], data[at + 1], data[at + 2]]);
-        let nearest = 0,
-          distance = Infinity;
-        for (let index = 0; index < labs.length; index++) {
-          const delta = deltaE(lab, labs[index]);
-          if (delta < distance) {
-            distance = delta;
-            nearest = index;
-          }
-        }
-        const color = opaque[nearest].color;
+        const color = nearest(data[at], data[at + 1], data[at + 2]);
         next[at] = color[0];
         next[at + 1] = color[1];
         next[at + 2] = color[2];

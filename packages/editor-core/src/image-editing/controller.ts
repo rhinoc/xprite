@@ -113,12 +113,12 @@ export class ImageEditingController {
     );
   }
 
-  previewEffect(spec: EffectSpec | null): void {
+  previewEffect(spec: EffectSpec | null, target = EffectTarget.Selected): void {
     const document = this.port.getDocument();
     const { tilesetMode } = this.port.getSettings();
     this.effectPreview =
       spec && document && canOpenEffect(document)
-        ? previewDocumentEffect(document, spec, tilesetMode)
+        ? previewDocumentEffect(document, spec, tilesetMode, target)
         : null;
     this.port.publish(true);
   }

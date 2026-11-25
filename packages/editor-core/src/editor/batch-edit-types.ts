@@ -1,5 +1,5 @@
 import type { Point, Rect, Rgba } from "$/base/primitives";
-import type { OutlineColorMode } from "$/image-editing";
+import type { OutlineColorMode, PixelCleanupOptions } from "$/image-editing";
 import type { AsepriteTagDirection } from "$/import-export/aseprite/model";
 
 export enum BatchEditKind {
@@ -46,6 +46,7 @@ export enum BatchEditKind {
   Outline = "outline",
   AdjustHsl = "adjustHsl",
   Effect = "effect",
+  CleanPixels = "cleanPixels",
   Gradient = "gradient",
   Dither = "dither",
   Flip = "flip",
@@ -243,6 +244,10 @@ export type BatchEditOperationExtra =
       hue?: number;
       saturation?: number;
       lightness?: number;
+    })
+  | (RegionTarget & {
+      type: BatchEditKind.CleanPixels;
+      options: PixelCleanupOptions;
     })
   | (RegionTarget & {
       type: BatchEditKind.Effect;

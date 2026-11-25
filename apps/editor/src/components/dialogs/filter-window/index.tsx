@@ -14,7 +14,7 @@ export interface EditorFilterWindowProps {
   bodyHeight?: number;
   initialPosition?: EffectDialogWindowPosition;
   onPositionChange?: (position: EffectDialogWindowPosition) => void;
-  channels: number;
+  channels?: number;
   alphaEnabled?: boolean;
   target: DialogEffectTarget;
   preview: boolean;
@@ -50,8 +50,11 @@ export function EditorFilterWindow({
   onCancel,
   children,
 }: EditorFilterWindowProps) {
+  const indexedChannels = channels !== undefined && depth === 8;
+  const targetY = channels === undefined ? 126 : 150 + (indexedChannels ? 24 : 0);
+  const previewY = targetY + 38;
   const host = useRef<HTMLDivElement>(null),
-    height = Math.max(bodyHeight, (tiled === undefined ? 212 : 244) + (depth === 8 ? 24 : 0)),
+    height = Math.max(bodyHeight, previewY + (tiled === undefined ? 24 : 56)),
     dialogWidth = bodyWidth + 132,
     dialogHeight = height + 46;
   useEffect(() => {
@@ -155,31 +158,32 @@ export function EditorFilterWindow({
                   onClick={i === 0 ? onAccept : i === 1 ? onApply : onCancel}
                 />
               ))}
-              {(depth === 16
-                ? [
-                    { label: "K", bit: 16, x: 0, w: 50 },
-                    { label: "A", bit: 8, x: 48, w: 52 },
-                  ]
-                : ["R", "G", "B", "A"].map((label, i) => ({
-                    label,
-                    bit: 1 << i,
-                    x: i * 24,
-                    w: i === 3 ? 28 : 26,
-                  }))
-              ).map(({ label, bit, x: offset, w }) => (
-                <Button
-                  key={label}
-                  bounds={{ x: x + offset, y: c.y + 126, width: w, height: 30 }}
-                  relativeTo={c}
-                  text={label}
-                  font={FontRole.Compact}
-                  selected={!!(channels & bit)}
-                  disabled={!onChannels || (bit === 8 && !alphaEnabled)}
-                  aria-label={tUi("ui.modify.channel", { value1: tUiSource(label) })}
-                  onClick={() => onChannels?.((channels & ~32) ^ bit)}
-                />
-              ))}
-              {depth === 8 && (
+              {channels !== undefined &&
+                (depth === 16
+                  ? [
+                      { label: "K", bit: 16, x: 0, w: 50 },
+                      { label: "A", bit: 8, x: 48, w: 52 },
+                    ]
+                  : ["R", "G", "B", "A"].map((label, i) => ({
+                      label,
+                      bit: 1 << i,
+                      x: i * 24,
+                      w: i === 3 ? 28 : 26,
+                    }))
+                ).map(({ label, bit, x: offset, w }) => (
+                  <Button
+                    key={label}
+                    bounds={{ x: x + offset, y: c.y + 126, width: w, height: 30 }}
+                    relativeTo={c}
+                    text={label}
+                    font={FontRole.Compact}
+                    selected={!!(channels & bit)}
+                    disabled={!onChannels || (bit === 8 && !alphaEnabled)}
+                    aria-label={tUi("ui.modify.channel", { value1: tUiSource(label) })}
+                    onClick={() => onChannels?.((channels & ~32) ^ bit)}
+                  />
+                ))}
+              {indexedChannels && (
                 <Button
                   bounds={{ x, y: c.y + 150, width: 100, height: 30 }}
                   relativeTo={c}
@@ -192,7 +196,7 @@ export function EditorFilterWindow({
                 />
               )}
               <Button
-                bounds={{ x, y: c.y + 150 + (depth === 8 ? 24 : 0), width: 100, height: 30 }}
+                bounds={{ x, y: c.y + targetY, width: 100, height: 30 }}
                 relativeTo={c}
                 text={target === DialogEffectTarget.All ? "All" : "Selected"}
                 font={FontRole.Compact}
@@ -206,7 +210,7 @@ export function EditorFilterWindow({
                 }
               />
               <Checkbox
-                bounds={{ x, y: c.y + 188 + (depth === 8 ? 24 : 0), width: 100, height: 24 }}
+                bounds={{ x, y: c.y + previewY, width: 100, height: 24 }}
                 relativeTo={c}
                 label="Preview"
                 mnemonicIndex={0}
@@ -215,7 +219,7 @@ export function EditorFilterWindow({
               />
               {tiled !== undefined && (
                 <Checkbox
-                  bounds={{ x, y: c.y + 220 + (depth === 8 ? 24 : 0), width: 100, height: 24 }}
+                  bounds={{ x, y: c.y + previewY + 32, width: 100, height: 24 }}
                   relativeTo={c}
                   label="Tiled"
                   mnemonicIndex={0}

@@ -93,7 +93,7 @@ Use a rectangle that fits the sprite. `createDocument` caps new canvases at
   releases only URLs owned by this interface. The browser adapter owns Blob IO.
 - `importImage`: base64 PNG/GIF → cel (multi-frame GIF appends frames);
   optional `pixelate` worker pass `{ method?, colorPicker?, targetWidth?,
-  targetHeight?, outlineStrength?, removeNoise? }` — `method` is the per-cell
+targetHeight?, outlineStrength?, removeNoise? }` — `method` is the per-cell
   resample (`nearest` crispest), `colorPicker` picks the cell color.
 - `manageDocument`: `save` / `close` (`force` discards unsaved) / `duplicate`
   (new unsaved tab). `open` unsupported.
@@ -136,12 +136,20 @@ later indices. Reread context after structural edits.
 - **Color & effects**: `replaceColor` (`from`,`to`,`frameRange?`),
   `outline` (`color`,`position`,`size`), `adjustHsl` (additive HSL),
   `effect` (`brightness-contrast`/`invert`/`median-blur`/
-  `convolution-matrix`/`color-curve`/`hue-saturation`), `gradient`
+  `convolution-matrix`/`color-curve`/`hue-saturation`), `cleanPixels`
+  (`layerId`, `frameIndex`, optional `rect` and `options` with one or more of
+  `removeOrphans`, `cleanDoubles`, `snapToPalette` and `crispAlpha` set to
+  `true`), `gradient`
   (`from`,`to`,`direction`,`dither`), `dither` (`colorA`,`colorB`,`pattern`,
   `ratio`), `select` (masks later writes in the batch).
 - **Animation**: `tweenCels` (`layerId`,`fromFrame`,`toFrame`,`property`
   `position`/`opacity`/`scale`, `from`, `to`, `ease`
   `linear`/`in`/`out`/`inOut`/`pingpong`).
+
+`validate` can return a `cleanup` payload for stray pixels, partial alpha
+and off-palette colors. Review the pixels, fill in the layer and frame for
+document-wide findings, then pass the operation to `applyBatch` with the
+validation response's revision. Run `validate` again to check the result.
 
 ## Semantics
 

@@ -550,6 +550,11 @@
               "command": "Despeckle"
             },
             {
+              "kind": "item",
+              "label": "Clean Pixels…",
+              "command": "CleanPixels"
+            },
+            {
               "kind": "separator"
             },
             {
