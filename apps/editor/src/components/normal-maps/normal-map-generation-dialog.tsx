@@ -9,7 +9,8 @@ import {
   LIGHT_MASK_LIMITS,
   type NormalMapManager,
 } from "$/managers/normal-maps/normal-map-manager";
-import { Button, ControlFlow, FontRole, Slider } from "@xprite/ui";
+import { Button, ControlFlow, FontRole, ProgressBar, Slider, Text, TextVariant } from "@xprite/ui";
+import { RASTER_SCALE } from "@xprite/ui/canvas";
 
 import styles from "$/components/normal-maps/normal-maps.module.css";
 
@@ -18,7 +19,7 @@ const GENERATOR_DIALOG_WIDTH = 660;
 const GENERATOR_DIALOG_HEIGHT = 700;
 const STRENGTH_STEP_MIN = 0;
 export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManager }) {
-  const { options } = manager;
+  const { options, batchRunning: locked } = manager;
   const slider = (
     key: string,
     label: string,
@@ -31,7 +32,7 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
     key,
     label,
     type: "custom",
-    disabled,
+    disabled: locked || disabled,
     render: (placement) => (
       <Slider
         {...(placement.bounds
@@ -42,7 +43,7 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
         min={STRENGTH_STEP_MIN}
         max={max}
         aria-label={label}
-        disabled={disabled}
+        disabled={locked || disabled}
         onValueChange={onChange}
       />
     ),
@@ -71,14 +72,23 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
       key === "strength" || key === "cavity" ? "%" : "",
     );
   const accept = () => {
-    if (manager.canApply ? manager.apply() : !manager.generating && !manager.error)
-      manager.closeGeneration();
+    if (manager.canApply) void manager.apply(true);
+    else if (!manager.generating && !locked && !manager.error) manager.closeGeneration();
   };
+  const batchProgressText = manager.batchProgress
+    ? tUi(manager.generatingMask ? "normal.batch.maskProgress" : "normal.batch.progress", {
+        value1: manager.batchProgress.completed,
+        value2: manager.batchProgress.total,
+      })
+    : "";
   return (
     <FormDialog
       open
       onOpenChange={(open) => {
-        if (!open) manager.closeGeneration();
+        if (!open) {
+          if (locked) manager.cancelBatch();
+          else manager.closeGeneration();
+        }
       }}
       title={tUi(manager.generatingMask ? "normal.mask.generate" : "normal.generate.title")}
       width={GENERATOR_DIALOG_WIDTH}
@@ -94,28 +104,72 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
             processing={manager.generating}
             lighting={manager.view === NormalPreviewView.Light ? manager.generationLighting : null}
           />
-          <ControlFlow className={styles.viewModes} style={{ gap: 0, flexWrap: "nowrap" }}>
-            {[
-              { value: NormalPreviewView.Original, label: tUi("normal.view.original") },
-              {
-                value: NormalPreviewView.Normal,
-                label: tUi(manager.generatingMask ? "normal.mask" : "normal.view.normal"),
-              },
-              { value: NormalPreviewView.Light, label: tUi("normal.view.light") },
-            ].map(({ value, label }) => (
-              <Button
-                key={value}
-                text={label}
-                aria-label={label}
-                font={FontRole.Compact}
-                part="buttonset_item_normal"
-                hotPart="buttonset_item_hot"
-                selected={manager.view === value}
-                aria-pressed={manager.view === value}
-                onClick={() => manager.setView(value)}
+          <div className={styles.previewBar}>
+            <ControlFlow className={styles.viewModes} style={{ gap: 0, flexWrap: "nowrap" }}>
+              {[
+                { value: NormalPreviewView.Original, label: tUi("normal.view.original") },
+                {
+                  value: NormalPreviewView.Normal,
+                  label: tUi(manager.generatingMask ? "normal.mask" : "normal.view.normal"),
+                },
+                { value: NormalPreviewView.Light, label: tUi("normal.view.light") },
+              ].map(({ value, label }) => (
+                <Button
+                  key={value}
+                  text={label}
+                  aria-label={label}
+                  font={FontRole.Compact}
+                  part="buttonset_item_normal"
+                  hotPart="buttonset_item_hot"
+                  selected={manager.view === value}
+                  aria-pressed={manager.view === value}
+                  onClick={() => manager.setView(value)}
+                />
+              ))}
+            </ControlFlow>
+            {manager.targetFrameCount > 1 && (
+              <div className={styles.frameStepper}>
+                <Button
+                  icon="ani_previous"
+                  tintIcon
+                  aria-label={tUi("normal.preview.prevFrame")}
+                  part="buttonset_item_normal"
+                  hotPart="buttonset_item_hot"
+                  disabled={locked}
+                  onClick={() => manager.stepPreviewFrame(-1)}
+                />
+                <span className={styles.frameStepperLabel}>
+                  <Text variant={TextVariant.Inline} scale={RASTER_SCALE}>
+                    {tUi("normal.preview.frame", {
+                      value1: manager.previewFrame + 1,
+                      value2: manager.previewFrameIndex + 1,
+                      value3: manager.targetFrameCount,
+                    })}
+                  </Text>
+                </span>
+                <Button
+                  icon="ani_next"
+                  tintIcon
+                  aria-label={tUi("normal.preview.nextFrame")}
+                  part="buttonset_item_normal"
+                  hotPart="buttonset_item_hot"
+                  disabled={locked}
+                  onClick={() => manager.stepPreviewFrame(1)}
+                />
+              </div>
+            )}
+          </div>
+          {manager.batchProgress && (
+            <div className={styles.batchProgress}>
+              <Text variant={TextVariant.Inline} scale={RASTER_SCALE}>
+                {batchProgressText}
+              </Text>
+              <ProgressBar
+                label={batchProgressText}
+                value={manager.batchProgress.completed / Math.max(1, manager.batchProgress.total)}
               />
-            ))}
-          </ControlFlow>
+            </div>
+          )}
         </>
       }
       fields={[
@@ -125,8 +179,22 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
           type: "select",
           value: manager.sourceId,
           options: manager.sourceChoices,
+          disabled: locked,
           onChange: manager.setSourceId,
         },
+        ...(manager.showFrameScope
+          ? [
+              {
+                key: "frames",
+                label: tUi("normal.frames"),
+                type: "select" as const,
+                value: manager.frameScope,
+                options: manager.frameScopeChoices,
+                disabled: locked,
+                onChange: manager.setFrameScope,
+              },
+            ]
+          : []),
         ...(manager.generatingMask
           ? [
               maskSlider("strength", tUi("normal.mask.shading")),
@@ -140,6 +208,7 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
                 label: tUi("normal.preset"),
                 type: "select",
                 value: options.preset,
+                disabled: locked,
                 options: [
                   { value: NormalPreset.Architecture, label: tUi("normal.preset.architecture") },
                   { value: NormalPreset.Character, label: tUi("normal.preset.character") },
@@ -164,7 +233,7 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
                 type: "select",
                 value: manager.shadingSourceId,
                 options: manager.shadingSourceChoices,
-                disabled: options.paintedLightInfluence === 0,
+                disabled: locked || options.paintedLightInfluence === 0,
                 onChange: manager.setShadingSourceId,
               },
               {
@@ -172,6 +241,7 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
                 label: tUi("normal.mergeOutlines"),
                 type: "checkbox",
                 value: options.mergeOutlines,
+                disabled: locked,
                 onChange: (mergeOutlines) => manager.setOptions({ mergeOutlines }),
               },
               {
@@ -179,21 +249,25 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
                 label: tUi("normal.invertY"),
                 type: "checkbox",
                 value: options.invertY,
+                disabled: locked,
                 onChange: (invertY) => manager.setOptions({ invertY }),
               },
             ] satisfies FormField[])),
       ]}
       overlay={<NormalMapError error={manager.error} />}
       actions={[
-        { label: "OK", onClick: accept, disabled: manager.generating || !!manager.error },
+        { label: "OK", onClick: accept, disabled: locked || manager.generating || !!manager.error },
         {
           label: "Apply",
           onClick: () => {
-            manager.apply();
+            void manager.apply(false);
           },
           disabled: !manager.canApply,
         },
-        { label: "Cancel", onClick: manager.closeGeneration },
+        {
+          label: locked ? tUi("normal.batch.stop") : "Cancel",
+          onClick: locked ? manager.cancelBatch : manager.closeGeneration,
+        },
       ]}
     />
   );

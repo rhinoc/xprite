@@ -17,34 +17,61 @@ const pixel = (rgba: number[]): PixelBuffer => ({
 });
 
 describe("normal map document transactions", () => {
-  it("prepares a standalone RGB project with an editable original and raw normal channels", () => {
-    const source = pixel([80, 120, 160, 128]);
-    const normals = pixel([128, 128, 255, 128]);
-    const project = createNormalMapProject(source, normals, "Original", 90);
+  it("prepares a standalone RGB project across multiple frames with editable originals and raw channels", () => {
+    const source0 = pixel([80, 120, 160, 128]);
+    const normals0 = pixel([128, 128, 255, 128]);
+    const source1 = pixel([0, 0, 0, 0]);
+    const project = createNormalMapProject(
+      [
+        { source: source0, pixels: normals0, duration: 90 },
+        { source: source1, pixels: null, duration: 120 },
+      ],
+      "Original",
+    );
     assert.equal(project.timeline.colorDepth, 32);
     assert.deepEqual(project.timeline.colorProfile, { type: "srgb" });
+    assert.equal(project.timeline.frames.length, 2);
     assert.equal(project.timeline.frames[0].duration, 90);
+    assert.equal(project.timeline.frames[1].duration, 120);
     assert.equal(project.timeline.layers.length, 2);
-    assert.deepEqual(project.timeline.frames[0].cels[0]!.pixels.data, source.data);
-    assert.deepEqual(project.timeline.frames[0].cels[1]!.pixels.data, normals.data);
-    assert.notEqual(project.timeline.frames[0].cels[0]!.pixels.data, source.data);
+    assert.deepEqual(project.timeline.frames[0].cels[0]!.pixels.data, source0.data);
+    assert.deepEqual(project.timeline.frames[0].cels[1]!.pixels.data, normals0.data);
+    assert.notEqual(project.timeline.frames[0].cels[0]!.pixels.data, source0.data);
+    assert.equal(project.timeline.frames[1].cels[1], null);
   });
-  it("adds a separate layer, updates it by identity, and undoes each application atomically", () => {
+  it("adds a separate layer, updates partial frame ranges and empty cels, and undoes atomically", () => {
     const source = pixel([80, 120, 160, 255]);
     const core = new RasterEditor(source);
-    const first = pixel([128, 128, 255, 255]);
-    const second = pixel([128, 255, 128, 255]);
-    const id = core.imageEditing.applyNormalMap([{ frame: 0, pixels: first }])!;
+    core.timeline.addFrame();
+    const first0 = pixel([128, 128, 255, 255]);
+    const first1 = pixel([200, 128, 255, 255]);
+    const second0 = pixel([128, 255, 128, 255]);
+    const id = core.imageEditing.applyNormalMap([
+      { frame: 0, pixels: first0 },
+      { frame: 1, pixels: first1 },
+    ])!;
     assert.equal(core.getSnapshot().document!.timeline!.layers.length, 2);
-    core.imageEditing.applyNormalMap([{ frame: 0, pixels: second }], "Normal", id);
+    core.imageEditing.applyNormalMap(
+      [
+        { frame: 0, pixels: second0 },
+        { frame: 1, pixels: null },
+      ],
+      "Normal",
+      id,
+    );
     const document = core.getSnapshot().document!;
     assert.equal(document.timeline!.layers.length, 2);
     assert.deepEqual(normalMapSourcePixels(document, 0, null, [id]).data, source.data);
-    assert.deepEqual(normalMapSourcePixels(document, 0, id, [], false).data, second.data);
+    assert.deepEqual(normalMapSourcePixels(document, 0, id, [], false).data, second0.data);
+    assert.equal(document.timeline!.frames[1].cels[1], null);
     core.history.undo();
     assert.deepEqual(
       normalMapSourcePixels(core.getSnapshot().document!, 0, id, [], false).data,
-      first.data,
+      first0.data,
+    );
+    assert.deepEqual(
+      normalMapSourcePixels(core.getSnapshot().document!, 1, id, [], false).data,
+      first1.data,
     );
     core.history.undo();
     assert.equal(core.getSnapshot().document!.timeline!.layers.length, 1);

@@ -38,23 +38,33 @@ export class NormalMapDocumentError extends Error {
 }
 export interface NormalMapFrameOutput {
   frame: number;
-  pixels: PixelBuffer;
+  pixels: PixelBuffer | null;
+}
+export interface NormalMapProjectFrame {
+  source: PixelBuffer;
+  pixels: PixelBuffer | null;
+  duration: number;
 }
 
 /** An independent RGB result keeps the original artwork available for lighting and repainting. */
 export function createNormalMapProject(
-  source: PixelBuffer,
-  pixels: PixelBuffer,
+  frames: readonly NormalMapProjectFrame[],
   sourceName: string,
-  duration: number,
   outputName = DEFAULT_NORMAL_LAYER_NAME,
 ): EditorProject {
-  assertPixelBuffer(source);
+  if (!frames.length) throw new Error("No normal map frames were generated");
+  const first = frames[0].source;
+  assertPixelBuffer(first);
+  for (const item of frames) {
+    assertPixelBuffer(item.source);
+    if (item.source.width !== first.width || item.source.height !== first.height)
+      throw new RangeError("Normal map frame dimensions do not match the sprite");
+  }
   const document: EditorDocument = {
     name: outputName,
-    width: source.width,
-    height: source.height,
-    layer: { name: sourceName, pixels: source, x: 0, y: 0, visible: true, locked: false },
+    width: first.width,
+    height: first.height,
+    layer: { name: sourceName, pixels: first, x: 0, y: 0, visible: true, locked: false },
     selection: null,
     timeline: {
       colorDepth: 32,
@@ -72,24 +82,26 @@ export function createNormalMapProject(
           flags: LAYER_VISIBLE | LAYER_EDITABLE,
         },
       ],
-      frames: [
-        {
-          duration,
-          cels: [
-            {
-              pixels: { ...source, data: source.data.slice() },
-              x: 0,
-              y: 0,
-              opacity: UINT8_MAX,
-              zIndex: 0,
-            },
-          ],
-        },
-      ],
+      frames: frames.map((item) => ({
+        duration: item.duration,
+        cels: [
+          {
+            pixels: { ...item.source, data: item.source.data.slice() },
+            x: 0,
+            y: 0,
+            opacity: UINT8_MAX,
+            zIndex: 0,
+          },
+        ],
+      })),
     },
   };
-  writeNormalMapLayer(document, [{ frame: 0, pixels }], outputName);
-  return { image: pixels, timeline: document.timeline! };
+  writeNormalMapLayer(
+    document,
+    frames.map((item, frame) => ({ frame, pixels: item.pixels })),
+    outputName,
+  );
+  return { image: frames[0].pixels ?? first, timeline: document.timeline! };
 }
 
 /** Data textures can share a document only when its color mode/profile preserve RGB bytes. */
@@ -164,13 +176,13 @@ export function writeNormalMapLayer(
     throw new Error("Normal map layers require RGB with a standard sRGB profile");
   if (!outputs.length) throw new Error("No normal map frames were generated");
   for (const { frame, pixels } of outputs) {
-    assertPixelBuffer(pixels);
-    if (
-      !timeline.frames[frame] ||
-      pixels.width !== document.width ||
-      pixels.height !== document.height
-    )
+    if (!timeline.frames[frame])
       throw new RangeError("Normal map frame dimensions do not match the sprite");
+    if (pixels !== null) {
+      assertPixelBuffer(pixels);
+      if (pixels.width !== document.width || pixels.height !== document.height)
+        throw new RangeError("Normal map frame dimensions do not match the sprite");
+    }
   }
   let index = layerId ? timeline.layers.findIndex((layer) => layer.id === layerId) : -1;
   if (index >= 0 && (timeline.layers[index].kind !== "image" || !layerEditable(timeline, index)))
@@ -205,16 +217,18 @@ export function writeNormalMapLayer(
   }
   const byFrame = new Map(outputs.map((output) => [output.frame, output.pixels]));
   frames = frames.map((frame, at) => {
-    const pixels = byFrame.get(at);
-    if (!pixels) return frame;
+    if (!byFrame.has(at)) return frame;
+    const pixels = byFrame.get(at) ?? null;
     const cels = [...frame.cels];
-    cels[index] = {
-      pixels: { ...pixels, data: pixels.data.slice() },
-      x: 0,
-      y: 0,
-      opacity: UINT8_MAX,
-      zIndex: 0,
-    };
+    cels[index] = pixels
+      ? {
+          pixels: { ...pixels, data: pixels.data.slice() },
+          x: 0,
+          y: 0,
+          opacity: UINT8_MAX,
+          zIndex: 0,
+        }
+      : null;
     return { ...frame, cels };
   });
   document.timeline = { ...timeline, layers, frames, activeLayer: index, range: undefined };
