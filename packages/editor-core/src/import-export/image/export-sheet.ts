@@ -9,11 +9,16 @@ import {
   renderExportAnimation,
   type ExportAnimationFrame,
 } from "$/import-export/image/export-animation";
-import { exportGeometry, type ExportFileOptions } from "$/import-export/image/export-plan";
+import {
+  assertExportEncodingDimensions,
+  exportGeometry,
+  type ExportFileOptions,
+} from "$/import-export/image/export-plan";
 import { packAsepriteSheetRects } from "$/import-export/image/sheet-packing";
 import { sliceMetadataForExport } from "$/sprite/slice-metadata";
 import { timelineTags } from "$/timeline/operations/timeline-range";
 import { effectiveLayerVisible, layerAncestors } from "$/timeline/timeline";
+
 export enum SheetLayout {
   Horizontal = "horizontal",
   Vertical = "vertical",
@@ -446,8 +451,13 @@ export function renderSpriteSheet(doc: EditorDocument, o: SpriteSheetOptions): S
       if (previous >= 0) s.duplicate = previous;
     }
   });
-  const size = layoutSamples(samples, o),
-    pixels: PixelBuffer = { ...size, data: new Uint8ClampedArray(size.width * size.height * 4) };
+  const size = layoutSamples(samples, o);
+  if (o.imageEnabled)
+    assertExportEncodingDimensions(size.width, size.height, o.name, o.webpCompression);
+  const pixels: PixelBuffer = {
+    ...size,
+    data: new Uint8ClampedArray(size.width * size.height * 4),
+  };
   const names = new Set<string>();
   const frameData = samples.map((sample, index) => {
     const b = sample.bounds,

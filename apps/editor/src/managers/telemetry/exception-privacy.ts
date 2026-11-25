@@ -1,5 +1,6 @@
 import type { DiagnosticRecord } from "$/managers/ports/diagnostics";
 import type { TelemetryException } from "$/managers/ports/telemetry";
+import { telemetryAsepriteIssueCode } from "$/managers/telemetry/diagnostic-telemetry";
 
 const MAX_EXCEPTION_MESSAGE_LENGTH = 512;
 const MAX_EXCEPTION_STACK_LENGTH = 12_000;
@@ -26,18 +27,23 @@ export function telemetryException(
   record: DiagnosticRecord,
   documentNames: readonly string[],
 ): TelemetryException {
-  const cause = record.details?.causeMessage;
+  const asepriteIssueCode = telemetryAsepriteIssueCode(record);
+  const asepriteMessage =
+    record.name === "AsepriteCodecError" && Array.isArray(record.details?.codecIssues)
+      ? `Aseprite file rejected (${asepriteIssueCode ?? "unknown"})`
+      : undefined;
+  const cause = asepriteMessage ? undefined : record.details?.causeMessage;
   const message = scrub(
-    typeof cause === "string" && cause ? `${record.message} (cause: ${cause})` : record.message,
+    asepriteMessage ??
+      (typeof cause === "string" && cause ? `${record.message} (cause: ${cause})` : record.message),
     documentNames,
   ).slice(0, MAX_EXCEPTION_MESSAGE_LENGTH);
   return {
     name: /^[A-Za-z][A-Za-z0-9]*Error$|^Error$/.test(record.name) ? record.name : "Error",
     message,
-    ...(record.stack
-      ? {
-          stack: scrub(record.stack, documentNames).slice(0, MAX_EXCEPTION_STACK_LENGTH),
-        }
+    // A parser message can span lines inside Error.stack; do not forward that text either.
+    ...(!asepriteMessage && record.stack
+      ? { stack: scrub(record.stack, documentNames).slice(0, MAX_EXCEPTION_STACK_LENGTH) }
       : {}),
   };
 }

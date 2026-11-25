@@ -1,3 +1,4 @@
+import { localizeAsepriteRejection } from "$/adapters/files/aseprite-errors";
 import { downloadAfterFileWriteFailure } from "$/adapters/files/file-write-download";
 import { fileWritePermissionRefused } from "$/adapters/files/file-write-permission";
 import { encodePng } from "$/adapters/files/images";
@@ -243,7 +244,7 @@ export async function annotateAsepriteDecodeFailure(
   fileName: string,
 ): Promise<Error> {
   const diagnosticArtifact = await persistFailedAsepriteArtifact(bytes, fileName);
-  return withDiagnosticDetails(reason, {
+  return withDiagnosticDetails(localizeAsepriteRejection(reason), {
     aseprite: { fileName, byteLength: bytes.byteLength },
     ...(diagnosticArtifact ? { developmentArtifact: diagnosticArtifact } : {}),
   });

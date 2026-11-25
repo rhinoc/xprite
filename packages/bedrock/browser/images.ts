@@ -1,3 +1,8 @@
+import {
+  CANVAS_IMAGE_MAX_DIMENSION,
+  CANVAS_IMAGE_MAX_PIXELS,
+  imageDimensionsWithinLimits,
+} from "$common/image-dimensions";
 import { hasPngSignature, readPng } from "$common/png";
 
 export interface RgbaImageData {
@@ -7,8 +12,8 @@ export interface RgbaImageData {
 }
 
 /** Conservative limits used before allocating a canvas or an RGBA buffer. */
-export const DEFAULT_IMAGE_MAX_DIMENSION = 16_384;
-export const DEFAULT_IMAGE_MAX_PIXELS = 67_108_864;
+export const DEFAULT_IMAGE_MAX_DIMENSION = CANVAS_IMAGE_MAX_DIMENSION;
+export const DEFAULT_IMAGE_MAX_PIXELS = CANVAS_IMAGE_MAX_PIXELS;
 
 export interface ImageDecodeOptions {
   /** Maximum width or height. Defaults to {@link DEFAULT_IMAGE_MAX_DIMENSION}. */
@@ -82,13 +87,10 @@ function assertImageDimensions(
     );
   }
   const limits = limitsFor(options);
-  const pixels = width * height;
   if (
     width > limits.maxDimension ||
     height > limits.maxDimension ||
-    width > limits.maxWidth ||
-    height > limits.maxHeight ||
-    pixels > limits.maxPixels
+    !imageDimensionsWithinLimits(width, height, limits)
   ) {
     throw new ImageDimensionError(
       width,

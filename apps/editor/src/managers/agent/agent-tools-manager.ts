@@ -34,7 +34,7 @@ import {
   compositeDocumentFrame,
   effectiveLayerVisible,
   layerEditable,
-  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_PIXELS,
   paletteColorHex,
   paletteUsageAcrossFrames,
   quantizePalette,
@@ -57,6 +57,9 @@ import {
   encodeGif,
   isGifData,
   renderExportAnimation,
+  exportGeometry,
+  assertExportEncodingDimensions,
+  ImageExportLimitError,
   type ExportFileOptions,
 } from "@xprite/editor-core/import-export";
 import { SessionOutcome, SessionSaveIntent } from "@xprite/editor-core/session";
@@ -1131,6 +1134,25 @@ export class AgentToolsManager {
         layers: "visible",
         frame: indices[0],
       };
+      const geometry = exportGeometry(doc, options);
+      const layout =
+        format === AgentFileFormat.Spritesheet && input.layout !== undefined
+          ? name(input.layout, "layout")
+          : "strip";
+      if (format === AgentFileFormat.Spritesheet && layout !== "strip" && layout !== "grid")
+        throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Invalid layout");
+      const columns = layout === "grid" ? Math.ceil(Math.sqrt(indices.length)) : indices.length;
+      const rows = Math.ceil(indices.length / columns);
+      const width = geometry.width * columns,
+        height = geometry.height * rows;
+      if (format === AgentFileFormat.Spritesheet) {
+        assertExportEncodingDimensions(width, height, `${baseName}-sheet.png`);
+        if (width * height > MAX_IMAGE_PIXELS)
+          throw new BatchEditError(
+            BatchEditErrorCode.InvalidInput,
+            "Sprite sheet exceeds the export pixel budget. Reduce scale or export fewer frames.",
+          );
+      }
       const frames = indices.map(
         (frameIndex) => renderExportAnimation(doc, { ...options, frame: frameIndex })[0],
       );
@@ -1156,20 +1178,8 @@ export class AgentToolsManager {
           },
         };
       }
-      const layout = input.layout === undefined ? "strip" : name(input.layout, "layout");
-      if (layout !== "strip" && layout !== "grid")
-        throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Invalid layout");
-      const frameWidth = frames[0].pixels.width,
-        frameHeight = frames[0].pixels.height;
-      const columns = layout === "grid" ? Math.ceil(Math.sqrt(frames.length)) : frames.length;
-      const rows = Math.ceil(frames.length / columns);
-      const width = frameWidth * columns,
-        height = frameHeight * rows;
-      if (width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION)
-        throw new BatchEditError(
-          BatchEditErrorCode.InvalidInput,
-          "Sprite sheet exceeds the image dimension limit",
-        );
+      const frameWidth = geometry.width,
+        frameHeight = geometry.height;
       const output: PixelBuffer = {
         width,
         height,
@@ -1218,6 +1228,7 @@ export class AgentToolsManager {
       throw new BatchEditError(BatchEditErrorCode.InvalidInput, "Unsupported export format");
     let bytes: Uint8Array;
     if (format === AgentFileFormat.Png) {
+      assertExportEncodingDimensions(doc.width, doc.height, `${baseName}.png`);
       const read = this.pixels(
         slot,
         { ...input, rect: undefined, layerId: undefined },
@@ -1840,7 +1851,12 @@ export class AgentToolsManager {
       return {
         ok: false,
         error: {
-          code: reason instanceof BatchEditError ? reason.code : "operation_failed",
+          code:
+            reason instanceof BatchEditError
+              ? reason.code
+              : reason instanceof ImageExportLimitError
+                ? BatchEditErrorCode.InvalidInput
+                : "operation_failed",
           message: reason instanceof Error ? reason.message : "Operation failed",
         },
       };

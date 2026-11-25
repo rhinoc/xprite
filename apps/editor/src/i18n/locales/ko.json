@@ -2570,5 +2570,12 @@
   "ui.file.output.recovery.failed": "파일은 저장되었지만 로컬 복구 데이터는 저장되지 않았습니다. 문서를 열어 두세요.",
   "ui.file.download.recovery.failed": "사본 다운로드를 시작했지만 로컬 복구 데이터는 저장되지 않았습니다. 문서를 열어 두세요.",
   "ui.file.output.receipt.missing": "파일 저장이 완료되었지만 출력 확인 정보가 없습니다",
-  "ui.recovery.workspace.failed.status": "다른 문서 또는 작업 공간 레이아웃이 이 브라우저에 저장되지 않았습니다."
+  "ui.recovery.workspace.failed.status": "다른 문서 또는 작업 공간 레이아웃이 이 브라우저에 저장되지 않았습니다.",
+  "ui.export.output.limit": "출력 {width} × {height}이(가) 내보내기 제한을 초과합니다. 크기 비율을 줄이거나 더 작은 영역을 내보내세요.",
+  "ui.aseprite.rejection": "이 Aseprite 파일을 열 수 없습니다. {reason}",
+  "ui.aseprite.rejection.resource": "프로젝트가 지원되는 리소스 제한을 초과합니다.",
+  "ui.aseprite.rejection.truncated": "파일이 불완전한 것 같습니다. Aseprite에서 다시 저장해 보세요.",
+  "ui.aseprite.rejection.unsupported": "파일이 지원되지 않는 기능을 사용합니다.",
+  "ui.aseprite.rejection.invalid": "파일 구조를 읽을 수 없습니다. Aseprite에서 다시 저장해 보세요.",
+  "ui.aseprite.rejection.unknown": "파일 검증에 실패했습니다."
 }

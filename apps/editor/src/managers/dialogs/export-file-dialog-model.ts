@@ -4,10 +4,11 @@ import { useDialogEditorSource } from "$/managers/dialogs/internal-editor-source
 import { defaultExportFileOptions } from "$/managers/files/export-file-options";
 import { ImageExporterId, normalizeImageExportOptions } from "$/managers/files/exporters/image";
 import { inspectImageEncodingCapabilities } from "$/managers/files/image-encoding-capabilities";
+import { validateImageExport } from "$/managers/files/image-export-validation";
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preferences";
 import type { ExportExtensionDefaults } from "$/managers/preferences/file-preferences";
-import { exportFrameOrder, exportGeometry, timelineTags } from "@xprite/editor-core";
+import { ImageExportLimitError, timelineTags } from "@xprite/editor-core";
 import type { ExportFileOptions } from "@xprite/editor-core";
 import { AsepriteTagDirection } from "@xprite/editor-core/import-export";
 import { MAX_WEBP_LOOP_COUNT, WebpCompression } from "@xprite/editor-core/import-export";
@@ -155,10 +156,14 @@ export function useExportFileDialogModel(
       )
         return { valid: false, frameCount: 0 };
       try {
-        exportGeometry(document, options);
-        return { valid: true, frameCount: exportFrameOrder(document, options).length };
-      } catch {
-        return { valid: false, frameCount: 0 };
+        const frameCount = validateImageExport(document, options);
+        return { valid: true, frameCount, error: undefined };
+      } catch (error) {
+        return {
+          valid: false,
+          frameCount: 0,
+          error: error instanceof ImageExportLimitError ? error.message : undefined,
+        };
       }
     },
   };

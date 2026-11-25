@@ -2570,5 +2570,12 @@
   "ui.file.output.recovery.failed": "The file was saved. Local recovery is not saved; keep this document open.",
   "ui.file.download.recovery.failed": "A copy download was started. Local recovery is not saved; keep this document open.",
   "ui.file.output.receipt.missing": "File save completed without an output receipt",
-  "ui.recovery.workspace.failed.status": "Other documents or the workspace layout are not saved in this browser."
+  "ui.recovery.workspace.failed.status": "Other documents or the workspace layout are not saved in this browser.",
+  "ui.export.output.limit": "Output {width} × {height} exceeds the export limit. Reduce Resize (%) or export a smaller area.",
+  "ui.aseprite.rejection": "Could not open this Aseprite file. {reason}",
+  "ui.aseprite.rejection.resource": "The project exceeds the supported resource limits.",
+  "ui.aseprite.rejection.truncated": "The file appears incomplete. Try saving it again in Aseprite.",
+  "ui.aseprite.rejection.unsupported": "The file uses an unsupported feature.",
+  "ui.aseprite.rejection.invalid": "The file structure could not be read. Try saving it again in Aseprite.",
+  "ui.aseprite.rejection.unknown": "The file failed validation."
 }

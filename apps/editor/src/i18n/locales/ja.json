@@ -2570,5 +2570,12 @@
   "ui.file.output.recovery.failed": "ファイルは保存されましたが、ローカル復元用データは未保存です。ドキュメントを開いたままにしてください。",
   "ui.file.download.recovery.failed": "コピーのダウンロードを開始しましたが、ローカル復元用データは未保存です。ドキュメントを開いたままにしてください。",
   "ui.file.output.receipt.missing": "ファイル保存は完了しましたが、出力の確認情報がありません",
-  "ui.recovery.workspace.failed.status": "他のドキュメントまたはワークスペースの配置がこのブラウザーに保存されていません。"
+  "ui.recovery.workspace.failed.status": "他のドキュメントまたはワークスペースの配置がこのブラウザーに保存されていません。",
+  "ui.export.output.limit": "出力 {width} × {height} は書き出し上限を超えています。拡大率を下げるか、範囲を小さくしてください。",
+  "ui.aseprite.rejection": "この Aseprite ファイルを開けませんでした。{reason}",
+  "ui.aseprite.rejection.resource": "プロジェクトが対応するリソース上限を超えています。",
+  "ui.aseprite.rejection.truncated": "ファイルが不完全なようです。Aseprite で保存し直してください。",
+  "ui.aseprite.rejection.unsupported": "ファイルに未対応の機能が含まれています。",
+  "ui.aseprite.rejection.invalid": "ファイル構造を読み取れません。Aseprite で保存し直してください。",
+  "ui.aseprite.rejection.unknown": "ファイルの検証に失敗しました。"
 }

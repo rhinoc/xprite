@@ -508,6 +508,7 @@ export function ExportFileDialog({
       title={embedded ? tUi("ui.export.images.animation") : "Export File"}
       width={480}
       layoutMode="flow"
+      message={inspection.error}
       helpUrl="https://www.aseprite.org/docs/exporting/"
       fields={embedded ? fields.filter((field) => field.key !== "format") : fields}
       onOpenChange={(open) => {

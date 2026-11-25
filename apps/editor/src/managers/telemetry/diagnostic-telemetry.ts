@@ -7,6 +7,7 @@ import {
 } from "$/managers/ports/diagnostics";
 import { PwaOfflineStatus } from "$/managers/ports/pwa";
 import type { TelemetryProperties } from "$/managers/ports/telemetry";
+import { AsepriteIssueCode } from "@xprite/editor-core/import-export";
 
 enum WorkerState {
   Parsed = "parsed",
@@ -114,6 +115,22 @@ function projectDetails(
   return properties;
 }
 
+const MAX_CODEC_ISSUES = 256;
+
+/** Only fixed enum values leave local codec diagnostics; no parser messages or file metadata. */
+export function telemetryAsepriteIssueCode(
+  record: DiagnosticRecord,
+): AsepriteIssueCode | undefined {
+  if (record.name !== "AsepriteCodecError" || !Array.isArray(record.details?.codecIssues)) return;
+  const issues = record.details.codecIssues.slice(0, MAX_CODEC_ISSUES);
+  const allowed = Object.values(AsepriteIssueCode);
+  const valid = issues.filter(
+    (issue): issue is { code: AsepriteIssueCode; fatal?: boolean } =>
+      !!issue && typeof issue === "object" && allowed.includes(issue.code),
+  );
+  return (valid.find((issue) => issue.fatal === true) ?? valid[0])?.code;
+}
+
 /** Only fixed diagnostic fields cross the telemetry boundary; artwork and arbitrary details stay local. */
 export function telemetryDiagnosticDetails(record: DiagnosticRecord): TelemetryProperties {
   const opfsDetails = record.details?.opfs as Record<string, unknown> | undefined;
@@ -139,7 +156,9 @@ export function telemetryDiagnosticDetails(record: DiagnosticRecord): TelemetryP
     if (pwa.pwa_stage && typeof path === "string" && ASSET_PATH_PATTERN.test(path))
       pwa[`pwa_${key}`] = path;
   }
+  const asepriteIssueCode = telemetryAsepriteIssueCode(record);
   return {
+    ...(asepriteIssueCode ? { aseprite_issue_code: asepriteIssueCode } : {}),
     ...opfs,
     ...pwa,
     ...projectDetails(

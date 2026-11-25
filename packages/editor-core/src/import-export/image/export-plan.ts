@@ -14,6 +14,10 @@ import {
 import { assertAnimationLoopCount } from "$/timeline/animation-loop";
 import { layerSubtree } from "$/timeline/layer-operations";
 import { renderTimelineFrame, layerAncestors } from "$/timeline/timeline";
+import {
+  CANVAS_IMAGE_LIMITS,
+  imageDimensionsWithinLimits,
+} from "@xprite/bedrock/common/image-dimensions";
 
 /** Aseprite Export File settings, shared by raster, animation and sheet output. */
 export interface ExportFileOptions {
@@ -37,6 +41,54 @@ export interface ExportFileOptions {
   webpCompression?: WebpCompression;
   /** Opaque sRGB JPEG background, formatted as #rrggbb. */
   jpegMatte?: string;
+}
+
+/** A final-output constraint, not a restriction on intermediate sheet samples. */
+export class ImageExportLimitError extends RangeError {
+  constructor(
+    readonly width: number,
+    readonly height: number,
+  ) {
+    super(
+      `Output ${width} × ${height} exceeds the image limit. Reduce Resize (%) or export a smaller area.`,
+    );
+    this.name = "ImageExportLimitError";
+  }
+}
+
+export function assertExportEncodingDimensions(
+  width: number,
+  height: number,
+  name: string,
+  compression?: WebpCompression,
+): void {
+  if (/\.webp$/i.test(name.trim()))
+    assertWebpDimensions(width, height, compression === WebpCompression.Lossy);
+  // PNG/JPEG use the browser canvas encoder. GIF/APNG use portable codecs;
+  // WebP has its own lossless/lossy bounds in exportGeometry and its encoder.
+  if (
+    /\.(png|jpe?g)$/i.test(name.trim()) &&
+    !imageDimensionsWithinLimits(width, height, CANVAS_IMAGE_LIMITS)
+  )
+    throw new ImageExportLimitError(width, height);
+}
+
+/** Validate final animation/sequence output before any pixel rendering. */
+export function inspectExportOutput(
+  document: EditorDocument,
+  options: ExportFileOptions,
+  frameCount: number,
+): ReturnType<typeof exportGeometry> {
+  const geometry = exportGeometry(document, options);
+  assertExportEncodingDimensions(
+    geometry.width,
+    geometry.height,
+    options.name,
+    options.webpCompression,
+  );
+  if (geometry.width * geometry.height * frameCount > MAX_IMAGE_PIXELS)
+    throw new ImageExportLimitError(geometry.width, geometry.height);
+  return geometry;
 }
 
 export function exportGeometry(
@@ -107,7 +159,7 @@ export function exportGeometry(
     height > MAX_IMAGE_DIMENSION ||
     width * height > MAX_IMAGE_PIXELS
   )
-    throw new RangeError("Export dimensions exceed the image limit.");
+    throw new ImageExportLimitError(width, height);
   return { bounds, width, height };
 }
 
