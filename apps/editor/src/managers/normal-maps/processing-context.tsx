@@ -24,6 +24,7 @@ export function NormalMapProcessingProvider({
     </Context.Provider>
   );
 }
+export const useNormalMapProcessorFactory = () => useContext(Context);
 export const useNormalMapLightRendererFactory = () => useContext(RenderingContext);
 export function useNormalMapProcessor(enabled: boolean) {
   const create = useContext(Context);

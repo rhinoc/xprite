@@ -31,8 +31,33 @@
   background-size: 16px 16px;
 }
 
+.previewBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-4, 8px);
+}
+
 .viewModes {
   justify-content: center;
+}
+
+.frameStepper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-2, 4px);
+}
+
+.frameStepperLabel {
+  padding: 0 var(--ui-space-2, 4px);
+  white-space: nowrap;
+}
+
+.batchProgress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2, 4px);
 }
 
 .lightPosition {

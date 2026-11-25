@@ -6,10 +6,22 @@ import {
   type DialogEditorTarget,
 } from "$/managers/dialogs/internal-editor-source";
 import {
+  initialNormalMapFrameScope,
+  isPixelBufferTransparent,
+  NORMAL_FRAME_TAG_PREFIX,
+  NormalMapFrameScope,
+  pickNormalMapPreviewFrame,
+  resolveNormalMapFrames,
+  resolveSelectedTimelineFrames,
+  runNormalMapBatch,
+  type NormalMapBatchFrameResult,
+} from "$/managers/normal-maps/normal-map-batch";
+import {
   finishNormalMapAngleEstimate,
   patchNormalMapDraft,
   type NormalMapDraft,
 } from "$/managers/normal-maps/normal-map-draft";
+import { useNormalMapProcessorFactory } from "$/managers/normal-maps/processing-context";
 import type { NormalLightingScene } from "$/managers/normal-maps/use-normal-map-light-surface";
 import { useProcessedPixels } from "$/managers/normal-maps/use-processed-pixels";
 import { NormalMapProcessingOperation } from "$/managers/ports/normal-map-processing";
@@ -20,7 +32,6 @@ import {
   createNormalMapProject,
   DEFAULT_NORMAL_LAYER_NAME,
   DEFAULT_LIGHT_MASK_LAYER_NAME,
-  defaultLightMaskOptions,
   LIGHT_MASK_LIMITS,
   type LightMaskOptions,
   DEFAULT_NORMAL_SOURCE_LAYER_NAME,
@@ -34,7 +45,7 @@ import {
   NormalMapDocumentErrorCode,
   type NormalMapOptions,
 } from "@xprite/editor-core/image-editing";
-import { LAYER_REFERENCE, MAX_TIMELINE_LAYERS } from "@xprite/editor-core/timeline";
+import { LAYER_REFERENCE, MAX_TIMELINE_LAYERS, timelineTags } from "@xprite/editor-core/timeline";
 
 export {
   NormalMapPreset as NormalPreset,
@@ -49,6 +60,7 @@ const NORMAL_FLAT_SOURCE = "@flat";
 const LIGHT_MASK_LAYER_NAME = /(?:^|[ _-])light[ _-]mask$/i;
 const MASK_OUTPUT_PREFIX = "mask:";
 const NORMAL_LAYER_NAME = /(^normal(?: map)?$|[ _-]normal(?:s| map)?$|_n$)/i;
+const BATCH_PROGRESS_DELAY_MS = 150;
 export enum NormalPreviewView {
   Original = "original",
   Normal = "normal",
@@ -87,15 +99,27 @@ function renderSource(...args: Parameters<typeof normalMapSourcePixels>): {
 export function useNormalMapManager(enabled: boolean) {
   const source = useDialogEditorSource();
   const { workspace } = useEditorRuntimeManagerContext();
+  const createProcessor = useNormalMapProcessorFactory();
   const [target, setTarget] = useState<DialogEditorTarget | null>(null);
   const [generatingMask, setGeneratingMask] = useState(false);
-  const [maskOptions, setMaskOptions] = useState(defaultLightMaskOptions);
+  const [maskOptions, setMaskOptions] = useState(() => workspace.normalMapPreferences.maskOptions);
   const [maskId, setMaskId] = useState(NORMAL_FLAT_SOURCE);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [sourceId, setSourceId] = useState(NORMAL_VISIBLE_SOURCE);
   const [shadingSourceId, setShadingSourceId] = useState(PAINTED_LIGHT_FROM_SOURCE);
   const [diffuseId, setDiffuseId] = useState(NORMAL_VISIBLE_SOURCE);
   const [normalId, setNormalId] = useState(NORMAL_FLAT_SOURCE);
+  const [frameScope, setFrameScopeState] = useState<string>(
+    () => workspace.normalMapPreferences.frameScope,
+  );
+  const [selectedFramesSnapshot, setSelectedFramesSnapshot] = useState<number[]>([]);
+  const [previewFrameState, setPreviewFrameState] = useState(0);
+  const [batchProgress, setBatchProgress] = useState<{ completed: number; total: number } | null>(
+    null,
+  );
+  const [batchProgressVisible, setBatchProgressVisible] = useState(false);
+  const batchController = useRef<{ abort(): void } | null>(null);
+  const batchRunning = batchProgress !== null;
   const [draft, setDraft] = useState<NormalMapDraft>(() => ({
     options: workspace.normalMapPreferences.options,
     manualAngle: workspace.normalMapPreferences.hasManualPaintedLightAngle,
@@ -107,6 +131,9 @@ export function useNormalMapManager(enabled: boolean) {
       current.estimateSource ? { ...current, estimateSource: null } : current,
     );
   };
+  const cancelBatch = useCallback(() => {
+    batchController.current?.abort();
+  }, []);
   const [view, setView] = useState(NormalPreviewView.Normal);
   const [light, setLight] = useState(() => defaultNormalMapLightOptions(1, 1));
   const [delightOn, setDelightOn] = useState(true);
@@ -125,10 +152,42 @@ export function useNormalMapManager(enabled: boolean) {
   const document = source.document;
   const timeline = document?.timeline;
   const frame = timeline?.activeFrame ?? 0;
+  const frameCount = timeline?.frames.length ?? 1;
   const revision = source.core?.getContentRevision() ?? 0;
   const generationOpen = enabled && !!target && source.isCurrentTarget(target);
   const lightingOpen = enabled && previewOpen && !!document;
   const layers = timeline?.layers ?? [];
+  const tags = useMemo(
+    () =>
+      timeline
+        ? timelineTags(timeline).map((tag) => ({ name: tag.name, from: tag.from, to: tag.to }))
+        : [],
+    [timeline],
+  );
+  const validSelectedFrames = useMemo(
+    () => selectedFramesSnapshot.filter((index) => index >= 0 && index < frameCount),
+    [selectedFramesSnapshot, frameCount],
+  );
+  const effectiveFrameScope = useMemo(() => {
+    if (frameCount <= 1) return NormalMapFrameScope.Current;
+    if (frameScope === NormalMapFrameScope.Selected && validSelectedFrames.length === 0)
+      return workspace.normalMapPreferences.frameScope;
+    if (
+      frameScope.startsWith(NORMAL_FRAME_TAG_PREFIX) &&
+      !tags.some((tag) => `${NORMAL_FRAME_TAG_PREFIX}${tag.name}` === frameScope)
+    )
+      return NormalMapFrameScope.Current;
+    return frameScope;
+  }, [frameCount, frameScope, validSelectedFrames.length, tags, workspace.normalMapPreferences]);
+  const targetFrames = useMemo(
+    () => resolveNormalMapFrames(effectiveFrameScope, frameCount, frame, validSelectedFrames, tags),
+    [effectiveFrameScope, frameCount, frame, validSelectedFrames, tags],
+  );
+  const previewFrame = useMemo(
+    () => pickNormalMapPreviewFrame(targetFrames, previewFrameState, frame),
+    [targetFrames, previewFrameState, frame],
+  );
+  const previewFramePosition = Math.max(0, targetFrames.indexOf(previewFrame));
   const outputKey = generatingMask ? MASK_OUTPUT_PREFIX + sourceId : sourceId;
   const textureLayerIds = layers
     .filter(
@@ -154,7 +213,9 @@ export function useNormalMapManager(enabled: boolean) {
     .join("\n");
   const sourceAvailable =
     sourceId === NORMAL_VISIBLE_SOURCE || layers.some((layer) => layer.id === sourceId);
+  useEffect(() => () => batchController.current?.abort(), []);
   useEffect(() => {
+    batchController.current?.abort();
     setTarget(null);
     setApplyError("");
     setAppliedRevision(null);
@@ -173,6 +234,7 @@ export function useNormalMapManager(enabled: boolean) {
   }, [source.owner, source.documentKey]);
   useEffect(() => {
     if (!enabled) {
+      batchController.current?.abort();
       setTarget(null);
       setPreviewOpen(false);
     }
@@ -190,7 +252,7 @@ export function useNormalMapManager(enabled: boolean) {
     if (!generationOpen || !document || !sourceAvailable) return EMPTY_SOURCE;
     return renderSource(
       document,
-      frame,
+      previewFrame,
       sourceId === NORMAL_VISIBLE_SOURCE ? null : sourceId,
       excludedIds,
     );
@@ -200,7 +262,7 @@ export function useNormalMapManager(enabled: boolean) {
     source.documentKey,
     snapshot?.pixelRevision,
     layerKey,
-    frame,
+    previewFrame,
     sourceId,
     sourceAvailable,
     excludedKey,
@@ -214,7 +276,7 @@ export function useNormalMapManager(enabled: boolean) {
     if (!useShadingLayer || !document) return EMPTY_SOURCE;
     if (excludedIds.includes(shadingSourceId))
       return { pixels: null, error: tUi("normal.source.missing") };
-    return renderSource(document, frame, shadingSourceId, excludedIds);
+    return renderSource(document, previewFrame, shadingSourceId, excludedIds);
   }, [
     useShadingLayer,
     shadingSourceId,
@@ -222,7 +284,7 @@ export function useNormalMapManager(enabled: boolean) {
     source.documentKey,
     snapshot?.pixelRevision,
     layerKey,
-    frame,
+    previewFrame,
     excludedKey,
   ]);
   const suggestPaintedLightAngle =
@@ -266,8 +328,7 @@ export function useNormalMapManager(enabled: boolean) {
       suggestPaintedLightAngle &&
       target &&
       source.isCurrentTarget(target) &&
-      source.core?.getContentRevision() === revision &&
-      source.core.getSnapshot().document?.timeline?.activeFrame === frame;
+      source.core?.getContentRevision() === revision;
     setDraft((current) =>
       finishNormalMapAngleEstimate(
         current,
@@ -283,7 +344,7 @@ export function useNormalMapManager(enabled: boolean) {
     source.owner,
     source.documentKey,
     revision,
-    frame,
+    previewFrame,
   ]);
   const diffuse = useMemo(() => {
     if (!lightingOpen || !document) return EMPTY_SOURCE;
@@ -304,8 +365,7 @@ export function useNormalMapManager(enabled: boolean) {
     excludedKey,
   ]);
   const normals = useMemo(() => {
-    if ((!lightingOpen && !generationOpen) || !document || normalId === NORMAL_FLAT_SOURCE)
-      return EMPTY_SOURCE;
+    if (!lightingOpen || !document || normalId === NORMAL_FLAT_SOURCE) return EMPTY_SOURCE;
     return renderSource(document, frame, normalId, [], false);
   }, [
     lightingOpen,
@@ -315,15 +375,12 @@ export function useNormalMapManager(enabled: boolean) {
     layerKey,
     frame,
     normalId,
-    generationOpen,
   ]);
   const mask = useMemo(() => {
-    if ((!lightingOpen && !generationOpen) || !document || maskId === NORMAL_FLAT_SOURCE)
-      return EMPTY_SOURCE;
+    if (!lightingOpen || !document || maskId === NORMAL_FLAT_SOURCE) return EMPTY_SOURCE;
     return renderSource(document, frame, maskId, [], false);
   }, [
     lightingOpen,
-    generationOpen,
     source.owner,
     source.documentKey,
     snapshot?.pixelRevision,
@@ -331,10 +388,38 @@ export function useNormalMapManager(enabled: boolean) {
     frame,
     maskId,
   ]);
+  const generationNormals = useMemo(() => {
+    if (!generationOpen || !generatingMask || !document || normalId === NORMAL_FLAT_SOURCE)
+      return EMPTY_SOURCE;
+    return renderSource(document, previewFrame, normalId, [], false);
+  }, [
+    generationOpen,
+    generatingMask,
+    source.owner,
+    source.documentKey,
+    snapshot?.pixelRevision,
+    layerKey,
+    previewFrame,
+    normalId,
+  ]);
+  const generationMask = useMemo(() => {
+    if (!generationOpen || generatingMask || !document || maskId === NORMAL_FLAT_SOURCE)
+      return EMPTY_SOURCE;
+    return renderSource(document, previewFrame, maskId, [], false);
+  }, [
+    generationOpen,
+    generatingMask,
+    source.owner,
+    source.documentKey,
+    snapshot?.pixelRevision,
+    layerKey,
+    previewFrame,
+    maskId,
+  ]);
   // During generation, the same light controls can inspect the detached candidate without committing it.
   const albedo = generationOpen ? (input?.source ?? null) : diffuse.pixels;
-  const previewNormals = generatingMask ? normals.pixels : generated.displayPixels;
-  const previewMask = generatingMask ? generated.displayPixels : mask.pixels;
+  const previewNormals = generatingMask ? generationNormals.pixels : generated.displayPixels;
+  const previewMask = generatingMask ? generated.displayPixels : generationMask.pixels;
   // Painted-light removal mirrors the generation settings: the same angle and
   // influence divide the shading already baked into the albedo before relighting.
   const delight =
@@ -381,99 +466,252 @@ export function useNormalMapManager(enabled: boolean) {
         : null,
     [diffuse.pixels, normals.pixels, mask.pixels, light, delight, source.owner],
   );
-  const apply = useCallback(() => {
-    if (
-      suggestPaintedLightAngle ||
-      !target ||
-      !source.isCurrentTarget(target) ||
-      !source.core ||
-      !generated.pixels ||
-      !input
-    )
-      return false;
-    // The source/parameters must still be exactly the candidate shown to the user.
-    if (source.core.getContentRevision() !== revision || appliedRevision === revision) return false;
-    try {
-      const current = source.core.getSnapshot().document!;
-      if (current.timeline?.activeFrame !== frame) return false;
-      const layerName = generatingMask ? DEFAULT_LIGHT_MASK_LAYER_NAME : DEFAULT_NORMAL_LAYER_NAME;
-      if (canStoreNormalMapLayer(current)) {
-        const existing = outputs.get(outputKey);
-        const validExisting = current.timeline?.layers.some((layer) => layer.id === existing)
-          ? existing
-          : undefined;
-        const name =
-          sourceId === NORMAL_VISIBLE_SOURCE
-            ? layerName
-            : `${current.timeline?.layers.find((layer) => layer.id === sourceId)?.name ?? ""} ${layerName}`;
-        const frameOutput = [{ frame, pixels: generated.pixels }];
-        const id = generatingMask
-          ? source.core.imageEditing.applyLightMask(frameOutput, name, validExisting)
-          : source.core.imageEditing.applyNormalMap(frameOutput, name, validExisting);
-        if (!id) return false;
-        outputs.set(outputKey, id);
-        if (generatingMask) setMaskId(id);
-        else setNormalId(id);
-        setDiffuseId(sourceId);
-        setAppliedRevision(source.core.getContentRevision());
-      } else {
-        // Keep the source mode/profile intact. The RGB result contains albedo and normals for editing/preview.
-        const project = createNormalMapProject(
-          input.source,
-          generated.pixels,
-          DEFAULT_NORMAL_SOURCE_LAYER_NAME,
-          current.timeline!.frames[frame].duration,
-          layerName,
-        );
-        workspace.createDocumentFromProject(
-          project,
-          `${current.name.replace(/\.[^.]+$/, "")}-${generatingMask ? "light-mask" : "normal"}.aseprite`,
-        );
-        const result = workspace.active.core;
-        if (result === source.core) {
-          setApplyError(tUi("normal.output.failed"));
+  const apply = useCallback(
+    async (closeOnSuccess = false) => {
+      if (
+        batchController.current ||
+        suggestPaintedLightAngle ||
+        !target ||
+        !source.isCurrentTarget(target) ||
+        !source.core ||
+        !generated.pixels ||
+        !input ||
+        !targetFrames.length
+      )
+        return false;
+      // The source/parameters must still be exactly the candidate shown to the user.
+      if (source.core.getContentRevision() !== revision || appliedRevision === revision)
+        return false;
+      const activeCore = source.core;
+      const startTarget = target;
+      const startRevision = revision;
+      const currentDocument = activeCore.getSnapshot().document;
+      if (!currentDocument?.timeline) return false;
+      const framesToProcess = [...targetFrames];
+      const capturedSourceId = sourceId;
+      const capturedShadingSourceId = shadingSourceId;
+      const capturedExcludedIds = [...excludedIds];
+      const capturedOutputKey = outputKey;
+      const capturedGeneratingMask = generatingMask;
+      const capturedOptions = { ...options };
+      const capturedManualAngle = manualAngle;
+      const capturedMaskOptions = { ...maskOptions };
+      const capturedScope = effectiveFrameScope;
+      const capturedFrameCount = frameCount;
+      const capturedUseShading =
+        !capturedGeneratingMask &&
+        capturedOptions.paintedLightInfluence > 0 &&
+        capturedShadingSourceId !== PAINTED_LIGHT_FROM_SOURCE;
+      const cachedPreview = {
+        source: input.source,
+        shading: input.operation === NormalMapProcessingOperation.Generate ? input.shading : null,
+        output: generated.pixels,
+      };
+      const commitResults = (results: readonly NormalMapBatchFrameResult[]): boolean => {
+        if (
+          !source.isCurrentTarget(startTarget) ||
+          activeCore.getContentRevision() !== startRevision
+        )
+          return false;
+        const current = activeCore.getSnapshot().document!;
+        const layerName = capturedGeneratingMask
+          ? DEFAULT_LIGHT_MASK_LAYER_NAME
+          : DEFAULT_NORMAL_LAYER_NAME;
+        if (canStoreNormalMapLayer(current)) {
+          const existing = outputs.get(capturedOutputKey);
+          const validExisting = current.timeline?.layers.some((layer) => layer.id === existing)
+            ? existing
+            : undefined;
+          const name =
+            capturedSourceId === NORMAL_VISIBLE_SOURCE
+              ? layerName
+              : `${current.timeline?.layers.find((layer) => layer.id === capturedSourceId)?.name ?? ""} ${layerName}`;
+          const frameOutputs = results.map(({ frame: targetFrame, pixels }) => ({
+            frame: targetFrame,
+            pixels,
+          }));
+          const id = capturedGeneratingMask
+            ? activeCore.imageEditing.applyLightMask(frameOutputs, name, validExisting)
+            : activeCore.imageEditing.applyNormalMap(frameOutputs, name, validExisting);
+          if (!id) return false;
+          outputs.set(capturedOutputKey, id);
+          if (capturedGeneratingMask) setMaskId(id);
+          else setNormalId(id);
+          setDiffuseId(capturedSourceId);
+          setAppliedRevision(activeCore.getContentRevision());
+          if (closeOnSuccess) {
+            cancelAngleEstimate();
+            setTarget(null);
+          }
+        } else {
+          // Keep the source mode/profile intact. The RGB result contains albedo and normals for editing/preview.
+          const project = createNormalMapProject(
+            results.map(({ frame: targetFrame, source: frameSource, pixels }) => ({
+              source: frameSource,
+              pixels,
+              duration: current.timeline!.frames[targetFrame].duration,
+            })),
+            DEFAULT_NORMAL_SOURCE_LAYER_NAME,
+            layerName,
+          );
+          workspace.createDocumentFromProject(
+            project,
+            `${current.name.replace(/\.[^.]+$/, "")}-${capturedGeneratingMask ? "light-mask" : "normal"}.aseprite`,
+          );
+          const result = workspace.active.core;
+          if (result === activeCore) {
+            setApplyError(tUi("normal.output.failed"));
+            return false;
+          }
+          const resultDocument = result.getSnapshot().document!;
+          associations.current.set(result, {
+            documentKey: resultDocument.id ?? resultDocument.name,
+            layers: new Map([
+              [
+                capturedGeneratingMask
+                  ? MASK_OUTPUT_PREFIX + NORMAL_VISIBLE_SOURCE
+                  : NORMAL_VISIBLE_SOURCE,
+                project.timeline.layers[project.timeline.activeLayer].id,
+              ],
+            ]),
+          });
+          setTarget(null);
+        }
+        const rememberedScope = capturedFrameCount > 1 ? capturedScope : undefined;
+        if (capturedGeneratingMask) {
+          workspace.normalMapPreferences.acceptedMask(capturedMaskOptions, rememberedScope);
+        } else {
+          workspace.normalMapPreferences.accepted(
+            capturedOptions,
+            capturedManualAngle,
+            rememberedScope,
+          );
+          setLight((value) => ({ ...value, invertY: capturedOptions.invertY }));
+        }
+        setPreviewOpen(true);
+        setApplyError("");
+        return true;
+      };
+      // Fast synchronous path when targeting only the already-rendered preview frame.
+      if (framesToProcess.length === 1 && framesToProcess[0] === previewFrame) {
+        try {
+          return commitResults([
+            {
+              frame: previewFrame,
+              source: input.source,
+              pixels: isPixelBufferTransparent(input.source) ? null : generated.pixels,
+            },
+          ]);
+        } catch (error) {
+          setApplyError(normalMapFailureMessage(error));
           return false;
         }
-        const resultDocument = result.getSnapshot().document!;
-        associations.current.set(result, {
-          documentKey: resultDocument.id ?? resultDocument.name,
-          layers: new Map([
-            [
-              generatingMask ? MASK_OUTPUT_PREFIX + NORMAL_VISIBLE_SOURCE : NORMAL_VISIBLE_SOURCE,
-              project.timeline.layers[project.timeline.activeLayer].id,
-            ],
-          ]),
-        });
-        setTarget(null);
       }
-      if (!generatingMask) {
-        workspace.normalMapPreferences.accepted(options, manualAngle);
-        setLight((value) => ({ ...value, invertY: options.invertY }));
+      const processor = createProcessor?.() ?? null;
+      if (!processor) {
+        setApplyError(tUi("normal.processing.failed"));
+        return false;
       }
-      setPreviewOpen(true);
+      const abortController = new AbortController();
+      batchController.current = {
+        abort: () => {
+          abortController.abort();
+          processor.dispose();
+        },
+      };
       setApplyError("");
-      return true;
-    } catch (error) {
-      setApplyError(normalMapFailureMessage(error));
-      return false;
-    }
-  }, [
-    target,
-    source.owner,
-    source.documentKey,
-    generated.pixels,
-    input,
-    revision,
-    appliedRevision,
-    sourceId,
-    frame,
-    outputKey,
-    generatingMask,
-    workspace,
-    options,
-    manualAngle,
-    suggestPaintedLightAngle,
-  ]);
+      setBatchProgress({ completed: 0, total: framesToProcess.length });
+      setBatchProgressVisible(false);
+      const progressTimer = setTimeout(() => {
+        if (!abortController.signal.aborted) setBatchProgressVisible(true);
+      }, BATCH_PROGRESS_DELAY_MS);
+      try {
+        const results = await runNormalMapBatch({
+          frames: framesToProcess,
+          cachedPreview,
+          signal: abortController.signal,
+          renderFrame: (targetFrame) => {
+            const renderedSource = normalMapSourcePixels(
+              currentDocument,
+              targetFrame,
+              capturedSourceId === NORMAL_VISIBLE_SOURCE ? null : capturedSourceId,
+              capturedExcludedIds,
+            );
+            const renderedShading = capturedUseShading
+              ? normalMapSourcePixels(
+                  currentDocument,
+                  targetFrame,
+                  capturedShadingSourceId,
+                  capturedExcludedIds,
+                )
+              : null;
+            return { source: renderedSource, shading: renderedShading };
+          },
+          processFrame: async (frameSource, frameShading) => {
+            const result = await processor.process(
+              capturedGeneratingMask
+                ? {
+                    operation: NormalMapProcessingOperation.GenerateMask,
+                    source: frameSource,
+                    options: capturedMaskOptions,
+                  }
+                : {
+                    operation: NormalMapProcessingOperation.Generate,
+                    source: frameSource,
+                    shading: frameShading,
+                    options: capturedOptions,
+                    suggestPaintedLightAngle: false,
+                  },
+            );
+            return result.pixels;
+          },
+          onProgress: (completed, total) => {
+            if (!abortController.signal.aborted) setBatchProgress({ completed, total });
+          },
+        });
+        if (abortController.signal.aborted) return false;
+        return commitResults(results);
+      } catch (error) {
+        if (
+          abortController.signal.aborted ||
+          (error instanceof Error && error.name === "AbortError")
+        )
+          return false;
+        setApplyError(normalMapFailureMessage(error));
+        return false;
+      } finally {
+        clearTimeout(progressTimer);
+        processor.dispose();
+        batchController.current = null;
+        setBatchProgress(null);
+        setBatchProgressVisible(false);
+      }
+    },
+    [
+      target,
+      source.owner,
+      source.documentKey,
+      generated.pixels,
+      input,
+      revision,
+      appliedRevision,
+      sourceId,
+      shadingSourceId,
+      excludedKey,
+      previewFrame,
+      targetFrames,
+      effectiveFrameScope,
+      frameCount,
+      outputKey,
+      generatingMask,
+      maskOptions,
+      workspace,
+      options,
+      manualAngle,
+      suggestPaintedLightAngle,
+      createProcessor,
+    ],
+  );
   const choices = layers
     .filter((layer) => !(layer.flags & LAYER_REFERENCE))
     .map((layer) => ({
@@ -481,6 +719,39 @@ export function useNormalMapManager(enabled: boolean) {
       label: layer.name,
       translateLabel: false,
     }));
+  const frameScopeChoices = useMemo(
+    () => [
+      {
+        value: NormalMapFrameScope.All,
+        label: tUi("normal.frames.all", { value1: frameCount }),
+        translateLabel: false,
+      },
+      {
+        value: NormalMapFrameScope.Selected,
+        label:
+          validSelectedFrames.length > 0
+            ? tUi("normal.frames.selected", { value1: validSelectedFrames.length })
+            : tUi("normal.frames.selectedEmpty"),
+        disabled: validSelectedFrames.length === 0,
+        translateLabel: false,
+      },
+      {
+        value: NormalMapFrameScope.Current,
+        label: tUi("normal.frames.current", { value1: frame + 1 }),
+        translateLabel: false,
+      },
+      ...tags.map((tag) => {
+        const from = Math.max(0, Math.min(frameCount - 1, tag.from));
+        const to = Math.max(from, Math.min(frameCount - 1, tag.to));
+        return {
+          value: `${NORMAL_FRAME_TAG_PREFIX}${tag.name}`,
+          label: tUi("normal.frames.tag", { value1: tag.name, value2: to - from + 1 }),
+          translateLabel: false,
+        };
+      }),
+    ],
+    [frameCount, validSelectedFrames.length, frame, tags],
+  );
   const targetLayer = outputs.get(outputKey);
   const sourceLayerChoices = choices.filter((choice) => !excludedIds.includes(choice.value));
   const hasRoom =
@@ -500,6 +771,14 @@ export function useNormalMapManager(enabled: boolean) {
     shadingSourceId,
     diffuseId,
     normalId,
+    frameScope: effectiveFrameScope,
+    frameScopeChoices,
+    showFrameScope: frameCount > 1,
+    targetFrameCount: targetFrames.length,
+    previewFrame,
+    previewFrameIndex: previewFramePosition,
+    batchRunning,
+    batchProgress: batchProgressVisible ? batchProgress : null,
     view,
     light,
     delightOn,
@@ -520,6 +799,7 @@ export function useNormalMapManager(enabled: boolean) {
     setMaskId,
     canOpen: enabled && !!document,
     canApply:
+      !batchRunning &&
       !!generated.pixels &&
       !generated.busy &&
       !suggestPaintedLightAngle &&
@@ -544,21 +824,72 @@ export function useNormalMapManager(enabled: boolean) {
     dimensions: { width: document?.width ?? 1, height: document?.height ?? 1 },
     openGeneration(mask = false) {
       if (!enabled || !source.core?.imageEditing.beginNormalMap()) return;
+      batchController.current?.abort();
+      const currentTimeline = source.core.getSnapshot().document?.timeline;
+      const currentFrameCount = currentTimeline?.frames.length ?? 1;
+      const currentActiveFrame = currentTimeline?.activeFrame ?? 0;
+      const selected = resolveSelectedTimelineFrames(currentTimeline);
+      const initialScope = initialNormalMapFrameScope(
+        currentFrameCount,
+        selected,
+        workspace.normalMapPreferences.frameScope,
+      );
+      const currentTags = currentTimeline
+        ? timelineTags(currentTimeline).map((tag) => ({
+            name: tag.name,
+            from: tag.from,
+            to: tag.to,
+          }))
+        : [];
+      const initialFrames = resolveNormalMapFrames(
+        initialScope,
+        currentFrameCount,
+        currentActiveFrame,
+        selected,
+        currentTags,
+      );
       setGeneratingMask(mask);
+      setSelectedFramesSnapshot(selected);
+      setFrameScopeState(initialScope);
+      setPreviewFrameState(
+        pickNormalMapPreviewFrame(initialFrames, currentActiveFrame, currentActiveFrame),
+      );
       setDraft({
         options: workspace.normalMapPreferences.options,
         manualAngle: workspace.normalMapPreferences.hasManualPaintedLightAngle,
         estimateSource: null,
       });
-      setMaskOptions(defaultLightMaskOptions());
+      setMaskOptions(workspace.normalMapPreferences.maskOptions);
       setAppliedRevision(null);
       setApplyError("");
       setTarget(source.target);
     },
     closeGeneration: () => {
+      batchController.current?.abort();
       cancelAngleEstimate();
       setTarget(null);
       setApplyError("");
+    },
+    cancelBatch,
+    setFrameScope: (value: string) => {
+      cancelAngleEstimate();
+      setFrameScopeState(value);
+      const nextFrames = resolveNormalMapFrames(
+        value,
+        frameCount,
+        frame,
+        validSelectedFrames,
+        tags,
+      );
+      setPreviewFrameState((current) => pickNormalMapPreviewFrame(nextFrames, current, frame));
+      setAppliedRevision(null);
+      setApplyError("");
+    },
+    stepPreviewFrame: (delta: number) => {
+      if (targetFrames.length <= 1) return;
+      cancelAngleEstimate();
+      const nextIndex = (previewFramePosition + delta + targetFrames.length) % targetFrames.length;
+      setPreviewFrameState(targetFrames[nextIndex]);
     },
     openLighting: () => {
       if (enabled && document) setPreviewOpen(true);
