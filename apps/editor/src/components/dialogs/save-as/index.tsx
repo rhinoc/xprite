@@ -223,7 +223,7 @@ export function SaveAsDialog({
                 relativeTo={client}
               />
               <Divider
-                text={`${tUi("ui.save.format")}:`}
+                text={tUi("ui.save.format.label")}
                 bounds={{ x: client.x, y: client.y + 42, width: client.width, height: 22 }}
                 relativeTo={client}
               />
@@ -241,7 +241,7 @@ export function SaveAsDialog({
                 relativeTo={client}
               />
               <Divider
-                text={`${tUi("ui.save.destination")}:`}
+                text={tUi("ui.save.destination.label")}
                 bounds={{ x: client.x, y: client.y + 108, width: client.width, height: 22 }}
                 relativeTo={client}
               />

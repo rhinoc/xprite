@@ -658,7 +658,7 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.ReadPixels,
     readOnly: true,
     description:
-      "Read a region as row-major working-space RGBA bytes, as a single-character color legend plus one text row per pixel (format \"grid\": '.' is transparent, characters repeat per color), as a diff between two endpoints (mode \"diff\": 'from' and 'to' are {documentId?, frameIndex?, layerId?} defaulting to the top-level values; returns changedPixels, changedBounds, and with detail:true a character map where '.' is unchanged, '-' erased, other characters the new color), or as color statistics (mode \"stats\": returns colors count, a descending histogram of up to 64 colors, the non-transparent bounds, and offPalette colors outside the document palette). Omit layerId for the visible composite. frameIndex defaults to the active frame. Maximum 65536 pixels per read.",
+      "Read a region as row-major working-space RGBA bytes, as a single-character color legend plus one text row per pixel (format \"grid\": '.' is transparent, characters repeat per color), as a diff between two endpoints (mode \"diff\": 'from' and 'to' are {documentId?, frameIndex?, layerId?} defaulting to the top-level values; returns changedPixels, changedBounds, and with detail:true a character map where '.' is unchanged, '-' erased, other characters the new color), or as color statistics (mode \"stats\": returns colors count, a descending histogram of up to 64 colors, the non-transparent bounds, and offPalette colors outside the document palette). layerId reads an image or tilemap layer; omit layerId for the visible composite. frameIndex defaults to the active frame. Maximum 65536 pixels per read.",
     inputSchema: object(
       {
         ...document,
@@ -743,7 +743,7 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.CreateDocument,
     readOnly: false,
     description:
-      "Create and open a new RGBA sprite. Existing documents remain open. Background defaults to transparent. Maximum 2048 pixels per side.",
+      "Create and open a new RGBA sprite and return its document context directly as data (data.id, data.revision, data.layers). Existing documents remain open. Background defaults to transparent. Maximum 2048 pixels per side.",
     inputSchema: object(
       {
         width: { type: "integer", minimum: 1, maximum: 2048 },
@@ -826,7 +826,7 @@ export const AGENT_TOOL_DEFINITIONS: readonly AgentToolDefinition[] = [
     name: AgentToolName.ManageDocument,
     readOnly: false,
     description:
-      "Save, close or duplicate an open document. save runs the editor save workflow and marks the tab saved. close closes the tab; unsaved changes reject the call unless force:true discards them. duplicate opens a copy as a new unsaved tab and returns its context. open is not supported.",
+      "Save, close or duplicate an open document. save runs the editor save workflow and marks the tab saved. close closes the tab; unsaved changes reject the call unless force:true discards them. duplicate opens a copy as a new unsaved tab and returns its document context directly as data (data.id, data.revision, data.layers). open is not supported.",
     inputSchema: object(
       {
         op: { type: "string", enum: ["save", "close", "duplicate", "open"] },

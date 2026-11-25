@@ -234,7 +234,7 @@ try {
     canvasBeforeMenu,
   );
   await tapSelector('[role="menu"][aria-label="菜单"] [role="menuitem"][aria-label="文件"]', 32);
-  await tapSelector('[role="menu"][aria-label="文件"] [role="menuitem"][aria-label="新建..."]', 33);
+  await tapSelector('[role="menu"][aria-label="文件"] [role="menuitem"][aria-label="新建…"]', 33);
   await page.waitForFunction(
     () =>
       !!document.querySelector('[role="dialog"][aria-label="新建精灵"] button[aria-label="透明"]'),
@@ -416,9 +416,9 @@ try {
 
   await tapSelector('[data-touch-action="Menu"]', 34);
   await tapSelector('[role="menu"][aria-label="菜单"] [role="menuitem"][aria-label="图层"]', 35);
-  await tapSelector('[role="menu"][aria-label="图层"] [role="menuitem"][aria-label="新建..."]', 36);
+  await tapSelector('[role="menu"][aria-label="图层"] [role="menuitem"][aria-label="新建…"]', 36);
   await tapSelector(
-    '[role="menu"][aria-label="新建..."] [role="menuitem"][aria-label="新建瓦片地图图层"]',
+    '[role="menu"][aria-label="新建…"] [role="menuitem"][aria-label="新建瓦片地图图层"]',
     37,
   );
   await page.click(

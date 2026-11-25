@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { AGENT_TOOL_DEFINITIONS } from "$/managers/agent/agent-tool-definitions";
 import { AgentToolsManager } from "$/managers/agent/agent-tools-manager";
 import { AgentToolName, type AgentToolsPort } from "$/managers/ports/agent-tools";
 import type { DocumentWorkspace } from "$/managers/workspace/document-workspace";
@@ -173,5 +174,111 @@ describe("agent applyBatch error diagnostics", () => {
       expect(data.blendedCompositeColors.length).toBeGreaterThan(0);
       expect(data.verdict).toBe("clean");
     }
+  });
+
+  it("reads tilemap layer pixels via readPixels and documents tool return shapes", async () => {
+    const editor = new RasterEditor(
+      { width: 4, height: 4, data: new Uint8ClampedArray(64) },
+      "TilemapRead",
+    );
+    const layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    const manager = createTestManager(editor);
+
+    const setup = await manager.execute(AgentToolName.ApplyBatch, {
+      documentId: "doc-1",
+      expectedRevision: editor.getContentRevision(),
+      operations: [
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 2, height: 2 },
+          color: "#FF0000",
+        },
+        {
+          type: BatchEditKind.ConvertToTilemap,
+          layerId,
+          tileWidth: 2,
+          tileHeight: 2,
+        },
+        {
+          type: BatchEditKind.AddLayer,
+          layerId: "overlay",
+          name: "Overlay",
+          afterLayerId: layerId,
+        },
+        {
+          type: BatchEditKind.FillRect,
+          layerId: "overlay",
+          frameIndex: 0,
+          rect: { x: 0, y: 0, width: 4, height: 4 },
+          color: "#00FF00",
+        },
+        {
+          type: BatchEditKind.GroupLayer,
+          layerIds: ["overlay"],
+          name: "Group",
+        },
+      ],
+    });
+    expect(setup.ok).toBe(true);
+    const layers = editor.getSnapshot().document!.timeline!.layers;
+    expect(layers[0].kind).toBe("tilemap");
+    const groupLayer = layers.find((layer) => layer.kind === "group");
+    expect(groupLayer).toBeDefined();
+
+    // Read tilemap layer while it is active.
+    const activeRead = await manager.execute(AgentToolName.ReadPixels, {
+      documentId: "doc-1",
+      layerId,
+      rect: { x: 0, y: 0, width: 4, height: 2 },
+      format: "grid",
+    });
+    expect(activeRead.ok).toBe(true);
+    if (activeRead.ok) {
+      const data = activeRead.data as {
+        rows: string[];
+        legend: Record<string, string>;
+      };
+      expect(data.rows).toEqual(["aa..", "aa.."]);
+      expect(data.legend.a).toBe("#FF0000FF");
+    }
+
+    // Switch active layer away and read the tilemap layer while inactive.
+    editor.timeline.selectLayer(1);
+    const inactiveRead = await manager.execute(AgentToolName.ReadPixels, {
+      documentId: "doc-1",
+      layerId,
+      rect: { x: 0, y: 0, width: 4, height: 2 },
+      format: "grid",
+    });
+    expect(inactiveRead.ok).toBe(true);
+    if (inactiveRead.ok) {
+      const data = inactiveRead.data as {
+        rows: string[];
+        legend: Record<string, string>;
+      };
+      expect(data.rows).toEqual(["aa..", "aa.."]);
+      expect(data.legend.a).toBe("#FF0000FF");
+    }
+
+    // Group layers are still rejected with a clear message.
+    const groupRead = await manager.execute(AgentToolName.ReadPixels, {
+      documentId: "doc-1",
+      layerId: groupLayer!.id,
+      rect: { x: 0, y: 0, width: 2, height: 2 },
+      format: "grid",
+    });
+    expect(groupRead.ok).toBe(false);
+    if (!groupRead.ok) {
+      expect(groupRead.error.code).toBe("unsupported");
+      expect(groupRead.error.message).toContain("image or tilemap");
+    }
+
+    // Tool definitions explicitly state return shapes and tilemap support.
+    const byName = new Map(AGENT_TOOL_DEFINITIONS.map((tool) => [tool.name, tool.description]));
+    expect(byName.get(AgentToolName.ReadPixels)).toContain("tilemap");
+    expect(byName.get(AgentToolName.CreateDocument)).toContain("data.id");
+    expect(byName.get(AgentToolName.ManageDocument)).toContain("data.id");
   });
 });
