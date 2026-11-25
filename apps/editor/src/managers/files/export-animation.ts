@@ -6,6 +6,10 @@ import {
   writeImageExportPreferences,
 } from "$/managers/files/export-format-preferences";
 import type { ExportRecord } from "$/managers/files/export-preferences";
+import {
+  validateImageExport,
+  localizeImageExportError,
+} from "$/managers/files/image-export-validation";
 import type { ExportArtifact } from "$/managers/ports/export-output";
 import type { WebpExportPort } from "$/managers/ports/webp-export";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
@@ -95,6 +99,7 @@ export async function exportDocumentAnimation(
 ): Promise<{ names: string[]; artifacts: ExportArtifact[] }> {
   // Render all source state before the first await; selection/edits/tab switches
   // while encoding cannot mix frames from different document revisions.
+  validateImageExport(doc, options);
   const frames = renderExportAnimation(doc, options),
     name = options.name.trim();
   const palette = doc.palette?.map((c) => colorProfileToSrgb(c, workingColorProfile(doc.timeline)));
@@ -178,8 +183,13 @@ export async function exportDocumentSpriteSheet(
   options: SpriteSheetOptions,
   ports: ExportExecutionPorts = {},
 ): Promise<SpriteSheetResult & { names: string[] }> {
-  const result = renderSpriteSheet(doc, options),
-    artifacts: ExportArtifact[] = [];
+  let result: SpriteSheetResult;
+  try {
+    result = renderSpriteSheet(doc, options);
+  } catch (error) {
+    throw localizeImageExportError(error);
+  }
+  const artifacts: ExportArtifact[] = [];
   if (options.imageEnabled) {
     const format = spriteSheetOutputFormat(options.name);
     if (!format) throw new UnsupportedSpriteSheetOutputFormatError();

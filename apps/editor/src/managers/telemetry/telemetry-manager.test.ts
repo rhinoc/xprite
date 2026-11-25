@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
+import { BrowserDiagnostics } from "$/adapters/diagnostics/browser-diagnostics";
 import {
   automaticViewTransition,
   userViewTransition,
@@ -14,6 +15,7 @@ import { TelemetryEvent, type TelemetryProperties } from "$/managers/ports/telem
 import { TelemetryManager } from "$/managers/telemetry/telemetry-manager";
 import { OpfsByteStore } from "@xprite/bedrock/browser/opfs";
 import { BrowserStorageError } from "@xprite/bedrock/browser/storage-error";
+import { AsepriteCodecError, AsepriteIssueCode } from "@xprite/editor-core/import-export";
 
 describe("view telemetry", () => {
   it("reports initial entry once and preserves user, automatic and navigation causes", () => {
@@ -190,5 +192,51 @@ describe("exception telemetry", () => {
       { name: "WorkerLoadError", source: DiagnosticSource.ServiceWorker },
       { name: "Error", source: DiagnosticSource.RecoveryWorker },
     ]);
+  });
+});
+
+describe("codec reason transport privacy", () => {
+  it("carries only a safe reason through actual diagnostics and exception capture", () => {
+    const captured: { exception: unknown; properties: TelemetryProperties }[] = [];
+    const manager = new TelemetryManager({
+      enabled: true,
+      capture: () => {},
+      captureException: (exception, properties) => captured.push({ exception, properties }),
+    });
+    const diagnostics = new BrowserDiagnostics({ onRecord: manager.observeDiagnostic });
+    const error = new AsepriteCodecError("private raw parser message\nprivate multiline payload", [
+      {
+        code: AsepriteIssueCode.ResourceLimit,
+        message: "/Users/private/secret.aseprite" + "x".repeat(10000),
+        fatal: true,
+        details: { bytes: [1, 2, 3] },
+      },
+    ]);
+    Object.assign(error, {
+      diagnosticDetails: {
+        aseprite: { fileName: "secret.aseprite", byteLength: 123 },
+        causeMessage: "unbounded private parser bytes",
+        pwa: { stage: "update", online: true },
+      },
+    });
+    diagnostics.capture(error, DiagnosticSource.Session, { context: "import" });
+    expect(captured).toHaveLength(1);
+    expect(captured[0].properties.aseprite_issue_code).toBe("resource-limit");
+    expect(captured[0].properties.pwa_online).toBe(true);
+    expect(JSON.stringify(captured)).not.toMatch(/private|secret|byteLength|\[1,2,3\]|codecIssues/);
+    diagnostics.capture(new Error("ordinary failure"), DiagnosticSource.Session);
+    expect(captured).toHaveLength(2);
+    expect(captured[1].properties.aseprite_issue_code).toBeUndefined();
+    diagnostics.capture(
+      Object.assign(new Error("raw private text\nprivate multiline payload"), {
+        name: "AsepriteCodecError",
+        issues: [{ code: "secret.aseprite", message: "private" }],
+      }),
+      DiagnosticSource.Session,
+    );
+    expect(captured).toHaveLength(3);
+    expect(captured[2].properties.aseprite_issue_code).toBeUndefined();
+    expect(JSON.stringify(captured[2])).toContain("unknown");
+    expect(JSON.stringify(captured[2])).not.toMatch(/private|secret/);
   });
 });

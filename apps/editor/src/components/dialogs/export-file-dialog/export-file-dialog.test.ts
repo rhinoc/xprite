@@ -60,7 +60,7 @@ describe("export-dialog-flow [feature-7-12]", () => {
                     : args.path === "export-output-format"
                       ? `export const ExportOutputFormat={Png:"png",Gif:"gif",Apng:"apng",Jpeg:"jpg",Webp:"webp"};`
                       : args.path === "export-file-model"
-                        ? `export const MAX_EXPORT_LOOP_COUNT=65536;export const MAX_WEBP_EXPORT_LOOP_COUNT=65535;export const ExportTagDirection={Forward:"forward",Reverse:"reverse",PingPong:"ping-pong",PingPongReverse:"ping-pong-reverse"};export function useExportFileDialogModel(){const document=globalThis.__exportDialogDocument;return{document,imageEncoding:globalThis.__exportImageEncoding??{jpeg:true,webp:true,webpLossless:true,webpLossy:true,checked:true},createInitialOptions:()=>({name:"animation.gif",scalePercent:100,area:"canvas",layers:"visible",frame:0,frames:"all",loopCount:document.loopCount}),inspect:()=>({valid:true,frameCount:2})}}`
+                        ? `export const MAX_EXPORT_LOOP_COUNT=65536;export const MAX_WEBP_EXPORT_LOOP_COUNT=65535;export const ExportTagDirection={Forward:"forward",Reverse:"reverse",PingPong:"ping-pong",PingPongReverse:"ping-pong-reverse"};export function useExportFileDialogModel(){const document=globalThis.__exportDialogDocument;return{document,imageEncoding:globalThis.__exportImageEncoding??{jpeg:true,webp:true,webpLossless:true,webpLossy:true,checked:true},createInitialOptions:()=>({name:"animation.gif",scalePercent:100,area:"canvas",layers:"visible",frame:0,frames:"all",loopCount:document.loopCount}),inspect:()=>globalThis.__exportInspection??({valid:true,frameCount:2})}}`
                         : `export function FormDialog(){};export function Alert(){}`,
               loader: "js",
             }));
@@ -140,6 +140,18 @@ describe("export-dialog-flow [feature-7-12]", () => {
         exports,
       };
     }
+    globalThis.__exportInspection = {
+      valid: false,
+      frameCount: 0,
+      error: "Output 20480 × 2560 exceeds the limit. Reduce Resize (%).",
+    };
+    const rejected = mount();
+    const invalidForm = rejected.render();
+    assert.match(invalidForm.message, /20480 × 2560.*Reduce Resize/);
+    assert.equal(invalidForm.actions.find((action) => action.label === "Export").disabled, true);
+    invalidForm.actions.find((action) => action.label === "Export").onClick();
+    assert.equal(rejected.exports.length, 0);
+    delete globalThis.__exportInspection;
     for (const reason of ["button", "escape-or-close"]) {
       const dialog = mount();
       let p = dialog.render();

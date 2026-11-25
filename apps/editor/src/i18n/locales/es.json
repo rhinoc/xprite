@@ -2570,5 +2570,12 @@
   "ui.file.output.recovery.failed": "El archivo se guardó, pero la recuperación local no. Mantén este documento abierto.",
   "ui.file.download.recovery.failed": "Se inició la descarga de una copia, pero la recuperación local no se guardó. Mantén este documento abierto.",
   "ui.file.output.receipt.missing": "El guardado del archivo terminó sin confirmación de salida",
-  "ui.recovery.workspace.failed.status": "Otros documentos o la disposición del espacio de trabajo no están guardados en este navegador."
+  "ui.recovery.workspace.failed.status": "Otros documentos o la disposición del espacio de trabajo no están guardados en este navegador.",
+  "ui.export.output.limit": "La salida de {width} × {height} supera el límite de exportación. Reduce el porcentaje de tamaño o exporta un área menor.",
+  "ui.aseprite.rejection": "No se pudo abrir este archivo de Aseprite. {reason}",
+  "ui.aseprite.rejection.resource": "El proyecto supera los límites de recursos admitidos.",
+  "ui.aseprite.rejection.truncated": "El archivo parece incompleto. Prueba a guardarlo de nuevo en Aseprite.",
+  "ui.aseprite.rejection.unsupported": "El archivo usa una función no compatible.",
+  "ui.aseprite.rejection.invalid": "No se pudo leer la estructura del archivo. Prueba a guardarlo de nuevo en Aseprite.",
+  "ui.aseprite.rejection.unknown": "El archivo no superó la validación."
 }

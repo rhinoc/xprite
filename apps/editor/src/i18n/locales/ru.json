@@ -2570,5 +2570,12 @@
   "ui.file.output.recovery.failed": "Файл сохранён, но данные локального восстановления не сохранены. Оставьте документ открытым.",
   "ui.file.download.recovery.failed": "Загрузка копии начата, но данные локального восстановления не сохранены. Оставьте документ открытым.",
   "ui.file.output.receipt.missing": "Сохранение файла завершено без подтверждения вывода",
-  "ui.recovery.workspace.failed.status": "Другие документы или расположение рабочей области не сохранены в этом браузере."
+  "ui.recovery.workspace.failed.status": "Другие документы или расположение рабочей области не сохранены в этом браузере.",
+  "ui.export.output.limit": "Размер {width} × {height} превышает предел экспорта. Уменьшите масштаб или экспортируйте меньшую область.",
+  "ui.aseprite.rejection": "Не удалось открыть этот файл Aseprite. {reason}",
+  "ui.aseprite.rejection.resource": "Проект превышает поддерживаемые ограничения ресурсов.",
+  "ui.aseprite.rejection.truncated": "Файл, вероятно, неполный. Попробуйте сохранить его заново в Aseprite.",
+  "ui.aseprite.rejection.unsupported": "В файле используется неподдерживаемая функция.",
+  "ui.aseprite.rejection.invalid": "Не удалось прочитать структуру файла. Попробуйте сохранить его заново в Aseprite.",
+  "ui.aseprite.rejection.unknown": "Файл не прошёл проверку."
 }
