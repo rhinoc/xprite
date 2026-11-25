@@ -1,27 +1,19 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 
-import { transform } from "esbuild";
-import { describe, it } from "vitest";
+import { describe, it, vi } from "vitest";
 
-import { UINT8_MAX } from "$/base/numeric-constants";
-const TEST_PALETTE_CAPACITY = 64;
+import { operatePalette as op, dropPaletteColors as drop } from "$/color/palette-operations";
+
+const { TEST_PALETTE_CAPACITY } = vi.hoisted(() => ({ TEST_PALETTE_CAPACITY: 64 }));
+// Exercise capacity boundaries without allocating the production multi-million-entry palette.
+// Keep the implementation and its other dependencies intact rather than rewriting its imports.
+vi.mock("$/color/palette-resize", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("$/color/palette-resize")>()),
+  MAX_ALLOCATED_PALETTE_COLORS: TEST_PALETTE_CAPACITY,
+}));
 
 describe("palette-operations", () => {
-  it("palette-operations behavior", async () => {
-    const source = (await readFile(new URL("./palette-operations.ts", import.meta.url), "utf8"))
-      .replace(
-        /^import \{ UINT8_MAX \} from "\$\/base\/numeric-constants";\r?\n/m,
-        `const UINT8_MAX = ${UINT8_MAX};\n`,
-      )
-      .replace(
-        /^import \{ MAX_ALLOCATED_PALETTE_COLORS \} from "\$\/color\/palette-resize";\r?\n/m,
-        `const MAX_ALLOCATED_PALETTE_COLORS = ${TEST_PALETTE_CAPACITY};\n`,
-      );
-    const { code } = await transform(source, { loader: "ts", format: "esm" });
-    const { operatePalette: op, dropPaletteColors: drop } = await import(
-      `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`
-    );
+  it("palette-operations behavior", () => {
     const red = [255, 0, 0, 255],
       green = [0, 255, 0, 255],
       blue = [0, 0, 255, 255],

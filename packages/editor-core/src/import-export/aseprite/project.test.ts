@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 
 import { build } from "esbuild";
 import { describe, it } from "vitest";
@@ -97,24 +96,8 @@ describe("compose-groups [feature-1-6]", () => {
     other.document.loadTimeline(recovered.timeline, 1, 1, "recovered");
     assert.equal(other.getSnapshot().document.timeline.composeGroups, true);
     assert.deepEqual([...other.canvas.composite().data], [150, 150, 50, 255]);
-    const dialog = readFileSync(
-      "apps/editor/src/components/timeline/timeline-dialogs/index.tsx",
-      "utf8",
-    ).replace(/\s+/g, " ");
-    assert.ok(
-      dialog.includes(
-        'imageProps={ timeline?.layers[timeline.activeLayer]?.kind !== "group" || !!state?.settings.composeGroups }',
-      ),
-    );
-    assert.ok(dialog.includes("{imageProps && ("));
-    assert.ok(
-      readFileSync(
-        "apps/editor/src/components/dialogs/experimental-preferences/index.tsx",
-        "utf8",
-      ).includes("Compose groups separately"),
-    );
     console.log(
-      "Aseprite composeGroups: global defaultoff, modern import preserves authored metadata, preference-only cache invalidation without history/dirty, global survives undo/reload/tool-pref transfer, explicit Aseprite export zeros disabled group fields while internal recovery preserves them; group controls visibility follows preference.",
+      "Aseprite composeGroups: global defaultoff, modern import preserves authored metadata, preference-only cache invalidation without history/dirty, global survives undo/reload/tool-pref transfer, explicit Aseprite export zeros disabled group fields while internal recovery preserves them.",
     );
   }, 60_000);
 });

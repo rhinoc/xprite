@@ -1,33 +1,34 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { transform } from "esbuild";
+import { build } from "esbuild";
 import { describe, it } from "vitest";
 
-import {
-  DEFAULT_DYNAMICS_SETTINGS,
-  BrushDynamicInput,
-  SLOW_TRACKING_ENABLED_AMOUNT,
-  SLOW_TRACKING_MAX,
-} from "@xprite/editor-core";
+import { SLOW_TRACKING_ENABLED_AMOUNT, SLOW_TRACKING_MAX } from "@xprite/editor-core";
 
 describe("dynamics-state", () => {
   it("dynamics-state behavior", async () => {
-    const source = (
-      await readFile(new URL("./dynamics-state.ts", import.meta.url), "utf8")
-    ).replace(
-      /^import \{[\s\S]*?\} from "@xprite\/editor-core";\r?\n/m,
-      `const DEFAULT_DYNAMICS_SETTINGS = ${JSON.stringify(DEFAULT_DYNAMICS_SETTINGS)};\nconst BrushDynamicInput = ${JSON.stringify(BrushDynamicInput)};\nconst SLOW_TRACKING_ENABLED_AMOUNT = ${SLOW_TRACKING_ENABLED_AMOUNT};\nconst SLOW_TRACKING_MAX = ${SLOW_TRACKING_MAX};\n`,
-    );
-    const { code } = await transform(source, { loader: "ts", format: "esm" });
-    const api = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
+    const { outputFiles } = await build({
+      stdin: {
+        contents: await readFile(new URL("./dynamics-state.ts", import.meta.url), "utf8"),
+        resolveDir: import.meta.dirname,
+        sourcefile: "dynamics-state.ts",
+        loader: "ts",
+      },
+      bundle: true,
+      platform: "node",
+      format: "esm",
+      write: false,
+    });
     const {
       createDynamicsPreferences: create,
       getDynamicsSettings: get,
       updateDynamicsSettings: update,
       shareDynamicsSettings: share,
       setSlowTracking: track,
-    } = api;
+    } = await import(
+      `data:text/javascript;base64,${Buffer.from(outputFiles[0].contents).toString("base64")}`
+    );
     let preferences = create();
     assert.equal(preferences.shared, true);
     assert.equal(get(preferences, "pencil").size, "off");
