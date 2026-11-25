@@ -1496,6 +1496,7 @@
   "ui.vertical.strip": "Tira vertical",
   "ui.by.rows": "Por filas",
   "ui.by.columns": "Por columnas",
+  "ui.packed": "Empaquetado",
   "ui.fixed.of.columns": "Número fijo de columnas",
   "ui.fixed.of.rows": "Número fijo de filas",
   "ui.fixed.width": "Ancho fijo",
@@ -2591,5 +2592,12 @@
   "ui.aseprite.rejection.invalid": "No se pudo leer la estructura del archivo. Prueba a guardarlo de nuevo en Aseprite.",
   "ui.aseprite.rejection.unknown": "El archivo no superó la validación.",
   "ui.image.export.worker.failed": "No se pudo ejecutar el trabajador del codificador de imágenes",
-  "ui.image.export.output.unreadable": "No se pudo leer la salida del codificador de imágenes"
+  "ui.image.export.output.unreadable": "No se pudo leer la salida del codificador de imágenes",
+  "ui.ready": "Listo",
+  "ui.status.position": "Posición",
+  "ui.status.selection.size": "Tamaño de selección",
+  "ui.status.cell.index": "Índice de celda",
+  "ui.status.distance": "Distancia",
+  "ui.status.aspect.ratio": "Relación de aspecto",
+  "ui.status.color.sample": "Muestra de color"
 }

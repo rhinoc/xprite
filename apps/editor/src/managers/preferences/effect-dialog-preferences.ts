@@ -15,9 +15,16 @@ import {
 const STORAGE_KEY = "xse.filters.preferences.v1";
 const DEFAULT_OUTLINE_MATRIX = 170;
 const MAX_OUTLINE_MATRIX = 511;
+
+export interface EffectDialogWindowPosition {
+  x: number;
+  y: number;
+}
+
 interface EffectPreferences {
   target: EffectTarget;
   preview: Partial<Record<EffectKind, boolean>>;
+  windowPositions: Partial<Record<EffectKind, EffectDialogWindowPosition>>;
   hueMode: HueSaturationMode;
   replaceTolerance: number;
   outline: { place: "outside" | "inside"; matrix: number };
@@ -29,6 +36,7 @@ function defaults(): EffectPreferences {
   return {
     target: EffectTarget.Selected,
     preview: {},
+    windowPositions: {},
     hueMode: HueSaturationMode.HslMul,
     replaceTolerance: 0,
     outline: { place: "outside", matrix: DEFAULT_OUTLINE_MATRIX },
@@ -47,8 +55,19 @@ function normalize(value: unknown): EffectPreferences {
     next.target = source.target!;
   if (Object.values(HueSaturationMode).includes(source.hueMode as HueSaturationMode))
     next.hueMode = source.hueMode!;
-  for (const kind of Object.values(EffectKind))
+  for (const kind of Object.values(EffectKind)) {
     if (typeof source.preview?.[kind] === "boolean") next.preview[kind] = source.preview[kind];
+    const position = source.windowPositions?.[kind];
+    if (
+      position &&
+      typeof position === "object" &&
+      typeof position.x === "number" &&
+      Number.isFinite(position.x) &&
+      typeof position.y === "number" &&
+      Number.isFinite(position.y)
+    )
+      next.windowPositions[kind] = { x: Math.round(position.x), y: Math.round(position.y) };
+  }
   if (typeof source.replaceTolerance === "number" && Number.isFinite(source.replaceTolerance))
     next.replaceTolerance = Math.round(Math.max(0, Math.min(UINT8_MAX, source.replaceTolerance)));
   if (source.outline?.place === "inside") next.outline.place = "inside";
@@ -91,6 +110,20 @@ export class EffectDialogPreferences {
   }
   get preview() {
     return this.state.preview;
+  }
+  windowPosition(kind: EffectKind): EffectDialogWindowPosition | undefined {
+    const position = this.state.windowPositions[kind];
+    return position ? { ...position } : undefined;
+  }
+  rememberWindowPosition(kind: EffectKind, position: EffectDialogWindowPosition) {
+    if (!Number.isFinite(position.x) || !Number.isFinite(position.y)) return;
+    const next = { x: Math.round(position.x), y: Math.round(position.y) };
+    const current = this.state.windowPositions[kind];
+    if (current && current.x === next.x && current.y === next.y) return;
+    this.update({
+      ...this.state,
+      windowPositions: { ...this.state.windowPositions, [kind]: next },
+    });
   }
   initial(spec: EffectSpec): EffectSpec {
     if (spec.kind === EffectKind.HueSaturation) return { ...spec, mode: this.state.hueMode };

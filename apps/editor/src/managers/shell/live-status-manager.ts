@@ -10,10 +10,11 @@ import {
 } from "@xprite/editor-core";
 import { workingColorProfile } from "@xprite/editor-core/color";
 
-type LiveStatusIndicatorView = ReturnType<typeof editorStatusIndicators>[number];
+export type LiveStatusIndicator = ReturnType<typeof editorStatusIndicators>[number];
+export type LiveStatusIcon = Extract<LiveStatusIndicator, { icon: string }>["icon"];
 
 export interface LiveStatusView {
-  indicators: readonly LiveStatusIndicatorView[];
+  indicators: readonly LiveStatusIndicator[];
   description: string;
   undoTooltip: string;
   colorProfile?: EditorColorProfile;
@@ -34,7 +35,7 @@ export function useLiveStatusManager({
   buttonHoverDescription?: string;
 }): LiveStatusView {
   const { core } = useEditorManagerContext();
-  const read = useCallback((): readonly LiveStatusIndicatorView[] => {
+  const read = useCallback((): readonly LiveStatusIndicator[] => {
     if (!active || !core)
       return buttonHoverColor
         ? statusColorIndicators(buttonHoverColor, false, undefined, buttonHoverDescription)

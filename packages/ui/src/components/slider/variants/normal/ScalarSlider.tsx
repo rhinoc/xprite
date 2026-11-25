@@ -14,7 +14,7 @@ import {
   surfaceLayout,
 } from "$/components/canvas-surface";
 import { sizedControlBounds } from "$/components/control-flow/placement";
-import { position } from "$/components/slider/position";
+import { position, sliderSplitWidth } from "$/components/slider/position";
 import type { ValueSliderProps } from "$/components/slider/types";
 import { Text, TextVariant } from "$/components/text";
 
@@ -39,7 +39,7 @@ export function ScalarSlider(props: ValueSliderProps) {
   } = props;
   const bounds = sizedControlBounds(props);
   const host = React.useRef<HTMLDivElement>(null);
-  const { translateSource, definition: theme } = useTheme();
+  const { translateSource, definition: theme, tokens } = useTheme();
   const { measureThemeText } = useThemeText();
   const [focused, setFocused] = React.useState(false),
     [relative, setRelative] = React.useState(false);
@@ -143,18 +143,22 @@ export function ScalarSlider(props: ValueSliderProps) {
   const themeMin = alphaPercentage ? 0 : min,
     themeMax = alphaPercentage ? 100 : hi;
   const border = alphaPercentage ? (theme.parts.slider_empty.slices?.[0] ?? 5) * 2 : 0;
-  const split =
-    bounds.x +
-    border +
-    (themeMax === themeMin
-      ? 0
-      : Math.trunc(
-          (((bounds.width - 2 * border) / 2) * (themeValue - themeMin)) / (themeMax - themeMin),
-        ) * 2);
-  const splitOffset = split - bounds.x;
-  const clipTrack = (full: boolean, left: number, width: number) => (
+  const fullWidth = sliderSplitWidth(themeValue, themeMin, themeMax, bounds.width, border);
+  const text = label ?? String(value),
+    font = labelFont ?? FontRole.Primary,
+    textHeight = font === FontRole.Compact ? 10 : 14;
+  const textX = centerThemePixel(bounds.x, bounds.width, measureThemeText(text, font)) - bounds.x;
+  const textY =
+    centerThemePixel(bounds.y + 8, bounds.height - 18, textHeight) - bounds.y + (focused ? 2 : 0);
+  const fullTextColor = disabled
+    ? theme.colors.disabled
+    : (tokens["--ui-slider-full-text"] ?? theme.colors.slider_full_text);
+  const emptyTextColor = disabled
+    ? theme.colors.disabled
+    : (tokens["--ui-slider-empty-text"] ?? theme.colors.slider_empty_text);
+  const renderHalf = (full: boolean, left: number, width: number) => (
     <span
-      key={`${full}-${left}`}
+      key={`${full ? "full" : "empty"}-${left}`}
       style={{
         position: "absolute",
         left,
@@ -170,39 +174,13 @@ export function ScalarSlider(props: ValueSliderProps) {
         drawCenter
         style={{ ...artworkPartStyle, left: -left, top: 0 }}
       />
-    </span>
-  );
-  const text = label ?? String(value),
-    font = labelFont ?? FontRole.Primary,
-    textHeight = font === FontRole.Compact ? 10 : 14;
-  const textX = centerThemePixel(bounds.x, bounds.width, measureThemeText(text, font)) - bounds.x;
-  const textY =
-    centerThemePixel(bounds.y + 8, bounds.height - 18, textHeight) - bounds.y + (focused ? 2 : 0);
-  const clipText = (full: boolean, left: number, width: number) => (
-    <span
-      key={`text-${full}`}
-      style={{
-        position: "absolute",
-        left,
-        top: 0,
-        width,
-        height: bounds.height,
-        overflow: "hidden",
-      }}
-    >
       <Text
         variant={TextVariant.PositionedPixel}
         text={text}
         x={textX - left}
         y={textY}
         font={font}
-        color={
-          disabled
-            ? theme.colors.disabled
-            : full
-              ? theme.colors.slider_full_text
-              : theme.colors.slider_empty_text
-        }
+        color={full ? fullTextColor : emptyTextColor}
       />
     </span>
   );
@@ -260,18 +238,16 @@ export function ScalarSlider(props: ValueSliderProps) {
   ) : (
     <>
       <span aria-hidden="true" style={themeArtworkStyle}>
-        {value === min ? (
-          clipTrack(false, 0, bounds.width)
-        ) : value === hi ? (
-          clipTrack(true, 0, bounds.width)
+        {fullWidth <= 0 ? (
+          renderHalf(false, 0, bounds.width)
+        ) : fullWidth >= bounds.width ? (
+          renderHalf(true, 0, bounds.width)
         ) : (
           <>
-            {clipTrack(true, 0, splitOffset + 2)}
-            {clipTrack(false, splitOffset + 2, bounds.width - splitOffset - 2)}
+            {renderHalf(true, 0, fullWidth)}
+            {renderHalf(false, fullWidth, bounds.width - fullWidth)}
           </>
         )}
-        {clipText(true, 0, splitOffset + 2)}
-        {clipText(false, splitOffset + 2, bounds.width - splitOffset - 2)}
       </span>
     </>
   );

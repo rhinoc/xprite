@@ -2,7 +2,11 @@ import { useLayoutEffect, useRef } from "react";
 
 import { useWorkspaceLayoutConfiguration } from "$/components/shared/editor-layout-context";
 import { ProfileColorPreview } from "$/components/shared/profile-color-preview";
-import { tUiSource } from "$/i18n";
+import {
+  formatLiveStatusAnnouncement,
+  translateLiveStatusText,
+} from "$/components/shell/live-status-text";
+import { useUiLanguage } from "$/i18n";
 import type { CanvasQuickTool } from "$/managers/canvas/canvas-manager";
 import { useLiveStatusManager } from "$/managers/shell/live-status-manager";
 import { formatEditorColor, type EditorColor } from "$/managers/tools/color-control";
@@ -32,11 +36,11 @@ export function FunctionalStatusText({
   buttonHoverDescription?: string;
   relativeTo: { x: number; y: number };
 }) {
+  useUiLanguage();
   const { style: uiStyle } = useUi();
   const workspaceLayoutConfiguration = useWorkspaceLayoutConfiguration();
   const {
     indicators: sourceIndicators,
-    description,
     undoTooltip,
     colorProfile,
     documentName,
@@ -55,14 +59,11 @@ export function FunctionalStatusText({
           const text = indicator.text.replaceAll(documentName, "").replace(/\s+/g, " ").trim();
           return text ? [{ text }] : [];
         });
-  const announcement =
-    workspaceLayoutConfiguration.chrome.showDocumentNameInStatus || !documentName
-      ? description
-      : description.replaceAll(documentName, "").replace(/\s+/g, " ").trim();
+  const announcement = formatLiveStatusAnnouncement(indicators);
   const previousTextWidths = useRef<readonly (number | null)[]>([]);
   const textWidths = indicators.map((indicator, index) => {
     if (!("text" in indicator)) return null;
-    const measuredWidth = measureUiText(tUiSource(indicator.text));
+    const measuredWidth = measureUiText(translateLiveStatusText(indicator.text));
     const previousWidth = previousTextWidths.current[index];
     // Text indicators grow immediately but shrink only once the text is clearly narrower.
     return previousWidth == null || previousWidth > measuredWidth * TEXT_WIDTH_SHRINK_RATIO
@@ -89,7 +90,7 @@ export function FunctionalStatusText({
   const artwork = indicators.map((indicator, index) => {
     const x = cursor;
     if ("text" in indicator) {
-      const text = tUiSource(indicator.text);
+      const text = translateLiveStatusText(indicator.text);
       cursor += (textWidths[index] ?? 0) + 8;
       return (
         <Text

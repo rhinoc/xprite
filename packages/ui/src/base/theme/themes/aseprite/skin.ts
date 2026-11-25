@@ -1,5 +1,5 @@
 import type { UiThemeArtwork } from "$/base/theme/theme-definition";
-import { FontRole, type UiColorScheme, type UiStyleDefinition } from "$/base/theme/theme-types";
+import { FontRole, UiColorScheme, type UiStyleDefinition } from "$/base/theme/theme-types";
 import { toastTokens } from "$/base/theme/toast-tokens";
 import { panelWindowKindTokens } from "$/base/theme/window-chrome-tokens";
 import { RASTER_SCALE } from "$/components/canvas-surface/metrics";
@@ -39,6 +39,12 @@ export function asepriteSkinTokens(
     "--ui-panel-window-footer-gap": "8px",
     "--ui-panel-window-footer-padding": "3px 10px",
     "--ui-native-slider-thumb-shadow": `inset 1px 1px ${colors.hot_face}, inset -1px -1px ${colors.disabled}`,
+    // Aseprite's light slider_full fill (#7c919d) yields only 3.28:1 contrast against white
+    // slider_full_text; using slider_empty_text (#000000) reaches 6.39:1 and avoids washout
+    // across the filled/unfilled seam. Dark themes keep their light slider_full_text.
+    ...(colorScheme === UiColorScheme.Light
+      ? { "--ui-slider-full-text": colors.slider_empty_text }
+      : {}),
     "--ui-button-surface-border-width": "2px",
     "--ui-button-surface-shadow": `inset 2px 2px ${colors.hot_face}, inset -2px -2px var(--ui-button-surface-line)`,
     "--ui-button-surface-active-shadow": `inset 2px 2px ${colors.disabled}`,

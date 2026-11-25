@@ -1496,6 +1496,7 @@
   "ui.vertical.strip": "垂直条带",
   "ui.by.rows": "按行排列",
   "ui.by.columns": "按列排列",
+  "ui.packed": "紧凑排列",
   "ui.fixed.of.columns": "固定列数",
   "ui.fixed.of.rows": "固定行数",
   "ui.fixed.width": "固定宽度",
@@ -2591,5 +2592,12 @@
   "ui.aseprite.rejection.invalid": "无法读取文件结构，请尝试在 Aseprite 中重新保存。",
   "ui.aseprite.rejection.unknown": "文件未通过校验。",
   "ui.image.export.worker.failed": "无法运行图像编码器工作线程",
-  "ui.image.export.output.unreadable": "无法读取图像编码器输出"
+  "ui.image.export.output.unreadable": "无法读取图像编码器输出",
+  "ui.ready": "就绪",
+  "ui.status.position": "位置",
+  "ui.status.selection.size": "选区大小",
+  "ui.status.cell.index": "网格索引",
+  "ui.status.distance": "距离",
+  "ui.status.aspect.ratio": "宽高比",
+  "ui.status.color.sample": "颜色样本"
 }

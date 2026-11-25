@@ -100,6 +100,8 @@ export function themeTokens(
     "--ui-native-slider-border": colors.popup_window_border,
     "--ui-native-slider-radius": "0",
     "--ui-native-slider-thumb-shadow": "none",
+    "--ui-slider-full-text": colors.slider_full_text,
+    "--ui-slider-empty-text": colors.slider_empty_text,
     "--ui-scrollbar-track-pattern": "none",
     "--ui-scrollbar-thumb-grip": "none",
     "--ui-focus-ring-color": colors.popup_window_border,

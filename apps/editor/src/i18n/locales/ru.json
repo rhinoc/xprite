@@ -1496,6 +1496,7 @@
   "ui.vertical.strip": "Вертикальная полоса",
   "ui.by.rows": "По строкам",
   "ui.by.columns": "По столбцам",
+  "ui.packed": "Компактно",
   "ui.fixed.of.columns": "Фиксированное число столбцов",
   "ui.fixed.of.rows": "Фиксированное число строк",
   "ui.fixed.width": "Фиксированная ширина",
@@ -2591,5 +2592,12 @@
   "ui.aseprite.rejection.invalid": "Не удалось прочитать структуру файла. Попробуйте сохранить его заново в Aseprite.",
   "ui.aseprite.rejection.unknown": "Файл не прошёл проверку.",
   "ui.image.export.worker.failed": "Не удалось запустить рабочий поток кодировщика изображений",
-  "ui.image.export.output.unreadable": "Не удалось прочитать вывод кодировщика изображений"
+  "ui.image.export.output.unreadable": "Не удалось прочитать вывод кодировщика изображений",
+  "ui.ready": "Готово",
+  "ui.status.position": "Положение",
+  "ui.status.selection.size": "Размер выделения",
+  "ui.status.cell.index": "Индекс ячейки",
+  "ui.status.distance": "Расстояние",
+  "ui.status.aspect.ratio": "Соотношение сторон",
+  "ui.status.color.sample": "Образец цвета"
 }

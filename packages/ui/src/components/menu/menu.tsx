@@ -263,8 +263,8 @@ function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
     disabled = false,
     mnemonic = -1,
   ) => {
-    const pass = (dx: number, dy: number, ink: string) => (
-      <span key={`${dx}-${dy}`}>
+    const pass = (dx: number, dy: number, ink: string, decorative = false) => (
+      <span key={`${dx}-${dy}`} aria-hidden={decorative ? "true" : undefined}>
         {menuTextArtwork(
           value,
           theme.controlParts?.menu?.labelGlyphs,
@@ -302,6 +302,7 @@ function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
         )}
         {mnemonic >= 0 && mnemonic < [...value].length && (
           <span
+            aria-hidden="true"
             className={styles.mnemonicUnderline}
             style={{
               left:
@@ -323,15 +324,22 @@ function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
     return (
       <>
         {disabled &&
-          pass(MENU_METRICS.disabledEmboss, MENU_METRICS.disabledEmboss, theme.colors.background)}
+          MENU_METRICS.disabledEmboss > 0 &&
+          pass(
+            MENU_METRICS.disabledEmboss,
+            MENU_METRICS.disabledEmboss,
+            theme.colors.background,
+            true,
+          )}
         {pass(0, 0, color)}
       </>
     );
   };
-  const arrow = (top: number, color: string, dx = 0, dy = 0) =>
+  const arrow = (top: number, color: string, dx = 0, dy = 0, decorative = false) =>
     Array.from({ length: 3 }, (_, column) => (
       <span
         key={`${dx}-${dy}-${column}`}
+        aria-hidden={decorative ? "true" : undefined}
         className={styles.submenuArrow}
         style={{
           left:
@@ -476,12 +484,14 @@ function MenuArtwork({ panel, active }: { panel: Panel; active: number }) {
               {item.children?.length ? (
                 <>
                   {item.disabled &&
+                    MENU_METRICS.disabledEmboss > 0 &&
                     !theme.controlParts?.menu?.arrowPart &&
                     arrow(
                       top,
                       theme.colors.background,
                       MENU_METRICS.disabledEmboss,
                       MENU_METRICS.disabledEmboss,
+                      true,
                     )}
                   {theme.controlParts?.menu?.arrowPart ? (
                     <ThemeIcon

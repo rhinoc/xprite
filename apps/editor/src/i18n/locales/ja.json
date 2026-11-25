@@ -1496,6 +1496,7 @@
   "ui.vertical.strip": "縦一列",
   "ui.by.rows": "行ごと",
   "ui.by.columns": "列ごと",
+  "ui.packed": "パック",
   "ui.fixed.of.columns": "列数を固定",
   "ui.fixed.of.rows": "行数を固定",
   "ui.fixed.width": "幅を固定",
@@ -2591,5 +2592,12 @@
   "ui.aseprite.rejection.invalid": "ファイル構造を読み取れません。Aseprite で保存し直してください。",
   "ui.aseprite.rejection.unknown": "ファイルの検証に失敗しました。",
   "ui.image.export.worker.failed": "画像エンコーダーワーカーを実行できませんでした",
-  "ui.image.export.output.unreadable": "画像エンコーダーの出力を読み取れませんでした"
+  "ui.image.export.output.unreadable": "画像エンコーダーの出力を読み取れませんでした",
+  "ui.ready": "準備完了",
+  "ui.status.position": "位置",
+  "ui.status.selection.size": "選択サイズ",
+  "ui.status.cell.index": "セル番号",
+  "ui.status.distance": "距離",
+  "ui.status.aspect.ratio": "縦横比",
+  "ui.status.color.sample": "カラーサンプル"
 }

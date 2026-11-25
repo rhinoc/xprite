@@ -858,7 +858,7 @@ export function EditorPalette({
               style={
                 showTiles ? undefined : { top: "auto", bottom: PALETTE_VIEWPORT_INSET * UI_SCALE_Y }
               }
-              aria-label="Palette scroll"
+              aria-label={tUi("ui.palette.scroll")}
             />
           )}
           <div

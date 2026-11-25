@@ -1,16 +1,23 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import {
+  clampFilterWindowPosition,
+  type FilterWindowPosition,
+} from "$/components/dialogs/filter-window/position";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { tUi, tUiSource } from "$/i18n";
 import { DialogEffectTarget } from "$/managers/dialogs/effect-dialog-manager";
 import { FontRole, Button, isDialogPopupTarget, Checkbox, FocusRingBehavior } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
-import { isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
+import { UI_SCALE_X, UI_SCALE_Y } from "@xprite/ui/canvas";
+import { isImeKeyboardEvent, keyboardEventKey, viewportContentSize } from "@xprite/ui/utils";
 export interface EditorFilterWindowProps {
   title: string;
   depth?: 8 | 16 | 32;
   bodyWidth: number;
   bodyHeight?: number;
+  initialPosition?: FilterWindowPosition;
+  onPositionChange?: (position: FilterWindowPosition) => void;
   channels: number;
   alphaEnabled?: boolean;
   target: DialogEffectTarget;
@@ -31,6 +38,8 @@ export function EditorFilterWindow({
   depth = 32,
   bodyWidth,
   bodyHeight = 212,
+  initialPosition,
+  onPositionChange,
   channels,
   alphaEnabled = true,
   target,
@@ -46,7 +55,23 @@ export function EditorFilterWindow({
   children,
 }: EditorFilterWindowProps) {
   const host = useRef<HTMLDivElement>(null),
-    height = Math.max(bodyHeight, (tiled === undefined ? 212 : 244) + (depth === 8 ? 24 : 0));
+    height = Math.max(bodyHeight, (tiled === undefined ? 212 : 244) + (depth === 8 ? 24 : 0)),
+    dialogWidth = bodyWidth + 132,
+    dialogHeight = height + 46;
+  const [position, setPosition] = useState<FilterWindowPosition | undefined>(() => {
+    if (!initialPosition) return undefined;
+    if (typeof window === "undefined")
+      return { x: Math.round(initialPosition.x), y: Math.round(initialPosition.y) };
+    const content = viewportContentSize(window);
+    return clampFilterWindowPosition(
+      initialPosition,
+      { width: dialogWidth, height: dialogHeight },
+      {
+        width: Math.floor(content.width / UI_SCALE_X),
+        height: Math.floor(content.height / UI_SCALE_Y),
+      },
+    );
+  });
   useEffect(() => {
     host.current
       ?.querySelector<HTMLButtonElement>('button[data-label-source="OK"]')
@@ -109,9 +134,19 @@ export function EditorFilterWindow({
     >
       <EditorDialog
         open
-        centerOnOpen
+        centerOnOpen={!position}
         title={title}
-        defaultBounds={{ x: 0, y: 0, width: bodyWidth + 132, height: height + 46 }}
+        bounds={
+          position
+            ? { x: position.x, y: position.y, width: dialogWidth, height: dialogHeight }
+            : undefined
+        }
+        defaultBounds={{ x: 0, y: 0, width: dialogWidth, height: dialogHeight }}
+        onBoundsChange={(next) => {
+          const nextPosition = { x: Math.round(next.x), y: Math.round(next.y) };
+          setPosition(nextPosition);
+          onPositionChange?.(nextPosition);
+        }}
         onOpenChange={(open) => {
           if (!open) onCancel();
         }}
