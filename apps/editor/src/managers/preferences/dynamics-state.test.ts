@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 
 import { build } from "esbuild";
 import { describe, it } from "vitest";
@@ -8,7 +9,12 @@ import { SLOW_TRACKING_ENABLED_AMOUNT, SLOW_TRACKING_MAX } from "@xprite/editor-
 describe("dynamics-state", () => {
   it("dynamics-state behavior", async () => {
     const { outputFiles } = await build({
-      entryPoints: ["apps/editor/src/managers/preferences/dynamics-state.ts"],
+      stdin: {
+        contents: await readFile(new URL("./dynamics-state.ts", import.meta.url), "utf8"),
+        resolveDir: import.meta.dirname,
+        sourcefile: "dynamics-state.ts",
+        loader: "ts",
+      },
       bundle: true,
       platform: "node",
       format: "esm",
