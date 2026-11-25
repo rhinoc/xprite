@@ -1,3 +1,5 @@
+import { zlibSync } from "fflate";
+
 import {
   composeAgentPreview,
   previewBoolean,
@@ -1239,11 +1241,15 @@ export class AgentToolsManager {
       const snapshot = slot.core.getPersistenceSnapshot()!,
         persisted = snapshot.document;
       bytes = await encodeAseprite(
-        asepriteFromProject({
-          image: { width: persisted.width, height: persisted.height },
-          timeline: persisted.timeline!,
-          palette: persisted.palette,
-        }),
+        asepriteFromProject(
+          {
+            image: { width: persisted.width, height: persisted.height },
+            timeline: persisted.timeline!,
+            palette: persisted.palette,
+          },
+          { preserveGroupMetadata: true },
+        ),
+        { compress: true, deflate: (celBytes) => zlibSync(celBytes) },
       );
     }
     return {

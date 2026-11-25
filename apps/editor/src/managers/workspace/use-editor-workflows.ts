@@ -74,6 +74,7 @@ import {
 import { DEFAULT_RECOVERY_SETTINGS } from "$/managers/workspace/recovery-settings";
 import { SaveTarget, shouldOpenSaveAsDialog } from "$/managers/workspace/save-target";
 import { useWorkflowActionSnapshot } from "$/managers/workspace/workflow-action-snapshot";
+import { openWorkspaceFiles } from "$/managers/workspace/workflows/open-workspace-files";
 import { presentRecoveryProblem } from "$/managers/workspace/workflows/present-recovery-problem";
 import {
   canCloseSavedDocument,
@@ -1204,33 +1205,17 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     },
 
     open: () => {
-      if (!canStartInteraction()) return;
-      timelineActions?.flushPendingLayerProperties?.();
-      if (sequenceSources.current.length) return;
-      telemetry.documentOpenRequested(DocumentOpenMethod.Import);
-      const picking = workspace.ports.pickFiles();
-      if (!picking) {
-        if (input.current) input.current.multiple = true;
-        input.current?.click();
-        return;
-      }
-      void picking
-        .then((sources) => {
-          if (!sources.length) telemetry.documentOpenCancelled(DocumentOpenMethod.Import);
-          requestSources(sources);
-        })
-        .catch((reason) => {
-          if (
-            typeof reason === "object" &&
-            reason !== null &&
-            "name" in reason &&
-            reason.name === "AbortError"
-          ) {
-            telemetry.documentOpenCancelled(DocumentOpenMethod.Import);
-            return;
-          }
-          session.reportError(reason, SessionOperation.Import);
-        });
+      openWorkspaceFiles({
+        canStartInteraction,
+        flushPendingLayerProperties: timelineActions?.flushPendingLayerProperties,
+        hasPendingSequenceSources: () => sequenceSources.current.length > 0,
+        onRequested: () => telemetry.documentOpenRequested(DocumentOpenMethod.Import),
+        pickFiles: () => workspace.ports.pickFiles(),
+        fallbackInput: () => input.current,
+        onSources: requestSources,
+        onCancelled: () => telemetry.documentOpenCancelled(DocumentOpenMethod.Import),
+        onError: (reason) => session.reportError(reason, SessionOperation.Import),
+      });
     },
     save: () => {
       if (!canDispatchEditorInput()) return;
