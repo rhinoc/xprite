@@ -59,7 +59,7 @@ export const ARTICLES: readonly PublicArticle[] = [
     collection: "compare",
     slug: "aseprite-on-ipad",
     path: "/compare/aseprite-on-ipad/",
-    title: "Aseprite on iPad / iOS: Free Online Alternative | Xprite",
+    title: "Aseprite on iOS: iPhone & iPad Options (No App) | Xprite",
     shortTitle: {
       en: "Aseprite on iPad",
       "zh-CN": "iPad 上的 Aseprite",

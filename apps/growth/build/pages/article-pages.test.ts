@@ -96,3 +96,32 @@ describe("compare article FAQ schema", () => {
     );
   });
 });
+
+describe("EN aseprite-on-ipad document title", () => {
+  const html = articleHtml("/compare/aseprite-on-ipad/", true);
+  const title = "Aseprite on iOS: iPhone &amp; iPad Options (No App) | Xprite";
+  const description =
+    "Aseprite on iPad or for iOS? Open and edit .aseprite free in Safari with Xprite. No App Store install—browser editor that saves the original format.";
+
+  it("sets the English document title from the article registry", () => {
+    assert.ok(html.includes(`<title>${title}</title>`));
+    assert.ok(html.includes(`property="og:title" content="${title}"`));
+    assert.ok(html.includes(`name="twitter:title" content="${title}"`));
+  });
+
+  it("leaves the meta description, visible H1, and Article headline unchanged", () => {
+    assert.ok(html.includes(`name="description" content="${description}"`));
+    assert.match(html, /<h1[^>]*>Aseprite on iPad and iOS — Free Browser Option<\/h1>/);
+    const article = jsonLd(html).find((block) => block["@type"] === "Article") as {
+      headline: string;
+    };
+    assert.equal(article.headline, "Aseprite on iPad and iOS — Free Browser Option");
+  });
+
+  it("does not change other locale document titles", () => {
+    assert.match(
+      articleHtml("/zh-CN/compare/aseprite-on-ipad/", true),
+      /<title>iPad 上用 Aseprite：免费网页方案与 3 款 App \| Xprite<\/title>/,
+    );
+  });
+});
