@@ -193,40 +193,41 @@ describe("export-dialog-flow [feature-7-12]", () => {
       const dialog = mount();
       let p = dialog.render();
       assert.equal(p.title, "Export File");
-      p.actions.find((a) => a.label === "Export").onClick();
-      p = dialog.render();
-      assert.equal(p.title, "GIF Options");
-      p.fields.find((f) => f.key === "dontShow").onChange(true);
+      assert.equal(
+        p.fields.some((f) => f.key === "loop"),
+        false,
+        "GIF omits redundant Animation Loop checkbox since Play Count controls looping",
+      );
+      assert.equal(
+        p.fields.some((f) => f.key === "dontShow"),
+        false,
+        "1-step inline GIF flow omits step-2 Don't Show alert checkbox",
+      );
       p.fields.find((f) => f.key === "interlaced").onChange(true);
       p = dialog.render();
       if (reason === "button") p.actions.find((a) => a.label === "Cancel").onClick();
       else p.onOpenChange(false);
-      assert.equal(dialog.closed, 1, `${reason} exits the whole export flow`);
+      assert.equal(dialog.closed, 1, `${reason} exits the export flow`);
       assert.equal(dialog.exports.length, 0);
-      assert.equal(saved.size, 0, `${reason} discards all GIF format drafts including Don't Show`);
+      assert.equal(saved.size, 0, `${reason} discards all inline GIF drafts without saving prefs`);
     }
     const accepted = mount();
-    accepted
-      .render()
-      .actions.find((a) => a.label === "Export")
-      .onClick();
     let p = accepted.render();
-    p.fields.find((f) => f.key === "dontShow").onChange(true);
     p.fields.find((f) => f.key === "interlaced").onChange(true);
-    p.fields.find((f) => f.key === "loop").onChange(false);
+    p.fields.find((f) => f.key === "loopCount").onChange(1);
     p = accepted.render();
-    p.actions.find((a) => a.label === "OK").onClick();
+    p.actions.find((a) => a.label === "Export").onClick();
     assert.equal(accepted.closed, 0);
-    assert.equal(accepted.exports.length, 1);
+    assert.equal(accepted.exports.length, 1, "GIF exports in one step with inline options");
     assert.equal(accepted.exports[0].gifInterlaced, true);
     assert.equal(accepted.exports[0].loopCount, 1);
     assert.equal(saved.size, 1);
     const next = mount();
-    next
-      .render()
-      .actions.find((a) => a.label === "Export")
-      .onClick();
-    assert.equal(next.exports.length, 1, "global Dont Show skips GIF Options next time");
+    const nextForm = next.render();
+    assert.equal(nextForm.fields.find((f) => f.key === "interlaced").value, true);
+    assert.equal(nextForm.fields.find((f) => f.key === "loopCount").value, 1);
+    nextForm.actions.find((a) => a.label === "Export").onClick();
+    assert.equal(next.exports.length, 1, "saved GIF preferences carry into the next export");
     assert.equal(next.exports[0].gifInterlaced, true);
     assert.equal(next.exports[0].loopCount, 1);
     const countedDocument = document as typeof document & { loopCount?: number };
@@ -260,23 +261,37 @@ describe("export-dialog-flow [feature-7-12]", () => {
         format === "jpg",
       );
       assert.equal(draft.fields.find((field) => field.key === "anidir").disabled, format === "jpg");
-      if (format === "webp")
+      assert.equal(
+        draft.fields.some((field) => field.key === "interlaced"),
+        false,
+        `GIF-only options are hidden on ${format}`,
+      );
+      assert.equal(
+        draft.fields.some((field) => field.key === "jpegMatte"),
+        format === "jpg",
+        `Background color picker is inline only for JPEG`,
+      );
+      if (format === "webp") {
+        assert.equal(
+          draft.fields.find((field) => field.key === "quality").disabled,
+          true,
+          "WebP quality is disabled in Lossless mode",
+        );
         draft.fields.find((field) => field.key === "webpCompression").onChange("lossy");
-      draft.actions.find((action) => action.label === "Export").onClick();
-      draft = staticDialog.render();
-      assert.equal(draft.title, format === "jpg" ? "JPEG Options" : "WebP Options");
+        draft = staticDialog.render();
+        assert.equal(draft.fields.find((field) => field.key === "quality").disabled, false);
+      }
       draft.fields.find((field) => field.key === "quality").onChange(72);
       if (format === "jpg")
         draft.fields.find((field) => field.key === "jpegMatte").onChange("#12345680");
       draft = staticDialog.render();
-      draft.actions.find((action) => action.label === "Cancel").onClick();
-      assert.equal(staticDialog.exports.length, 0);
-      assert.equal(saved.size, 1, "canceling image options never persists format drafts");
-      draft = staticDialog.render();
+      assert.equal(
+        draft.actions.map((action) => action.label).join(","),
+        "Export,Cancel",
+        `${format} uses unified 1-step Export / Cancel actions`,
+      );
       draft.actions.find((action) => action.label === "Export").onClick();
-      draft = staticDialog.render();
-      draft.actions.find((action) => action.label === "Export").onClick();
-      assert.equal(staticDialog.exports.length, 1);
+      assert.equal(staticDialog.exports.length, 1, `${format} exports in one step`);
       assert.equal(staticDialog.exports[0].frames, format === "jpg" ? "current" : "all");
       assert.equal(staticDialog.exports[0].name, `animation.${format}`);
       assert.equal(staticDialog.exports[0].imageQualityPercent, 72);

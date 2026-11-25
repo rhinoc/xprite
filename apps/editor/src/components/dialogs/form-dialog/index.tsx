@@ -213,10 +213,9 @@ export function FormDialog({
   const close = useRef(onOpenChange);
   close.current = onOpenChange;
   useEffect(() => {
-    if (embedded) return;
-    const marker = portalMarker.current;
-    if (marker) setPortalTarget(marker.closest<HTMLElement>("[data-ui-scene]") ?? document.body);
-  }, [embedded]);
+    const node = embedded ? host.current : portalMarker.current;
+    if (node) setPortalTarget(node.closest<HTMLElement>("[data-ui-scene]") ?? document.body);
+  }, [embedded, open]);
   // Content size hints for the label/entry row and dialog actions.
   // Explicit layouts may still request a preferred width in painter pixels.
   const displayMessage = message ? tUiSource(message) : undefined;

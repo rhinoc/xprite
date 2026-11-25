@@ -123,7 +123,11 @@ export function useSpriteSheetDialogModel(documentKey?: string) {
                   ? ("selection" as const)
                   : ("canvas" as const),
             }
-          : defaultSpriteSheetOptions(document)
+          : {
+              ...defaultSpriteSheetOptions(document),
+              name: `${document.name.trim().replace(/\.[^.]*$/, "") || "untitled"}.png`,
+              imageEnabled: true,
+            }
         : EMPTY_SPRITE_SHEET_OPTIONS;
       return initialSource
         ? {
