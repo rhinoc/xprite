@@ -68,5 +68,6 @@ describe("ReadOnlyLayerRow hover tooltip", () => {
     const span = staticHtml.match(/<span\b[^>]*title="[^"]*"[^>]*>/)?.[0];
     expect(span).toBeTruthy();
     expect(span).toMatch(new RegExp(`title="${longName}"`));
+    expect(staticHtml).toContain(`>${longName}</span>`);
   });
 });

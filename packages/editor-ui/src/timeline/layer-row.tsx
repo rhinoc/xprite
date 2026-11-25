@@ -113,9 +113,10 @@ export function ReadOnlyLayerRow({
         <span
           className={styles.layerNameHit}
           style={{ left: (group ? GROUP_FLAG_COUNT : LAYER_FLAG_COUNT) * FLAG_CELL_WIDTH }}
-          aria-label={layer.name}
           title={layer.name}
-        />
+        >
+          <span className={styles.layerNameText}>{layer.name}</span>
+        </span>
       )}
     </div>
   );
