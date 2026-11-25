@@ -66,4 +66,72 @@ describe("technical document validation", () => {
       false,
     );
   });
+
+  it("deduplicates findings from cels linked across multiple frames", () => {
+    const pixels = new Uint8ClampedArray(4 * 4 * 4);
+    pixels.set([255, 255, 255, 255], 0);
+    const editor = new RasterEditor({ width: 4, height: 4, data: pixels }, "Backdrop");
+    const layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 0, duplicate: false },
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 1, duplicate: false },
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 2, duplicate: false },
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 3, duplicate: false },
+        { type: BatchEditKind.LinkCels, layerId, frameIndices: [0, 1, 2, 3, 4] },
+      ],
+      editor.getContentRevision(),
+      "Link static backdrop across 5 frames",
+    );
+
+    const result = validateDocument(editor.getSnapshot().document!, { checks: ["strays"] });
+    expect(result.counts).toEqual({ errors: 0, warnings: 1, notes: 0 });
+    expect(result.findings).toHaveLength(1);
+    expect(result.findings[0]).toMatchObject({
+      check: "strays",
+      layerId,
+      frameIndex: 0,
+      frameIndices: [0, 1, 2, 3, 4],
+      count: 1,
+    });
+    expect(result.findings[0].message).toContain("frames 0–4 (5 linked)");
+  });
+
+  it("reports non-contiguous linked cel spans separately from unlinked dynamic frames", () => {
+    const pixels = new Uint8ClampedArray(4 * 4 * 4);
+    pixels.set([255, 0, 0, 255], 0);
+    const editor = new RasterEditor({ width: 4, height: 4, data: pixels }, "Mixed");
+    const layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    editor.applyBatch(
+      [
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 0, duplicate: false },
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 1, duplicate: false },
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 2, duplicate: false },
+        { type: BatchEditKind.AddFrame, afterFrameIndex: 3, duplicate: false },
+        { type: BatchEditKind.LinkCels, layerId, frameIndices: [0, 1, 3, 4] },
+        {
+          type: BatchEditKind.FillRect,
+          layerId,
+          frameIndex: 2,
+          rect: { x: 3, y: 3, width: 1, height: 1 },
+          color: "#00FF00",
+        },
+      ],
+      editor.getContentRevision(),
+      "Link frames 0,1,3,4 and paint unique frame 2",
+    );
+
+    const result = validateDocument(editor.getSnapshot().document!, { checks: ["strays"] });
+    expect(result.counts.warnings).toBe(2);
+    expect(result.findings[0]).toMatchObject({
+      frameIndex: 0,
+      frameIndices: [0, 1, 3, 4],
+    });
+    expect(result.findings[0].message).toContain("frames 0–1, 3–4 (4 linked)");
+    expect(result.findings[1]).toMatchObject({
+      frameIndex: 2,
+    });
+    expect(result.findings[1].frameIndices).toBeUndefined();
+    expect(result.findings[1].message).toContain("frame 2.");
+  });
 });

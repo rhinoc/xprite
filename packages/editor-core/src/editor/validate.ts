@@ -42,6 +42,7 @@ export interface ValidateFinding {
   message: string;
   layerId?: string;
   frameIndex?: number;
+  frameIndices?: number[];
   at?: { x: number; y: number };
   count?: number;
 }
@@ -114,6 +115,59 @@ function celHasInk(source: { pixels: PixelBuffer } | null): boolean {
   const data = source.pixels.data;
   for (let at = 3; at < data.length; at += CHANNELS) if (data[at] !== 0) return true;
   return false;
+}
+
+interface UniqueLayerCel {
+  source: { pixels: PixelBuffer; x: number; y: number };
+  frames: number[];
+}
+
+/** Group frames on one layer that share identical linked cel image data and offset. */
+function collectUniqueLayerCels(
+  doc: EditorDocument,
+  t: SpriteTimeline,
+  layerIndex: number,
+): UniqueLayerCel[] {
+  const groups: UniqueLayerCel[] = [];
+  const byPixels = new Map<PixelBuffer, Map<string, UniqueLayerCel>>();
+  for (let f = 0; f < t.frames.length; f++) {
+    const source = celSource(doc, t, layerIndex, f);
+    if (!source) continue;
+    let byOffset = byPixels.get(source.pixels);
+    if (!byOffset) {
+      byOffset = new Map();
+      byPixels.set(source.pixels, byOffset);
+    }
+    const offsetKey = `${source.x},${source.y}`;
+    const existing = byOffset.get(offsetKey);
+    if (existing) {
+      existing.frames.push(f);
+    } else {
+      const group: UniqueLayerCel = { source, frames: [f] };
+      byOffset.set(offsetKey, group);
+      groups.push(group);
+    }
+  }
+  return groups;
+}
+
+function formatFrameScope(frames: readonly number[]): string {
+  if (frames.length === 1) return `frame ${frames[0]}`;
+  const runs: string[] = [];
+  let start = frames[0];
+  let end = frames[0];
+  for (let i = 1; i < frames.length; i++) {
+    const frame = frames[i];
+    if (frame === end + 1) {
+      end = frame;
+    } else {
+      runs.push(start === end ? `${start}` : `${start}–${end}`);
+      start = frame;
+      end = frame;
+    }
+  }
+  runs.push(start === end ? `${start}` : `${start}–${end}`);
+  return `frames ${runs.join(", ")} (${frames.length} linked)`;
 }
 
 /** CIE76 distance in CIELAB; good enough for near-duplicate palette lints. */
@@ -275,9 +329,12 @@ export function validateDocument(
 
     if (!visible.has(index)) continue;
 
-    for (let f = 0; f < t.frames.length; f++) {
-      const source = celSource(doc, t, index, f);
-      if (!source) continue;
+    for (const group of collectUniqueLayerCels(doc, t, index)) {
+      const { source, frames } = group;
+      const f = frames[0];
+      const frameScope = formatFrameScope(frames);
+      const frameLocation =
+        frames.length > 1 ? { frameIndex: f, frameIndices: frames } : { frameIndex: f };
       const { pixels } = source;
       const data = pixels.data,
         w = pixels.width,
@@ -305,8 +362,8 @@ export function validateDocument(
           add(
             "strays",
             "warning",
-            `${strays} isolated pixel(s) with no orthogonal neighbour on '${layer.name}' frame ${f}. Review at 1x; particles, rain and highlights may intentionally use isolated pixels.`,
-            { layerId: layer.id, frameIndex: f, at: first, count: strays },
+            `${strays} isolated pixel(s) with no orthogonal neighbour on '${layer.name}' ${frameScope}. Review at 1x; particles, rain and highlights may intentionally use isolated pixels.`,
+            { layerId: layer.id, ...frameLocation, at: first, count: strays },
           );
       }
 
@@ -324,8 +381,8 @@ export function validateDocument(
           add(
             "antialiasing",
             "warning",
-            `${semi} semi-transparent pixel(s) on '${layer.name}' frame ${f}. Check whether partial alpha is intended; review against light and dark backgrounds.`,
-            { layerId: layer.id, frameIndex: f, at: first, count: semi },
+            `${semi} semi-transparent pixel(s) on '${layer.name}' ${frameScope}. Check whether partial alpha is intended; review against light and dark backgrounds.`,
+            { layerId: layer.id, ...frameLocation, at: first, count: semi },
           );
       }
 
@@ -363,15 +420,15 @@ export function validateDocument(
             add(
               "outline",
               "warning",
-              `Outline is ${Math.round(share * 100)}% '${best}' but ${edge.length - bestCount} edge pixel(s) use a different colour on '${layer.name}' frame ${f}. Review the silhouette; selective colored edges may be intentional.`,
-              { layerId: layer.id, frameIndex: f, at: first, count: edge.length - bestCount },
+              `Outline is ${Math.round(share * 100)}% '${best}' but ${edge.length - bestCount} edge pixel(s) use a different colour on '${layer.name}' ${frameScope}. Review the silhouette; selective colored edges may be intentional.`,
+              { layerId: layer.id, ...frameLocation, at: first, count: edge.length - bestCount },
             );
           } else if (share < OUTLINE_OWNER_SHARE)
             add(
               "outline",
               "note",
-              `No single colour owns the silhouette edge on '${layer.name}' frame ${f}, so this sprite is not outlined. That is a valid style — just keep it consistent.`,
-              { layerId: layer.id, frameIndex: f },
+              `No single colour owns the silhouette edge on '${layer.name}' ${frameScope}, so this sprite is not outlined. That is a valid style — just keep it consistent.`,
+              { layerId: layer.id, ...frameLocation },
             );
         }
       }
@@ -409,8 +466,8 @@ export function validateDocument(
           add(
             "banding",
             "note",
-            `A ${worst}-pixel straight boundary between ${worstPair[0]} and ${worstPair[1]} on '${layer.name}' frame ${f}. Review the form; straight edges are often intentional in buildings and UI.`,
-            { layerId: layer.id, frameIndex: f, at: worstAt, count: worst },
+            `A ${worst}-pixel straight boundary between ${worstPair[0]} and ${worstPair[1]} on '${layer.name}' ${frameScope}. Review the form; straight edges are often intentional in buildings and UI.`,
+            { layerId: layer.id, ...frameLocation, at: worstAt, count: worst },
           );
       }
     }

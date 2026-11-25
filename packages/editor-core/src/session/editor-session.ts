@@ -10,6 +10,7 @@ import {
 import { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
 import { defaultImportPixelationSettings, rasterAnimationProject } from "$/import-export/image";
+import { extractPixelatedFramesPalette } from "$/session/pixelated-frames-palette";
 import {
   RecentImageStore,
   createBlankImage,
@@ -1054,9 +1055,10 @@ export class EditorSession<Source> {
   }
   /**
    * Rebuild an imported project's timeline with every frame composite pixelated like the
-   * preview. Frame durations, the loop count and the project palette survive; layer
-   * structure and positioned metadata do not — pixelated output is one flat layer at the
-   * target size, same as a still image Pixelate.
+   * preview. Frame durations and the loop count survive, and the document palette is built
+   * across all pixelated frames (or the chosen target palette); layer structure and positioned
+   * metadata do not — pixelated output is one flat layer at the target size, same as a still
+   * image Pixelate.
    */
   private async pixelateProject(
     candidate: Candidate,
@@ -1085,6 +1087,11 @@ export class EditorSession<Source> {
       if (this.disposed) break;
       frames.push({ pixels, durationMs: frame.duration });
     }
+    if (this.disposed || !frames.length) return project;
+    const palette =
+      settings.reduceColors && settings.palette?.length
+        ? settings.palette.map((color) => [...color] as Rgba)
+        : extractPixelatedFramesPalette(frames.map((frame) => frame.pixels));
     return {
       ...rasterAnimationProject({
         ...(timeline.loopCount === undefined ? {} : { loopCount: timeline.loopCount }),
@@ -1092,7 +1099,7 @@ export class EditorSession<Source> {
         height: firstFrame.height,
         frames,
       }),
-      ...(project.palette ? { palette: project.palette } : {}),
+      palette,
     };
   }
   requestNew(size: SessionSize = this.state.newSize): SessionOutcome {
