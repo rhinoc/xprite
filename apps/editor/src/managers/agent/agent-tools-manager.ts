@@ -531,10 +531,11 @@ export class AgentToolsManager {
       const id = name(input.layerId, "layerId"),
         index = t.layers.findIndex((layer) => layer.id === id);
       if (index < 0) throw new BatchEditError(BatchEditErrorCode.NotFound, "Layer does not exist");
-      if (t.layers[index].kind && t.layers[index].kind !== "image")
+      const layerKind = t.layers[index].kind;
+      if (layerKind && layerKind !== "image" && layerKind !== "tilemap")
         throw new BatchEditError(
           BatchEditErrorCode.Unsupported,
-          "Read image-layer pixels or omit layerId for the composite",
+          "Read image or tilemap layer pixels, or omit layerId for the composite",
         );
       const cel = t.frames[frameIndex].cels[index];
       const active = frameIndex === t.activeFrame && index === t.activeLayer;
