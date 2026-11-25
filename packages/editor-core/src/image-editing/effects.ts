@@ -917,19 +917,26 @@ function editable(t: SpriteTimeline, layer: number) {
   );
 }
 
-function effectCelScope(t: SpriteTimeline, target: EffectTarget, preview: boolean) {
-  const range = !preview && target === EffectTarget.Selected ? t.range : undefined;
+function effectCelScope(
+  t: SpriteTimeline,
+  target: EffectTarget,
+  preview: boolean,
+  previewTargetLayers = false,
+) {
+  const range =
+    (!preview || previewTargetLayers) && target === EffectTarget.Selected ? t.range : undefined;
   return {
     frames: preview
       ? [t.activeFrame]
       : target === EffectTarget.All || range?.kind === "layers"
         ? t.frames.map((_, i) => i)
         : (range?.frames ?? [t.activeFrame]),
-    layers: preview
-      ? [t.activeLayer]
-      : target === EffectTarget.All || range?.kind === "frames"
-        ? t.layers.map((_, i) => i)
-        : (range?.layers ?? [t.activeLayer]),
+    layers:
+      preview && !previewTargetLayers
+        ? [t.activeLayer]
+        : target === EffectTarget.All || range?.kind === "frames"
+          ? t.layers.map((_, i) => i)
+          : (range?.layers ?? [t.activeLayer]),
   };
 }
 
@@ -1077,7 +1084,12 @@ export function applyDocumentEffect(
   const doc = { ...document, layer: { ...document.layer } },
     t = ensureTimeline(doc);
   if (t.colorDepth === 8) return applyIndexedDocumentEffect(document, spec, target, preview);
-  const { frames: frameIds, layers: layerIds } = effectCelScope(t, target, preview);
+  const { frames: frameIds, layers: layerIds } = effectCelScope(
+    t,
+    target,
+    preview,
+    spec.kind === EffectKind.CleanPixels,
+  );
   let timeline = t,
     changed = false;
   const visited = new Set<PixelBuffer>();
@@ -1136,7 +1148,7 @@ export const previewDocumentEffect = (
   spec: EffectSpec,
   mode: TilemapEditMode = TilesetMode.Auto,
   target = EffectTarget.Selected,
-) => applyDocumentEffect(doc, spec, target, spec.kind !== EffectKind.CleanPixels, mode);
+) => applyDocumentEffect(doc, spec, target, true, mode);
 function grayscaleSpec(spec: EffectSpec, channels: number): EffectSpec {
   const gray = (c: Rgba): Rgba => {
     const v = Math.trunc((Math.max(c[0], c[1], c[2]) + Math.min(c[0], c[1], c[2])) / 2);
@@ -1199,7 +1211,12 @@ function applyIndexedDocumentEffect(
     updateAsepriteFramePalette(doc, next);
     return doc;
   }
-  const { frames: frameIds, layers: layerIds } = effectCelScope(t, target, preview);
+  const { frames: frameIds, layers: layerIds } = effectCelScope(
+    t,
+    target,
+    preview,
+    spec.kind === EffectKind.CleanPixels,
+  );
   let timeline = t,
     changed = false;
   const visited = new Set<AsepriteImageSamples | PixelBuffer>();
@@ -1501,7 +1518,12 @@ function applyTilemapDocumentEffect(
   mode: TilemapEditMode,
 ): EditorDocument {
   const original = document.timeline!;
-  const { frames, layers } = effectCelScope(original, target, preview);
+  const { frames, layers } = effectCelScope(
+    original,
+    target,
+    preview,
+    spec.kind === EffectKind.CleanPixels,
+  );
   let timeline = original,
     changed = false;
   const visited = new Set<unknown>();

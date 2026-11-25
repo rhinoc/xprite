@@ -179,6 +179,7 @@ describe("Clean Pixels document transactions", () => {
         layers: [layer, other, locked],
         frames: [
           { duration: 100, cels: [cel(image("R")), cel(image("S"), 1), cel(image("s"), 2)] },
+          { duration: 100, cels: [cel(image("S")), null, null] },
         ],
       },
       3,
@@ -192,10 +193,12 @@ describe("Clean Pixels document transactions", () => {
     const preview = editor.imageEditing.getEffectPreview()!;
     expect(preview.timeline!.frames[0].cels[1]!.pixels).toEqual(image("G"));
     expect(preview.timeline!.frames[0].cels[2]!.pixels).toEqual(image("s"));
+    expect(preview.timeline!.frames[1].cels[0]!.pixels).toEqual(image("S"));
     editor.imageEditing.previewEffect(null);
     expect(editor.getSnapshot().document!.timeline!.frames[0].cels[1]!.pixels).toEqual(image("S"));
     editor.imageEditing.applyEffect(spec, EffectTarget.All);
     expect(editor.getSnapshot().document!.timeline!.frames[0].cels[1]!.pixels).toEqual(image("G"));
+    expect(editor.getSnapshot().document!.timeline!.frames[1].cels[0]!.pixels).toEqual(image("G"));
   });
 
   it("uses each frame palette for unlinked RGB cels", () => {

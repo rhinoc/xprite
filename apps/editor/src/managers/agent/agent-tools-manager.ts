@@ -1723,8 +1723,8 @@ export class AgentToolsManager {
             ...finding,
             cleanup: {
               type: BatchEditKind.CleanPixels,
-              layerId,
-              frameIndex,
+              ...(layerId !== undefined ? { layerId } : {}),
+              ...(frameIndex !== undefined ? { frameIndex } : {}),
               options: { [pass]: true },
             },
           };
