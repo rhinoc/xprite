@@ -18,4 +18,4 @@ export * from "$/color/palette-agent";
 export * from "$/color/selector";
 export * from "$/color/quantization";
 export * from "$/color/types";
-export { rgbToLab, type Lab } from "$/color/cielab";
+export { labToRgb, rgbToLab, type Lab } from "$/color/cielab";

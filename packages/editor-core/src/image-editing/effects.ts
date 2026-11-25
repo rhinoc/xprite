@@ -1,5 +1,6 @@
 import { BYTE_ROUNDING_BIAS, UINT8_MAX, BITS_PER_BYTE } from "$/base/numeric-constants";
 import type { PixelBuffer, PixelMask, Rect, Rgba } from "$/base/primitives";
+import { labToRgb } from "$/color";
 import {
   updateAsepriteFramePalette,
   normalizeAsepriteDocument,
@@ -26,6 +27,11 @@ import {
   medianSamples,
   type ColorCurvePoint,
 } from "$/image-editing/advanced-filters";
+import {
+  darkenOutlineSample,
+  selectiveOutlinePaletteMatcher,
+  selectiveOutlineSampler,
+} from "$/image-editing/selective-outline";
 import { selectionContains, selectionLayerReference } from "$/selection/operations";
 import {
   commitTilemapPixels,
@@ -64,6 +70,10 @@ export enum HueSaturationMode {
   HslMul = "hsl-mul",
   HsvAdd = "hsv-add",
   HslAdd = "hsl-add",
+}
+export enum OutlineColorMode {
+  Solid = "solid",
+  Selective = "selective",
 }
 interface Channels {
   channels?: number;
@@ -113,6 +123,8 @@ export type EffectSpec = Channels &
       }
     | {
         kind: EffectKind.Outline;
+        colorMode?: OutlineColorMode;
+        darkening?: number;
         color: Rgba;
         bgColor: Rgba;
         place: "outside" | "inside";
@@ -126,6 +138,7 @@ export const OUTLINE_MATRICES = {
   horizontal: 0o050,
   vertical: 0o202,
 } as const;
+export const OUTLINE_DARKENING = { min: 1, max: 100, default: 30 } as const;
 const RGBA_BYTES_PER_PIXEL = 4;
 const BYTE_VALUE_COUNT = UINT8_MAX + 1;
 const CHANNEL_RED = 1;
@@ -133,6 +146,7 @@ const CHANNEL_GREEN = 2;
 const CHANNEL_BLUE = 4;
 const CHANNEL_ALPHA = 8;
 const CHANNEL_GRAY = 16;
+const CHANNEL_INDEX = 32;
 const RGB_CHANNELS_MASK = CHANNEL_RED | CHANNEL_GREEN | CHANNEL_BLUE;
 const RGBA_CHANNELS_MASK = RGB_CHANNELS_MASK | CHANNEL_ALPHA;
 const HUE_MAX_DEGREES = 360;
@@ -143,7 +157,20 @@ const HSL_LIGHTNESS_DIVISOR = UINT8_MAX * 2;
 const INVERT_LUT = Uint8Array.from({ length: BYTE_VALUE_COUNT }, (_, value) => UINT8_MAX - value);
 const clamp = (v: number, min: number, max: number) =>
   clampNumber(Number.isFinite(v) ? v : 0, min, max);
+type OutlineSpec = Extract<EffectSpec, { kind: EffectKind.Outline }>;
+const outlineShadeScale = ({ darkening }: OutlineSpec) =>
+  1 -
+  clamp(
+    darkening !== undefined && Number.isFinite(darkening) ? darkening : OUTLINE_DARKENING.default,
+    OUTLINE_DARKENING.min,
+    OUTLINE_DARKENING.max,
+  ) /
+    PERCENT_SCALE;
 export const effectChannels = (spec: EffectSpec, background = false, depth: 8 | 16 | 32 = 32) => {
+  if (spec.kind === EffectKind.Outline && spec.colorMode === OutlineColorMode.Selective) {
+    if (depth === 8) return CHANNEL_INDEX;
+    return (depth === 16 ? CHANNEL_GRAY : RGB_CHANNELS_MASK) | (background ? 0 : CHANNEL_ALPHA);
+  }
   if (
     spec.kind === EffectKind.ColorCurve ||
     spec.kind === EffectKind.MedianBlur ||
@@ -222,6 +249,7 @@ export function defaultEffect(
     case EffectKind.Outline:
       return {
         kind,
+        colorMode: OutlineColorMode.Solid,
         color: foreground,
         colorIndex: valid(indices.foregroundIndex),
         bgIndex: valid(indices.outlineBackgroundIndex),
@@ -728,6 +756,43 @@ function applyOutlinePixels(
     }
   }
 }
+function applySelectiveOutlinePixels(
+  source: PixelBuffer,
+  destination: Uint8ClampedArray,
+  selection: PixelMask | null,
+  spec: OutlineSpec,
+): void {
+  const { width, height, data } = source;
+  const offsets = outlineOffsets(spec.matrix);
+  if (!offsets.length) return;
+  const [bgR, bgG, bgB, bgA] = spec.bgColor;
+  const sample = selectiveOutlineSampler(
+    width,
+    height,
+    offsets,
+    spec.tiledMode ?? 0,
+    spec.place === "outside",
+    (pixel) => {
+      const at = pixel * RGBA_BYTES_PER_PIXEL;
+      return (
+        data[at + 3] === 0 ||
+        (data[at] === bgR && data[at + 1] === bgG && data[at + 2] === bgB && data[at + 3] === bgA)
+      );
+    },
+    (pixel) => {
+      const at = pixel * RGBA_BYTES_PER_PIXEL;
+      return [data[at], data[at + 1], data[at + 2], data[at + 3]];
+    },
+  );
+  const scale = outlineShadeScale(spec);
+  const processAt = (at: number) => {
+    const pixel = at / RGBA_BYTES_PER_PIXEL;
+    const sampled = sample(pixel % width, Math.floor(pixel / width));
+    if (sampled) destination.set(labToRgb(darkenOutlineSample(sampled, scale)), at);
+  };
+  if (selection) forEachSelectedOffset(width, height, selection, processAt);
+  else for (let at = 0; at < data.length; at += RGBA_BYTES_PER_PIXEL) processAt(at);
+}
 /** Apply a canvas-sized transform to a snapshot. Selection limits writes,
  * while neighborhood reads always use the unmodified source. Untiled reads
  * clamp at the canvas edge. */
@@ -781,8 +846,12 @@ export function applyEffectPixels(
   const dstData = srcData.slice();
   const { width, height } = source;
   if (pixelSpec.kind === EffectKind.Outline) {
-    const outlineChannels = depth === 16 ? (pixelSpec.channels ?? RGBA_CHANNELS_MASK) : channels;
-    applyOutlinePixels(srcData, dstData, width, height, selection, pixelSpec, outlineChannels);
+    if (pixelSpec.colorMode === OutlineColorMode.Selective)
+      applySelectiveOutlinePixels(source, dstData, selection, pixelSpec);
+    else {
+      const outlineChannels = depth === 16 ? (pixelSpec.channels ?? RGBA_CHANNELS_MASK) : channels;
+      applyOutlinePixels(srcData, dstData, width, height, selection, pixelSpec, outlineChannels);
+    }
   } else if (pixelSpec.kind === EffectKind.ColorCurve) {
     applyChannelLut(
       srcData,
@@ -1151,17 +1220,35 @@ function applyIndexedDocumentEffect(
           spec.kind === EffectKind.ReplaceColor
             ? asepriteIndexFor(spec.to, palette, mask, spec.toIndex)
             : 0;
+      const outline = spec.kind === EffectKind.Outline ? spec : undefined;
+      const selective = outline?.colorMode === OutlineColorMode.Selective;
       const outlineColor =
-          spec.kind === EffectKind.Outline
-            ? asepriteIndexFor(spec.color, palette, mask, spec.colorIndex)
+          outline && !selective
+            ? asepriteIndexFor(outline.color, palette, mask, outline.colorIndex)
             : 0,
-        bg =
-          spec.kind === EffectKind.Outline
-            ? asepriteIndexFor(spec.bgColor, palette, mask, spec.bgIndex)
-            : 0;
-      const outlineMatrix = spec.kind === EffectKind.Outline ? outlineOffsets(spec.matrix) : [];
+        bg = outline ? asepriteIndexFor(outline.bgColor, palette, mask, outline.bgIndex) : 0;
+      const outlineMatrix = outline ? outlineOffsets(outline.matrix) : [];
+      const selectiveOutline =
+        outline && selective
+          ? selectiveOutlineSampler(
+              doc.width,
+              doc.height,
+              outlineMatrix,
+              outline.tiledMode ?? 0,
+              outline.place === "outside",
+              (pixel) => {
+                const index = source[pixel];
+                return index === mask || index === bg || !color(index)[3];
+              },
+              (pixel) => color(source[pixel]),
+            )
+          : undefined;
+      const matchOutlinePalette =
+        outline && selective
+          ? selectiveOutlinePaletteMatcher(palette, mask, outlineShadeScale(outline))
+          : undefined;
       const indexedEmptyAt =
-        spec.kind === EffectKind.Outline
+        outline && !selective
           ? (x: number, y: number) => {
               const index = source[y * doc.width + x];
               return !color(index)[3] || index === bg;
@@ -1197,7 +1284,10 @@ function applyIndexedDocumentEffect(
               channels & 32
                 ? index ^ UINT8_MAX
                 : asepriteBestFit(...effectPixel(rgba, { ...spec, channels }), pal, mask);
-          else if (spec.kind === EffectKind.Outline) {
+          else if (selectiveOutline && matchOutlinePalette) {
+            const sampled = selectiveOutline(x, y);
+            if (sampled) next = matchOutlinePalette(sampled) ?? index;
+          } else if (spec.kind === EffectKind.Outline) {
             const hasNeighbor = outlineHasNeighbor(
               doc.width,
               doc.height,

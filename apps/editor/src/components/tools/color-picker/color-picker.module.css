@@ -10,6 +10,12 @@
   pointer-events: auto;
 }
 
+.footer {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-end: 0;
+}
+
 .swatchGroup button {
   position: absolute;
   top: 16.6667%;

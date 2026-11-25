@@ -9,8 +9,10 @@ import {
   createDialogEffect,
   updateDialogEffectColor,
   getDialogEffectChannels,
+  DIALOG_OUTLINE_DARKENING,
   DIALOG_OUTLINE_MATRICES,
   DialogEffectKind,
+  DialogOutlineColorMode,
   DialogHueSaturationMode,
   DialogEffectTarget,
   type DialogEffectSpec,
@@ -40,6 +42,11 @@ import type { SurfaceBounds } from "@xprite/ui";
 import { FIELD_ROW_HEIGHT } from "@xprite/ui/canvas";
 
 const COLOR_CURVE_BODY_WIDTH = 256;
+const OUTLINE_COLOR_X = 164;
+const SWATCH_WIDTH = 128;
+const OUTLINE_DARKENING_X = 106;
+const OUTLINE_DARKENING_Y = 144;
+const OUTLINE_DARKENING_LABEL_HEIGHT = 24;
 
 const titles: Record<DialogEffectKind, string> = {
   [DialogEffectKind.ReplaceColor]: "Replace Color",
@@ -117,6 +124,8 @@ export function EffectDialogs({
     previewRef = useRef(onPreview);
   const [curvePoint, setCurvePoint] = useState(0);
   const [pointEditor, setPointEditor] = useState<number | null>(null);
+  const selective =
+    spec.kind === DialogEffectKind.Outline && spec.colorMode === DialogOutlineColorMode.Selective;
   const tiled =
     spec.kind === DialogEffectKind.Outline ||
     spec.kind === DialogEffectKind.MedianBlur ||
@@ -159,7 +168,7 @@ export function EffectDialogs({
     y: number,
   ) => {
     const value = (spec as unknown as Record<string, DialogColor>)[key];
-    const b = { x: c.x + x, y: c.y + y, width: 128, height: 30 };
+    const b = { x: c.x + x, y: c.y + y, width: SWATCH_WIDTH, height: 30 };
     const index =
       spec[
         key === "from"
@@ -244,7 +253,7 @@ export function EffectDialogs({
         target={target}
         preview={preview}
         tiled={tiled && "tiledMode" in spec ? !!spec.tiledMode : undefined}
-        onChannels={(channels) => patch({ channels })}
+        onChannels={selective ? undefined : (channels) => patch({ channels })}
         onTarget={setTarget}
         onPreview={setPreview}
         onTiled={(value) => patch({ tiledMode: value ? 3 : 0 })}
@@ -495,14 +504,45 @@ export function EffectDialogs({
                   relativeTo={c}
                   text="Outline Color:"
                 />
-                {swatch(c, "color", "Outline color", 164, 0)}
+                {selective ? (
+                  <Combobox
+                    bounds={{
+                      x: c.x + OUTLINE_COLOR_X,
+                      y: c.y,
+                      width: SWATCH_WIDTH,
+                      height: FIELD_ROW_HEIGHT,
+                    }}
+                    relativeTo={c}
+                    aria-label={tUi("ui.outline.color.mode")}
+                    value={DialogOutlineColorMode.Selective}
+                    fitPopupToContent
+                    options={[
+                      {
+                        value: DialogOutlineColorMode.Solid,
+                        label: tUi("ui.outline.color.solid"),
+                        translateLabel: false,
+                      },
+                      {
+                        value: DialogOutlineColorMode.Selective,
+                        label: tUi("ui.outline.color.selective"),
+                        translateLabel: false,
+                      },
+                    ]}
+                    onValueChange={(value) => {
+                      if (value === DialogOutlineColorMode.Solid)
+                        patch({ colorMode: DialogOutlineColorMode.Solid });
+                    }}
+                  />
+                ) : (
+                  swatch(c, "color", "Outline color", OUTLINE_COLOR_X, 0)
+                )}
                 <Text
                   variant={TextVariant.Control}
                   bounds={{ x: c.x + 2, y: c.y + 38, width: 154, height: 30 }}
                   relativeTo={c}
                   text="Background Color:"
                 />
-                {swatch(c, "bgColor", "Background color", 164, 38)}
+                {swatch(c, "bgColor", "Background color", OUTLINE_COLOR_X, 38)}
                 {(["circle", "square", "horizontal", "vertical"] as const).map((name, i) => (
                   <Button
                     key={name}
@@ -548,6 +588,36 @@ export function EffectDialogs({
                     onClick={() => patch({ place })}
                   />
                 ))}
+                {selective && (
+                  <>
+                    <Text
+                      variant={TextVariant.Control}
+                      bounds={{
+                        x: c.x + OUTLINE_DARKENING_X,
+                        y: c.y + OUTLINE_DARKENING_Y,
+                        width: c.width - OUTLINE_DARKENING_X,
+                        height: OUTLINE_DARKENING_LABEL_HEIGHT,
+                      }}
+                      relativeTo={c}
+                      text={tUi("ui.outline.darkening.label")}
+                    />
+                    <Slider
+                      bounds={{
+                        x: c.x + OUTLINE_DARKENING_X,
+                        y: c.y + OUTLINE_DARKENING_Y + OUTLINE_DARKENING_LABEL_HEIGHT,
+                        width: c.width - OUTLINE_DARKENING_X,
+                        height: FIELD_ROW_HEIGHT,
+                      }}
+                      relativeTo={c}
+                      aria-label={tUi("ui.outline.darkening")}
+                      label={`${spec.darkening ?? DIALOG_OUTLINE_DARKENING.default}%`}
+                      value={spec.darkening ?? DIALOG_OUTLINE_DARKENING.default}
+                      min={DIALOG_OUTLINE_DARKENING.min}
+                      max={DIALOG_OUTLINE_DARKENING.max}
+                      onValueChange={(darkening) => patch({ darkening })}
+                    />
+                  </>
+                )}
               </>
             )}
           </>
@@ -587,6 +657,17 @@ export function EffectDialogs({
           if (!open) setPicker(null);
         }}
         value={formatEditorColor(pickerColor ?? foreground)}
+        footerAction={
+          picker?.key === "color" && spec.kind === DialogEffectKind.Outline
+            ? {
+                label: tUi("ui.outline.color.selective.open"),
+                onClick: () => {
+                  setPicker(null);
+                  patch({ colorMode: DialogOutlineColorMode.Selective });
+                },
+              }
+            : undefined
+        }
         onValueChange={(v) => {
           if (picker)
             setSpec((old) => updateDialogEffectColor(old, picker.key, parseEditorColor(v)));

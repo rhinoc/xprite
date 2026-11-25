@@ -83,6 +83,7 @@ export interface ColorPickerProps {
   value: string;
   onValueChange: (value: string) => void;
   onScreenColorChange?: (value: string) => void;
+  footerAction?: { label: string; onClick: () => void };
   title?: string;
   showCloseButton?: boolean;
   /** Aseprite scene coordinates of the color button; popup fits below or above it. */
@@ -113,6 +114,7 @@ const CHANNEL_MARKS: Record<ColorChannel, string> = {
   [ColorChannel.Alpha]: "A",
 };
 const SCREEN_PICKER_ERROR_HEIGHT = 30;
+const COLOR_PICKER_FOOTER_HEIGHT = 36;
 const COLOR_HEADER_HEIGHT = 36;
 const COLOR_SWATCH_X = 364;
 const COLOR_SWATCH_WIDTH = 60;
@@ -195,6 +197,7 @@ export function ColorPicker({
   value,
   onValueChange,
   onScreenColorChange,
+  footerAction,
   title = "Color",
   showCloseButton = false,
   anchor,
@@ -267,7 +270,8 @@ export function ColorPicker({
     height =
       (mode === ColorMode.Mask ? 88 : 58 + channels.length * 30) +
       headerOffsetY +
-      (screenPicker.error ? SCREEN_PICKER_ERROR_HEIGHT : 0),
+      (screenPicker.error ? SCREEN_PICKER_ERROR_HEIGHT : 0) +
+      (footerAction ? COLOR_PICKER_FOOTER_HEIGHT : 0),
     bounds = {
       x: anchor
         ? Math.max(0, Math.min(scene.width - width, anchor.x))
@@ -567,6 +571,17 @@ export function ColorPicker({
                 </span>
               );
             })}
+            {footerAction && (
+              <div className={styles.footer}>
+                <Button
+                  text={footerAction.label}
+                  onClick={footerAction.onClick}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") event.stopPropagation();
+                  }}
+                />
+              </div>
+            )}
             {invalidHex && (
               <ColorPickerError role="alert">
                 {tUi("ui.enter.6.or.8.hexadecimal.digits")}
