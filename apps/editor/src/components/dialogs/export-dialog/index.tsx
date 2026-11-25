@@ -75,6 +75,7 @@ function MountedPanel({
       onBusyChange: (busy: boolean) => current.current.onModuleBusyChange(busy),
       onExported: (options: unknown) => current.current.onExported(id, options),
       execute: (options: unknown) => current.current.execute(id, options),
+      onDraftChange: (draft: unknown) => viewProps.current.onDraftChange?.(draft),
       onChoiceChange: (choice: string) => viewProps.current.onChoiceChange(choice),
       onChoicesChange: (choices: readonly ExporterChoice[]) =>
         viewProps.current.onChoicesChange(choices),
@@ -87,11 +88,12 @@ function MountedPanel({
   return render({ ...props, ...callbacks });
 }
 
-/** One modal owner; visited output panels keep their drafts until the window closes. */
+/** One modal owner; only the active output panel is mounted, keeping drafts until the window closes. */
 export function ExportDialog(props: ExportDialogProps) {
   useUiLanguage();
   const scene = useSceneBounds();
   const uiAssets = useUiAssets();
+  const drafts = useRef<Record<string, unknown>>({});
   const [choiceIds, setChoiceIds] = useState<Record<string, string>>({});
   const [requests, setRequests] = useState<Record<string, { id: string }>>({});
   const [choices, setChoices] = useState<Record<string, readonly ExporterChoice[]>>(() =>
@@ -216,9 +218,8 @@ export function ExportDialog(props: ExportDialogProps) {
   )?.label;
   const selectedText = selectedLabel ? tUi(selectedLabel) : selected.label();
   const panel = (destination: string, render: ReturnType<RegisteredExporter["createPanel"]>) => {
-    const active = props.destination === destination;
     const onLayoutSizeChange = (size: { width: number; height: number }) => {
-      if (!active) return;
+      if (current.current.destination !== destination) return;
       const width = size.width + WINDOW_CHROME.width;
       const height = size.height + SELECTOR_HEIGHT + WINDOW_CHROME.height;
       // Keep a moved window where it is unless a larger panel would push it off screen.
@@ -243,10 +244,14 @@ export function ExportDialog(props: ExportDialogProps) {
         render={render}
         id={destination}
         host={props}
-        active={active}
+        active
         busy={props.busy}
         filePreferences={props.filePreferences}
         choiceRequest={requests[destination]}
+        draft={drafts.current[destination]}
+        onDraftChange={(draft) => {
+          drafts.current[destination] = draft;
+        }}
         onChoiceChange={(id) =>
           setChoiceIds((previous) =>
             previous[destination] === id ? previous : { ...previous, [destination]: id },
@@ -260,6 +265,7 @@ export function ExportDialog(props: ExportDialogProps) {
       />
     );
   };
+  const activePanel = props.panels.get(props.destination);
   const reportedSize = sizes[props.destination];
   const panelSize = {
     ...reportedSize,
@@ -370,15 +376,11 @@ export function ExportDialog(props: ExportDialogProps) {
               )}
             />
           </div>
-          {[...props.panels].map(([destination, render]) => (
-            <section
-              className={styles.panel}
-              key={destination}
-              hidden={destination !== props.destination}
-            >
-              <Suspense fallback={null}>{panel(destination, render)}</Suspense>
+          {activePanel && (
+            <section className={styles.panel} key={props.destination}>
+              <Suspense fallback={null}>{panel(props.destination, activePanel)}</Suspense>
             </section>
-          ))}
+          )}
         </div>
       </EditorDialog>
     </div>

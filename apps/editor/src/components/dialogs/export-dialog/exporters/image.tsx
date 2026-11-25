@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
 
+import type { ExportFileDialogDraft } from "$/components/dialogs/export-file-dialog";
 import { lazyChunk } from "$/components/shared/lazy-chunk";
 import {
   useImageExportCapabilities,
@@ -27,6 +28,7 @@ function ImageExporterView(props: ExporterViewProps<ImageExporterSource, ExportF
   );
   const onChoicesChange = props.onChoicesChange;
   useEffect(() => {
+    if (!capabilities.checked) return;
     onChoicesChange(
       imageExporterDefinition.initialChoices!.map((choice) => ({
         ...choice,
@@ -38,7 +40,7 @@ function ImageExporterView(props: ExporterViewProps<ImageExporterSource, ExportF
               : false,
       })),
     );
-  }, [capabilities.jpeg, capabilities.webp, onChoicesChange]);
+  }, [capabilities.checked, capabilities.jpeg, capabilities.webp, onChoicesChange]);
   return (
     <Dialog
       embedded
@@ -46,6 +48,8 @@ function ImageExporterView(props: ExporterViewProps<ImageExporterSource, ExportF
       filePreferences={props.filePreferences}
       busy={props.busy}
       formatRequest={request}
+      initialDraft={props.draft as ExportFileDialogDraft | undefined}
+      onDraftChange={props.onDraftChange}
       imageCapabilities={capabilities}
       onFormatChange={props.onChoiceChange}
       onLayoutSizeChange={props.onLayoutSizeChange}

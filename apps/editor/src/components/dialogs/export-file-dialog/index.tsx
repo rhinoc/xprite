@@ -21,9 +21,17 @@ import {
 import { DEFAULT_FILE_PREFERENCES } from "$/managers/preferences/file-preferences";
 import type { FilePreferences } from "$/managers/preferences/file-preferences";
 
+export interface ExportFileDialogDraft {
+  options: ExportFileDialogOptions;
+  resize: string;
+  outputFormat: ExportOutputFormat;
+}
+
 export interface ExportFileDialogProps {
   embedded?: boolean;
   formatRequest?: { format: ExportOutputFormat };
+  initialDraft?: ExportFileDialogDraft;
+  onDraftChange?: (draft: ExportFileDialogDraft) => void;
   onFormatChange?: (format: ExportOutputFormat) => void;
   imageCapabilities?: ImageExportCapabilities;
   onLayoutSizeChange?: (size: { width: number; height: number }) => void;
@@ -33,10 +41,25 @@ export interface ExportFileDialogProps {
   documentKey?: string;
   filePreferences?: FilePreferences;
 }
+
+function formatFromFileName(name: string): ExportOutputFormat {
+  return /\.gif$/i.test(name)
+    ? ExportOutputFormat.Gif
+    : /\.apng$/i.test(name)
+      ? ExportOutputFormat.Apng
+      : /\.jpe?g$/i.test(name)
+        ? ExportOutputFormat.Jpeg
+        : /\.webp$/i.test(name)
+          ? ExportOutputFormat.Webp
+          : ExportOutputFormat.Png;
+}
+
 /** Export dialog field order and label strings. Unsupported outputs stay visibly disabled. */
 export function ExportFileDialog({
   embedded = false,
   formatRequest,
+  initialDraft,
+  onDraftChange,
   onFormatChange,
   imageCapabilities,
   onLayoutSizeChange,
@@ -52,10 +75,18 @@ export function ExportFileDialog({
   const opaqueIndexed = document.opaqueIndexed;
   const [gifPrefs, setGifPrefs] = useState(readGifExportPreferences);
   const [options, setOptions] = useState<ExportFileDialogOptions>(() => {
+    if (initialDraft) return initialDraft.options;
     const base = manager.createInitialOptions();
     const loopCount = base.loopCount ?? (gifPrefs.loop ? 0 : 1);
+    const baseFormat = formatFromFileName(base.name);
     return {
       ...base,
+      // Single-frame JPEG exports always save frames="current"; restore "all" as the
+      // underlying multi-frame scope on multi-frame documents so switching formats works.
+      frames:
+        baseFormat === ExportOutputFormat.Jpeg && document.frameCount > 1
+          ? "all"
+          : (base.frames ?? "all"),
       gifInterlaced: gifPrefs.interlaced,
       loopCount,
       gifPreservePaletteOrder: indexed && (opaqueIndexed || gifPrefs.preservePaletteOrder),
@@ -63,7 +94,9 @@ export function ExportFileDialog({
   });
   const [gifOptions, setGifOptions] = useState(false);
   const [imageOptions, setImageOptions] = useState(false);
-  const [resize, setResize] = useState(options.scalePercent.toFixed(2));
+  const [resize, setResize] = useState(
+    () => initialDraft?.resize ?? options.scalePercent.toFixed(2),
+  );
   const update = <K extends keyof ExportFileDialogOptions>(
     key: K,
     value: ExportFileDialogOptions[K],
@@ -73,34 +106,31 @@ export function ExportFileDialog({
       ...old,
       loopCount: enabled ? (old.loopCount === 1 ? 0 : (old.loopCount ?? 0)) : 1,
     }));
-  const initialFormat = /\.gif$/i.test(options.name)
-    ? ExportOutputFormat.Gif
-    : /\.apng$/i.test(options.name)
-      ? ExportOutputFormat.Apng
-      : /\.jpe?g$/i.test(options.name)
-        ? ExportOutputFormat.Jpeg
-        : /\.webp$/i.test(options.name)
-          ? ExportOutputFormat.Webp
-          : ExportOutputFormat.Png;
+  const initialFormat = initialDraft?.outputFormat ?? formatFromFileName(options.name);
   const [outputFormat, setOutputFormat] = useState(formatRequest?.format ?? initialFormat);
   const staticImage = outputFormat === ExportOutputFormat.Jpeg;
   const webpImage = outputFormat === ExportOutputFormat.Webp;
   const applyOutputFormat = (selected: ExportOutputFormat, name: string) => {
     setOutputFormat(selected);
-    if (selected === ExportOutputFormat.Jpeg || selected === ExportOutputFormat.Webp) {
-      const prefs = readImageExportPreferences(
-        selected === ExportOutputFormat.Jpeg ? ImageExportFormat.Jpeg : ImageExportFormat.Webp,
-      );
+    if (selected === ExportOutputFormat.Jpeg) {
+      const prefs = readImageExportPreferences(ImageExportFormat.Jpeg);
+      setOptions((old) => ({
+        ...old,
+        name,
+        // Keep the user's multi-frame selection intact; staticImage forces "current" in UI & plan.
+        imageQualityPercent: prefs.qualityPercent,
+        jpegMatte: prefs.jpegMatte,
+      }));
+    } else if (selected === ExportOutputFormat.Webp) {
+      const prefs = readImageExportPreferences(ImageExportFormat.Webp);
       setOptions((old) => ({
         ...old,
         name,
         frames:
-          selected === ExportOutputFormat.Jpeg ||
-          (document.frameCount === 1 && document.loopCount === undefined)
+          document.frameCount === 1 && document.loopCount === undefined
             ? "current"
             : (old.frames ?? "all"),
         imageQualityPercent: prefs.qualityPercent,
-        jpegMatte: prefs.jpegMatte,
         webpCompression: prefs.webpCompression,
       }));
     } else update("name", name);
@@ -119,7 +149,11 @@ export function ExportFileDialog({
     const stem = options.name.trim().replace(/\.[^.]*$/, "") || "untitled";
     applyOutputFormat(selected, `${stem}.${selected}`);
   };
-  const appliedFormatRequest = useRef<ExportFileDialogProps["formatRequest"]>();
+  const appliedFormatRequest = useRef<ExportFileDialogProps["formatRequest"]>(
+    initialDraft && formatRequest && initialDraft.outputFormat === formatRequest.format
+      ? formatRequest
+      : undefined,
+  );
   useEffect(() => {
     if (!formatRequest || appliedFormatRequest.current === formatRequest || busy) return;
     appliedFormatRequest.current = formatRequest;
@@ -130,6 +164,9 @@ export function ExportFileDialog({
   useEffect(() => {
     onFormatChange?.(outputFormat);
   }, [outputFormat, onFormatChange]);
+  useEffect(() => {
+    onDraftChange?.({ options, resize, outputFormat });
+  }, [options, resize, outputFormat, onDraftChange]);
   const nameStem = options.name.trim().replace(/\.[^.]*$/, "") || "untitled";
   const plan = {
     ...options,
@@ -425,7 +462,9 @@ export function ExportFileDialog({
       label: "Frames:",
       type: "select",
       value: staticImage ? "current" : (options.frames ?? "all"),
-      onChange: (value) => update("frames", value as ExportFileDialogOptions["frames"]),
+      onChange: (value) => {
+        if (!staticImage) update("frames", value as ExportFileDialogOptions["frames"]);
+      },
       disabled: busy,
       options: [
         { value: "all", label: "All frames", disabled: staticImage },
