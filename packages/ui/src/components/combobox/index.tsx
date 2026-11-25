@@ -24,6 +24,7 @@ import {
   type SurfaceViewport,
 } from "$/components/canvas-surface";
 import { dropdownArrowOffsetY } from "$/components/combobox/arrow-position";
+import { comboboxNaturalHeight, comboboxTextOffsetY } from "$/components/combobox/text-position";
 import type { ControlPlacement } from "$/components/control-flow/placement";
 import { useFieldControl } from "$/components/field/Field";
 import type { InputTouchActivation } from "$/components/input/touch-activation";
@@ -79,7 +80,7 @@ type PopupLayout = {
   innerHeight: number;
 };
 const DEFAULT_ROW = 18;
-const DEFAULT_COMBOBOX_SIZE = { width: 72, height: 12 };
+const DEFAULT_COMBOBOX_WIDTH = 72;
 const POPUP_LABEL_RESERVE = 24;
 /** Source ComboBox: non-editable entry + arrow button, and a Window/View/ListBox popup. */
 export function Combobox({
@@ -135,10 +136,8 @@ export function Combobox({
       ? pixelSize.width * RASTER_SCALE
       : pixelWidth !== undefined
         ? pixelWidth * RASTER_SCALE
-        : (theme.dimensions.combobox_width ?? DEFAULT_COMBOBOX_SIZE.width * RASTER_SCALE),
-    height: pixelSize
-      ? pixelSize.height * RASTER_SCALE
-      : (theme.dimensions.combobox_height ?? DEFAULT_COMBOBOX_SIZE.height * RASTER_SCALE),
+        : (theme.dimensions.combobox_width ?? DEFAULT_COMBOBOX_WIDTH * RASTER_SCALE),
+    height: comboboxNaturalHeight(pixelSize, theme),
   };
   const naturalLayout = surfaceLayout(naturalBounds);
   /** A self-sized combobox never outgrows the space its parent can give it. */
@@ -632,11 +631,7 @@ export function Combobox({
                 variant={TextVariant.PositionedPixel}
                 text={text}
                 x={0}
-                y={
-                  centerThemePixel(bounds.y, bounds.height, 14) -
-                  bounds.y +
-                  (theme.dimensions.combobox_text_offset_y ?? 0)
-                }
+                y={comboboxTextOffsetY(bounds, themeFontHeight(), theme)}
                 color={disabled ? theme.colors.disabled : theme.colors.text}
               />
             </span>

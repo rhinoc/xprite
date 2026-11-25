@@ -7,6 +7,8 @@ const UI_LANGUAGES = ["en", "zh-CN", "ja", "ko", "ru", "pt-BR", "es"] as const;
 export type UiLanguage = (typeof UI_LANGUAGES)[number];
 const DEFAULT_UI_LANGUAGE: UiLanguage = "en";
 const LANGUAGE_STORAGE_KEY = "xse.ui.language.v1";
+const LANGUAGE_QUERY_PARAM = "lang";
+const LANGUAGE_TAG_PATTERN = /^[a-z]{2,3}(?:[-_][a-z0-9]{2,8})*$/i;
 export type UiMessageKey = keyof typeof en;
 
 type LocaleMessages = Record<string, string>;
@@ -51,31 +53,70 @@ const englishMessageKeys = new Map<string, UiMessageKey>(
 );
 const listeners = new Set<() => void>();
 
-function initialLanguage(): UiLanguage {
-  try {
-    const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    if (UI_LANGUAGES.includes(saved as UiLanguage)) return saved as UiLanguage;
-  } catch {
-    // Storage can be disabled; the browser language remains a useful default.
-  }
-  if (typeof navigator === "undefined") return DEFAULT_UI_LANGUAGE;
-  const preferredLanguages = navigator.languages?.length
-    ? navigator.languages
-    : [navigator.language];
-  for (const preferredLanguage of preferredLanguages) {
-    const baseLanguage = preferredLanguage.split("-")[0].toLowerCase();
-    const supportedLanguage = UI_LANGUAGES.find(
-      (language) => language.split("-")[0].toLowerCase() === baseLanguage,
+/** Normalize an exact locale code or BCP 47 language tag to a supported UiLanguage. */
+export function normalizeUiLanguage(value: string | null | undefined): UiLanguage | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed || !LANGUAGE_TAG_PATTERN.test(trimmed)) return undefined;
+  const lower = trimmed.toLowerCase();
+  const exact = UI_LANGUAGES.find((candidate) => candidate.toLowerCase() === lower);
+  if (exact) return exact;
+  const baseLanguage = lower.split(/[-_]/)[0];
+  return UI_LANGUAGES.find((candidate) => candidate.split("-")[0].toLowerCase() === baseLanguage);
+}
+
+export interface UiLanguageResolutionSources {
+  search?: string;
+  storedLanguage?: string | null;
+  navigatorLanguages?: readonly string[];
+}
+
+/**
+ * Resolve the initial UI language with precedence:
+ * explicit `?lang=` query parameter > persisted `localStorage` > browser `navigator` > default.
+ */
+export function resolveInitialUiLanguage(sources?: UiLanguageResolutionSources): UiLanguage {
+  const search =
+    sources?.search ?? (typeof window !== "undefined" ? window.location?.search : undefined);
+  if (search) {
+    const queryLanguage = normalizeUiLanguage(
+      new URLSearchParams(search).get(LANGUAGE_QUERY_PARAM),
     );
+    if (queryLanguage) return queryLanguage;
+  }
+
+  let saved: string | null | undefined;
+  if (sources && "storedLanguage" in sources) {
+    saved = sources.storedLanguage;
+  } else {
+    try {
+      saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    } catch {
+      // Storage can be disabled; the browser language remains a useful default.
+    }
+  }
+  if (UI_LANGUAGES.includes(saved as UiLanguage)) return saved as UiLanguage;
+
+  const preferredLanguages =
+    sources?.navigatorLanguages ??
+    (typeof navigator !== "undefined"
+      ? navigator.languages?.length
+        ? navigator.languages
+        : navigator.language
+          ? [navigator.language]
+          : []
+      : []);
+  for (const preferredLanguage of preferredLanguages) {
+    const supportedLanguage = normalizeUiLanguage(preferredLanguage);
     if (supportedLanguage) return supportedLanguage;
   }
   return DEFAULT_UI_LANGUAGE;
 }
 
 /** Detected preference; published only after its locale map is available. */
-const detectedLanguage = initialLanguage();
+const detectedLanguage = resolveInitialUiLanguage();
 let language: UiLanguage = DEFAULT_UI_LANGUAGE;
 let languageReady = detectedLanguage === DEFAULT_UI_LANGUAGE;
+let languageVersion = 0;
 
 function subscribeLanguage(listener: () => void) {
   listeners.add(listener);
@@ -134,15 +175,35 @@ export function prepareUiLanguage(): Promise<void> {
   return bootLanguage;
 }
 
+function clearLanguageQueryParam() {
+  if (typeof window === "undefined" || !window.location || !window.history?.replaceState) return;
+  try {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has(LANGUAGE_QUERY_PARAM)) return;
+    url.searchParams.delete(LANGUAGE_QUERY_PARAM);
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
+  } catch {
+    // Embedded or restricted origins can disallow history updates; the in-memory switch still applies.
+  }
+}
+
 const bootLanguage = (async () => {
+  const bootVersion = languageVersion;
   await ensureLocale(detectedLanguage);
+  if (languageVersion !== bootVersion) return;
   language = detectedLanguage;
   languageReady = true;
   publishLanguage();
 })();
 
 export async function changeUiLanguage(next: UiLanguage): Promise<void> {
+  const changeVersion = ++languageVersion;
   await ensureLocale(next);
+  if (languageVersion !== changeVersion) return;
   if (language !== next || !languageReady) {
     language = next;
     languageReady = true;
@@ -153,4 +214,5 @@ export async function changeUiLanguage(next: UiLanguage): Promise<void> {
   } catch {
     // The language still applies for this session when persistence is unavailable.
   }
+  clearLanguageQueryParam();
 }
