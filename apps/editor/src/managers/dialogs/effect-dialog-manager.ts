@@ -12,6 +12,8 @@ import {
   EffectTarget,
   HueSaturationMode,
   isBackgroundLayer,
+  OutlineColorMode,
+  OUTLINE_DARKENING,
   OUTLINE_MATRICES,
   updateEffectColor,
   ConvolutionPreset,
@@ -50,6 +52,8 @@ export type DialogHueSaturationMode =
   (typeof DialogHueSaturationMode)[keyof typeof DialogHueSaturationMode];
 
 export const DIALOG_OUTLINE_MATRICES = OUTLINE_MATRICES;
+export const DIALOG_OUTLINE_DARKENING = OUTLINE_DARKENING;
+export const DialogOutlineColorMode = OutlineColorMode;
 export type DialogEffectSpec = EffectSpec;
 export type DialogColor = Rgba;
 export const MAX_DIALOG_MEDIAN_SIZE = MAX_MEDIAN_SIZE;

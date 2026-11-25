@@ -9,6 +9,7 @@
 - [Shortcut toolbar](#shortcut-toolbar)
 - [Paste an external image](#paste-an-external-image)
 - [Pick a color from the screen](#pick-a-color-from-the-screen)
+- [Selective outlines](#selective-outlines)
 - [Normal maps and lighting preview](#normal-maps-and-lighting-preview)
 - [Add to desktop and use offline](#add-to-desktop-and-use-offline)
 - [Export Animal Crossing designs](#export-animal-crossing-designs)
@@ -141,6 +142,10 @@ Hold **Alt** (**Option** on Mac) and click the foreground or background color bu
 ![Foreground and background color buttons.](images/shared/color-buttons.webp)
 
 Screen color picking needs desktop Chrome or Edge, with Xprite opened over HTTPS or on localhost. If your browser doesn't support it, open the image in Xprite and pick colors from it there.
+
+## Selective outlines
+
+Open **Edit → FX → Outline** (`Shift+O`). Click the **Outline Color** swatch and choose **Selective…** to shade the outline using nearby sprite colors. In Indexed mode, add darker shades to the palette if you need more contrast.
 
 ## Normal maps and lighting preview
 

@@ -38,6 +38,8 @@ import {
   applyEffectPixels,
   EffectKind,
   HueSaturationMode,
+  OutlineColorMode,
+  OUTLINE_DARKENING,
   OUTLINE_MATRICES,
 } from "$/image-editing/effects";
 import type { EffectSpec } from "$/image-editing/effects";
@@ -1976,12 +1978,23 @@ export function applyDocumentBatch(
                   BatchEditErrorCode.InvalidInput,
                   "outline position must be outside or inside",
                 );
-              const rgba = color(op.color);
-              if (isBackgroundLayer(layer) && rgba[3] !== UINT8_MAX)
+              const colorMode = op.colorMode ?? OutlineColorMode.Solid;
+              if (colorMode !== OutlineColorMode.Solid && colorMode !== OutlineColorMode.Selective)
                 throw new BatchEditError(
-                  BatchEditErrorCode.NotEditable,
-                  "Background pixels must be opaque",
+                  BatchEditErrorCode.InvalidInput,
+                  "outline colorMode must be solid or selective",
                 );
+              const rgba =
+                op.colorMode === OutlineColorMode.Selective ? options.color : color(op.color);
+              const darkening =
+                op.colorMode === OutlineColorMode.Selective && op.darkening !== undefined
+                  ? batchInteger(
+                      op.darkening,
+                      "darkening",
+                      OUTLINE_DARKENING.min,
+                      OUTLINE_DARKENING.max,
+                    )
+                  : undefined;
               const size = batchInteger(op.size ?? 1, "size", 1, 16);
               let source = image;
               for (let pass = 0; pass < (place === "outside" ? size : 1); pass++) {
@@ -1989,6 +2002,8 @@ export function applyDocumentBatch(
                   source,
                   {
                     kind: EffectKind.Outline,
+                    colorMode,
+                    darkening,
                     color: rgba,
                     bgColor: [0, 0, 0, 0],
                     place,

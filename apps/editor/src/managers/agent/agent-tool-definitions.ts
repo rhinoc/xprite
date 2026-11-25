@@ -4,7 +4,13 @@ import {
   AgentPreviewBackground,
   type AgentToolDefinition,
 } from "$/managers/ports/agent-tools";
-import { AnimationIntent, BatchEditKind, BATCH_EDIT_LIMITS } from "@xprite/editor-core";
+import {
+  AnimationIntent,
+  BatchEditKind,
+  BATCH_EDIT_LIMITS,
+  OutlineColorMode,
+  OUTLINE_DARKENING,
+} from "@xprite/editor-core";
 
 const integer = { type: "integer", minimum: 0 };
 const id = { type: "string", minLength: 1, maxLength: BATCH_EDIT_LIMITS.nameLength };
@@ -54,6 +60,12 @@ const object = (properties: Record<string, unknown>, required = Object.keys(prop
 const operation = (type: BatchEditKind, properties: Record<string, unknown>, required: string[]) =>
   object({ type: { const: type }, ...properties }, ["type", ...required]);
 const paintedRequired = ["layerId", "frameIndex", "color"];
+const outline = {
+  ...target,
+  rect,
+  position: { type: "string", enum: ["outside", "inside"] },
+  size: { type: "integer", minimum: 1, maximum: 16 },
+};
 const operations = {
   oneOf: [
     operation(
@@ -376,13 +388,25 @@ const operations = {
     operation(
       BatchEditKind.Outline,
       {
-        ...target,
-        rect,
+        ...outline,
+        colorMode: { const: OutlineColorMode.Solid },
         color,
-        position: { type: "string", enum: ["outside", "inside"] },
-        size: { type: "integer", minimum: 1, maximum: 16 },
       },
-      ["layerId", "frameIndex", "color"],
+      paintedRequired,
+    ),
+    operation(
+      BatchEditKind.Outline,
+      {
+        ...outline,
+        colorMode: { const: OutlineColorMode.Selective },
+        darkening: {
+          type: "integer",
+          minimum: OUTLINE_DARKENING.min,
+          maximum: OUTLINE_DARKENING.max,
+          default: OUTLINE_DARKENING.default,
+        },
+      },
+      ["layerId", "frameIndex", "colorMode"],
     ),
     operation(
       BatchEditKind.AdjustHsl,

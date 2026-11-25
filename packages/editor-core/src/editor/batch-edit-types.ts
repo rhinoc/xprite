@@ -1,4 +1,5 @@
 import type { Point, Rect, Rgba } from "$/base/primitives";
+import type { OutlineColorMode } from "$/image-editing";
 import type { AsepriteTagDirection } from "$/import-export/aseprite/model";
 
 export enum BatchEditKind {
@@ -231,10 +232,12 @@ export type BatchEditOperationExtra =
     })
   | (RegionTarget & {
       type: BatchEditKind.Outline;
-      color: Rgba | string;
       position?: "outside" | "inside";
       size?: number;
-    })
+    } & (
+        | { colorMode?: OutlineColorMode.Solid; color: Rgba | string }
+        | { colorMode: OutlineColorMode.Selective; darkening?: number }
+      ))
   | (RegionTarget & {
       type: BatchEditKind.AdjustHsl;
       hue?: number;

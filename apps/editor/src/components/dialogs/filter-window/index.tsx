@@ -19,7 +19,7 @@ export interface EditorFilterWindowProps {
   target: DialogEffectTarget;
   preview: boolean;
   tiled?: boolean;
-  onChannels: (channels: number) => void;
+  onChannels?: (channels: number) => void;
   onTarget: (target: DialogEffectTarget) => void;
   onPreview: (enabled: boolean) => void;
   onTiled?: (enabled: boolean) => void;
@@ -174,9 +174,9 @@ export function EditorFilterWindow({
                   text={label}
                   font={FontRole.Compact}
                   selected={!!(channels & bit)}
-                  disabled={bit === 8 && !alphaEnabled}
+                  disabled={!onChannels || (bit === 8 && !alphaEnabled)}
                   aria-label={tUi("ui.modify.channel", { value1: tUiSource(label) })}
-                  onClick={() => onChannels((channels & ~32) ^ bit)}
+                  onClick={() => onChannels?.((channels & ~32) ^ bit)}
                 />
               ))}
               {depth === 8 && (
@@ -186,8 +186,9 @@ export function EditorFilterWindow({
                   text="Index"
                   font={FontRole.Compact}
                   selected={!!(channels & 32)}
+                  disabled={!onChannels}
                   aria-label="Modify index channel"
-                  onClick={() => onChannels(channels & 32 ? 0 : 32)}
+                  onClick={() => onChannels?.(channels & 32 ? 0 : 32)}
                 />
               )}
               <Button

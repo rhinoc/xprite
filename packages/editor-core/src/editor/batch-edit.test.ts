@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { BatchEditError, BatchEditKind, type BatchEditOperation } from "$/editor/batch-edit-types";
 import { RasterEditor } from "$/editor/RasterEditor";
+import { OutlineColorMode } from "$/image-editing";
 import { timelineTags } from "$/timeline/tags";
 
 function fixture() {
@@ -719,6 +720,29 @@ describe("agent document batches", () => {
       "HSL",
     );
     expect(at(3, 1)[2]).toBeLessThan(255);
+  });
+
+  it("applies a selective outline without a fixed color", () => {
+    const editor = fixture();
+    editor.applyBatch([fill(editor)], revision(editor), "Paint");
+    editor.applyBatch(
+      [
+        {
+          type: BatchEditKind.Outline,
+          layerId: fill(editor).layerId,
+          frameIndex: 0,
+          colorMode: OutlineColorMode.Selective,
+          darkening: 100,
+          rect: { x: 0, y: 1, width: 1, height: 1 },
+        },
+      ],
+      revision(editor),
+      "Selective outline",
+    );
+    const data = editor.canvas.composite().data;
+    expect(Array.from(data.slice(16, 20))).toEqual([0, 0, 0, 255]);
+    expect(Array.from(data.slice(20, 24))).toEqual([255, 0, 77, 255]);
+    expect(data[7]).toBe(0);
   });
 
   it("paints gradients, dithers, rotates and translates", () => {
