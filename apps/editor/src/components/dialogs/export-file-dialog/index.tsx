@@ -191,7 +191,6 @@ export function ExportFileDialog({
     if (!busy && valid) {
       if (gifImage) {
         writeGifExportPreferences({
-          dontShow: gifPrefs.dontShow,
           interlaced: !!plan.gifInterlaced,
           loop: plan.loopCount !== 1,
           preservePaletteOrder: !!plan.gifPreservePaletteOrder,

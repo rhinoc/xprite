@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { AnimalCrossingSourceGrid } from "$/components/dialogs/animal-crossing-dialog/source-grid";
 import { FormDialog, type FormField } from "$/components/dialogs/form-dialog";
 import { tUiSource, useUiLanguage, tUi } from "$/i18n";
 import {
   useAnimalCrossingExport,
+  type AnimalCrossingExportDraft,
   type AnimalCrossingExportSource,
   type AnimalCrossingExportPort,
 } from "$/managers/files/animal-crossing-export";
@@ -38,6 +39,8 @@ export function AnimalCrossingDialog({
   active,
   source,
   port,
+  initialDraft,
+  onDraftChange,
   onClose,
   onBusyChange,
   onExported,
@@ -46,13 +49,20 @@ export function AnimalCrossingDialog({
   active: boolean;
   source: AnimalCrossingExportSource;
   port: AnimalCrossingExportPort;
+  initialDraft?: AnimalCrossingExportDraft;
+  onDraftChange?: (draft: AnimalCrossingExportDraft) => void;
   onClose(): void;
   onBusyChange(busy: boolean): void;
   onExported(options: AnimalCrossingExportOptions): void;
   onLayoutSizeChange(size: { width: number; height: number }): void;
 }) {
   useUiLanguage();
-  const manager = useAnimalCrossingExport(source, port, onExported, active);
+  const [restoredDraft] = useState(() => initialDraft);
+  const manager = useAnimalCrossingExport(source, port, onExported, active, restoredDraft);
+  const { selected, settings } = manager;
+  useEffect(() => {
+    onDraftChange?.({ selected, settings });
+  }, [selected, settings, onDraftChange]);
   useEffect(() => {
     onBusyChange(manager.busy);
   }, [manager.busy, onBusyChange]);

@@ -266,6 +266,11 @@ export enum BeadBoardAxis {
 }
 type BoardDraft = Record<BeadBoardAxis, string>;
 
+export interface BeadExportDraft {
+  settings: BeadExportOptions;
+  board: BoardDraft;
+}
+
 function parseBoardEdge(raw: string): number | null {
   const value = Number(raw.trim());
   return raw.trim() &&
@@ -330,12 +335,15 @@ export function useBeadChart(grid: BeadGrid, settings: BeadExportOptions, cell: 
   );
 }
 
-export function useBeadExport(source: BeadExportSource) {
-  const [settings, setSettings] = useState(source.settings);
-  const [draft, setDraft] = useState<BoardDraft>(() => ({
-    width: String(source.settings.boardSize.width),
-    height: String(source.settings.boardSize.height),
-  }));
+export function useBeadExport(source: BeadExportSource, initialDraft?: BeadExportDraft) {
+  const [settings, setSettings] = useState(initialDraft?.settings ?? source.settings);
+  const [draft, setDraft] = useState<BoardDraft>(
+    () =>
+      initialDraft?.board ?? {
+        width: String(settings.boardSize.width),
+        height: String(settings.boardSize.height),
+      },
+  );
   const palette = paletteFor(settings.brand);
   const grid = useMemo(
     () => mapBeadGrid(source.pixels, palette.colors),
