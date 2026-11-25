@@ -6,6 +6,7 @@ import { useImportSheetEditor } from "$/managers/dialogs/import-sprite-sheet";
 import {
   createImportSpriteSheetOptions,
   getImportSpriteSheetTileCounts,
+  SPRITE_SHEET_DIMENSION_MAX,
   SPRITE_SHEET_ORIGIN_MIN,
   SpriteSheetLayoutChoice,
   updateImportSpriteSheetOptions,
@@ -94,7 +95,7 @@ export function SpriteSheetDialog({
     value: Number(o[key]),
     onChange: (v) => update(key, v as never),
     min,
-    max: 16384,
+    max: SPRITE_SHEET_DIMENSION_MAX,
     disabled: busy,
   });
   const text = (key: keyof SpriteSheetDialogOptions, label: string): FormField => ({
@@ -354,7 +355,7 @@ export function ImportSpriteSheetDialog({
     value: Number(o[key]),
     onChange: (v) => update(key, v as never),
     min,
-    max: 16384,
+    max: SPRITE_SHEET_DIMENSION_MAX,
     disabled: busy,
   });
   const fields: FormField[] = [

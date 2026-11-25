@@ -1,4 +1,5 @@
 export * from "$/import-export/image/encoders";
+export * from "$/import-export/image/jpeg-encode";
 export * from "$/import-export/image/animation";
 export * from "$/import-export/image/gif-import";
 export * from "$/import-export/image/webp-import";

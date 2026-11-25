@@ -11,30 +11,42 @@ import {
   localizeImageExportError,
 } from "$/managers/files/image-export-validation";
 import type { ExportArtifact } from "$/managers/ports/export-output";
+import type { RasterExportPort } from "$/managers/ports/raster-export";
 import type { WebpExportPort } from "$/managers/ports/webp-export";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import {
+  compressPngScanlines,
   encodePngBlob as encodePng,
+  encodePngRowSource,
   encodeImageBlob,
   ImageEncodingFormat,
   isImageEncodingSupported,
 } from "@xprite/bedrock/browser/images";
 import type { JsonStoragePort } from "@xprite/bedrock/browser/json-storage";
+import {
+  CANVAS_ENCODE_SAFE_PIXELS,
+  CANVAS_IMAGE_MAX_DIMENSION,
+} from "@xprite/bedrock/common/image-dimensions";
+import { createPixelBufferRowSource } from "@xprite/bedrock/common/png-encode";
 import type { ExportFileOptions } from "@xprite/editor-core";
-import { UINT8_MAX } from "@xprite/editor-core/base";
 import { workingColorProfile } from "@xprite/editor-core/color";
 import { colorProfileToSrgb } from "@xprite/editor-core/color";
 import type { EditorDocument } from "@xprite/editor-core/document";
-import { WebpCompression } from "@xprite/editor-core/import-export";
 import {
-  renderExportAnimation,
-  sequenceFilename,
-  encodeApng,
+  WebpCompression,
+  createExportRowSource,
+  encodeApngParts,
   encodeGif,
-  pngScanlines,
-} from "@xprite/editor-core/import-export";
-import {
+  encodeJpegChunks,
+  materializeExportRaster,
+  parseJpegMatte,
+  renderExportAnimation,
+  renderExportAnimationSources,
+  sequenceFilename,
   renderSpriteSheet,
+  type CompressedApngFrame,
+  type ExportRasterPlan,
+  type RgbChannels,
   type SpriteSheetOptions,
   type SpriteSheetResult,
 } from "@xprite/editor-core/import-export";
@@ -42,6 +54,7 @@ import { animationExportLoopCount } from "@xprite/editor-core/timeline";
 
 export interface ExportExecutionPorts {
   webp?: WebpExportPort;
+  raster?: RasterExportPort;
   encodePng?: typeof encodePng;
   encodeImage?: typeof encodeImageBlob;
   save?(artifact: ExportArtifact): Promise<void>;
@@ -86,12 +99,80 @@ function spriteSheetOutputFormat(name: string): SpriteSheetOutputFormat | null {
 export async function downloadExportArtifact({ name, blob }: ExportArtifact): Promise<void> {
   downloadBlob(blob, name);
 }
-async function compress(bytes: Uint8Array): Promise<Uint8Array> {
-  const stream = new Blob([new Uint8Array(bytes).buffer])
-    .stream()
-    .pipeThrough(new CompressionStream("deflate"));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
+function toArrayBufferBytes(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
+  return bytes.buffer instanceof ArrayBuffer
+    ? (bytes as Uint8Array<ArrayBuffer>)
+    : new Uint8Array(bytes);
 }
+
+function canUseCanvasJpeg(width: number, height: number): boolean {
+  return (
+    width <= CANVAS_IMAGE_MAX_DIMENSION &&
+    height <= CANVAS_IMAGE_MAX_DIMENSION &&
+    width * height <= CANVAS_ENCODE_SAFE_PIXELS
+  );
+}
+
+async function encodeJpegPlanFallback(
+  plan: ExportRasterPlan,
+  qualityPercent: number,
+  encodeImage?: typeof encodeImageBlob,
+): Promise<Blob> {
+  if (encodeImage) {
+    const blob = await encodeImage(
+      materializeExportRaster(plan),
+      ImageEncodingFormat.Jpeg,
+      qualityPercent / IMAGE_QUALITY_PERCENT_SCALE,
+    );
+    if (blob.type.toLowerCase() !== ImageEncodingFormat.Jpeg)
+      throw new Error(tUi("ui.image.encoding.unsupported", { format: ImageEncodingFormat.Jpeg }));
+    return blob;
+  }
+  if (canUseCanvasJpeg(plan.width, plan.height)) {
+    try {
+      return await encodeImageBlob(
+        materializeExportRaster(plan),
+        ImageEncodingFormat.Jpeg,
+        qualityPercent / IMAGE_QUALITY_PERCENT_SCALE,
+      );
+    } catch {
+      // Fall back to the portable streaming JPEG encoder.
+    }
+  }
+  return new Blob(encodeJpegChunks(createExportRowSource(plan), qualityPercent), {
+    type: ImageEncodingFormat.Jpeg,
+  });
+}
+
+async function encodeJpegBufferFallback(
+  pixels: SpriteSheetResult["pixels"],
+  qualityPercent: number,
+  matte: RgbChannels | undefined,
+  encodeImage?: typeof encodeImageBlob,
+): Promise<Blob> {
+  if (encodeImage) {
+    return encodeImage(
+      pixels,
+      ImageEncodingFormat.Jpeg,
+      qualityPercent / IMAGE_QUALITY_PERCENT_SCALE,
+    );
+  }
+  if (canUseCanvasJpeg(pixels.width, pixels.height) && !matte) {
+    try {
+      return await encodeImageBlob(
+        pixels,
+        ImageEncodingFormat.Jpeg,
+        qualityPercent / IMAGE_QUALITY_PERCENT_SCALE,
+      );
+    } catch {
+      // Fall back to the portable streaming JPEG encoder.
+    }
+  }
+  return new Blob(encodeJpegChunks(createPixelBufferRowSource(pixels), qualityPercent, matte), {
+    type: ImageEncodingFormat.Jpeg,
+  });
+}
+
 export async function exportDocumentAnimation(
   doc: EditorDocument,
   options: ExportFileOptions,
@@ -100,18 +181,13 @@ export async function exportDocumentAnimation(
   // Render all source state before the first await; selection/edits/tab switches
   // while encoding cannot mix frames from different document revisions.
   validateImageExport(doc, options);
-  const frames = renderExportAnimation(doc, options),
-    name = options.name.trim();
+  const name = options.name.trim();
   const palette = doc.palette?.map((c) => colorProfileToSrgb(c, workingColorProfile(doc.timeline)));
-  if (options.forTwitter && /\.png$/i.test(name))
-    for (const frame of frames) {
-      if (frame.pixels.data.every((v, i) => i % 4 !== 3 || v === UINT8_MAX))
-        frame.pixels.data[frame.pixels.data.length - 1] = 254;
-    }
   const artifacts: ExportArtifact[] = [];
   const loopCount = animationExportLoopCount(doc.timeline?.loopCount, options);
   if (/\.webp$/i.test(name)) {
     if (!ports.webp) throw new Error(tUi("ui.webp.export.unavailable"));
+    const frames = renderExportAnimation(doc, options);
     const blob = await ports.webp.encode(frames, {
       compression: options.webpCompression ?? WebpCompression.Lossless,
       qualityPercent: options.imageQualityPercent ?? DEFAULT_IMAGE_EXPORT_QUALITY,
@@ -122,49 +198,67 @@ export async function exportDocumentAnimation(
       throw new Error(tUi("ui.webp.export.type.unexpected"));
     artifacts.push({ name, blob });
   } else if (/\.jpe?g$/i.test(name)) {
-    const format = ImageEncodingFormat.Jpeg;
-    const blob = await (ports.encodeImage ?? encodeImageBlob)(
-      frames[0].pixels,
-      format,
-      (options.imageQualityPercent ?? DEFAULT_IMAGE_EXPORT_QUALITY) / 100,
-    );
-    if (blob.type.toLowerCase() !== format)
-      throw new Error(tUi("ui.image.encoding.unsupported", { format }));
+    const sourceFrames = renderExportAnimationSources(doc, options);
+    const qualityPercent = options.imageQualityPercent ?? DEFAULT_IMAGE_EXPORT_QUALITY;
+    const blob = ports.raster
+      ? await ports.raster.encodeJpegPlan(sourceFrames[0].plan, qualityPercent, { transfer: true })
+      : await encodeJpegPlanFallback(sourceFrames[0].plan, qualityPercent, ports.encodeImage);
+    if (blob.type.toLowerCase() !== ImageEncodingFormat.Jpeg)
+      throw new Error(tUi("ui.image.encoding.unsupported", { format: ImageEncodingFormat.Jpeg }));
     artifacts.push({ name, blob });
-  } else if (/\.gif$/i.test(name))
+  } else if (/\.gif$/i.test(name)) {
+    const frames = renderExportAnimation(doc, options);
+    const encoded = encodeGif(frames, {
+      loopCount,
+      interlaced: options.gifInterlaced,
+      forTwitter: options.forTwitter,
+      palette: options.gifPreservePaletteOrder ? palette : undefined,
+    });
     artifacts.push({
       name,
-      blob: new Blob(
-        [
-          new Uint8Array(
-            encodeGif(frames, {
-              loopCount,
-              interlaced: options.gifInterlaced,
-              forTwitter: options.forTwitter,
-              palette: options.gifPreservePaletteOrder ? palette : undefined,
-            }),
-          ).buffer,
-        ],
-        { type: "image/gif" },
-      ),
+      blob: new Blob([toArrayBufferBytes(encoded)], { type: "image/gif" }),
     });
-  else if (/\.apng$/i.test(name)) {
-    const compressed =
-      typeof CompressionStream === "function"
-        ? await Promise.all(frames.map((frame) => compress(pngScanlines(frame))))
-        : undefined;
-    artifacts.push({
-      name,
-      blob: new Blob([new Uint8Array(encodeApng(frames, loopCount, compressed)).buffer], {
-        type: "image/apng",
-      }),
-    });
-  } else
-    for (let i = 0; i < frames.length; i++)
-      artifacts.push({
-        name: sequenceFilename(name, i, frames.length),
-        blob: await (ports.encodePng ?? encodePng)(frames[i].pixels),
+  } else if (/\.apng$/i.test(name)) {
+    const sourceFrames = renderExportAnimationSources(doc, options);
+    const compressedBySource = new Map<number, Uint8Array<ArrayBuffer>[]>();
+    const compressedFrames: CompressedApngFrame[] = [];
+    for (const frame of sourceFrames) {
+      let compressed = compressedBySource.get(frame.sourceFrame);
+      if (!compressed) {
+        compressed = await compressPngScanlines(createExportRowSource(frame.plan));
+        compressedBySource.set(frame.sourceFrame, compressed);
+      }
+      compressedFrames.push({
+        width: frame.plan.width,
+        height: frame.plan.height,
+        duration: frame.duration,
+        compressed,
       });
+    }
+    artifacts.push({
+      name,
+      blob: new Blob(encodeApngParts(compressedFrames, loopCount), { type: "image/apng" }),
+    });
+  } else {
+    const sourceFrames = renderExportAnimationSources(doc, options);
+    const frameUseCount = new Map<number, number>();
+    for (const frame of sourceFrames) {
+      frameUseCount.set(frame.sourceFrame, (frameUseCount.get(frame.sourceFrame) ?? 0) + 1);
+    }
+    for (let i = 0; i < sourceFrames.length; i++) {
+      const frame = sourceFrames[i];
+      const transfer = frameUseCount.get(frame.sourceFrame) === 1;
+      const blob = ports.raster
+        ? await ports.raster.encodePngPlan(frame.plan, { transfer })
+        : ports.encodePng
+          ? await ports.encodePng(materializeExportRaster(frame.plan))
+          : await encodePngRowSource(createExportRowSource(frame.plan));
+      artifacts.push({
+        name: sequenceFilename(name, i, sourceFrames.length),
+        blob,
+      });
+    }
+  }
   for (const artifact of artifacts) await (ports.save ?? downloadExportArtifact)(artifact);
   if (/\.(jpe?g|webp)$/i.test(name))
     writeImageExportPreferences(
@@ -201,24 +295,24 @@ export async function exportDocumentSpriteSheet(
     let blob: Blob;
     switch (format) {
       case SpriteSheetOutputFormat.Png:
-        blob = await (ports.encodePng ?? encodePng)(result.pixels);
+        blob = ports.raster
+          ? await ports.raster.encodePngBuffer(result.pixels, { transfer: !options.openGenerated })
+          : await (ports.encodePng ?? encodePng)(result.pixels);
         break;
-      case SpriteSheetOutputFormat.Jpeg:
-        if (!(await isImageEncodingSupported(ImageEncodingFormat.Jpeg)))
-          throw new SpriteSheetOutputEncoderUnavailableError(format);
-        blob = await (ports.encodeImage ?? encodeImageBlob)(
-          result.pixels,
-          ImageEncodingFormat.Jpeg,
-          (options.imageQualityPercent ?? DEFAULT_IMAGE_EXPORT_QUALITY) /
-            IMAGE_QUALITY_PERCENT_SCALE,
-        );
+      case SpriteSheetOutputFormat.Jpeg: {
+        const qualityPercent = options.imageQualityPercent ?? DEFAULT_IMAGE_EXPORT_QUALITY;
+        const matte = options.jpegMatte ? parseJpegMatte(options.jpegMatte) : undefined;
+        blob = ports.raster
+          ? await ports.raster.encodeJpegBuffer(result.pixels, qualityPercent, {
+              transfer: !options.openGenerated,
+              matte,
+            })
+          : await encodeJpegBufferFallback(result.pixels, qualityPercent, matte, ports.encodeImage);
         break;
+      }
       case SpriteSheetOutputFormat.Gif:
         blob = new Blob(
-          [
-            new Uint8Array(encodeGif([frame], { loopCount: SINGLE_SPRITE_SHEET_PLAY_COUNT }))
-              .buffer as ArrayBuffer,
-          ],
+          [toArrayBufferBytes(encodeGif([frame], { loopCount: SINGLE_SPRITE_SHEET_PLAY_COUNT }))],
           { type: "image/gif" },
         );
         break;
@@ -248,15 +342,24 @@ export async function exportDocumentSpriteSheet(
           throw new Error(tUi("ui.webp.export.type.unexpected"));
         break;
       }
-      case SpriteSheetOutputFormat.Apng:
+      case SpriteSheetOutputFormat.Apng: {
+        const compressed = await compressPngScanlines(createPixelBufferRowSource(result.pixels));
         blob = new Blob(
-          [
-            new Uint8Array(encodeApng([frame], SINGLE_SPRITE_SHEET_PLAY_COUNT))
-              .buffer as ArrayBuffer,
-          ],
+          encodeApngParts(
+            [
+              {
+                width: result.pixels.width,
+                height: result.pixels.height,
+                duration: SPRITE_SHEET_FRAME_DURATION_MS,
+                compressed,
+              },
+            ],
+            SINGLE_SPRITE_SHEET_PLAY_COUNT,
+          ),
           { type: "image/apng" },
         );
         break;
+      }
       default:
         throw new UnsupportedSpriteSheetOutputFormatError();
     }

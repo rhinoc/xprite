@@ -2589,5 +2589,7 @@
   "ui.aseprite.rejection.truncated": "파일이 불완전한 것 같습니다. Aseprite에서 다시 저장해 보세요.",
   "ui.aseprite.rejection.unsupported": "파일이 지원되지 않는 기능을 사용합니다.",
   "ui.aseprite.rejection.invalid": "파일 구조를 읽을 수 없습니다. Aseprite에서 다시 저장해 보세요.",
-  "ui.aseprite.rejection.unknown": "파일 검증에 실패했습니다."
+  "ui.aseprite.rejection.unknown": "파일 검증에 실패했습니다.",
+  "ui.image.export.worker.failed": "이미지 인코더 워커를 실행할 수 없습니다",
+  "ui.image.export.output.unreadable": "이미지 인코더 출력을 읽을 수 없습니다"
 }

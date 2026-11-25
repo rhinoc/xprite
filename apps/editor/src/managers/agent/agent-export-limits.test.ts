@@ -6,8 +6,8 @@ import type { DocumentWorkspace } from "$/managers/workspace/document-workspace"
 
 describe("agent PNG output validation", () => {
   it.each([
-    ["png", 16385, 1],
-    ["spritesheet", 8193, 2],
+    ["png", 32_769, 1],
+    ["spritesheet", 16_385, 2],
   ])("rejects %s before rendering or encoding", async (format, width, frames) => {
     const sourcePixels = vi.fn(() => {
       throw new Error("pixels must not be read");

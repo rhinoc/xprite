@@ -251,14 +251,19 @@ describe("browser-images", () => {
       });
       await rejects(images.decodeAsset(inlineAsset), /redirected off origin/);
 
-      // HTML canvas encoding receives the exact clamped RGBA bytes and emits PNG.
+      // Portable PNG encoding emits exact RGBA bytes without touching browser canvas APIs.
       resetCounters();
       globalThis.OffscreenCanvas = undefined;
       globalThis.createImageBitmap = undefined;
       const sourcePixels = { width: 1, height: 1, data: new Uint8ClampedArray([9, 8, 7, 6]) };
       const encoded = await images.encodePng(sourcePixels);
       check(encoded.type, "image/png");
-      check([...canvasContexts[0].lastImageData.data], [9, 8, 7, 6]);
+      check(canvasContexts.length, 0);
+      const roundTripped = await images.decodeImage(encoded);
+      check(
+        [roundTripped.width, roundTripped.height, [...roundTripped.data]],
+        [1, 1, [9, 8, 7, 6]],
+      );
 
       // Picker is called before its promise yields, preserving a save-button gesture.
       resetCounters();
@@ -315,7 +320,8 @@ describe("browser-images", () => {
       });
       check(anchors.length, 1);
       check(anchors[0].clicked, true);
-      check(createdUrls[0].value, canvasBlobs[0]);
+      check(createdUrls[0].value.type, "image/png");
+      check([...(await images.decodeImage(createdUrls[0].value)).data], [9, 8, 7, 6]);
 
       for (const stage of ["create", "close"]) {
         resetCounters();
@@ -345,7 +351,8 @@ describe("browser-images", () => {
         });
         check(result, { method: "download", name: "retained.png", downloadFallback: true });
         check(anchors.length, 1);
-        check(createdUrls[0].value, canvasBlobs[0]);
+        check(createdUrls[0].value.type, "image/png");
+        check([...(await images.decodeImage(createdUrls[0].value)).data], [9, 8, 7, 6]);
         check(bound, false);
         check(aborted, stage === "close" ? 1 : 0);
       }

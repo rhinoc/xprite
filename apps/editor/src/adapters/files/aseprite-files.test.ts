@@ -4,6 +4,7 @@ import { afterEach, describe, it, vi } from "vitest";
 
 import { decodeAsepriteBlob, saveAseprite } from "$/adapters/files/aseprite-files";
 import type { SaveFileHandle } from "$/adapters/files/aseprite-files";
+import { decodeImageBlob } from "@xprite/bedrock/browser/images";
 import {
   asepriteFromProject,
   encodeAsepriteSync,
@@ -137,23 +138,6 @@ describe("ASE project file save preserves group metadata", () => {
   });
 
   it("downloads PNG bytes when the selected project destination is PNG", async () => {
-    const blob = new Blob(["encoded PNG"], { type: "image/png" });
-    vi.stubGlobal(
-      "OffscreenCanvas",
-      class {
-        getContext() {
-          return {
-            createImageData: (width: number, height: number) => ({
-              data: new Uint8ClampedArray(width * height * 4),
-            }),
-            putImageData() {},
-          };
-        }
-        async convertToBlob() {
-          return blob;
-        }
-      },
-    );
     const anchor = { click: vi.fn(), remove() {}, href: "", download: "", rel: "" };
     vi.stubGlobal("document", { createElement: () => anchor });
     const urls = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:png-copy");
@@ -177,7 +161,13 @@ describe("ASE project file save preserves group metadata", () => {
       format: "png",
       downloadFallback: true,
     });
-    assert.equal(urls.mock.calls[0][0], blob);
+    const downloaded = urls.mock.calls[0][0] as Blob;
+    assert.equal(downloaded.type, "image/png");
+    const decoded = await decodeImageBlob(downloaded);
+    assert.deepEqual(
+      [decoded.width, decoded.height, Array.from(decoded.data)],
+      [1, 1, [255, 0, 0, 255]],
+    );
     assert.equal(anchor.download, "Chosen.png");
     assert.equal(anchor.click.mock.calls.length, 1);
   });

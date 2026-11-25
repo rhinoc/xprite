@@ -2589,5 +2589,7 @@
   "ui.aseprite.rejection.truncated": "The file appears incomplete. Try saving it again in Aseprite.",
   "ui.aseprite.rejection.unsupported": "The file uses an unsupported feature.",
   "ui.aseprite.rejection.invalid": "The file structure could not be read. Try saving it again in Aseprite.",
-  "ui.aseprite.rejection.unknown": "The file failed validation."
+  "ui.aseprite.rejection.unknown": "The file failed validation.",
+  "ui.image.export.worker.failed": "Could not run the image encoder worker",
+  "ui.image.export.output.unreadable": "Could not read image encoder output"
 }

@@ -2,15 +2,33 @@ import { UINT8_MAX, UINT16_MAX, UINT16_VALUE_COUNT } from "$/base/numeric-consta
 import type { Rgba } from "$/base/primitives";
 import type { ExportAnimationFrame } from "$/import-export/image/export-animation";
 import { animationExportLoopCount, assertAnimationLoopCount } from "$/timeline/animation-loop";
-import { crc32 } from "@xprite/bedrock/common/crc32";
+import { crc32, crc32Parts } from "@xprite/bedrock/common/crc32";
 import { joinBytes } from "@xprite/bedrock/common/join-bytes";
+import {
+  PNG_SIGNATURE,
+  pngChunkParts,
+  pngEndChunk,
+  pngHeaderChunk,
+} from "@xprite/bedrock/common/png-encode";
 
-const ascii = (s: string) => Uint8Array.from(s, (c) => c.charCodeAt(0));
-const u32 = (n: number) => Uint8Array.of(n >>> 24, n >>> 16, n >>> 8, n);
-const u16 = (n: number) => Uint8Array.of(n >>> 8, n);
-function chunk(type: string, data: Uint8Array): Uint8Array {
+const ascii = (s: string): Uint8Array<ArrayBuffer> => Uint8Array.from(s, (c) => c.charCodeAt(0));
+const u32 = (n: number): Uint8Array<ArrayBuffer> => Uint8Array.of(n >>> 24, n >>> 16, n >>> 8, n);
+const u16 = (n: number): Uint8Array<ArrayBuffer> => Uint8Array.of(n >>> 8, n);
+function chunk(type: string, data: Uint8Array): Uint8Array<ArrayBuffer> {
   const payload = joinBytes([ascii(type), data]);
-  return joinBytes([u32(data.length), payload, u32(crc32(payload))]);
+  return joinBytes([u32(data.length), payload, u32(crc32(payload))]) as Uint8Array<ArrayBuffer>;
+}
+function chunkFromParts(
+  type: string,
+  payloadParts: readonly Uint8Array<ArrayBuffer>[],
+): Uint8Array<ArrayBuffer>[] {
+  const typeBytes = ascii(type);
+  const length = payloadParts.reduce((total, part) => total + part.byteLength, 0);
+  const header = new Uint8Array(8);
+  header.set(u32(length), 0);
+  header.set(typeBytes, 4);
+  const crc = u32(crc32Parts([typeBytes, ...payloadParts]));
+  return [header, ...payloadParts, crc];
 }
 /** Valid zlib/deflate stored blocks keep the core encoder platform-neutral.
  * Browser adapters may supply a compressor without altering APNG framing. */
@@ -55,21 +73,36 @@ export function pngScanlines(frame: ExportAnimationFrame): Uint8Array {
     data.set(p.data.subarray(y * stride, (y + 1) * stride), y * (stride + 1) + 1);
   return data;
 }
-/** APNG full-frame SOURCE composition and NONE disposal preserve exact RGBA,
- * including transitions from opaque to transparent pixels. */
-export function encodeApng(
-  frames: readonly ExportAnimationFrame[],
+export interface CompressedApngFrame {
+  readonly width: number;
+  readonly height: number;
+  readonly duration: number;
+  readonly compressed: readonly Uint8Array<ArrayBuffer>[];
+}
+
+/** Assemble APNG Blob parts directly from pre-compressed chunks without copying frame payloads. */
+export function encodeApngParts(
+  frames: readonly CompressedApngFrame[],
   loopCount = 0,
-  compressed?: readonly Uint8Array[],
-): Uint8Array {
-  validateFrames(frames);
+): Uint8Array<ArrayBuffer>[] {
+  if (!frames.length) throw new Error("No animation frames.");
+  const { width, height } = frames[0];
+  if (width < 1 || height < 1 || width > UINT16_MAX || height > UINT16_MAX)
+    throw new RangeError("Animation dimensions are invalid.");
+  for (const frame of frames) {
+    if (
+      frame.width !== width ||
+      frame.height !== height ||
+      !Number.isFinite(frame.duration) ||
+      frame.duration < 1 ||
+      !frame.compressed.length
+    )
+      throw new Error("Animation frames must have equal dimensions and positive durations.");
+  }
   assertAnimationLoopCount(loopCount);
-  if (compressed && compressed.length !== frames.length)
-    throw new Error("Missing APNG frame data.");
-  const { width, height } = frames[0].pixels;
-  const parts = [
-    Uint8Array.of(137, 80, 78, 71, 13, 10, 26, 10),
-    chunk("IHDR", joinBytes([u32(width), u32(height), Uint8Array.of(8, 6, 0, 0, 0)])),
+  const parts: Uint8Array<ArrayBuffer>[] = [
+    PNG_SIGNATURE,
+    pngHeaderChunk(width, height),
     chunk("acTL", joinBytes([u32(frames.length), u32(loopCount)])),
   ];
   let sequence = 0;
@@ -99,11 +132,39 @@ export function encodeApng(
         ]),
       ),
     );
-    const image = compressed?.[i] ?? storeDeflate(pngScanlines(frame));
-    parts.push(chunk(i ? "fdAT" : "IDAT", i ? joinBytes([u32(sequence++), image]) : image));
+    for (const payload of frame.compressed) {
+      if (!payload.byteLength) continue;
+      if (i === 0) parts.push(...pngChunkParts("IDAT", payload));
+      else parts.push(...chunkFromParts("fdAT", [u32(sequence++), payload]));
+    }
   });
-  parts.push(chunk("IEND", new Uint8Array()));
-  return joinBytes(parts);
+  parts.push(pngEndChunk());
+  return parts;
+}
+
+/** APNG full-frame SOURCE composition and NONE disposal preserve exact RGBA,
+ * including transitions from opaque to transparent pixels. */
+export function encodeApng(
+  frames: readonly ExportAnimationFrame[],
+  loopCount = 0,
+  compressed?: readonly Uint8Array[],
+): Uint8Array {
+  validateFrames(frames);
+  assertAnimationLoopCount(loopCount);
+  if (compressed && compressed.length !== frames.length)
+    throw new Error("Missing APNG frame data.");
+  const prepared: CompressedApngFrame[] = frames.map((frame, i) => {
+    const raw = compressed?.[i] ?? storeDeflate(pngScanlines(frame));
+    const owned: Uint8Array<ArrayBuffer> =
+      raw.buffer instanceof ArrayBuffer ? (raw as Uint8Array<ArrayBuffer>) : new Uint8Array(raw);
+    return {
+      width: frame.pixels.width,
+      height: frame.pixels.height,
+      duration: frame.duration,
+      compressed: [owned],
+    };
+  });
+  return joinBytes(encodeApngParts(prepared, loopCount));
 }
 interface ColorCount {
   rgb: number[];

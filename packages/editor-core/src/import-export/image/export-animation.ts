@@ -6,8 +6,11 @@ import type { EditorDocument } from "$/document/types";
 import { AsepriteTagDirection } from "$/import-export/aseprite/model";
 import {
   renderExport,
+  renderExportSource,
+  hasNonEmptyExportPixels,
   exportGeometry,
   type ExportFileOptions,
+  type ExportRasterPlan,
 } from "$/import-export/image/export-plan";
 import { timelineTags } from "$/timeline/operations/timeline-range";
 import { AnimationPlayback, PlaybackMode } from "$/timeline/playback";
@@ -139,6 +142,44 @@ export function renderExportAnimation(
   if (!frames.length) throw new Error("There are no nonempty frames to export.");
   return frames;
 }
+export interface ExportAnimationSourceFrame {
+  plan: ExportRasterPlan;
+  duration: number;
+  sourceFrame: number;
+}
+
+/** Snapshot unscaled frame sources synchronously so streaming encoders avoid allocating upscaled frames. */
+export function renderExportAnimationSources(
+  doc: EditorDocument,
+  options: ExportFileOptions,
+): ExportAnimationSourceFrame[] {
+  const order = exportFrameOrder(doc, options),
+    geometry = exportGeometry(doc, options);
+  if (geometry.width * geometry.height * order.length > MAX_IMAGE_PIXELS)
+    throw new RangeError("Animation export exceeds the pixel budget.");
+  const cached = new Map<number, { plan: ExportRasterPlan; nonEmpty: boolean }>();
+  const frames: ExportAnimationSourceFrame[] = [];
+  for (const frame of order) {
+    let entry = cached.get(frame);
+    if (!entry) {
+      const plan = renderExportSource(doc, { ...options, frame });
+      const nonEmpty = options.ignoreEmpty
+        ? hasNonEmptyExportPixels(plan.source, plan.bounds, plan.width, plan.height)
+        : true;
+      entry = { plan, nonEmpty };
+      cached.set(frame, entry);
+    }
+    if (options.ignoreEmpty && !entry.nonEmpty) continue;
+    frames.push({
+      plan: entry.plan,
+      duration: doc.timeline?.frames[frame].duration ?? 100,
+      sourceFrame: frame,
+    });
+  }
+  if (!frames.length) throw new Error("There are no nonempty frames to export.");
+  return frames;
+}
+
 /** Aseprite sequence numbering preserves existing numeric suffix width. */
 export function sequenceFilename(name: string, index: number, count: number): string {
   if (count <= 1) return name;

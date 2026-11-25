@@ -5,6 +5,7 @@ import { createBrowserAnimalCrossingExportPort } from "$/adapters/files/browser-
 import { createBrowserExportOutputPort } from "$/adapters/files/browser-export-output";
 import { decodeImage } from "$/adapters/files/images";
 import { saveBrowserPaletteFile, decodeBrowserPaletteImage } from "$/adapters/files/palette-files";
+import { createBrowserRasterExportPort } from "$/adapters/files/raster-export";
 import { createReferenceImageSelector } from "$/adapters/files/reference-image";
 import { createBrowserWebpExportPort } from "$/adapters/files/webp-export";
 import { browserPointerSamples } from "$/adapters/input/browser-pointer-samples";
@@ -60,6 +61,7 @@ export function createBrowserEditorPlatformPorts(): EditorPlatformPorts {
     shortcutFiles: createBrowserShortcutFilePort(primaryModifier),
     files: {
       exportOutput,
+      raster: createBrowserRasterExportPort(),
       savePaletteFile: saveBrowserPaletteFile,
       decodePaletteImageBytes: decodeBrowserPaletteImage,
       animalCrossingExport: createBrowserAnimalCrossingExportPort(exportOutput),

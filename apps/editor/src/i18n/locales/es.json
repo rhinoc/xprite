@@ -2589,5 +2589,7 @@
   "ui.aseprite.rejection.truncated": "El archivo parece incompleto. Prueba a guardarlo de nuevo en Aseprite.",
   "ui.aseprite.rejection.unsupported": "El archivo usa una función no compatible.",
   "ui.aseprite.rejection.invalid": "No se pudo leer la estructura del archivo. Prueba a guardarlo de nuevo en Aseprite.",
-  "ui.aseprite.rejection.unknown": "El archivo no superó la validación."
+  "ui.aseprite.rejection.unknown": "El archivo no superó la validación.",
+  "ui.image.export.worker.failed": "No se pudo ejecutar el trabajador del codificador de imágenes",
+  "ui.image.export.output.unreadable": "No se pudo leer la salida del codificador de imágenes"
 }

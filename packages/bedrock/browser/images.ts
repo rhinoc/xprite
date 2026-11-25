@@ -1,9 +1,22 @@
 import {
   CANVAS_IMAGE_MAX_DIMENSION,
   CANVAS_IMAGE_MAX_PIXELS,
+  PORTABLE_IMAGE_LIMITS,
   imageDimensionsWithinLimits,
+  type ImageDimensionLimits,
 } from "$common/image-dimensions";
 import { hasPngSignature, readPng } from "$common/png";
+import {
+  PNG_SIGNATURE,
+  createPixelBufferRowSource,
+  pngChunkParts,
+  pngEndChunk,
+  pngFilteredStrip,
+  pngHeaderChunk,
+  pngStripRowCount,
+  storeDeflateStrips,
+  type RgbaRowSource,
+} from "$common/png-encode";
 
 export interface RgbaImageData {
   width: number;
@@ -145,6 +158,32 @@ function sourceDimensions(source: CanvasImageSource): {
   return { width, height };
 }
 
+function releaseCanvas(canvas: CanvasSurface): void {
+  canvas.width = 0;
+  canvas.height = 0;
+}
+
+function toImageData(context: Canvas2dContext, pixels: RgbaImageData): ImageData {
+  if (
+    typeof ImageData === "function" &&
+    pixels.data instanceof Uint8ClampedArray &&
+    pixels.data.buffer instanceof ArrayBuffer
+  ) {
+    try {
+      return new ImageData(
+        pixels.data as Uint8ClampedArray<ArrayBuffer>,
+        pixels.width,
+        pixels.height,
+      );
+    } catch {
+      // Fall back to context allocation when a host environment rejects ImageData wrapping.
+    }
+  }
+  const imageData = context.createImageData(pixels.width, pixels.height);
+  imageData.data.set(pixels.data);
+  return imageData;
+}
+
 function rasterize(source: CanvasImageSource, options: ImageDecodeOptions): RgbaImageData {
   const { width, height } = sourceDimensions(source);
   assertImageDimensions(width, height, options);
@@ -154,10 +193,16 @@ function rasterize(source: CanvasImageSource, options: ImageDecodeOptions): Rgba
     context.imageSmoothingEnabled = false;
     context.drawImage(source, 0, 0, width, height);
     const pixels = context.getImageData(0, 0, width, height).data;
-    return { width, height, data: new Uint8ClampedArray(pixels) };
+    return {
+      width,
+      height,
+      data: pixels instanceof Uint8ClampedArray ? pixels : new Uint8ClampedArray(pixels),
+    };
   } catch (error) {
     if (error instanceof ImageDimensionError) throw error;
     throw new Error(`Could not read decoded image pixels: ${describeError(error)}`);
+  } finally {
+    releaseCanvas(canvas);
   }
 }
 
@@ -191,9 +236,11 @@ function loadImageFallback(blob: Blob): Promise<HTMLImageElement> {
 
 /** Inflate into a fixed buffer so malformed PNG streams cannot exceed their declared size. */
 async function inflatePng(bytes: Uint8Array, expected: number): Promise<Uint8Array> {
-  const stream = new Blob([new Uint8Array(bytes).buffer])
-    .stream()
-    .pipeThrough(new DecompressionStream("deflate"));
+  const source: Uint8Array<ArrayBuffer> =
+    bytes.buffer instanceof ArrayBuffer
+      ? (bytes as Uint8Array<ArrayBuffer>)
+      : new Uint8Array(bytes);
+  const stream = new Blob([source]).stream().pipeThrough(new DecompressionStream("deflate"));
   const reader = stream.getReader();
   const output = new Uint8Array(expected);
   let offset = 0;
@@ -289,33 +336,35 @@ export async function encodeImageBlob(
     throw new RangeError("Image encoding quality must be between 0 and 1");
   const canvas = createCanvas(pixels.width, pixels.height);
   const context = context2d(canvas, "encode");
-  try {
-    const imageData = context.createImageData(pixels.width, pixels.height);
-    imageData.data.set(pixels.data);
-    context.putImageData(imageData, 0, 0);
-  } catch (error) {
-    throw new Error(`Could not place image pixels on the canvas: ${describeError(error)}`);
-  }
   let blob: Blob;
   try {
-    const offscreen = canvas as OffscreenCanvas;
-    if (typeof offscreen.convertToBlob === "function") {
-      blob = await offscreen.convertToBlob({ type: format, quality });
-    } else {
-      const htmlCanvas = canvas as HTMLCanvasElement;
-      if (typeof htmlCanvas.toBlob !== "function")
-        throw new Error("This browser does not provide a canvas encoder");
-      blob = await new Promise<Blob>((resolve, reject) => {
-        htmlCanvas.toBlob(
-          (result) =>
-            result ? resolve(result) : reject(new Error("The canvas returned no image Blob")),
-          format,
-          quality,
-        );
-      });
+    try {
+      context.putImageData(toImageData(context, pixels), 0, 0);
+    } catch (error) {
+      throw new Error(`Could not place image pixels on the canvas: ${describeError(error)}`);
     }
-  } catch (error) {
-    throw new Error(`Could not encode ${format}: ${describeError(error)}`);
+    try {
+      const offscreen = canvas as OffscreenCanvas;
+      if (typeof offscreen.convertToBlob === "function") {
+        blob = await offscreen.convertToBlob({ type: format, quality });
+      } else {
+        const htmlCanvas = canvas as HTMLCanvasElement;
+        if (typeof htmlCanvas.toBlob !== "function")
+          throw new Error("This browser does not provide a canvas encoder");
+        blob = await new Promise<Blob>((resolve, reject) => {
+          htmlCanvas.toBlob(
+            (result) =>
+              result ? resolve(result) : reject(new Error("The canvas returned no image Blob")),
+            format,
+            quality,
+          );
+        });
+      }
+    } catch (error) {
+      throw new Error(`Could not encode ${format}: ${describeError(error)}`);
+    }
+  } finally {
+    releaseCanvas(canvas);
   }
   if (blob.type.toLowerCase() !== format)
     throw new Error(`This browser does not support ${format} encoding`);
@@ -332,7 +381,96 @@ export async function isImageEncodingSupported(format: ImageEncodingFormat): Pro
   }
 }
 
-/** Encode RGBA image data as a PNG Blob using the browser canvas encoder. */
-export function encodePngBlob(pixels: RgbaImageData): Promise<Blob> {
-  return encodeImageBlob(pixels, ImageEncodingFormat.Png);
+function assertPortableDimensions(
+  width: number,
+  height: number,
+  limits: Readonly<ImageDimensionLimits> = PORTABLE_IMAGE_LIMITS,
+): void {
+  if (!imageDimensionsWithinLimits(width, height, limits)) {
+    throw new ImageDimensionError(
+      width,
+      height,
+      `Image ${width} × ${height} exceeds the portable encoder limit ` +
+        `${limits.maxWidth} × ${limits.maxHeight} (${limits.maxPixels} pixels)`,
+    );
+  }
+}
+
+/** Stream filtered PNG scanlines through CompressionStream("deflate") in bounded-memory strips. */
+export async function compressPngScanlines(
+  source: RgbaRowSource,
+  limits: Readonly<ImageDimensionLimits> = PORTABLE_IMAGE_LIMITS,
+): Promise<Uint8Array<ArrayBuffer>[]> {
+  assertPortableDimensions(source.width, source.height, limits);
+  const stripRows = pngStripRowCount(source.width);
+  const scratchRow = new Uint8Array(source.width * 4);
+  if (typeof CompressionStream === "function" && typeof ReadableStream === "function") {
+    let nextY = 0;
+    const readable = new ReadableStream<Uint8Array<ArrayBuffer>>({
+      pull(controller) {
+        if (nextY >= source.height) {
+          controller.close();
+          return;
+        }
+        const rowCount = Math.min(stripRows, source.height - nextY);
+        const strip = pngFilteredStrip(source, nextY, rowCount, scratchRow);
+        nextY += rowCount;
+        controller.enqueue(strip);
+      },
+    });
+    const compressedStream = readable.pipeThrough(new CompressionStream("deflate"));
+    const reader = compressedStream.getReader();
+    const chunks: Uint8Array<ArrayBuffer>[] = [];
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value.byteLength > 0) {
+          chunks.push(
+            value.buffer instanceof ArrayBuffer
+              ? (value as Uint8Array<ArrayBuffer>)
+              : new Uint8Array(value),
+          );
+        }
+      }
+      return chunks;
+    } finally {
+      reader.releaseLock();
+    }
+  }
+  function* generateStrips(): Generator<Uint8Array<ArrayBuffer>> {
+    for (let y = 0; y < source.height; y += stripRows) {
+      yield pngFilteredStrip(source, y, Math.min(stripRows, source.height - y), scratchRow);
+    }
+  }
+  return storeDeflateStrips(generateStrips());
+}
+
+/** Encode a streaming RGBA row source as a lossless PNG Blob without allocating a 2D canvas. */
+export async function encodePngRowSource(
+  source: RgbaRowSource,
+  limits: Readonly<ImageDimensionLimits> = PORTABLE_IMAGE_LIMITS,
+): Promise<Blob> {
+  const compressed = await compressPngScanlines(source, limits);
+  const parts: BlobPart[] = [PNG_SIGNATURE, pngHeaderChunk(source.width, source.height)];
+  for (const chunk of compressed) {
+    if (chunk.byteLength > 0) parts.push(...pngChunkParts("IDAT", chunk));
+  }
+  parts.push(pngEndChunk());
+  return new Blob(parts, { type: ImageEncodingFormat.Png });
+}
+
+/** Encode RGBA image data as a PNG Blob using the portable streaming PNG encoder. */
+export async function encodePngBlob(pixels: RgbaImageData): Promise<Blob> {
+  if (!pixels || !Number.isSafeInteger(pixels.width) || !Number.isSafeInteger(pixels.height)) {
+    throw new TypeError("PNG encoding expects an RGBA image with integer dimensions");
+  }
+  assertPortableDimensions(pixels.width, pixels.height, PORTABLE_IMAGE_LIMITS);
+  const expected = pixels.width * pixels.height * 4;
+  if (!pixels.data || pixels.data.length !== expected) {
+    throw new TypeError(
+      `PNG encoding expects ${expected} RGBA bytes, received ${pixels.data?.length ?? 0}`,
+    );
+  }
+  return encodePngRowSource(createPixelBufferRowSource(pixels), PORTABLE_IMAGE_LIMITS);
 }

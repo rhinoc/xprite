@@ -2589,5 +2589,7 @@
   "ui.aseprite.rejection.truncated": "ファイルが不完全なようです。Aseprite で保存し直してください。",
   "ui.aseprite.rejection.unsupported": "ファイルに未対応の機能が含まれています。",
   "ui.aseprite.rejection.invalid": "ファイル構造を読み取れません。Aseprite で保存し直してください。",
-  "ui.aseprite.rejection.unknown": "ファイルの検証に失敗しました。"
+  "ui.aseprite.rejection.unknown": "ファイルの検証に失敗しました。",
+  "ui.image.export.worker.failed": "画像エンコーダーワーカーを実行できませんでした",
+  "ui.image.export.output.unreadable": "画像エンコーダーの出力を読み取れませんでした"
 }

@@ -116,6 +116,7 @@ export function useDocumentOutputWorkflows(options: DocumentOutputWorkflowOption
     return {
       storage: platform.preferences,
       webp: platform.files.webp,
+      raster: platform.files.raster,
       encodePng: platform.files.exportOutput?.encodePng,
       save: platform.files.exportOutput?.save,
       rememberExport: (record) => {

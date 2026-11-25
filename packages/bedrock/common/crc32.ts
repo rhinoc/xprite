@@ -7,9 +7,17 @@ const crcTable = Uint32Array.from({ length: UINT8_VALUE_COUNT }, (_, value) => {
   return entry >>> 0;
 });
 
+/** Computes the standard CRC-32 checksum across one or more byte slices without concatenating. */
+export function crc32Parts(parts: readonly Uint8Array[]): number {
+  let value = UINT32_MAX;
+  for (const data of parts) {
+    for (const byte of data)
+      value = crcTable[(value ^ byte) & UINT8_MAX] ^ (value >>> BITS_PER_BYTE);
+  }
+  return (value ^ UINT32_MAX) >>> 0;
+}
+
 /** Computes the standard CRC-32 checksum for arbitrary bytes. */
 export function crc32(data: Uint8Array): number {
-  let value = UINT32_MAX;
-  for (const byte of data) value = crcTable[(value ^ byte) & UINT8_MAX] ^ (value >>> BITS_PER_BYTE);
-  return (value ^ UINT32_MAX) >>> 0;
+  return crc32Parts([data]);
 }
