@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import { build } from "esbuild";
 import { describe, it } from "vitest";
 
+import { rasterizeSelectionTransform } from "$/selection/transform";
+import { SelectionRotationAlgorithm, type SelectionTransform } from "$/selection/types";
+
 describe("selection-transform", () => {
   it("selection-transform behavior", async () => {
     const compiled = await build({
@@ -242,4 +245,212 @@ describe("selection-transform", () => {
       { x: 373, y: 125 },
     );
   }, 60_000);
+});
+
+describe("RotSprite selection transform optimization", () => {
+  interface ReferenceSamples {
+    width: number;
+    height: number;
+    data: Uint8ClampedArray;
+    mask: Uint8Array;
+  }
+
+  function referenceScaleEpx2x(source: ReferenceSamples): ReferenceSamples {
+    const width = source.width * 2;
+    const height = source.height * 2;
+    const data = new Uint8ClampedArray(width * height * 4);
+    const mask = new Uint8Array(width * height);
+    const same = (first: number, second: number) => {
+      if (source.mask[first] !== source.mask[second]) return false;
+      const a = first * 4;
+      const b = second * 4;
+      return (
+        source.data[a] === source.data[b] &&
+        source.data[a + 1] === source.data[b + 1] &&
+        source.data[a + 2] === source.data[b + 2] &&
+        source.data[a + 3] === source.data[b + 3]
+      );
+    };
+    const at = (x: number, y: number) => y * source.width + x;
+    for (let y = 0; y < source.height; y++) {
+      for (let x = 0; x < source.width; x++) {
+        const p = at(x, y);
+        const a = at(x, y ? y - 1 : y);
+        const b = at(x < source.width - 1 ? x + 1 : x, y);
+        const c = at(x ? x - 1 : x, y);
+        const d = at(x, y < source.height - 1 ? y + 1 : y);
+        const outputs = [
+          same(c, a) && !same(c, d) && !same(a, b) ? a : p,
+          same(a, b) && !same(a, c) && !same(b, d) ? b : p,
+          same(d, c) && !same(d, b) && !same(c, a) ? c : p,
+          same(b, d) && !same(b, a) && !same(d, c) ? d : p,
+        ];
+        const positions = [
+          2 * y * width + 2 * x,
+          2 * y * width + 2 * x + 1,
+          (2 * y + 1) * width + 2 * x,
+          (2 * y + 1) * width + 2 * x + 1,
+        ];
+        for (let i = 0; i < 4; i++) {
+          data.set(source.data.subarray(outputs[i] * 4, outputs[i] * 4 + 4), positions[i] * 4);
+          mask[positions[i]] = source.mask[outputs[i]] ? 1 : 0;
+        }
+      }
+    }
+    return { width, height, data, mask };
+  }
+
+  function referenceRotSprite(value: SelectionTransform) {
+    const c = {
+      x: value.bounds.x + value.bounds.width / 2,
+      y: value.bounds.y + value.bounds.height / 2,
+    };
+    const co = Math.cos(value.angle);
+    const si = Math.sin(value.angle);
+    const corners = [
+      [0, 0],
+      [value.bounds.width, 0],
+      [value.bounds.width, value.bounds.height],
+      [0, value.bounds.height],
+    ].map(([x, y]) => ({
+      x: c.x + (x - value.bounds.width / 2) * co - (y - value.bounds.height / 2) * si,
+      y: c.y + (x - value.bounds.width / 2) * si + (y - value.bounds.height / 2) * co,
+    }));
+    const bx = Math.floor(Math.min(...corners.map((p) => p.x)) + 1e-8);
+    const by = Math.floor(Math.min(...corners.map((p) => p.y)) + 1e-8);
+    const bw = Math.max(1, Math.ceil(Math.max(...corners.map((p) => p.x)) - 1e-8) - bx);
+    const bh = Math.max(1, Math.ceil(Math.max(...corners.map((p) => p.y)) - 1e-8) - by);
+    let working: ReferenceSamples = {
+      width: value.source.width,
+      height: value.source.height,
+      data: value.source.data,
+      mask: value.mask.data,
+    };
+    const passes = 3;
+    for (let pass = 0; pass < passes; pass++) working = referenceScaleEpx2x(working);
+    const samplesPerAxis = 1 << passes;
+    const sampleCount = samplesPerAxis * samplesPerAxis;
+    const data = new Uint8ClampedArray(bw * bh * 4);
+    const mask = new Uint8Array(bw * bh);
+    for (let y = 0; y < bh; y++) {
+      for (let x = 0; x < bw; x++) {
+        const votes = new Map<number, { count: number; sample: number[] }>();
+        let selectedSamples = 0;
+        for (let sampleY = 0; sampleY < samplesPerAxis; sampleY++) {
+          for (let sampleX = 0; sampleX < samplesPerAxis; sampleX++) {
+            const dx = bx + x + (sampleX + 0.5) / samplesPerAxis - c.x;
+            const dy = by + y + (sampleY + 0.5) / samplesPerAxis - c.y;
+            const localX = ((dx * co + dy * si) / value.bounds.width + 0.5) * value.source.width;
+            const localY = ((-dx * si + dy * co) / value.bounds.height + 0.5) * value.source.height;
+            const sx = Math.floor(localX * samplesPerAxis);
+            const sy = Math.floor(localY * samplesPerAxis);
+            if (sx < 0 || sy < 0 || sx >= working.width || sy >= working.height) continue;
+            const sourceIndex = sy * working.width + sx;
+            if (!working.mask[sourceIndex]) continue;
+            selectedSamples++;
+            const at = sourceIndex * 4;
+            const key =
+              ((working.data[at] * 256 + working.data[at + 1]) * 256 + working.data[at + 2]) * 256 +
+              working.data[at + 3];
+            const vote = votes.get(key);
+            if (vote) vote.count++;
+            else
+              votes.set(key, { count: 1, sample: Array.from(working.data.subarray(at, at + 4)) });
+          }
+        }
+        if (selectedSamples * 2 < sampleCount) continue;
+        let best: { count: number; sample: number[] } | null = null;
+        for (const vote of votes.values()) if (!best || vote.count > best.count) best = vote;
+        if (!best) continue;
+        const out = y * bw + x;
+        mask[out] = 255;
+        data.set(best.sample, out * 4);
+      }
+    }
+    return { data, mask };
+  }
+
+  it("matches reference EPX + voting bit-for-bit across angles, sparse masks, ties, and cache reuse", () => {
+    const width = 16;
+    const height = 14;
+    const data = new Uint8ClampedArray(width * height * 4);
+    const maskData = new Uint8Array(width * height);
+    const palette = [
+      [255, 0, 0, 255],
+      [0, 255, 0, 255],
+      [0, 0, 255, 255],
+      [255, 255, 0, 255],
+      [255, 0, 255, 128],
+    ];
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const index = y * width + x;
+        // Diagonal + checkerboard + transparent holes to exercise EPX edges and vote ties.
+        if ((x === 5 && y === 5) || (x > 11 && y < 3)) continue;
+        maskData[index] = 255;
+        const color = palette[(x + y * 2 + (x > y ? 1 : 0)) % palette.length];
+        data.set(color, index * 4);
+      }
+    }
+    const base: SelectionTransform = {
+      source: { width, height, data },
+      mask: { x: 2, y: 3, width, height, data: maskData },
+      bounds: { x: 2, y: 3, width, height },
+      angle: 0,
+      copy: false,
+      rotationAlgorithm: SelectionRotationAlgorithm.RotSprite,
+    };
+
+    for (const angle of [0.35, -0.7853981633974483, 1.15, 2.31]) {
+      const candidate: SelectionTransform = { ...base, angle };
+      const actual = rasterizeSelectionTransform(candidate);
+      const expected = referenceRotSprite(candidate);
+      assert.deepEqual(actual.pixels.data, expected.data);
+      assert.deepEqual(actual.mask.data, expected.mask);
+
+      // Fresh buffers (cache miss) must produce the exact same pixels as cached EPX reuse.
+      const uncached = rasterizeSelectionTransform({
+        ...candidate,
+        source: { width, height, data: data.slice() },
+        mask: { ...base.mask, data: maskData.slice() },
+      });
+      assert.deepEqual(actual.pixels.data, uncached.pixels.data);
+      assert.deepEqual(actual.mask.data, uncached.mask.data);
+    }
+
+    // Exercise opaque + transparentColor color-key path across repeated rotation drags.
+    const keyed: SelectionTransform = {
+      ...base,
+      angle: 0.42,
+      opaque: false,
+      transparentColor: [255, 0, 0, 255],
+    };
+    const firstKeyed = rasterizeSelectionTransform(keyed);
+    const secondKeyed = rasterizeSelectionTransform({ ...keyed, angle: 0.42 });
+    assert.deepEqual(firstKeyed.pixels.data, secondKeyed.pixels.data);
+    assert.deepEqual(firstKeyed.mask.data, secondKeyed.mask.data);
+
+    // Performance sanity: 20 sequential rotation steps on a 64x64 sprite reusing cached EPX.
+    const bigSize = 64;
+    const bigData = new Uint8ClampedArray(bigSize * bigSize * 4);
+    const bigMask = new Uint8Array(bigSize * bigSize).fill(255);
+    for (let i = 0; i < bigSize * bigSize; i++) {
+      bigData[i * 4] = (i * 19) & 255;
+      bigData[i * 4 + 1] = (i * 37) & 255;
+      bigData[i * 4 + 2] = (i * 73) & 255;
+      bigData[i * 4 + 3] = 255;
+    }
+    const bigTransform: SelectionTransform = {
+      source: { width: bigSize, height: bigSize, data: bigData },
+      mask: { x: 0, y: 0, width: bigSize, height: bigSize, data: bigMask },
+      bounds: { x: 0, y: 0, width: bigSize, height: bigSize },
+      angle: 0.1,
+      copy: false,
+      rotationAlgorithm: SelectionRotationAlgorithm.RotSprite,
+    };
+    for (let step = 1; step <= 20; step++) {
+      const rendered = rasterizeSelectionTransform({ ...bigTransform, angle: step * 0.15 });
+      assert.ok(rendered.pixels.width >= bigSize);
+    }
+  });
 });

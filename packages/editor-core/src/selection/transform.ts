@@ -35,7 +35,11 @@ export function extractSelection(layer: EditorLayer, mask: PixelMask): PixelBuff
   return out;
 }
 const CENTER_PIVOT = { x: 0.5, y: 0.5 };
+const RGBA_BYTES_PER_PIXEL = 4;
+const UINT32_ALIGNMENT_MASK = 3;
 const ROTSPRITE_MAX_PASSES = 3;
+const ROTSPRITE_MAX_SAMPLES_PER_AXIS = 1 << ROTSPRITE_MAX_PASSES;
+const ROTSPRITE_MAX_VOTE_SLOTS = ROTSPRITE_MAX_SAMPLES_PER_AXIS * ROTSPRITE_MAX_SAMPLES_PER_AXIS;
 const PIXEL_ART_ROTATION_ANGLES = [
   0, 26.565, 45, 63.435, 90, 116.565, 135, 153.435, 180, -153.435, -135, -116.565, -90, -63.435,
   -45, -26.565,
@@ -192,66 +196,128 @@ interface TransformSamples {
   mask: Uint8Array;
 }
 
-function pixelKey(data: Uint8ClampedArray, index: number): number {
-  const at = index * 4;
-  return ((data[at] * 256 + data[at + 1]) * 256 + data[at + 2]) * 256 + data[at + 3];
-}
+const epxSamplesCache = new WeakMap<
+  Uint8ClampedArray,
+  WeakMap<Uint8Array, Map<string, TransformSamples>>
+>();
+const transformPixelsCache = new WeakMap<
+  Uint8ClampedArray,
+  WeakMap<Uint8Array, Map<string, Uint8ClampedArray>>
+>();
+const rotSpriteVoteKeys = new Uint32Array(ROTSPRITE_MAX_VOTE_SLOTS);
+const rotSpriteVoteCounts = new Uint8Array(ROTSPRITE_MAX_VOTE_SLOTS);
 
-function sameSample(samples: TransformSamples, first: number, second: number): boolean {
-  if (samples.mask[first] !== samples.mask[second]) return false;
-  const a = first * 4,
-    b = second * 4;
-  return (
-    samples.data[a] === samples.data[b] &&
-    samples.data[a + 1] === samples.data[b + 1] &&
-    samples.data[a + 2] === samples.data[b + 2] &&
-    samples.data[a + 3] === samples.data[b + 3]
-  );
+function uint32PixelView(data: Uint8ClampedArray, pixelCount: number): Uint32Array {
+  if ((data.byteOffset & UINT32_ALIGNMENT_MASK) === 0) {
+    return new Uint32Array(data.buffer, data.byteOffset, pixelCount);
+  }
+  return new Uint32Array(data.slice().buffer, 0, pixelCount);
 }
 
 /** One EPX enlargement pass. Selection occupancy participates in edge tests,
  * so transparent gaps remain distinct from opaque source colors. */
 function scaleEpx2x(source: TransformSamples): TransformSamples {
-  const width = source.width * 2,
-    height = source.height * 2,
-    data = new Uint8ClampedArray(width * height * 4),
+  const srcWidth = source.width,
+    srcHeight = source.height,
+    width = srcWidth * 2,
+    height = srcHeight * 2,
+    data = new Uint8ClampedArray(width * height * RGBA_BYTES_PER_PIXEL),
     mask = new Uint8Array(width * height),
-    at = (x: number, y: number) => y * source.width + x;
-  for (let y = 0; y < source.height; y++)
-    for (let x = 0; x < source.width; x++) {
-      const p = at(x, y),
-        a = at(x, y ? y - 1 : y),
-        b = at(x < source.width - 1 ? x + 1 : x, y),
-        c = at(x ? x - 1 : x, y),
-        d = at(x, y < source.height - 1 ? y + 1 : y),
-        outputs = [
-          sameSample(source, c, a) && !sameSample(source, c, d) && !sameSample(source, a, b)
-            ? a
-            : p,
-          sameSample(source, a, b) && !sameSample(source, a, c) && !sameSample(source, b, d)
-            ? b
-            : p,
-          sameSample(source, d, c) && !sameSample(source, d, b) && !sameSample(source, c, a)
-            ? c
-            : p,
-          sameSample(source, b, d) && !sameSample(source, b, a) && !sameSample(source, d, c)
-            ? d
-            : p,
-        ],
-        positions = [
-          2 * y * width + 2 * x,
-          2 * y * width + 2 * x + 1,
-          (2 * y + 1) * width + 2 * x,
-          (2 * y + 1) * width + 2 * x + 1,
-        ];
-      for (let i = 0; i < outputs.length; i++) {
-        const from = outputs[i] * 4,
-          to = positions[i] * 4;
-        data.set(source.data.subarray(from, from + 4), to);
-        mask[positions[i]] = source.mask[outputs[i]] ? 1 : 0;
+    srcMask = source.mask,
+    srcPixels = uint32PixelView(source.data, srcWidth * srcHeight),
+    dstPixels = new Uint32Array(data.buffer),
+    lastX = srcWidth - 1,
+    lastY = srcHeight - 1;
+  for (let y = 0; y < srcHeight; y++) {
+    const row = y * srcWidth;
+    const upRow = y > 0 ? row - srcWidth : row;
+    const downRow = y < lastY ? row + srcWidth : row;
+    const outRowTop = (y << 1) * width;
+    const outRowBottom = outRowTop + width;
+    for (let x = 0; x < srcWidth; x++) {
+      const p = row + x;
+      const a = upRow + x;
+      const b = row + (x < lastX ? x + 1 : x);
+      const c = row + (x > 0 ? x - 1 : x);
+      const d = downRow + x;
+      const pp = srcPixels[p];
+      const mp = srcMask[p] ? 1 : 0;
+      const pa = srcPixels[a];
+      const ma = srcMask[a];
+      const pb = srcPixels[b];
+      const mb = srcMask[b];
+      const pc = srcPixels[c];
+      const mc = srcMask[c];
+      const pd = srcPixels[d];
+      const md = srcMask[d];
+      const ca = mc === ma && pc === pa;
+      const cd = mc === md && pc === pd;
+      const ab = ma === mb && pa === pb;
+      const bd = mb === md && pb === pd;
+      const outTop = outRowTop + (x << 1);
+      const outBottom = outRowBottom + (x << 1);
+      if (ca && !cd && !ab) {
+        dstPixels[outTop] = pa;
+        mask[outTop] = ma ? 1 : 0;
+      } else {
+        dstPixels[outTop] = pp;
+        mask[outTop] = mp;
+      }
+      if (ab && !ca && !bd) {
+        dstPixels[outTop + 1] = pb;
+        mask[outTop + 1] = mb ? 1 : 0;
+      } else {
+        dstPixels[outTop + 1] = pp;
+        mask[outTop + 1] = mp;
+      }
+      if (cd && !bd && !ca) {
+        dstPixels[outBottom] = pc;
+        mask[outBottom] = mc ? 1 : 0;
+      } else {
+        dstPixels[outBottom] = pp;
+        mask[outBottom] = mp;
+      }
+      if (bd && !ab && !cd) {
+        dstPixels[outBottom + 1] = pd;
+        mask[outBottom + 1] = md ? 1 : 0;
+      } else {
+        dstPixels[outBottom + 1] = pp;
+        mask[outBottom + 1] = mp;
       }
     }
+  }
   return { width, height, data, mask };
+}
+
+function getCachedEpxSamples(source: TransformSamples, passes: number): TransformSamples {
+  let byMask = epxSamplesCache.get(source.data);
+  if (!byMask) {
+    byMask = new WeakMap();
+    epxSamplesCache.set(source.data, byMask);
+  }
+  let byKey = byMask.get(source.mask);
+  if (!byKey) {
+    byKey = new Map();
+    byMask.set(source.mask, byKey);
+  }
+  const cacheKey = `${source.width}x${source.height}:${passes}`;
+  const cached = byKey.get(cacheKey);
+  if (cached) return cached;
+  let working = source;
+  let startPass = 0;
+  for (let prev = passes - 1; prev >= 1; prev--) {
+    const prevCached = byKey.get(`${source.width}x${source.height}:${prev}`);
+    if (prevCached) {
+      working = prevCached;
+      startPass = prev;
+      break;
+    }
+  }
+  for (let pass = startPass; pass < passes; pass++) {
+    working = scaleEpx2x(working);
+  }
+  byKey.set(cacheKey, working);
+  return working;
 }
 
 function rotSpritePasses(width: number, height: number, outputPixels: number): number {
@@ -279,17 +345,35 @@ function transformHasAxisAlignedPixelShape(value: SelectionTransform): boolean {
 function makeTransformPixels(value: SelectionTransform): Uint8ClampedArray {
   const key = value.transparentColor ?? ([0, 0, 0, 0] as const);
   if (!value.opaque && key[3] === 0) return value.source.data;
+  let byMask = transformPixelsCache.get(value.source.data);
+  if (!byMask) {
+    byMask = new WeakMap();
+    transformPixelsCache.set(value.source.data, byMask);
+  }
+  let bySpec = byMask.get(value.mask.data);
+  if (!bySpec) {
+    bySpec = new Map();
+    byMask.set(value.mask.data, bySpec);
+  }
+  const specKey = `${value.opaque ? 1 : 0}:${key[0]},${key[1]},${key[2]},${key[3]}`;
+  const cached = bySpec.get(specKey);
+  if (cached) return cached;
   const data = value.source.data.slice();
   for (let i = 0; i < value.mask.data.length; i++) {
     if (!value.mask.data[i]) continue;
-    const at = i * 4,
+    const at = i * RGBA_BYTES_PER_PIXEL,
       alpha = data[at + 3],
       matchesKey =
         key[3] > 0 && data[at] === key[0] && data[at + 1] === key[1] && data[at + 2] === key[2];
     if (alpha !== 0 && !matchesKey) continue;
-    if (value.opaque) data.set([key[0], key[1], key[2], UINT8_MAX], at);
-    else data[at + 3] = 0;
+    if (value.opaque) {
+      data[at] = key[0];
+      data[at + 1] = key[1];
+      data[at + 2] = key[2];
+      data[at + 3] = UINT8_MAX;
+    } else data[at + 3] = 0;
   }
+  bySpec.set(specKey, data);
   return data;
 }
 
@@ -298,8 +382,9 @@ function transformSamples(
   value: SelectionTransform,
   bounds: TransformSampleBounds,
 ): { data: Uint8ClampedArray; mask: Uint8Array } {
-  const data = new Uint8ClampedArray(bounds.width * bounds.height * 4),
+  const data = new Uint8ClampedArray(bounds.width * bounds.height * RGBA_BYTES_PER_PIXEL),
     mask = new Uint8Array(bounds.width * bounds.height),
+    outPixels = new Uint32Array(data.buffer),
     angleCos = Math.cos(value.angle),
     angleSin = Math.sin(value.angle),
     requestRotSprite =
@@ -314,8 +399,7 @@ function transformSamples(
     passes = rotSpritePasses(source.width, source.height, bounds.width * bounds.height);
     while (passes > 0) {
       try {
-        working = source;
-        for (let pass = 0; pass < passes; pass++) working = scaleEpx2x(working);
+        working = getCachedEpxSamples(source, passes);
         break;
       } catch {
         // The fast inverse mapper remains available when a bounded EPX buffer
@@ -326,63 +410,87 @@ function transformSamples(
     if (!passes) working = source;
   }
   if (!passes) {
-    for (let y = 0; y < bounds.height; y++)
+    const srcPixels = uint32PixelView(source.data, source.width * source.height);
+    const srcMask = source.mask;
+    const srcWidth = source.width;
+    const srcHeight = source.height;
+    const boundsWidth = value.bounds.width;
+    const boundsHeight = value.bounds.height;
+    for (let y = 0; y < bounds.height; y++) {
+      const dy = bounds.y + y + 0.5 - bounds.centerY;
+      const outRow = y * bounds.width;
       for (let x = 0; x < bounds.width; x++) {
         const dx = bounds.x + x + 0.5 - bounds.centerX,
-          dy = bounds.y + y + 0.5 - bounds.centerY,
-          sx = Math.floor(
-            ((dx * angleCos + dy * angleSin) / value.bounds.width + 0.5) * source.width,
-          ),
-          sy = Math.floor(
-            ((-dx * angleSin + dy * angleCos) / value.bounds.height + 0.5) * source.height,
-          );
-        if (sx < 0 || sy < 0 || sx >= source.width || sy >= source.height) continue;
-        const sourceIndex = sy * source.width + sx;
-        if (!source.mask[sourceIndex]) continue;
-        const out = y * bounds.width + x;
+          sx = Math.floor(((dx * angleCos + dy * angleSin) / boundsWidth + 0.5) * srcWidth),
+          sy = Math.floor(((-dx * angleSin + dy * angleCos) / boundsHeight + 0.5) * srcHeight);
+        if (sx < 0 || sy < 0 || sx >= srcWidth || sy >= srcHeight) continue;
+        const sourceIndex = sy * srcWidth + sx;
+        if (!srcMask[sourceIndex]) continue;
+        const out = outRow + x;
         mask[out] = UINT8_MAX;
-        data.set(source.data.subarray(sourceIndex * 4, sourceIndex * 4 + 4), out * 4);
+        outPixels[out] = srcPixels[sourceIndex];
       }
+    }
     return { data, mask };
   }
-  const samplesPerAxis = passes ? 1 << passes : 1,
-    sampleCount = samplesPerAxis * samplesPerAxis;
-  for (let y = 0; y < bounds.height; y++)
+  const samplesPerAxis = 1 << passes,
+    sampleCount = samplesPerAxis * samplesPerAxis,
+    workingWidth = working.width,
+    workingHeight = working.height,
+    workingMask = working.mask,
+    workingPixels = uint32PixelView(working.data, workingWidth * workingHeight),
+    srcWidth = source.width,
+    srcHeight = source.height,
+    boundsWidth = value.bounds.width,
+    boundsHeight = value.bounds.height;
+  for (let y = 0; y < bounds.height; y++) {
+    const outRow = y * bounds.width;
     for (let x = 0; x < bounds.width; x++) {
-      const out = y * bounds.width + x,
-        votes = new Map<number, { count: number; sample: number[] }>();
       let selectedSamples = 0;
-      const sampleSubpixel = (sampleX: number, sampleY: number) => {
-        const dx = bounds.x + x + (sampleX + 0.5) / samplesPerAxis - bounds.centerX,
-          dy = bounds.y + y + (sampleY + 0.5) / samplesPerAxis - bounds.centerY,
-          localX = ((dx * angleCos + dy * angleSin) / value.bounds.width + 0.5) * source.width,
-          localY = ((-dx * angleSin + dy * angleCos) / value.bounds.height + 0.5) * source.height,
-          sx = Math.floor(localX * samplesPerAxis),
-          sy = Math.floor(localY * samplesPerAxis);
-        if (sx < 0 || sy < 0 || sx >= working.width || sy >= working.height) return;
-        const sourceIndex = sy * working.width + sx;
-        if (!working.mask[sourceIndex]) return;
-        selectedSamples++;
-        const key = pixelKey(working.data, sourceIndex),
-          vote = votes.get(key);
-        if (vote) vote.count++;
-        else {
-          const at = sourceIndex * 4;
-          votes.set(key, {
-            count: 1,
-            sample: Array.from(working.data.subarray(at, at + 4)),
-          });
+      let voteLength = 0;
+      for (let sampleY = 0; sampleY < samplesPerAxis; sampleY++) {
+        const dy = bounds.y + y + (sampleY + 0.5) / samplesPerAxis - bounds.centerY;
+        for (let sampleX = 0; sampleX < samplesPerAxis; sampleX++) {
+          const dx = bounds.x + x + (sampleX + 0.5) / samplesPerAxis - bounds.centerX,
+            localX = ((dx * angleCos + dy * angleSin) / boundsWidth + 0.5) * srcWidth,
+            localY = ((-dx * angleSin + dy * angleCos) / boundsHeight + 0.5) * srcHeight,
+            sx = Math.floor(localX * samplesPerAxis),
+            sy = Math.floor(localY * samplesPerAxis);
+          if (sx < 0 || sy < 0 || sx >= workingWidth || sy >= workingHeight) continue;
+          const sourceIndex = sy * workingWidth + sx;
+          if (!workingMask[sourceIndex]) continue;
+          selectedSamples++;
+          const key = workingPixels[sourceIndex];
+          let found = false;
+          for (let i = 0; i < voteLength; i++) {
+            if (rotSpriteVoteKeys[i] === key) {
+              rotSpriteVoteCounts[i]++;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            rotSpriteVoteKeys[voteLength] = key;
+            rotSpriteVoteCounts[voteLength] = 1;
+            voteLength++;
+          }
         }
-      };
-      for (let sampleY = 0; sampleY < samplesPerAxis; sampleY++)
-        for (let sampleX = 0; sampleX < samplesPerAxis; sampleX++) sampleSubpixel(sampleX, sampleY);
+      }
       if (selectedSamples * 2 < sampleCount) continue;
-      let best: { count: number; sample: number[] } | null = null;
-      for (const vote of votes.values()) if (!best || vote.count > best.count) best = vote;
-      if (!best) continue;
+      let bestKey = rotSpriteVoteKeys[0];
+      let bestCount = rotSpriteVoteCounts[0];
+      for (let i = 1; i < voteLength; i++) {
+        const count = rotSpriteVoteCounts[i];
+        if (count > bestCount) {
+          bestCount = count;
+          bestKey = rotSpriteVoteKeys[i];
+        }
+      }
+      const out = outRow + x;
       mask[out] = UINT8_MAX;
-      data.set(best.sample, out * 4);
+      outPixels[out] = bestKey;
     }
+  }
   return { data, mask };
 }
 

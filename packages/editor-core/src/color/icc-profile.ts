@@ -294,18 +294,74 @@ function colorToPcs(color: Rgba, profile: AsepriteColorProfile | undefined): Icc
       matrix[r * 3] * linear[0] + matrix[r * 3 + 1] * linear[1] + matrix[r * 3 + 2] * linear[2],
   ) as unknown as IccVector;
 }
-function invertCurve(curve: (x: number) => number, value: number): number {
-  if (value <= curve(0)) return 0;
-  if (value >= curve(1)) return 1;
-  let lo = 0,
-    hi = 1;
-  for (let i = 0; i < 24; i++) {
-    const mid = (lo + hi) / 2;
-    if (curve(mid) < value) lo = mid;
-    else hi = mid;
-  }
-  return (lo + hi) / 2;
+const INVERSE_CURVE_TABLE_SIZE = 4096;
+const INVERSE_CURVE_SEGMENTS = INVERSE_CURVE_TABLE_SIZE - 1;
+const INVERSE_CURVE_MAX_STEPS = 24;
+const INVERSE_CURVE_TOLERANCE = 1e-7;
+
+interface InverseCurveLut {
+  readonly minY: number;
+  readonly maxY: number;
+  readonly span: number;
+  readonly table: Float32Array;
 }
+
+const inverseCurveCache = new WeakMap<(x: number) => number, InverseCurveLut>();
+
+function buildInverseCurveLut(curve: (x: number) => number): InverseCurveLut {
+  const minY = curve(0);
+  const maxY = curve(1);
+  const span = maxY - minY;
+  const table = new Float32Array(INVERSE_CURVE_TABLE_SIZE);
+  table[0] = 0;
+  table[INVERSE_CURVE_SEGMENTS] = 1;
+  if (span > 0) {
+    let prevLo = 0;
+    for (let index = 1; index < INVERSE_CURVE_SEGMENTS; index++) {
+      const u = index / INVERSE_CURVE_SEGMENTS;
+      const target = minY + u * u * span;
+      let lo = prevLo;
+      let step = 1 / INVERSE_CURVE_SEGMENTS;
+      let hi = Math.min(1, lo + step);
+      while (hi < 1 && curve(hi) < target) {
+        lo = hi;
+        step *= 2;
+        hi = Math.min(1, lo + step);
+      }
+      for (
+        let stepIndex = 0;
+        stepIndex < INVERSE_CURVE_MAX_STEPS && hi - lo > INVERSE_CURVE_TOLERANCE;
+        stepIndex++
+      ) {
+        const mid = (lo + hi) * 0.5;
+        if (curve(mid) < target) lo = mid;
+        else hi = mid;
+      }
+      prevLo = lo;
+      table[index] = (lo + hi) * 0.5;
+    }
+  }
+  return { minY, maxY, span, table };
+}
+
+function getInverseCurveLut(curve: (x: number) => number): InverseCurveLut {
+  let cached = inverseCurveCache.get(curve);
+  if (!cached) {
+    cached = buildInverseCurveLut(curve);
+    inverseCurveCache.set(curve, cached);
+  }
+  return cached;
+}
+
+function lookupInverseCurve(lut: InverseCurveLut, value: number): number {
+  if (!(value > lut.minY)) return 0;
+  if (value >= lut.maxY) return 1;
+  const scaled = Math.sqrt((value - lut.minY) / lut.span) * INVERSE_CURVE_SEGMENTS;
+  const index = Math.min(INVERSE_CURVE_SEGMENTS - 1, Math.floor(scaled));
+  const low = lut.table[index];
+  return low + (lut.table[index + 1] - low) * (scaled - index);
+}
+
 /** Colorimetric working-space conversion, avoiding an intermediate clipped sRGB image. */
 export function convertPixelsBetweenProfiles(
   image: PixelBuffer,
@@ -314,6 +370,10 @@ export function convertPixelsBetweenProfiles(
 ): PixelBuffer {
   if (colorProfilesEquivalent(from, to)) return image;
   const target = to?.type === "icc" ? parseIccProfile(to.data) : undefined,
+    targetInverseCurves =
+      target?.kind === IccProfileKind.Matrix
+        ? target.curves.map((curve) => getInverseCurveLut(curve))
+        : undefined,
     matrix =
       target?.kind === IccProfileKind.Matrix && target.space === "RGB"
         ? inverse(target.matrix)
@@ -329,7 +389,7 @@ export function convertPixelsBetweenProfiles(
       if (target?.kind === IccProfileKind.Lut) {
         rgb = target.fromPcs(pcs).map((channel) => Math.round(clamp(channel) * UINT8_MAX));
       } else if (target?.space === "GRAY") {
-        const value = Math.round(invertCurve(target.curves[0], pcs[1]) * UINT8_MAX);
+        const value = Math.round(lookupInverseCurve(targetInverseCurves![0], pcs[1]) * UINT8_MAX);
         rgb = [value, value, value];
       } else {
         const linear = [0, 1, 2].map(
@@ -338,8 +398,8 @@ export function convertPixelsBetweenProfiles(
         rgb = linear.map((v, i) =>
           Math.round(
             clamp(
-              target
-                ? invertCurve(target.curves[i], v)
+              targetInverseCurves
+                ? lookupInverseCurve(targetInverseCurves[i], v)
                 : to?.type === "srgb" && to.gamma !== undefined
                   ? Math.pow(clamp(v), 1 / to.gamma)
                   : encodeSrgb(v),

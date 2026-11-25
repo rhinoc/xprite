@@ -6,6 +6,18 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import { describe, it } from "vitest";
 
+import {
+  TILE_DIAGONAL_FLIP,
+  TILE_X_FLIP,
+  TILE_Y_FLIP,
+  TilesetMode,
+  commitTilemapPixels,
+  createTilemapLayer,
+  rasterizeTilemap,
+  setTilesAt,
+} from "$/tilemap/model";
+import type { SpriteTimeline } from "$/timeline/timeline";
+
 describe("tilemap-editor-v2", () => {
   it("tilemap-editor-v2 behavior", async () => {
     const bundle = await build({
@@ -883,4 +895,196 @@ describe("tilemap-integration", () => {
       "Tilemap transfer copy isolation, invalid-layer guards, and authoritative effect commit pass.",
     );
   }, 60_000);
+});
+
+describe("tilemap commit optimizations", () => {
+  it("preserves flipped/rectangular references, lowest-index deduplication, Manual edits, and sample commits", () => {
+    const makeRgba = (values: readonly number[]) =>
+      new Uint8Array(values.flatMap((v) => [v, (v * 3) & 255, (v * 7) & 255, v ? 255 : 0]));
+    const emptyTimeline = (colorDepth: 8 | 16 | 32 = 32): SpriteTimeline => ({
+      colorDepth,
+      layers: [],
+      frames: [
+        {
+          duration: 100,
+          cels: [],
+          palette:
+            colorDepth === 8
+              ? [
+                  [0, 0, 0, 0],
+                  [200, 10, 20, 255],
+                  [20, 200, 30, 255],
+                  [30, 40, 220, 255],
+                ]
+              : undefined,
+        },
+      ],
+      activeLayer: 0,
+      activeFrame: 0,
+    });
+
+    // Rectangular 2x3 tileset with duplicate tiles (tile 1 and tile 3 identical) to verify
+    // lowest-index reuse and flipped reference preservation (including diagonal flip out-of-square).
+    let timeline = createTilemapLayer(emptyTimeline(32), { tileWidth: 2, tileHeight: 3 });
+    timeline = {
+      ...timeline,
+      tilesets: [
+        {
+          ...timeline.tilesets![0],
+          tileCount: 4,
+          pixels: makeRgba([
+            0, 0, 0, 0, 0, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 10, 20, 30, 40, 50,
+            60,
+          ]),
+        },
+      ],
+    };
+    const diagRef = (1 | TILE_DIAGONAL_FLIP) >>> 0;
+    const xyRef = (2 | TILE_X_FLIP | TILE_Y_FLIP) >>> 0;
+    timeline = setTilesAt(timeline, 0, 0, [
+      { x: 0, y: 0, tile: diagRef },
+      { x: 1, y: 0, tile: xyRef },
+      { x: 2, y: 0, tile: 0 },
+    ]);
+    const currentPixels = timeline.frames[0].cels[0]!.pixels;
+
+    // Unchanged commit preserves both flipped references without allocating new tiles
+    // (Auto trims the trailing empty cell).
+    const preserved = commitTilemapPixels(timeline, 0, 0, currentPixels, 0, 0, TilesetMode.Auto);
+    assert.deepEqual([...preserved.frames[0].cels[0]!.tilemap!.tiles], [diagRef, xyRef]);
+    assert.equal(preserved.tilesets![0].tileCount, 4);
+
+    // Painting tile 1's pixels into cell (2, 0) reuses lowest matching index (1, not 3).
+    const paintDup = { ...currentPixels, data: currentPixels.data.slice() };
+    const tile1Data = timeline.tilesets![0].pixels.subarray(2 * 3 * 4, 2 * 2 * 3 * 4);
+    for (let y = 0; y < 3; y++) {
+      paintDup.data.set(tile1Data.subarray(y * 8, y * 8 + 8), (y * 6 + 4) * 4);
+    }
+    const reused = commitTilemapPixels(timeline, 0, 0, paintDup, 0, 0, TilesetMode.Stack);
+    assert.deepEqual([...reused.frames[0].cels[0]!.tilemap!.tiles], [diagRef, xyRef, 1]);
+    assert.equal(reused.tilesets![0].tileCount, 4);
+
+    // Auto mode: unique tile edited in-place updates hash index so subsequent cell matches it.
+    const uniqueEdit = { ...currentPixels, data: currentPixels.data.slice() };
+    const novel = makeRgba([91, 92, 93, 94, 95, 96]);
+    for (let y = 0; y < 3; y++) {
+      uniqueEdit.data.set(novel.subarray(y * 8, y * 8 + 8), (y * 6 + 2) * 4);
+      uniqueEdit.data.set(novel.subarray(y * 8, y * 8 + 8), (y * 6 + 4) * 4);
+    }
+    const autoReused = commitTilemapPixels(timeline, 0, 0, uniqueEdit, 0, 0, TilesetMode.Auto);
+    assert.equal(autoReused.tilesets![0].tileCount, 4);
+    assert.deepEqual([...autoReused.frames[0].cels[0]!.tilemap!.tiles], [diagRef, 2, 2]);
+    assert.deepEqual(autoReused.tilesets![0].pixels.subarray(2 * 24, 3 * 24), novel);
+
+    // Manual mode on flipped tile modifies only changed pixels in canonical tile coordinates.
+    const manualEdit = { ...currentPixels, data: currentPixels.data.slice() };
+    // Cell (1, 0) has tile 2 with X+Y flip; top-left of cell maps to bottom-right of tile 2.
+    manualEdit.data.set([222, 111, 55, 255], 2 * 4);
+    const manualResult = commitTilemapPixels(timeline, 0, 0, manualEdit, 0, 0, TilesetMode.Manual);
+    assert.deepEqual([...manualResult.frames[0].cels[0]!.tilemap!.tiles], [diagRef, xyRef, 0]);
+    const updatedTile2 = manualResult.tilesets![0].pixels.subarray(2 * 24, 3 * 24);
+    assert.deepEqual([...updatedTile2.subarray(5 * 4, 6 * 4)], [222, 111, 55, 255]);
+    assert.deepEqual(
+      [...updatedTile2.subarray(0, 4)],
+      [...timeline.tilesets![0].pixels.subarray(2 * 24, 2 * 24 + 4)],
+    );
+
+    // Indexed 8-bit commitTilemapSamples preserves exact sample indices and projections.
+    let indexed = createTilemapLayer(emptyTimeline(8), { tileWidth: 2, tileHeight: 2 });
+    const indexedSamples = {
+      depth: 8 as const,
+      width: 4,
+      height: 2,
+      data: Uint8Array.from([1, 2, 1, 2, 3, 0, 3, 0]),
+    };
+    const indexedPixels = { width: 4, height: 2, data: new Uint8ClampedArray(4 * 2 * 4) };
+    indexed = commitTilemapPixels(
+      indexed,
+      0,
+      0,
+      indexedPixels,
+      0,
+      0,
+      TilesetMode.Auto,
+      indexedSamples,
+    );
+    assert.equal(indexed.tilesets![0].tileCount, 2);
+    assert.deepEqual([...indexed.frames[0].cels[0]!.tilemap!.tiles], [1, 1]);
+    assert.deepEqual([...indexed.tilesets![0].asepritePixels!.subarray(4, 8)], [1, 2, 3, 0]);
+
+    // Grayscale 16-bit commitTilemapSamples preserves gray+alpha bytes.
+    let gray = createTilemapLayer(emptyTimeline(16), { tileWidth: 2, tileHeight: 1 });
+    const graySamples = {
+      depth: 16 as const,
+      width: 4,
+      height: 1,
+      data: Uint8Array.from([40, 255, 80, 128, 40, 255, 80, 128]),
+    };
+    const grayPixels = { width: 4, height: 1, data: new Uint8ClampedArray(4 * 1 * 4) };
+    gray = commitTilemapPixels(gray, 0, 0, grayPixels, 0, 0, TilesetMode.Auto, graySamples);
+    assert.equal(gray.tilesets![0].tileCount, 2);
+    assert.deepEqual([...gray.frames[0].cels[0]!.tilemap!.tiles], [1, 1]);
+    assert.deepEqual([...gray.tilesets![0].asepritePixels!.subarray(4, 8)], [40, 255, 80, 128]);
+  });
+
+  it("deduplicates large tilemaps efficiently with hash-indexed lookup", () => {
+    const gridW = 32;
+    const gridH = 32;
+    const tileW = 8;
+    const tileH = 8;
+    const distinctPatterns = 128;
+    const width = gridW * tileW;
+    const height = gridH * tileH;
+    const data = new Uint8ClampedArray(width * height * 4);
+    for (let gy = 0; gy < gridH; gy++) {
+      for (let gx = 0; gx < gridW; gx++) {
+        const pattern = (gy * gridW + gx) % distinctPatterns;
+        for (let py = 0; py < tileH; py++) {
+          for (let px = 0; px < tileW; px++) {
+            const at = ((gy * tileH + py) * width + gx * tileW + px) * 4;
+            data[at] = (pattern * 7 + px * 17) & 255;
+            data[at + 1] = (pattern * 13 + py * 23) & 255;
+            data[at + 2] = (pattern * 29 + px + py) & 255;
+            data[at + 3] = 255;
+          }
+        }
+      }
+    }
+    let timeline = createTilemapLayer(
+      {
+        colorDepth: 32,
+        layers: [],
+        frames: [{ duration: 100, cels: [] }],
+        activeLayer: 0,
+        activeFrame: 0,
+      },
+      { tileWidth: tileW, tileHeight: tileH },
+    );
+    const committed = commitTilemapPixels(
+      timeline,
+      0,
+      0,
+      { width, height, data },
+      0,
+      0,
+      TilesetMode.Auto,
+    );
+    assert.equal(committed.tilesets![0].tileCount, distinctPatterns + 1);
+    const cel = committed.frames[0].cels[0]!;
+    const rerendered = rasterizeTilemap(cel.tilemap!, committed.tilesets![0]);
+    assert.deepEqual(rerendered.data, data);
+
+    // Re-committing unchanged pixels preserves all 1024 references cleanly.
+    const unchanged = commitTilemapPixels(
+      committed,
+      0,
+      0,
+      { width, height, data },
+      0,
+      0,
+      TilesetMode.Auto,
+    );
+    assert.deepEqual(unchanged.frames[0].cels[0]!.tilemap!.tiles, cel.tilemap!.tiles);
+    assert.equal(unchanged.tilesets![0].tileCount, distinctPatterns + 1);
+  });
 });

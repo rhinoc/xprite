@@ -126,6 +126,21 @@ export const OUTLINE_MATRICES = {
   horizontal: 0o050,
   vertical: 0o202,
 } as const;
+const RGBA_BYTES_PER_PIXEL = 4;
+const BYTE_VALUE_COUNT = UINT8_MAX + 1;
+const CHANNEL_RED = 1;
+const CHANNEL_GREEN = 2;
+const CHANNEL_BLUE = 4;
+const CHANNEL_ALPHA = 8;
+const CHANNEL_GRAY = 16;
+const RGB_CHANNELS_MASK = CHANNEL_RED | CHANNEL_GREEN | CHANNEL_BLUE;
+const RGBA_CHANNELS_MASK = RGB_CHANNELS_MASK | CHANNEL_ALPHA;
+const HUE_MAX_DEGREES = 360;
+const HUE_HALF_DEGREES = 180;
+const HUE_SECTOR_DEGREES = 60;
+const PERCENT_SCALE = 100;
+const HSL_LIGHTNESS_DIVISOR = UINT8_MAX * 2;
+const INVERT_LUT = Uint8Array.from({ length: BYTE_VALUE_COUNT }, (_, value) => UINT8_MAX - value);
 const clamp = (v: number, min: number, max: number) =>
   clampNumber(Number.isFinite(v) ? v : 0, min, max);
 export const effectChannels = (spec: EffectSpec, background = false, depth: 8 | 16 | 32 = 32) => {
@@ -236,23 +251,43 @@ export function updateEffectColor(
   }
   return spec;
 }
-function hueSaturation(
-  color: Rgba,
-  spec: Extract<
-    EffectSpec,
-    {
-      kind: EffectKind.HueSaturation;
-    }
-  >,
-  channels: number,
-): Rgba {
-  const [red, green, blue, alpha0] = color;
-  const high = Math.max(red, green, blue),
-    low = Math.min(red, green, blue),
-    delta = high - low;
-  const hsl = spec.mode.startsWith("hsl"),
-    multiply = spec.mode.endsWith("mul");
-  const lightness = hsl ? (high + low) / 510 : high / UINT8_MAX;
+function writeHueSaturationPixel(
+  red: number,
+  green: number,
+  blue: number,
+  alpha0: number,
+  hsl: boolean,
+  multiply: boolean,
+  hueShift: number,
+  satAmount: number,
+  levelChange: number,
+  alphaFactor: number,
+  doR: boolean,
+  doG: boolean,
+  doB: boolean,
+  doA: boolean,
+  dstData: Uint8ClampedArray,
+  dstAt: number,
+): void {
+  const alpha = alpha0 && doA ? Math.trunc(clamp(alpha0 * alphaFactor, 0, UINT8_MAX)) : alpha0;
+  if (alpha === 0) {
+    dstData[dstAt] = 0;
+    dstData[dstAt + 1] = 0;
+    dstData[dstAt + 2] = 0;
+    dstData[dstAt + 3] = 0;
+    return;
+  }
+  if (!doR && !doG && !doB) {
+    dstData[dstAt] = red;
+    dstData[dstAt + 1] = green;
+    dstData[dstAt + 2] = blue;
+    dstData[dstAt + 3] = alpha;
+    return;
+  }
+  const high = red > green ? (red > blue ? red : blue) : green > blue ? green : blue;
+  const low = red < green ? (red < blue ? red : blue) : green < blue ? green : blue;
+  const delta = high - low;
+  const lightness = hsl ? (high + low) / HSL_LIGHTNESS_DIVISOR : high / UINT8_MAX;
   const originalSaturation =
     delta === 0
       ? 0
@@ -269,48 +304,82 @@ function hueSaturation(
         : high === green
           ? (blue - red) / delta + 2
           : (red - green) / delta + 4;
-    hue = (((sector * 60) % 360) + 360) % 360;
+    hue = (((sector * HUE_SECTOR_DEGREES) % HUE_MAX_DEGREES) + HUE_MAX_DEGREES) % HUE_MAX_DEGREES;
   }
-  hue = (hue + clamp(spec.hue, -180, 180) + 360) % 360;
-  const amount = clamp(spec.saturation, -100, 100) / 100;
+  hue = (hue + hueShift + HUE_MAX_DEGREES) % HUE_MAX_DEGREES;
   const saturation = clamp(
-    multiply ? originalSaturation * (1 + amount) : originalSaturation + amount,
+    multiply ? originalSaturation * (1 + satAmount) : originalSaturation + satAmount,
     0,
     1,
   );
-  const levelChange = clamp(spec.lightness, -100, 100) / 100;
   const level = clamp(multiply ? lightness * (1 + levelChange) : lightness + levelChange, 0, 1);
   const chroma = (hsl ? 1 - Math.abs(2 * level - 1) : level) * saturation;
-  const sector = hue / 60,
-    secondary = chroma * (1 - Math.abs((sector % 2) - 1));
-  const rgbBySector =
-    sector < 1
-      ? [chroma, secondary, 0]
-      : sector < 2
-        ? [secondary, chroma, 0]
-        : sector < 3
-          ? [0, chroma, secondary]
-          : sector < 4
-            ? [0, secondary, chroma]
-            : sector < 5
-              ? [secondary, 0, chroma]
-              : [chroma, 0, secondary];
+  const sector = hue / HUE_SECTOR_DEGREES;
+  const secondary = chroma * (1 - Math.abs((sector % 2) - 1));
+  let r1: number;
+  let g1: number;
+  let b1: number;
+  if (sector < 1) {
+    r1 = chroma;
+    g1 = secondary;
+    b1 = 0;
+  } else if (sector < 2) {
+    r1 = secondary;
+    g1 = chroma;
+    b1 = 0;
+  } else if (sector < 3) {
+    r1 = 0;
+    g1 = chroma;
+    b1 = secondary;
+  } else if (sector < 4) {
+    r1 = 0;
+    g1 = secondary;
+    b1 = chroma;
+  } else if (sector < 5) {
+    r1 = secondary;
+    g1 = 0;
+    b1 = chroma;
+  } else {
+    r1 = chroma;
+    g1 = 0;
+    b1 = secondary;
+  }
   const offset = hsl ? level - chroma / 2 : level - chroma;
-  const transformed = rgbBySector.map((component) =>
-    Math.trunc((component + offset) * UINT8_MAX + 0.5),
+  dstData[dstAt] = doR ? Math.trunc((r1 + offset) * UINT8_MAX + 0.5) : red;
+  dstData[dstAt + 1] = doG ? Math.trunc((g1 + offset) * UINT8_MAX + 0.5) : green;
+  dstData[dstAt + 2] = doB ? Math.trunc((b1 + offset) * UINT8_MAX + 0.5) : blue;
+  dstData[dstAt + 3] = alpha;
+}
+const hueScratch = new Uint8ClampedArray(RGBA_BYTES_PER_PIXEL);
+function hueSaturation(
+  color: Rgba,
+  spec: Extract<
+    EffectSpec,
+    {
+      kind: EffectKind.HueSaturation;
+    }
+  >,
+  channels: number,
+): Rgba {
+  writeHueSaturationPixel(
+    color[0],
+    color[1],
+    color[2],
+    color[3],
+    spec.mode.startsWith("hsl"),
+    spec.mode.endsWith("mul"),
+    clamp(spec.hue, -HUE_HALF_DEGREES, HUE_HALF_DEGREES),
+    clamp(spec.saturation, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE,
+    clamp(spec.lightness, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE,
+    1 + clamp(spec.alpha, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE,
+    (channels & CHANNEL_RED) !== 0,
+    (channels & CHANNEL_GREEN) !== 0,
+    (channels & CHANNEL_BLUE) !== 0,
+    (channels & CHANNEL_ALPHA) !== 0,
+    hueScratch,
+    0,
   );
-  const alpha =
-    alpha0 && channels & 8
-      ? Math.trunc(clamp(alpha0 * (1 + clamp(spec.alpha, -100, 100) / 100), 0, UINT8_MAX))
-      : alpha0;
-  return alpha === 0
-    ? [0, 0, 0, 0]
-    : [
-        channels & 1 ? transformed[0] : red,
-        channels & 2 ? transformed[1] : green,
-        channels & 4 ? transformed[2] : blue,
-        alpha,
-      ];
+  return [hueScratch[0], hueScratch[1], hueScratch[2], hueScratch[3]];
 }
 function brightnessContrastValue(value: number, brightness: number, contrast: number): number {
   const shifted = value / UINT8_MAX - 0.5;
@@ -389,6 +458,276 @@ function colorAt(image: PixelBuffer, x: number, y: number): Rgba {
   const at = (y * image.width + x) * 4;
   return [image.data[at], image.data[at + 1], image.data[at + 2], image.data[at + 3]];
 }
+function forEachSelectedOffset(
+  width: number,
+  height: number,
+  selection: PixelMask,
+  visit: (at: number) => void,
+): void {
+  const selX = selection.x;
+  const selY = selection.y;
+  const selWidth = selection.width;
+  const selData = selection.data;
+  const startY = Math.max(0, selY);
+  const endY = Math.min(height, selY + selection.height);
+  const startX = Math.max(0, selX);
+  const endX = Math.min(width, selX + selWidth);
+  for (let y = startY; y < endY; y++) {
+    const maskRow = (y - selY) * selWidth - selX;
+    const pixelRow = y * width;
+    for (let x = startX; x < endX; x++) {
+      if (selData[maskRow + x]) visit((pixelRow + x) * RGBA_BYTES_PER_PIXEL);
+    }
+  }
+}
+function applyChannelLut(
+  srcData: Uint8ClampedArray,
+  dstData: Uint8ClampedArray,
+  width: number,
+  height: number,
+  selection: PixelMask | null,
+  channelMask: number,
+  lut: Uint8Array,
+): void {
+  const doR = (channelMask & CHANNEL_RED) !== 0;
+  const doG = (channelMask & CHANNEL_GREEN) !== 0;
+  const doB = (channelMask & CHANNEL_BLUE) !== 0;
+  const doA = (channelMask & CHANNEL_ALPHA) !== 0;
+  if (!doR && !doG && !doB && !doA) return;
+  if (!selection) {
+    const length = srcData.length;
+    if (doR && doG && doB && !doA) {
+      for (let at = 0; at < length; at += RGBA_BYTES_PER_PIXEL) {
+        dstData[at] = lut[srcData[at]];
+        dstData[at + 1] = lut[srcData[at + 1]];
+        dstData[at + 2] = lut[srcData[at + 2]];
+      }
+    } else if (doR && doG && doB && doA) {
+      for (let at = 0; at < length; at++) {
+        dstData[at] = lut[srcData[at]];
+      }
+    } else {
+      for (let at = 0; at < length; at += RGBA_BYTES_PER_PIXEL) {
+        if (doR) dstData[at] = lut[srcData[at]];
+        if (doG) dstData[at + 1] = lut[srcData[at + 1]];
+        if (doB) dstData[at + 2] = lut[srcData[at + 2]];
+        if (doA) dstData[at + 3] = lut[srcData[at + 3]];
+      }
+    }
+    return;
+  }
+  forEachSelectedOffset(width, height, selection, (at) => {
+    if (doR) dstData[at] = lut[srcData[at]];
+    if (doG) dstData[at + 1] = lut[srcData[at + 1]];
+    if (doB) dstData[at + 2] = lut[srcData[at + 2]];
+    if (doA) dstData[at + 3] = lut[srcData[at + 3]];
+  });
+}
+function applyGrayscaleHueSaturationPixels(
+  srcData: Uint8ClampedArray,
+  dstData: Uint8ClampedArray,
+  width: number,
+  height: number,
+  selection: PixelMask | null,
+  spec: Extract<EffectSpec, { kind: EffectKind.HueSaturation }>,
+  channels: number,
+): void {
+  const lightnessFactor = 1 + clamp(spec.lightness, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE;
+  const alphaFactor = 1 + clamp(spec.alpha, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE;
+  const adjustGray = (channels & CHANNEL_GRAY) !== 0;
+  const adjustAlpha = (channels & CHANNEL_ALPHA) !== 0;
+  const grayLut = new Uint8Array(BYTE_VALUE_COUNT);
+  const alphaLut = new Uint8Array(BYTE_VALUE_COUNT);
+  for (let i = 0; i < BYTE_VALUE_COUNT; i++) {
+    grayLut[i] = adjustGray
+      ? Math.trunc(clamp((i / UINT8_MAX) * lightnessFactor, 0, 1) * UINT8_MAX + 0.5)
+      : i;
+    alphaLut[i] = i && adjustAlpha ? Math.trunc(clamp(i * alphaFactor, 0, UINT8_MAX)) : i;
+  }
+  const processAt = (at: number) => {
+    const k = grayLut[srcData[at]];
+    dstData[at] = k;
+    dstData[at + 1] = k;
+    dstData[at + 2] = k;
+    dstData[at + 3] = alphaLut[srcData[at + 3]];
+  };
+  if (!selection) {
+    for (let at = 0; at < srcData.length; at += RGBA_BYTES_PER_PIXEL) processAt(at);
+    return;
+  }
+  forEachSelectedOffset(width, height, selection, processAt);
+}
+function applyHueSaturationPixels(
+  srcData: Uint8ClampedArray,
+  dstData: Uint8ClampedArray,
+  width: number,
+  height: number,
+  selection: PixelMask | null,
+  spec: Extract<EffectSpec, { kind: EffectKind.HueSaturation }>,
+  channels: number,
+): void {
+  const hsl = spec.mode.startsWith("hsl");
+  const multiply = spec.mode.endsWith("mul");
+  const hueShift = clamp(spec.hue, -HUE_HALF_DEGREES, HUE_HALF_DEGREES);
+  const satAmount = clamp(spec.saturation, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE;
+  const levelChange = clamp(spec.lightness, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE;
+  const alphaFactor = 1 + clamp(spec.alpha, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE;
+  const doR = (channels & CHANNEL_RED) !== 0;
+  const doG = (channels & CHANNEL_GREEN) !== 0;
+  const doB = (channels & CHANNEL_BLUE) !== 0;
+  const doA = (channels & CHANNEL_ALPHA) !== 0;
+  const processAt = (at: number) => {
+    writeHueSaturationPixel(
+      srcData[at],
+      srcData[at + 1],
+      srcData[at + 2],
+      srcData[at + 3],
+      hsl,
+      multiply,
+      hueShift,
+      satAmount,
+      levelChange,
+      alphaFactor,
+      doR,
+      doG,
+      doB,
+      doA,
+      dstData,
+      at,
+    );
+  };
+  if (!selection) {
+    for (let at = 0; at < srcData.length; at += RGBA_BYTES_PER_PIXEL) processAt(at);
+    return;
+  }
+  forEachSelectedOffset(width, height, selection, processAt);
+}
+function applyReplaceColorPixels(
+  srcData: Uint8ClampedArray,
+  dstData: Uint8ClampedArray,
+  width: number,
+  height: number,
+  selection: PixelMask | null,
+  spec: Extract<EffectSpec, { kind: EffectKind.ReplaceColor }>,
+  channels: number,
+): void {
+  const tolerance = Math.round(clamp(spec.tolerance, 0, UINT8_MAX));
+  const fromR = spec.from[0];
+  const fromG = spec.from[1];
+  const fromB = spec.from[2];
+  const fromA = spec.from[3];
+  const toR = spec.to[0];
+  const toG = spec.to[1];
+  const toB = spec.to[2];
+  const toA = spec.to[3];
+  const doR = (channels & CHANNEL_RED) !== 0;
+  const doG = (channels & CHANNEL_GREEN) !== 0;
+  const doB = (channels & CHANNEL_BLUE) !== 0;
+  const doA = (channels & CHANNEL_ALPHA) !== 0;
+  if (!doR && !doG && !doB && !doA) return;
+  const processAt = (at: number) => {
+    if (
+      (!doR || Math.abs(srcData[at] - fromR) <= tolerance) &&
+      (!doG || Math.abs(srcData[at + 1] - fromG) <= tolerance) &&
+      (!doB || Math.abs(srcData[at + 2] - fromB) <= tolerance) &&
+      (!doA || Math.abs(srcData[at + 3] - fromA) <= tolerance)
+    ) {
+      if (doR) dstData[at] = toR;
+      if (doG) dstData[at + 1] = toG;
+      if (doB) dstData[at + 2] = toB;
+      if (doA) dstData[at + 3] = toA;
+    }
+  };
+  if (!selection) {
+    for (let at = 0; at < srcData.length; at += RGBA_BYTES_PER_PIXEL) processAt(at);
+    return;
+  }
+  forEachSelectedOffset(width, height, selection, processAt);
+}
+function applyOutlinePixels(
+  srcData: Uint8ClampedArray,
+  dstData: Uint8ClampedArray,
+  width: number,
+  height: number,
+  selection: PixelMask | null,
+  spec: Extract<EffectSpec, { kind: EffectKind.Outline }>,
+  outlineChannels: number,
+): void {
+  const offsets = outlineOffsets(spec.matrix);
+  const offsetCount = offsets.length;
+  if (!offsetCount) return;
+  const doR = (outlineChannels & CHANNEL_RED) !== 0;
+  const doG = (outlineChannels & CHANNEL_GREEN) !== 0;
+  const doB = (outlineChannels & CHANNEL_BLUE) !== 0;
+  const doA = (outlineChannels & CHANNEL_ALPHA) !== 0;
+  if (!doR && !doG && !doB && !doA) return;
+  const offsetDx = new Int8Array(offsetCount);
+  const offsetDy = new Int8Array(offsetCount);
+  for (let k = 0; k < offsetCount; k++) {
+    offsetDx[k] = offsets[k][0];
+    offsetDy[k] = offsets[k][1];
+  }
+  const bgR = spec.bgColor[0];
+  const bgG = spec.bgColor[1];
+  const bgB = spec.bgColor[2];
+  const bgA = spec.bgColor[3];
+  const pixelCount = width * height;
+  const emptyMask = new Uint8Array(pixelCount);
+  for (let i = 0, at = 0; i < pixelCount; i++, at += RGBA_BYTES_PER_PIXEL) {
+    const a = srcData[at + 3];
+    if (
+      a === 0 ||
+      (a === bgA && srcData[at] === bgR && srcData[at + 1] === bgG && srcData[at + 2] === bgB)
+    ) {
+      emptyMask[i] = 1;
+    }
+  }
+  const wantEmpty = spec.place === "outside" ? 1 : 0;
+  const neighborWantEmpty = wantEmpty ^ 1;
+  const tiledMode = spec.tiledMode ?? 0;
+  const tiledX = (tiledMode & 1) !== 0;
+  const tiledY = (tiledMode & 2) !== 0;
+  const outR = spec.color[0];
+  const outG = spec.color[1];
+  const outB = spec.color[2];
+  const outA = spec.color[3];
+  const startY = selection ? Math.max(0, selection.y) : 0;
+  const endY = selection ? Math.min(height, selection.y + selection.height) : height;
+  const startX = selection ? Math.max(0, selection.x) : 0;
+  const endX = selection ? Math.min(width, selection.x + selection.width) : width;
+  const selX = selection?.x ?? 0;
+  const selY = selection?.y ?? 0;
+  const selWidth = selection?.width ?? 0;
+  const selData = selection?.data ?? null;
+  for (let y = startY; y < endY; y++) {
+    const pixelRow = y * width;
+    const maskRow = selData ? (y - selY) * selWidth - selX : 0;
+    for (let x = startX; x < endX; x++) {
+      if (selData && !selData[maskRow + x]) continue;
+      const pixelIndex = pixelRow + x;
+      if (emptyMask[pixelIndex] !== wantEmpty) continue;
+      let hasNeighbor = false;
+      for (let k = 0; k < offsetCount; k++) {
+        let nx = x + offsetDx[k];
+        if (nx < 0) nx = tiledX ? nx + width : 0;
+        else if (nx >= width) nx = tiledX ? nx - width : width - 1;
+        let ny = y + offsetDy[k];
+        if (ny < 0) ny = tiledY ? ny + height : 0;
+        else if (ny >= height) ny = tiledY ? ny - height : height - 1;
+        if (emptyMask[ny * width + nx] === neighborWantEmpty) {
+          hasNeighbor = true;
+          break;
+        }
+      }
+      if (!hasNeighbor) continue;
+      const at = pixelIndex * RGBA_BYTES_PER_PIXEL;
+      if (doR) dstData[at] = outR;
+      if (doG) dstData[at + 1] = outG;
+      if (doB) dstData[at + 2] = outB;
+      if (doA) dstData[at + 3] = outA;
+    }
+  }
+}
 /** Apply a canvas-sized transform to a snapshot. Selection limits writes,
  * while neighborhood reads always use the unmodified source. Untiled reads
  * clamp at the canvas edge. */
@@ -403,12 +742,10 @@ export function applyEffectPixels(
   assertDimension(source.height, "filter height");
   assertPixelCount(source.width, source.height, "filter");
   const channels = effectChannels(spec, background, depth);
-  const transparent = (c: Rgba, bg: Rgba) => !c[3] || c.every((v, i) => v === bg[i]);
   const pixelSpec = depth === 16 ? grayscaleSpec(spec, channels) : spec;
+  const pixelChannels = effectChannels(pixelSpec, background);
   const writable = (x: number, y: number) => !selection || selectionContains(selection, x, y);
-  const rgbaChannels = [0, 1, 2, 3].filter(
-    (channel) => effectChannels(pixelSpec, background) & (1 << channel),
-  );
+  const rgbaChannels = [0, 1, 2, 3].filter((channel) => pixelChannels & (1 << channel));
   if (pixelSpec.kind === EffectKind.MedianBlur)
     return {
       ...source,
@@ -416,7 +753,7 @@ export function applyEffectPixels(
         source.data,
         source.width,
         source.height,
-        4,
+        RGBA_BYTES_PER_PIXEL,
         rgbaChannels,
         pixelSpec.width,
         pixelSpec.height,
@@ -431,85 +768,57 @@ export function applyEffectPixels(
         source.data,
         source.width,
         source.height,
-        4,
+        RGBA_BYTES_PER_PIXEL,
         rgbaChannels,
         pixelSpec.preset,
         pixelSpec.tiledMode ?? 0,
         writable,
-        (pixel) => source.data[pixel * 4 + 3] === 0,
+        (pixel) => source.data[pixel * RGBA_BYTES_PER_PIXEL + 3] === 0,
         { kernelDivisorChannel: 3, useKernelDivisor: depth !== 8 },
       ),
     };
-  const curve = pixelSpec.kind === EffectKind.ColorCurve ? colorCurveMap(pixelSpec.points) : null;
-  const result = { ...source, data: source.data.slice() };
-  const outlineSpec = pixelSpec.kind === EffectKind.Outline ? pixelSpec : null;
-  const offsets = outlineSpec ? outlineOffsets(outlineSpec.matrix) : [];
-  const emptyAt = outlineSpec
-    ? (x: number, y: number) => transparent(colorAt(source, x, y), outlineSpec.bgColor)
-    : null;
-  for (let y = 0; y < source.height; y++)
-    for (let x = 0; x < source.width; x++) {
-      if (selection && !selectionContains(selection, x, y)) continue;
-      const color = colorAt(source, x, y);
-      let out: Rgba = color;
-      if (outlineSpec) {
-        const spec = outlineSpec;
-        const outlineChannels = depth === 16 ? (spec.channels ?? 15) : channels;
-        const hasNeighbor = outlineHasNeighbor(
-          source.width,
-          source.height,
-          x,
-          y,
-          offsets,
-          spec.tiledMode ?? 0,
-          spec.place,
-          emptyAt!,
-        );
-        if (
-          hasNeighbor &&
-          (spec.place === "outside"
-            ? transparent(color, spec.bgColor)
-            : !transparent(color, spec.bgColor))
-        )
-          out = color.map((v, c) =>
-            outlineChannels & (1 << c) ? spec.color[c] : v,
-          ) as unknown as Rgba;
-      } else if (curve) {
-        out = color.map((value, channel) =>
-          rgbaChannels.includes(channel) ? curve[value] : value,
-        ) as unknown as Rgba;
-      } else if (depth === 16 && spec.kind === EffectKind.HueSaturation) {
-        const k =
-            channels & 16
-              ? Math.trunc(
-                  clamp(
-                    (color[0] / UINT8_MAX) * (1 + clamp(spec.lightness, -100, 100) / 100),
-                    0,
-                    1,
-                  ) *
-                    UINT8_MAX +
-                    0.5,
-                )
-              : color[0],
-          a =
-            color[3] && channels & 8
-              ? Math.trunc(clamp(color[3] * (1 + clamp(spec.alpha, -100, 100) / 100), 0, UINT8_MAX))
-              : color[3];
-        out = [k, k, k, a];
-      } else
-        out = effectPixel(
-          color,
-          pixelSpec as Exclude<
-            EffectSpec,
-            {
-              kind: EffectKind.Outline;
-            }
-          >,
-          background,
-        );
-      result.data.set(out, (y * source.width + x) * 4);
+  const srcData = source.data;
+  const dstData = srcData.slice();
+  const { width, height } = source;
+  if (pixelSpec.kind === EffectKind.Outline) {
+    const outlineChannels = depth === 16 ? (pixelSpec.channels ?? RGBA_CHANNELS_MASK) : channels;
+    applyOutlinePixels(srcData, dstData, width, height, selection, pixelSpec, outlineChannels);
+  } else if (pixelSpec.kind === EffectKind.ColorCurve) {
+    applyChannelLut(
+      srcData,
+      dstData,
+      width,
+      height,
+      selection,
+      pixelChannels,
+      colorCurveMap(pixelSpec.points),
+    );
+  } else if (pixelSpec.kind === EffectKind.Invert) {
+    applyChannelLut(srcData, dstData, width, height, selection, pixelChannels, INVERT_LUT);
+  } else if (pixelSpec.kind === EffectKind.BrightnessContrast) {
+    const brightness = clamp(pixelSpec.brightness, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE;
+    const contrast = clamp(pixelSpec.contrast, -PERCENT_SCALE, PERCENT_SCALE) / PERCENT_SCALE;
+    const lut = new Uint8Array(BYTE_VALUE_COUNT);
+    for (let i = 0; i < BYTE_VALUE_COUNT; i++) {
+      lut[i] = brightnessContrastValue(i, brightness, contrast);
     }
-  return result;
+    applyChannelLut(
+      srcData,
+      dstData,
+      width,
+      height,
+      selection,
+      pixelChannels & RGB_CHANNELS_MASK,
+      lut,
+    );
+  } else if (depth === 16 && spec.kind === EffectKind.HueSaturation) {
+    applyGrayscaleHueSaturationPixels(srcData, dstData, width, height, selection, spec, channels);
+  } else if (pixelSpec.kind === EffectKind.HueSaturation) {
+    applyHueSaturationPixels(srcData, dstData, width, height, selection, pixelSpec, pixelChannels);
+  } else if (pixelSpec.kind === EffectKind.ReplaceColor) {
+    applyReplaceColorPixels(srcData, dstData, width, height, selection, pixelSpec, pixelChannels);
+  }
+  return { ...source, data: dstData };
 }
 function editable(t: SpriteTimeline, layer: number) {
   return (
@@ -532,10 +841,17 @@ function affectedBounds(source: PixelBuffer, result: PixelBuffer): Rect | null {
     y0 = source.height,
     x1 = -1,
     y1 = -1;
+  const srcData = source.data;
+  const resData = result.data;
   for (let y = 0; y < source.height; y++)
     for (let x = 0; x < source.width; x++) {
-      const at = (y * source.width + x) * 4;
-      if (source.data.subarray(at, at + 4).some((v, c) => v !== result.data[at + c])) {
+      const at = (y * source.width + x) * RGBA_BYTES_PER_PIXEL;
+      if (
+        srcData[at] !== resData[at] ||
+        srcData[at + 1] !== resData[at + 1] ||
+        srcData[at + 2] !== resData[at + 2] ||
+        srcData[at + 3] !== resData[at + 3]
+      ) {
         x0 = Math.min(x0, x);
         y0 = Math.min(y0, y);
         x1 = Math.max(x1, x);
