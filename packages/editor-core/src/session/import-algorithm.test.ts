@@ -1,5 +1,5 @@
 // @cpu-intensive
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import type { PixelBuffer } from "$/base/primitives";
 import { RasterEditor } from "$/editor/RasterEditor";
@@ -322,16 +322,22 @@ describe("import dialog algorithm switching", () => {
         20, 220, 20, 255,
       ]);
 
-      // Confirming Pixelate while previewing frame 1 keeps all frames in their original slots.
-      await session.pixelate();
+      // The post-processing step applies equally to previewed and non-previewed frames.
+      const transform = vi.fn((pixels: PixelBuffer) => {
+        const data = pixels.data.slice();
+        for (let offset = 0; offset < data.length; offset += 4) data[offset + 3] = 128;
+        return { ...pixels, data };
+      });
+      await session.pixelate(undefined, transform);
       const document = editor.getSnapshot().document!;
       expect(document.timeline.frames.length).toBe(3);
+      expect(transform).toHaveBeenCalledTimes(3);
       expect(
-        document.timeline.frames.map((frame) => Array.from(frame.cels[0]!.pixels.data.slice(0, 3))),
+        document.timeline.frames.map((frame) => Array.from(frame.cels[0]!.pixels.data.slice(0, 4))),
       ).toEqual([
-        [220, 20, 20],
-        [20, 220, 20],
-        [20, 20, 220],
+        [220, 20, 20, 128],
+        [20, 220, 20, 128],
+        [20, 20, 220, 128],
       ]);
       // Active frame 0 image matches frame 0 (not the previewed frame 1).
       expect(Array.from(document.layer.pixels.data.slice(0, 3))).toEqual([220, 20, 20]);

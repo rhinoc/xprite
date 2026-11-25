@@ -871,7 +871,7 @@ export class EditorSession<Source> {
     const candidate = this.candidate;
     if (this.disposed || this.state.busy || !candidate || !pending) return;
     const frameCount = pending.frameCount;
-    if (frameCount <= 1) return;
+    if (frameCount <= 1 || !Number.isFinite(frame)) return;
     const nextFrame = ((Math.trunc(frame) % frameCount) + frameCount) % frameCount;
     if (nextFrame === pending.previewFrame) return;
     const pixels = this.candidateFramePixels(candidate, nextFrame);
@@ -999,22 +999,40 @@ export class EditorSession<Source> {
     if (!this.disposed) this.publish({ newSize: { ...this.acceptedNewSize } });
   }
   /**
-   * Keep-as-is import. Optional `pixels` replaces the source (e.g. after Remove background).
+   * Keep-as-is import. An optional transform processes every frame before installation.
    */
-  acceptOriginal(pixels?: PixelBuffer): SessionOutcome {
+  acceptOriginal(transform?: (pixels: PixelBuffer) => PixelBuffer): SessionOutcome {
     if (this.disposed || !this.candidate) return SessionOutcome.Ignored;
-    const candidate = this.candidate;
-    const image = pixels ?? candidate.pixels;
+    let candidate = this.candidate;
     this.invalidate();
-    if (this.changedSince(candidate.checkpoint)) {
-      this.askReplacement({
-        kind: "accepted",
-        candidate,
-        pixels: image,
-      });
-      return SessionOutcome.Confirmation;
-    }
     try {
+      const image = transform?.(candidate.pixels) ?? candidate.pixels;
+      const project = candidate.project;
+      if (project && transform) {
+        const timeline = project.timeline;
+        candidate = {
+          ...candidate,
+          project: {
+            ...project,
+            image,
+            timeline: {
+              ...timeline,
+              frames: timeline.frames.map((frame) => ({
+                ...frame,
+                cels: frame.cels.map((cel) => {
+                  if (!cel) return cel;
+                  const pixels = cel.pixels === candidate.pixels ? image : transform(cel.pixels);
+                  return { ...cel, pixels };
+                }),
+              })),
+            },
+          },
+        };
+      }
+      if (this.changedSince(candidate.checkpoint)) {
+        this.askReplacement({ kind: "accepted", candidate, pixels: image });
+        return SessionOutcome.Confirmation;
+      }
       return this.install(
         image,
         candidate.name,
@@ -1031,12 +1049,11 @@ export class EditorSession<Source> {
     }
   }
   /**
-   * Pixelate & import. Optional `overridePixels` skips the preview/worker result (e.g. after
-   * Remove background on the preview).
+   * Pixelate & import. An optional transform processes each pixelated frame.
    */
   async pixelate(
     options?: Partial<PixelationSettings>,
-    overridePixels?: PixelBuffer,
+    transform?: (pixels: PixelBuffer) => PixelBuffer,
   ): Promise<SessionOutcome> {
     if (this.disposed || !this.candidate || this.state.busy) return SessionOutcome.Ignored;
     if (options) this.setPixelationOptions(options);
@@ -1045,7 +1062,7 @@ export class EditorSession<Source> {
     let completionGeneration = generation;
     this.publish({ busy: true, error: null });
     try {
-      let pixels = overridePixels ?? this.state.pixelationPreview;
+      let pixels = this.state.pixelationPreview;
       if (!pixels) {
         await (this.previewTask ?? this.previewPixelation());
         if (!this.valid(generation)) return SessionOutcome.Ignored;
@@ -1063,13 +1080,20 @@ export class EditorSession<Source> {
       // what the dialog showed.
       if (candidate.project) {
         const previewFrame = this.state.pendingImport?.previewFrame ?? 0;
-        const pixelatedProject = await this.pixelateProject(candidate, pixels, previewFrame);
+        const pixelatedProject = await this.pixelateProject(
+          candidate,
+          pixels,
+          previewFrame,
+          transform,
+        );
         candidate = {
           ...candidate,
           project: pixelatedProject,
         };
         if (!this.valid(generation)) return SessionOutcome.Ignored;
         pixels = pixelatedProject.image;
+      } else if (transform) {
+        pixels = transform(pixels);
       }
       this.invalidate();
       completionGeneration = this.generation;
@@ -1104,30 +1128,24 @@ export class EditorSession<Source> {
   private async pixelateProject(
     candidate: Candidate,
     previewPixels: PixelBuffer,
-    previewFrame = 0,
+    previewFrame: number,
+    transform?: (pixels: PixelBuffer) => PixelBuffer,
   ): Promise<SessionProject> {
     const project = candidate.project!;
     const settings = this.state.pixelationOptions;
     const { timeline } = project;
     const frames = [] as { pixels: PixelBuffer; durationMs: number }[];
     for (const [index, frame] of timeline.frames.entries()) {
-      const composite = renderTimelineFrame(
-        timeline,
-        project.image.width,
-        project.image.height,
-        index,
-        undefined,
-        false,
-      );
-      const pixels =
-        index === previewFrame
-          ? previewPixels
-          : await this.ports.pixelate(
-              composite,
-              pixelationSettingsOptions(settings, composite, undefined),
-            );
+      let pixels = previewPixels;
+      if (index !== previewFrame) {
+        const composite = this.candidateFramePixels(candidate, index);
+        pixels = await this.ports.pixelate(
+          composite,
+          pixelationSettingsOptions(settings, composite, candidate.grid),
+        );
+      }
       if (this.disposed) break;
-      frames.push({ pixels, durationMs: frame.duration });
+      frames.push({ pixels: transform?.(pixels) ?? pixels, durationMs: frame.duration });
     }
     if (this.disposed || !frames.length) return project;
     const palette =

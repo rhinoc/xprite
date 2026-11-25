@@ -194,17 +194,14 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         : {}),
       ...(rememberChoice ? { importAsk: false } : {}),
     });
-    if (pixelate) {
-      const base = workflow.pixelationPreview;
-      if (!base) return;
-      workflow.acceptPixelatedImport(
-        removeBg.enabled ? removeBackground(base, removeBgOptions) : undefined,
-      );
-    } else {
-      workflow.acceptOriginalImport(
-        removeBg.enabled ? removeBackground(pending.pixels, removeBgOptions) : undefined,
-      );
-    }
+    const transform: Parameters<Workflow["acceptOriginalImport"]>[0] = removeBg.enabled
+      ? (pixels) =>
+          pixels === removeBgSource && processedPreview
+            ? processedPreview
+            : removeBackground(pixels, removeBgOptions)
+      : undefined;
+    if (pixelate) workflow.acceptPixelatedImport(transform);
+    else workflow.acceptOriginalImport(transform);
   };
 
   const showGridSource = showAdvanced && base[PixelationSlot.GridSource].visible;
