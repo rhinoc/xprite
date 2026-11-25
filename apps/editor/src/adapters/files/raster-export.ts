@@ -1,5 +1,8 @@
 import {
   RasterWorkerFormat,
+  type RasterWorkerGifFrame,
+  type RasterWorkerPixelBuffer,
+  type RasterWorkerPlan,
   type RasterWorkerRequest,
   type RasterWorkerResponse,
 } from "$/adapters/workers/raster-export-worker-types";
@@ -18,15 +21,40 @@ import { createPixelBufferRowSource } from "@xprite/bedrock/common/png-encode";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   createExportRowSource,
+  encodeGifRowSources,
   encodeJpegChunks,
   materializeExportRaster,
+  type ExportAnimationSourceFrame,
   type ExportRasterPlan,
+  type GifEncodeOptions,
   type RgbChannels,
 } from "@xprite/editor-core/import-export";
 
 const QUALITY_PERCENT_SCALE = 100;
 const STREAMING_UPSCALE_FACTOR = 4;
 const STREAMING_UPSCALE_MIN_PIXELS = 4_194_304;
+const GIF_MIME_TYPE = "image/gif";
+const DEFAULT_GIF_FRAME_DURATION_MS = 100;
+
+function serializePlan(plan: ExportRasterPlan): RasterWorkerPlan {
+  return {
+    bounds: plan.bounds,
+    width: plan.width,
+    height: plan.height,
+    jpegMatte: plan.jpegMatte,
+    forTwitterOpaqueTweak: plan.forTwitterOpaqueTweak,
+  };
+}
+
+function serializePixelBuffer(source: PixelBuffer): RasterWorkerPixelBuffer {
+  return {
+    width: source.width,
+    height: source.height,
+    data: source.data.buffer as ArrayBuffer,
+    byteOffset: source.data.byteOffset,
+    length: source.data.byteLength,
+  };
+}
 
 function shouldStreamJpeg(width: number, height: number, sourcePixels: number): boolean {
   const outputPixels = width * height;
@@ -43,7 +71,10 @@ function shouldStreamJpeg(width: number, height: number, sourcePixels: number): 
   );
 }
 
-function runWorkerEncode(request: RasterWorkerRequest, transfer: boolean): Promise<Blob> {
+function runWorkerEncode(
+  request: RasterWorkerRequest,
+  transferList: Transferable[],
+): Promise<Blob> {
   const worker = new Worker(new URL("../workers/raster-export-worker.ts", import.meta.url), {
     type: "module",
   });
@@ -57,14 +88,14 @@ function runWorkerEncode(request: RasterWorkerRequest, transfer: boolean): Promi
       reject(new Error(event.message || tUi("ui.image.export.worker.failed")));
     };
     worker.onmessageerror = () => reject(new Error(tUi("ui.image.export.output.unreadable")));
-    worker.postMessage(request, transfer ? [request.source.data] : []);
+    worker.postMessage(request, transferList);
   }).finally(() => {
     worker.terminate();
   });
 }
 
 function encodeInProcess(
-  format: RasterWorkerFormat,
+  format: RasterWorkerFormat.Png | RasterWorkerFormat.Jpeg,
   source: PixelBuffer,
   plan?: ExportRasterPlan,
   qualityPercent?: number,
@@ -80,7 +111,7 @@ function encodeInProcess(
 }
 
 async function encodePortable(
-  format: RasterWorkerFormat,
+  format: RasterWorkerFormat.Png | RasterWorkerFormat.Jpeg,
   source: PixelBuffer,
   options: {
     plan?: ExportRasterPlan;
@@ -90,35 +121,32 @@ async function encodePortable(
   },
 ): Promise<Blob> {
   if (typeof Worker === "function" && source.data.buffer instanceof ArrayBuffer) {
+    const serializedSource = serializePixelBuffer(source);
     const request: RasterWorkerRequest = {
       format,
-      source: {
-        width: source.width,
-        height: source.height,
-        data: source.data.buffer,
-        byteOffset: source.data.byteOffset,
-        length: source.data.byteLength,
-      },
-      ...(options.plan
-        ? {
-            plan: {
-              bounds: options.plan.bounds,
-              width: options.plan.width,
-              height: options.plan.height,
-              jpegMatte: options.plan.jpegMatte,
-              forTwitterOpaqueTweak: options.plan.forTwitterOpaqueTweak,
-            },
-          }
-        : {}),
+      source: serializedSource,
+      ...(options.plan ? { plan: serializePlan(options.plan) } : {}),
       ...(options.qualityPercent !== undefined ? { qualityPercent: options.qualityPercent } : {}),
       ...(options.matte ? { matte: options.matte } : {}),
     };
-    return runWorkerEncode(request, Boolean(options.transfer));
+    return runWorkerEncode(request, options.transfer ? [serializedSource.data] : []);
   }
   return encodeInProcess(format, source, options.plan, options.qualityPercent, options.matte);
 }
 
-/** Streaming PNG (never uses 2D canvas) + hybrid JPEG (native canvas for small images, streaming worker for wide/large images). */
+function stripTransferOption(
+  options?: GifEncodeOptions & RasterEncodeTransferOptions & { duration?: number },
+): GifEncodeOptions | undefined {
+  if (!options) return undefined;
+  return {
+    ...(options.loopCount !== undefined ? { loopCount: options.loopCount } : {}),
+    ...(options.interlaced !== undefined ? { interlaced: options.interlaced } : {}),
+    ...(options.palette !== undefined ? { palette: options.palette } : {}),
+    ...(options.forTwitter !== undefined ? { forTwitter: options.forTwitter } : {}),
+  };
+}
+
+/** Streaming PNG (never uses 2D canvas), hybrid JPEG, and Worker-offloaded streaming GIF. */
 export function createBrowserRasterExportPort(): RasterExportPort {
   return {
     encodePngPlan(plan: ExportRasterPlan, options?: RasterEncodeTransferOptions) {
@@ -178,6 +206,74 @@ export function createBrowserRasterExportPort(): RasterExportPort {
         matte: options?.matte,
         transfer: options?.transfer,
       });
+    },
+    async encodeGifSources(
+      frames: readonly ExportAnimationSourceFrame[],
+      options?: GifEncodeOptions & RasterEncodeTransferOptions,
+    ) {
+      const gifOptions = stripTransferOption(options);
+      if (
+        typeof Worker === "function" &&
+        frames.every((frame) => frame.plan.source.data.buffer instanceof ArrayBuffer)
+      ) {
+        const sourceIndices = new Map<PixelBuffer, number>();
+        const sources: RasterWorkerPixelBuffer[] = [];
+        const transferSet = new Set<ArrayBuffer>();
+        const workerFrames: RasterWorkerGifFrame[] = frames.map((frame) => {
+          let sourceIndex = sourceIndices.get(frame.plan.source);
+          if (sourceIndex === undefined) {
+            sourceIndex = sources.length;
+            sourceIndices.set(frame.plan.source, sourceIndex);
+            const serialized = serializePixelBuffer(frame.plan.source);
+            sources.push(serialized);
+            if (options?.transfer) transferSet.add(serialized.data);
+          }
+          return {
+            sourceIndex,
+            plan: serializePlan(frame.plan),
+            duration: frame.duration,
+            ...(frame.palette ? { palette: frame.palette } : {}),
+          };
+        });
+        const request: RasterWorkerRequest = {
+          format: RasterWorkerFormat.Gif,
+          sources,
+          frames: workerFrames,
+          ...(gifOptions ? { options: gifOptions } : {}),
+        };
+        return runWorkerEncode(request, Array.from(transferSet));
+      }
+      const chunks = encodeGifRowSources(
+        frames.map((frame) => ({
+          rowSource: createExportRowSource(frame.plan),
+          duration: frame.duration,
+          palette: frame.palette,
+        })),
+        gifOptions,
+      );
+      return new Blob(chunks, { type: GIF_MIME_TYPE });
+    },
+    async encodeGifBuffer(
+      pixels: PixelBuffer,
+      options?: GifEncodeOptions & RasterEncodeTransferOptions & { duration?: number },
+    ) {
+      const gifOptions = stripTransferOption(options);
+      const duration = options?.duration ?? DEFAULT_GIF_FRAME_DURATION_MS;
+      if (typeof Worker === "function" && pixels.data.buffer instanceof ArrayBuffer) {
+        const serialized = serializePixelBuffer(pixels);
+        const request: RasterWorkerRequest = {
+          format: RasterWorkerFormat.Gif,
+          sources: [serialized],
+          frames: [{ sourceIndex: 0, duration }],
+          ...(gifOptions ? { options: gifOptions } : {}),
+        };
+        return runWorkerEncode(request, options?.transfer ? [serialized.data] : []);
+      }
+      const chunks = encodeGifRowSources(
+        [{ rowSource: createPixelBufferRowSource(pixels), duration }],
+        gifOptions,
+      );
+      return new Blob(chunks, { type: GIF_MIME_TYPE });
     },
   };
 }
