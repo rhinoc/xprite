@@ -243,12 +243,64 @@ describe("portable streaming PNG encoder and canvas copy hygiene", () => {
     }
     const encoded = await encodePngBlob({ width, height, data });
     expect(encoded.type).toBe("image/png");
+    // Default maxDimension stays 16,384 so wide images require an explicit option override.
+    await expect(decodeImageBlob(encoded)).rejects.toBeInstanceOf(ImageDimensionError);
     const decoded = await decodeImageBlob(encoded, { maxDimension: 32_768 });
     expect([decoded.width, decoded.height]).toEqual([width, height]);
     expect(decoded.data).toEqual(data);
     await expect(
       encodePngBlob({ width: 32_769, height: 1, data: new Uint8ClampedArray(32_769 * 4) }),
     ).rejects.toBeInstanceOf(ImageDimensionError);
+  });
+
+  it("streams non-interlaced PNG decode across all color types, depths, and filters without full-image inflation buffer", async () => {
+    const palette = chunk("PLTE", Uint8Array.of(12, 34, 56, 78, 90, 123, 200, 150, 100, 5, 10, 15));
+    const cases = [
+      {
+        source: png([0, 0b10000000, 2, 0b01000000], {
+          width: 2,
+          height: 2,
+          type: 0,
+          bits: 1,
+          chunks: [chunk("tRNS", Uint8Array.of(0, 0))],
+        }),
+        expected: [255, 255, 255, 255, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255],
+      },
+      {
+        source: png([0, 0x0f, 1, 0x10], { width: 2, height: 2, type: 0, bits: 4 }),
+        expected: [0, 0, 0, 255, 255, 255, 255, 255, 17, 17, 17, 255, 0, 0, 0, 255],
+      },
+      {
+        source: png(
+          [0, 0x00, 0x01, 0x10, 0x02, 0x20, 0x03, 4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+          {
+            width: 1,
+            height: 2,
+            type: 2,
+            bits: 16,
+            chunks: [chunk("tRNS", Uint8Array.of(0x00, 0x01, 0x10, 0x02, 0x20, 0x03))],
+          },
+        ),
+        expected: [0, 0x10, 0x20, 0, 0, 0x10, 0x20, 0],
+      },
+      {
+        source: png([0, 0, 1, 3, 2, 1], {
+          width: 2,
+          height: 2,
+          type: 3,
+          bits: 8,
+          chunks: [palette, chunk("tRNS", Uint8Array.of(0, 128))],
+        }),
+        expected: [12, 34, 56, 0, 78, 90, 123, 128, 200, 150, 100, 255, 200, 150, 100, 255],
+      },
+      {
+        source: png([0, 0x40, 0x00, 0x80, 0x00], { width: 1, height: 1, type: 4, bits: 16 }),
+        expected: [0x40, 0x40, 0x40, 0x80],
+      },
+    ];
+    for (const { source, expected } of cases) {
+      expect(Array.from((await decodeImageBlob(blob(source))).data)).toEqual(expected);
+    }
   });
 
   it("wraps RGBA buffers without createImageData copy and releases canvas storage after encoding", async () => {

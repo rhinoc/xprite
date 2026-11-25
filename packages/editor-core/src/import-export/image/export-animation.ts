@@ -146,6 +146,7 @@ export interface ExportAnimationSourceFrame {
   plan: ExportRasterPlan;
   duration: number;
   sourceFrame: number;
+  palette?: readonly Rgba[];
 }
 
 /** Snapshot unscaled frame sources synchronously so streaming encoders avoid allocating upscaled frames. */
@@ -157,7 +158,11 @@ export function renderExportAnimationSources(
     geometry = exportGeometry(doc, options);
   if (geometry.width * geometry.height * order.length > MAX_IMAGE_PIXELS)
     throw new RangeError("Animation export exceeds the pixel budget.");
-  const cached = new Map<number, { plan: ExportRasterPlan; nonEmpty: boolean }>();
+  const profile = workingColorProfile(doc.timeline);
+  const cached = new Map<
+    number,
+    { plan: ExportRasterPlan; nonEmpty: boolean; palette?: readonly Rgba[] }
+  >();
   const frames: ExportAnimationSourceFrame[] = [];
   for (const frame of order) {
     let entry = cached.get(frame);
@@ -166,7 +171,10 @@ export function renderExportAnimationSources(
       const nonEmpty = options.ignoreEmpty
         ? hasNonEmptyExportPixels(plan.source, plan.bounds, plan.width, plan.height)
         : true;
-      entry = { plan, nonEmpty };
+      const palette = (doc.timeline?.frames[frame].palette ?? doc.palette)?.map((color) =>
+        colorProfileToSrgb(color, profile),
+      );
+      entry = { plan, nonEmpty, palette };
       cached.set(frame, entry);
     }
     if (options.ignoreEmpty && !entry.nonEmpty) continue;
@@ -174,6 +182,7 @@ export function renderExportAnimationSources(
       plan: entry.plan,
       duration: doc.timeline?.frames[frame].duration ?? 100,
       sourceFrame: frame,
+      palette: entry.palette,
     });
   }
   if (!frames.length) throw new Error("There are no nonempty frames to export.");

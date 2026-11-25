@@ -36,7 +36,7 @@ import {
   WebpCompression,
   createExportRowSource,
   encodeApngParts,
-  encodeGif,
+  encodeGifRowSources,
   encodeJpegChunks,
   materializeExportRaster,
   parseJpegMatte,
@@ -98,11 +98,6 @@ function spriteSheetOutputFormat(name: string): SpriteSheetOutputFormat | null {
 
 export async function downloadExportArtifact({ name, blob }: ExportArtifact): Promise<void> {
   downloadBlob(blob, name);
-}
-function toArrayBufferBytes(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
-  return bytes.buffer instanceof ArrayBuffer
-    ? (bytes as Uint8Array<ArrayBuffer>)
-    : new Uint8Array(bytes);
 }
 
 function canUseCanvasJpeg(width: number, height: number): boolean {
@@ -207,17 +202,27 @@ export async function exportDocumentAnimation(
       throw new Error(tUi("ui.image.encoding.unsupported", { format: ImageEncodingFormat.Jpeg }));
     artifacts.push({ name, blob });
   } else if (/\.gif$/i.test(name)) {
-    const frames = renderExportAnimation(doc, options);
-    const encoded = encodeGif(frames, {
+    const sourceFrames = renderExportAnimationSources(doc, options);
+    const gifOptions = {
       loopCount,
       interlaced: options.gifInterlaced,
       forTwitter: options.forTwitter,
       palette: options.gifPreservePaletteOrder ? palette : undefined,
-    });
-    artifacts.push({
-      name,
-      blob: new Blob([toArrayBufferBytes(encoded)], { type: "image/gif" }),
-    });
+    };
+    const blob = ports.raster
+      ? await ports.raster.encodeGifSources(sourceFrames, { ...gifOptions, transfer: true })
+      : new Blob(
+          encodeGifRowSources(
+            sourceFrames.map((frame) => ({
+              rowSource: createExportRowSource(frame.plan),
+              duration: frame.duration,
+              palette: frame.palette,
+            })),
+            gifOptions,
+          ),
+          { type: "image/gif" },
+        );
+    artifacts.push({ name, blob });
   } else if (/\.apng$/i.test(name)) {
     const sourceFrames = renderExportAnimationSources(doc, options);
     const compressedBySource = new Map<number, Uint8Array<ArrayBuffer>[]>();
@@ -311,10 +316,24 @@ export async function exportDocumentSpriteSheet(
         break;
       }
       case SpriteSheetOutputFormat.Gif:
-        blob = new Blob(
-          [toArrayBufferBytes(encodeGif([frame], { loopCount: SINGLE_SPRITE_SHEET_PLAY_COUNT }))],
-          { type: "image/gif" },
-        );
+        blob = ports.raster
+          ? await ports.raster.encodeGifBuffer(result.pixels, {
+              loopCount: SINGLE_SPRITE_SHEET_PLAY_COUNT,
+              duration: SPRITE_SHEET_FRAME_DURATION_MS,
+              transfer: !options.openGenerated,
+            })
+          : new Blob(
+              encodeGifRowSources(
+                [
+                  {
+                    rowSource: createPixelBufferRowSource(result.pixels),
+                    duration: SPRITE_SHEET_FRAME_DURATION_MS,
+                  },
+                ],
+                { loopCount: SINGLE_SPRITE_SHEET_PLAY_COUNT },
+              ),
+              { type: "image/gif" },
+            );
         break;
       case SpriteSheetOutputFormat.Webp: {
         if (!ports.webp) throw new SpriteSheetOutputEncoderUnavailableError(format);

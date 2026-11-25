@@ -109,6 +109,113 @@ export interface SpriteSheetResult {
   };
   samples: readonly SheetFrameData[];
 }
+const RGBA_CHANNELS = 4;
+const FNV_OFFSET_BASIS = 0x811c9dc5;
+const FNV_PRIME = 0x01000193;
+const IS_LITTLE_ENDIAN = new Uint8Array(new Uint32Array([1]).buffer)[0] === 1;
+
+function alignedPixelWords(data: Uint8ClampedArray): Uint32Array | null {
+  return IS_LITTLE_ENDIAN && data.byteOffset % RGBA_CHANNELS === 0
+    ? new Uint32Array(data.buffer, data.byteOffset, data.byteLength >>> 2)
+    : null;
+}
+
+function boundsWithinPixels(bounds: Rect, pixels: PixelBuffer): boolean {
+  return (
+    bounds.x >= 0 &&
+    bounds.y >= 0 &&
+    bounds.x + bounds.width <= pixels.width &&
+    bounds.y + bounds.height <= pixels.height
+  );
+}
+
+function hashSampleBounds(sample: Sample, words: Uint32Array | null): number {
+  const { pixels, bounds } = sample;
+  let hash = FNV_OFFSET_BASIS;
+  if (boundsWithinPixels(bounds, pixels)) {
+    if (words) {
+      for (let y = 0; y < bounds.height; y++) {
+        const rowOffset = (y + bounds.y) * pixels.width + bounds.x;
+        for (let x = 0; x < bounds.width; x++) {
+          hash ^= words[rowOffset + x];
+          hash = Math.imul(hash, FNV_PRIME);
+        }
+      }
+      return hash >>> 0;
+    }
+    const { data } = pixels;
+    for (let y = 0; y < bounds.height; y++) {
+      let offset = ((y + bounds.y) * pixels.width + bounds.x) * RGBA_CHANNELS;
+      for (let x = 0; x < bounds.width; x++, offset += RGBA_CHANNELS) {
+        const word =
+          data[offset] |
+          (data[offset + 1] << 8) |
+          (data[offset + 2] << 16) |
+          (data[offset + 3] << 24);
+        hash ^= word;
+        hash = Math.imul(hash, FNV_PRIME);
+      }
+    }
+    return hash >>> 0;
+  }
+  const { data } = pixels;
+  for (let y = 0; y < bounds.height; y++) {
+    for (let x = 0; x < bounds.width; x++) {
+      const offset = ((y + bounds.y) * pixels.width + x + bounds.x) * RGBA_CHANNELS;
+      for (let c = 0; c < RGBA_CHANNELS; c++) {
+        const value = data[offset + c];
+        hash ^= value === undefined ? 0x100 : value;
+        hash = Math.imul(hash, FNV_PRIME);
+      }
+    }
+  }
+  return hash >>> 0;
+}
+
+function sampleBoundsEqual(
+  a: Sample,
+  aWords: Uint32Array | null,
+  b: Sample,
+  bWords: Uint32Array | null,
+): boolean {
+  const { bounds: ab, pixels: ap } = a;
+  const { bounds: bb, pixels: bp } = b;
+  if (ab.width !== bb.width || ab.height !== bb.height) return false;
+  if (boundsWithinPixels(ab, ap) && boundsWithinPixels(bb, bp)) {
+    if (aWords && bWords) {
+      for (let y = 0; y < ab.height; y++) {
+        const aRow = (y + ab.y) * ap.width + ab.x;
+        const bRow = (y + bb.y) * bp.width + bb.x;
+        for (let x = 0; x < ab.width; x++) {
+          if (aWords[aRow + x] !== bWords[bRow + x]) return false;
+        }
+      }
+      return true;
+    }
+    const aData = ap.data;
+    const bData = bp.data;
+    const rowBytes = ab.width * RGBA_CHANNELS;
+    for (let y = 0; y < ab.height; y++) {
+      const aOffset = ((y + ab.y) * ap.width + ab.x) * RGBA_CHANNELS;
+      const bOffset = ((y + bb.y) * bp.width + bb.x) * RGBA_CHANNELS;
+      for (let i = 0; i < rowBytes; i++) {
+        if (aData[aOffset + i] !== bData[bOffset + i]) return false;
+      }
+    }
+    return true;
+  }
+  for (let y = 0; y < ab.height; y++) {
+    for (let x = 0; x < ab.width; x++) {
+      const aOffset = ((y + ab.y) * ap.width + x + ab.x) * RGBA_CHANNELS;
+      const bOffset = ((y + bb.y) * bp.width + x + bb.x) * RGBA_CHANNELS;
+      for (let c = 0; c < RGBA_CHANNELS; c++) {
+        if (ap.data[aOffset + c] !== bp.data[bOffset + c]) return false;
+      }
+    }
+  }
+  return true;
+}
+
 const transparentBounds = (p: PixelBuffer): Rect => {
   let left = p.width,
     top = p.height,
@@ -431,26 +538,35 @@ export function renderSpriteSheet(doc: EditorDocument, o: SpriteSheetOptions): S
   const rawCommon =
     o.trimSprite && o.source !== "tilesets" ? samples.map((s) => s.bounds).reduce(union) : null;
   const common = rawCommon && o.trimByGrid ? snap(rawCommon) : rawCommon;
+  const deduplicate = o.mergeDuplicates || o.layout === SheetLayout.Packed;
+  const buckets = deduplicate ? new Map<string, number[]>() : null;
+  const sampleWords: (Uint32Array | null)[] = [];
   samples.forEach((s, i) => {
     s.bounds = o.trimCels
       ? o.trimByGrid
         ? snap(s.bounds)
         : s.bounds
       : (common ?? { x: 0, y: 0, width: s.pixels.width, height: s.pixels.height });
-    if (o.mergeDuplicates || o.layout === SheetLayout.Packed) {
-      const previous = samples.slice(0, i).findIndex((p) => {
-        if (p.bounds.width !== s.bounds.width || p.bounds.height !== s.bounds.height) return false;
-        for (let y = 0; y < s.bounds.height; y++)
-          for (let x = 0; x < s.bounds.width; x++)
-            for (let c = 0; c < 4; c++)
-              if (
-                p.pixels.data[((y + p.bounds.y) * p.pixels.width + x + p.bounds.x) * 4 + c] !==
-                s.pixels.data[((y + s.bounds.y) * s.pixels.width + x + s.bounds.x) * 4 + c]
-              )
-                return false;
-        return true;
-      });
-      if (previous >= 0) s.duplicate = previous;
+    if (buckets) {
+      const words = alignedPixelWords(s.pixels.data);
+      sampleWords[i] = words;
+      const hash = hashSampleBounds(s, words);
+      const key = `${s.bounds.width}x${s.bounds.height}:${hash}`;
+      const candidates = buckets.get(key);
+      if (candidates) {
+        let matched = -1;
+        for (let index = 0; index < candidates.length; index++) {
+          const candidate = candidates[index];
+          if (sampleBoundsEqual(samples[candidate], sampleWords[candidate], s, words)) {
+            matched = candidate;
+            break;
+          }
+        }
+        if (matched >= 0) s.duplicate = matched;
+        else candidates.push(i);
+      } else {
+        buckets.set(key, [i]);
+      }
     }
   });
   const size = layoutSamples(samples, o);

@@ -5,7 +5,7 @@ import {
   imageDimensionsWithinLimits,
   type ImageDimensionLimits,
 } from "$common/image-dimensions";
-import { hasPngSignature, readPng } from "$common/png";
+import { hasPngSignature, readPng, type PngSource } from "$common/png";
 import {
   PNG_SIGNATURE,
   createPixelBufferRowSource,
@@ -234,13 +234,17 @@ function loadImageFallback(blob: Blob): Promise<HTMLImageElement> {
   });
 }
 
-/** Inflate into a fixed buffer so malformed PNG streams cannot exceed their declared size. */
+function toArrayBufferBytes(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
+  return bytes.buffer instanceof ArrayBuffer
+    ? (bytes as Uint8Array<ArrayBuffer>)
+    : new Uint8Array(bytes);
+}
+
+/** Inflate into a fixed buffer for Adam7 interlaced PNGs so malformed streams cannot exceed their declared size. */
 async function inflatePng(bytes: Uint8Array, expected: number): Promise<Uint8Array> {
-  const source: Uint8Array<ArrayBuffer> =
-    bytes.buffer instanceof ArrayBuffer
-      ? (bytes as Uint8Array<ArrayBuffer>)
-      : new Uint8Array(bytes);
-  const stream = new Blob([source]).stream().pipeThrough(new DecompressionStream("deflate"));
+  const stream = new Blob([toArrayBufferBytes(bytes)])
+    .stream()
+    .pipeThrough(new DecompressionStream("deflate"));
   const reader = stream.getReader();
   const output = new Uint8Array(expected);
   let offset = 0;
@@ -256,7 +260,30 @@ async function inflatePng(bytes: Uint8Array, expected: number): Promise<Uint8Arr
     if (offset !== expected) throw new Error("Incomplete PNG samples.");
     return output;
   } finally {
-    await reader.cancel();
+    await reader.cancel().catch(() => undefined);
+    reader.releaseLock();
+  }
+}
+
+/** Stream non-interlaced PNG scanlines straight into the final RGBA buffer without a full-image inflated copy. */
+async function decodePngSource(source: PngSource): Promise<RgbaImageData> {
+  const rowDecoder = source.createRowDecoder();
+  if (!rowDecoder) {
+    return source.decode(await inflatePng(source.compressed, source.inflatedByteLength));
+  }
+  const stream = new Blob([toArrayBufferBytes(source.compressed)])
+    .stream()
+    .pipeThrough(new DecompressionStream("deflate"));
+  const reader = stream.getReader();
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      rowDecoder.push(value);
+    }
+    return rowDecoder.finish();
+  } finally {
+    await reader.cancel().catch(() => undefined);
     reader.releaseLock();
   }
 }
@@ -276,7 +303,7 @@ export async function decodeImageBlob(
     const view = new DataView(header.buffer);
     assertImageDimensions(view.getUint32(16), view.getUint32(20), options);
     const source = readPng(new Uint8Array(await blob.arrayBuffer()))!;
-    return source.decode(await inflatePng(source.compressed, source.inflatedByteLength));
+    return decodePngSource(source);
   }
   const bitmapDecoder = globalThis.createImageBitmap;
   let bitmapError: unknown;
