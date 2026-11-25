@@ -1238,18 +1238,14 @@ function applyIndexedDocumentEffect(
               outline.place === "outside",
               (pixel) => {
                 const index = source[pixel];
-                return index === mask || index === bg || !palette[index]?.[3];
+                return index === mask || index === bg || !color(index)[3];
               },
-              (pixel) => palette[source[pixel]],
+              (pixel) => color(source[pixel]),
             )
           : undefined;
       const matchOutlinePalette =
         outline && selective
-          ? selectiveOutlinePaletteMatcher(
-              palette,
-              t.transparentIndex ?? 0,
-              outlineShadeScale(outline),
-            )
+          ? selectiveOutlinePaletteMatcher(palette, mask, outlineShadeScale(outline))
           : undefined;
       const indexedEmptyAt =
         outline && !selective

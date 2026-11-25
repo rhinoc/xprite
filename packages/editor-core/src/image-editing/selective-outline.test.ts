@@ -14,6 +14,7 @@ import {
   OUTLINE_MATRICES,
   type EffectSpec,
 } from "$/image-editing/effects";
+import { LAYER_BACKGROUND } from "$/timeline/timeline";
 
 const clear: Rgba = [0, 0, 0, 0];
 const black: Rgba = [0, 0, 0, 255];
@@ -205,6 +206,18 @@ describe("selective outline", () => {
     expect(celIndices(applyDocumentEffect(doc, { ...selective, darkening: 70 }))).toEqual([
       3, 1, 3,
     ]);
+  });
+
+  it("allows index 0 as a selective outline color on an Indexed background layer", () => {
+    const palette: Rgba[] = [black, red, white];
+    const doc = indexedDocument(palette, [2, 1, 2], 0);
+    const layer = doc.timeline!.layers[0];
+    doc.timeline = {
+      ...doc.timeline!,
+      layers: [{ ...layer, flags: layer.flags | LAYER_BACKGROUND }],
+    };
+    const result = applyDocumentEffect(doc, { ...selective, bgColor: white, bgIndex: 2 });
+    expect(celIndices(result)).toEqual([0, 1, 0]);
   });
 
   it("uses the darkest available palette entry as a fallback and requires an opaque entry", () => {

@@ -745,6 +745,26 @@ describe("agent document batches", () => {
     expect(data[7]).toBe(0);
   });
 
+  it("rejects translucent solid outlines on a background layer", () => {
+    const editor = fixture();
+    editor.sprite.convertLayerBackground(true);
+    const layerId = editor.getSnapshot().document!.timeline!.layers[0].id;
+    expect(() =>
+      editor.applyBatch(
+        [
+          {
+            type: BatchEditKind.Outline,
+            layerId,
+            frameIndex: 0,
+            color: [0, 0, 0, 128],
+          },
+        ],
+        revision(editor),
+        "Translucent bg outline",
+      ),
+    ).toThrow("Background pixels must be opaque");
+  });
+
   it("paints gradients, dithers, rotates and translates", () => {
     const editor = fixture(),
       layerId = editor.getSnapshot().document!.timeline!.layers[0].id;

@@ -1986,6 +1986,15 @@ export function applyDocumentBatch(
                 );
               const rgba =
                 op.colorMode === OutlineColorMode.Selective ? options.color : color(op.color);
+              if (
+                colorMode === OutlineColorMode.Solid &&
+                isBackgroundLayer(layer) &&
+                rgba[3] !== UINT8_MAX
+              )
+                throw new BatchEditError(
+                  BatchEditErrorCode.NotEditable,
+                  "Background pixels must be opaque",
+                );
               const darkening =
                 op.colorMode === OutlineColorMode.Selective && op.darkening !== undefined
                   ? batchInteger(
