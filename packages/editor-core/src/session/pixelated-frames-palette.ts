@@ -23,12 +23,16 @@ export function extractPixelatedFramesPalette(
     const { data } = frame;
     for (let offset = 0; offset < data.length; offset += RGBA_CHANNELS) {
       const alpha = data[offset + 3];
+      if (alpha === 0) hasTransparent = true;
+      if (overflowed) {
+        if (hasTransparent) break;
+        continue;
+      }
       const key =
         alpha === 0
           ? 0
           : ((data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | alpha) >>>
             0;
-      if (key === 0) hasTransparent = true;
       const previous = exact.get(key);
       if (previous !== undefined) {
         exact.set(key, previous + 1);
@@ -36,10 +40,10 @@ export function extractPixelatedFramesPalette(
         exact.set(key, 1);
       } else {
         overflowed = true;
-        break;
       }
+      if (overflowed && hasTransparent) break;
     }
-    if (overflowed) break;
+    if (overflowed && hasTransparent) break;
   }
 
   if (!overflowed && exact.size > 0) {

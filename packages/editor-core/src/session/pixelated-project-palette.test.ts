@@ -76,6 +76,20 @@ describe("extractPixelatedFramesPalette", () => {
     expect(palette.length).toBeGreaterThan(0);
     expect(palette.length).toBeLessThanOrEqual(MAX_PIXELATED_PROJECT_PALETTE_COLORS);
   });
+
+  test("reserves a transparent entry when transparency first appears after the palette overflows", () => {
+    const opaque = multiColorFrame(3, 1, [
+      [255, 0, 0, 255],
+      [0, 255, 0, 255],
+      [0, 0, 255, 255],
+    ]);
+    const transparent = solidFrame(3, 1, [0, 0, 0, 0]);
+
+    const palette = extractPixelatedFramesPalette([opaque, transparent], 2);
+
+    expect(palette).toHaveLength(2);
+    expect(palette).toContainEqual([0, 0, 0, 0]);
+  });
 });
 
 describe("EditorSession multi-frame GIF pixelation palette", () => {

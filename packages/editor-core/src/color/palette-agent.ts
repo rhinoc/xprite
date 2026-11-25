@@ -273,18 +273,21 @@ export function analyzePalette(
   document: EditorDocument,
   palette: readonly Rgba[],
 ): PaletteAnalysis {
-  const usage = paletteUsageAcrossFrames(document, palette);
-
+  const colors = palette.map(toHex);
   const labs = palette.map((color) => rgbToLab(color));
   const nearDuplicates: PaletteAnalysis["nearDuplicates"] = [];
   for (let i = 0; i < palette.length; i++)
     for (let j = i + 1; j < palette.length; j++) {
       const distance = deltaE(labs[i], labs[j]);
       if (distance < DELTA_E_NEAR_DUPLICATE)
-        nearDuplicates.push({ a: usage[i].hex, b: usage[j].hex, deltaE: round(distance) });
+        nearDuplicates.push({ a: colors[i], b: colors[j], deltaE: round(distance) });
     }
 
-  const onPalette = new Set(palette.map((color) => color.join(",")));
+  const paletteKeys = palette.map((color) => color.join(","));
+  const onPalette = new Map<string, number>();
+  paletteKeys.forEach((key, index) => {
+    if (!onPalette.has(key)) onPalette.set(key, index);
+  });
   const rawUsed = new Set<string>();
   const rawOffPalette = new Map<string, number>();
   const scanRawBuffer = (pixels: PixelBuffer) => {
@@ -322,22 +325,27 @@ export function analyzePalette(
   }
 
   const blendedOffPalette = new Map<string, number>();
+  const compositeUsed = new Set<number>();
   const frames = timeline?.frames.length ?? 1;
   for (let frame = 0; frame < frames; frame++) {
     const pixels = compositeDocumentFrame(document, frame);
     const data = pixels.data;
     for (let at = 0; at < data.length; at += RGBA_CHANNELS) {
       if (!data[at + 3]) continue;
-      if (onPalette.has(`${data[at]},${data[at + 1]},${data[at + 2]},${data[at + 3]}`)) continue;
+      const index = onPalette.get(`${data[at]},${data[at + 1]},${data[at + 2]},${data[at + 3]}`);
+      if (index !== undefined) {
+        compositeUsed.add(index);
+        continue;
+      }
       const color = toHex([data[at], data[at + 1], data[at + 2], data[at + 3]]);
       if (rawOffPalette.has(color)) continue;
       blendedOffPalette.set(color, (blendedOffPalette.get(color) ?? 0) + 1);
     }
   }
 
-  const unusedIndices = usage
-    .filter((entry) => entry.pixels === 0 && !rawUsed.has(palette[entry.index].join(",")))
-    .map((entry) => entry.index);
+  const unusedIndices = [...palette.keys()].filter(
+    (index) => !compositeUsed.has(index) && !rawUsed.has(paletteKeys[index]),
+  );
   const offPaletteColors = [...rawOffPalette.entries()]
     .map(([color, pixels]) => ({ hex: color, pixels }))
     .sort((a, b) => b.pixels - a.pixels)
@@ -348,12 +356,14 @@ export function analyzePalette(
     .slice(0, OFF_PALETTE_LIMIT);
 
   let lowestContrastPair: PaletteAnalysis["lowestContrastPair"] = null;
-  const used = usage.filter((entry) => entry.pixels > 0).slice(0, CONTRAST_SAMPLE_LIMIT);
+  const used = [...palette.keys()]
+    .filter((index) => compositeUsed.has(index))
+    .slice(0, CONTRAST_SAMPLE_LIMIT);
   for (let i = 0; i < used.length; i++)
     for (let j = i + 1; j < used.length; j++) {
-      const ratio = contrastRatio(palette[used[i].index], palette[used[j].index]);
+      const ratio = contrastRatio(palette[used[i]], palette[used[j]]);
       if (!lowestContrastPair || ratio < lowestContrastPair.ratio)
-        lowestContrastPair = { a: used[i].hex, b: used[j].hex, ratio: round(ratio) };
+        lowestContrastPair = { a: colors[used[i]], b: colors[used[j]], ratio: round(ratio) };
     }
 
   const problems: string[] = [];
