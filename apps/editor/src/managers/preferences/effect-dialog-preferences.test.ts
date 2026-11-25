@@ -145,6 +145,27 @@ describe("filter preferences", () => {
     assert.equal(reset.preview[EffectKind.ReplaceColor], undefined);
     assert.equal((reset.initial(replace) as typeof replace).tolerance, 0);
   });
+  it("remembers window positions independently per filter dialog and normalizes invalid entries", () => {
+    const port = storage();
+    const manager = new EffectDialogPreferences(port);
+    assert.equal(manager.windowPosition(EffectKind.ColorCurve), undefined);
+    assert.equal(manager.windowPosition(EffectKind.HueSaturation), undefined);
+
+    manager.rememberWindowPosition(EffectKind.ColorCurve, { x: 120.4, y: 64.6 });
+    manager.rememberWindowPosition(EffectKind.HueSaturation, { x: 340, y: 88 });
+    manager.rememberWindowPosition(EffectKind.Outline, { x: Number.NaN, y: 12 });
+
+    const restored = new EffectDialogPreferences(port);
+    assert.deepEqual(restored.windowPosition(EffectKind.ColorCurve), { x: 120, y: 65 });
+    assert.deepEqual(restored.windowPosition(EffectKind.HueSaturation), { x: 340, y: 88 });
+    assert.equal(restored.windowPosition(EffectKind.BrightnessContrast), undefined);
+    assert.equal(restored.windowPosition(EffectKind.Outline), undefined);
+
+    restored.reset();
+    const cleared = new EffectDialogPreferences(port);
+    assert.equal(cleared.windowPosition(EffectKind.ColorCurve), undefined);
+    assert.equal(cleared.windowPosition(EffectKind.HueSaturation), undefined);
+  });
 });
 
 function expectInitial(

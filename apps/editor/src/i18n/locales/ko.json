@@ -1496,6 +1496,7 @@
   "ui.vertical.strip": "세로 스트립",
   "ui.by.rows": "행 우선",
   "ui.by.columns": "열 우선",
+  "ui.packed": "압축 배치",
   "ui.fixed.of.columns": "열 개수 고정",
   "ui.fixed.of.rows": "행 개수 고정",
   "ui.fixed.width": "너비 고정",
@@ -2591,5 +2592,12 @@
   "ui.aseprite.rejection.invalid": "파일 구조를 읽을 수 없습니다. Aseprite에서 다시 저장해 보세요.",
   "ui.aseprite.rejection.unknown": "파일 검증에 실패했습니다.",
   "ui.image.export.worker.failed": "이미지 인코더 워커를 실행할 수 없습니다",
-  "ui.image.export.output.unreadable": "이미지 인코더 출력을 읽을 수 없습니다"
+  "ui.image.export.output.unreadable": "이미지 인코더 출력을 읽을 수 없습니다",
+  "ui.ready": "준비됨",
+  "ui.status.position": "위치",
+  "ui.status.selection.size": "선택 크기",
+  "ui.status.cell.index": "셀 인덱스",
+  "ui.status.distance": "거리",
+  "ui.status.aspect.ratio": "종횡비",
+  "ui.status.color.sample": "색상 샘플"
 }

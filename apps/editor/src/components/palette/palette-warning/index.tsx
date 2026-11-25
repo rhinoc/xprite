@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from "react";
 
-import { tUi, tUiSource } from "$/i18n";
+import { tUi } from "$/i18n";
 import { Button, useUi, Tooltip, TooltipPlacement, Icon } from "@xprite/ui";
 
 import styles from "$/components/palette/palette-warning/palette-warning.module.css";
@@ -40,7 +40,10 @@ export function PaletteWarning({
 }: PaletteWarningProps) {
   const { style: uiStyle } = useUi();
   const [hot, setHot] = useState(false);
-  const label = tUi("ui.add.color.to.the.palette", { value1: tUiSource(target) });
+  const targetLabel = tUi(
+    target === PaletteWarningTarget.Foreground ? "ui.foreground" : "ui.background",
+  );
+  const label = tUi("ui.add.color.to.the.palette", { value1: targetLabel });
   const style: PaletteWarningStyle = {
     "--ui-palette-warning-workspace": uiStyle.colors.workspace,
     "--ui-palette-warning-hot": uiStyle.colors.hot_face,

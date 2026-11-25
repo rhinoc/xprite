@@ -108,6 +108,7 @@ export function EffectDialogs({
     }),
     [target, setTarget] = useState<DialogEffectTarget>(preferences.target),
     [preview, setPreview] = useState(preferences.preview[kind] ?? true),
+    [initialPosition] = useState(() => preferences.windowPosition(kind)),
     [applied, setApplied] = useState(0);
   const [picker, setPicker] = useState<{
       key: "from" | "to" | "color" | "bgColor";
@@ -236,6 +237,8 @@ export function EffectDialogs({
         depth={depth}
         bodyWidth={widths[kind]}
         bodyHeight={tiled ? 264 : 212}
+        initialPosition={initialPosition}
+        onPositionChange={(position) => preferences.rememberWindowPosition(kind, position)}
         channels={getDialogEffectChannels(spec, backgroundLayer, depth)}
         alphaEnabled={!backgroundLayer}
         target={target}

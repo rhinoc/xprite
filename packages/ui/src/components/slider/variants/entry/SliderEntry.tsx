@@ -19,6 +19,7 @@ import {
 import type { ControlPlacement, SizedControlPlacement } from "$/components/control-flow/placement";
 import { InputTouchActivation } from "$/components/input/touch-activation";
 import { measurePopoverAnchor, anchoredPopoverStyle } from "$/components/popover/anchored";
+import { sliderSplitWidth } from "$/components/slider/position";
 import { SliderValueFormat } from "$/components/slider/types";
 import { Text, TextVariant } from "$/components/text";
 import { createUiPortal } from "$/components/theme/portal";
@@ -69,7 +70,7 @@ export function SliderEntry(props: SliderEntryProps) {
   const placement: ControlPlacement = suppliedBounds
     ? { bounds: suppliedBounds, relativeTo }
     : { pixelSize: props.pixelSize };
-  const { translateKey, translateSource, definition: theme } = useTheme();
+  const { translateKey, translateSource, definition: theme, tokens } = useTheme();
   const { measureThemeText } = useThemeText();
   const host = React.useRef<HTMLSpanElement>(null);
   const anchorId = React.useId();
@@ -206,9 +207,7 @@ export function SliderEntry(props: SliderEntryProps) {
     popup && layout
       ? (() => {
           const b = popup.bounds;
-          const split =
-            b.x + (hi === lo ? 0 : Math.trunc((b.width * (displayValue - lo)) / (hi - lo)));
-          const splitOffset = split - b.x;
+          const fullWidth = sliderSplitWidth(displayValue, lo, hi, b.width);
           const scaleX = b.width > 0 ? layout.width / b.width : 1;
           const scaleY = b.height > 0 ? layout.height / b.height : 1;
           const artworkStyle: React.CSSProperties = {
@@ -222,9 +221,12 @@ export function SliderEntry(props: SliderEntryProps) {
             transform: `scale(${scaleX}, ${scaleY})`,
             transformOrigin: "top left",
           };
-          const clipPart = (full: boolean, left: number, width: number) => (
+          const fullTextColor = tokens["--ui-slider-full-text"] ?? theme.colors.slider_full_text;
+          const emptyTextColor = tokens["--ui-slider-empty-text"] ?? theme.colors.slider_empty_text;
+          const textX = centerThemePixel(b.x, b.width, measureThemeText(text)) - b.x;
+          const renderHalf = (full: boolean, left: number, width: number) => (
             <span
-              key={`part-${full}-${left}`}
+              key={`${full ? "full" : "empty"}-${left}`}
               style={{
                 position: "absolute",
                 left,
@@ -247,43 +249,27 @@ export function SliderEntry(props: SliderEntryProps) {
                   height: b.height,
                 }}
               />
-            </span>
-          );
-          const clipText = (full: boolean, left: number, width: number) => (
-            <span
-              key={`text-${full}`}
-              style={{
-                position: "absolute",
-                left,
-                top: 0,
-                width,
-                height: b.height,
-                overflow: "hidden",
-              }}
-            >
               <Text
                 variant={TextVariant.PositionedPixel}
                 text={text}
-                x={centerThemePixel(b.x, b.width, measureThemeText(text)) - b.x - left}
+                x={textX - left}
                 y={8}
-                color={full ? theme.colors.slider_full_text : theme.colors.slider_empty_text}
+                color={full ? fullTextColor : emptyTextColor}
               />
             </span>
           );
           return (
             <span aria-hidden="true" style={artworkStyle}>
-              {displayValue === lo ? (
-                clipPart(false, 0, b.width)
-              ) : displayValue === hi ? (
-                clipPart(true, 0, b.width)
+              {fullWidth <= 0 ? (
+                renderHalf(false, 0, b.width)
+              ) : fullWidth >= b.width ? (
+                renderHalf(true, 0, b.width)
               ) : (
                 <>
-                  {clipPart(true, 0, splitOffset + 1)}
-                  {clipPart(false, splitOffset + 1, b.width - splitOffset - 1)}
+                  {renderHalf(true, 0, fullWidth)}
+                  {renderHalf(false, fullWidth, b.width - fullWidth)}
                 </>
               )}
-              {clipText(true, 0, splitOffset + 1)}
-              {clipText(false, splitOffset + 1, b.width - splitOffset - 1)}
             </span>
           );
         })()

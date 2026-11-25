@@ -18,7 +18,7 @@ describe("slider-family", () => {
       await build({
         stdin: {
           contents:
-            'export { Slider } from "./packages/ui/src/components/slider/Slider.tsx"; export { SliderMode, SliderRendering, SliderValueFormat } from "./packages/ui/src/components/slider/types.ts"; export { UIProvider, UiColorScheme, loadUiThemeSnapshot } from "./packages/ui/src/components/theme/provider.tsx"; export { asepriteTheme } from "./packages/ui/src/base/theme/themes/aseprite";',
+            'export { Slider } from "./packages/ui/src/components/slider/Slider.tsx"; export { sliderSplitWidth } from "./packages/ui/src/components/slider/position.ts"; export { SliderMode, SliderRendering, SliderValueFormat } from "./packages/ui/src/components/slider/types.ts"; export { UIProvider, UiColorScheme, loadUiThemeSnapshot } from "./packages/ui/src/components/theme/provider.tsx"; export { asepriteTheme } from "./packages/ui/src/base/theme/themes/aseprite";',
           resolveDir: process.cwd(),
           loader: "tsx",
         },
@@ -85,8 +85,43 @@ describe("slider-family", () => {
         disabled: true,
       });
       assert.match(disabled, /disabled=""/);
+
+      // Split geometry: min/max have no overhang or negative clip widths; mid values snap to 2px grid.
+      assert.equal(family.sliderSplitWidth(0, 0, 100, 320), 0);
+      assert.equal(family.sliderSplitWidth(100, 0, 100, 320), 320);
+      assert.equal(family.sliderSplitWidth(100, 0, 100, 320, 10), 320);
+      assert.equal(family.sliderSplitWidth(3, 0, 6, 320), 162);
+
+      // Light-theme filled slider uses high-contrast dark text (#000000 on #7c919d = 6.39:1)
+      // instead of washed-out white (#ffffff = 3.28:1), and full/min render a single track part.
+      const fullLight = render({ ...common, min: 0, max: 100, value: 100, label: "100%" });
+      assert.match(fullLight, /data-theme-part="slider_full"/);
+      assert.doesNotMatch(fullLight, /data-theme-part="slider_empty"/);
+      assert.match(fullLight, /color:#000000/);
+      assert.doesNotMatch(fullLight, /color:#ffffff/i);
+
+      const minLight = render({ ...common, min: 0, max: 100, value: 0, label: "0%" });
+      assert.match(minLight, /data-theme-part="slider_empty"/);
+      assert.doesNotMatch(minLight, /data-theme-part="slider_full"/);
+
+      const darkTheme = await family.loadUiThemeSnapshot(family.UiColorScheme.Dark, theme);
+      const fullDark = renderToStaticMarkup(
+        React.createElement(
+          family.UIProvider,
+          { theme, colorScheme: family.UiColorScheme.Dark, initialTheme: darkTheme },
+          React.createElement(family.Slider, {
+            ...common,
+            min: 0,
+            max: 100,
+            value: 100,
+            label: "100%",
+          }),
+        ),
+      );
+      assert.match(fullDark, /color:#c0c0c0/i);
+
       console.log(
-        "Slider family: pixel, range, number-entry, percentage and disabled semantics verified; only one component export.",
+        "Slider family: pixel, range, number-entry, percentage, contrast, split geometry and disabled semantics verified; only one component export.",
       );
     } finally {
       await rm(directory, { recursive: true, force: true });

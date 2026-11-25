@@ -1496,6 +1496,7 @@
   "ui.vertical.strip": "Vertical Strip",
   "ui.by.rows": "By Rows",
   "ui.by.columns": "By Columns",
+  "ui.packed": "Packed",
   "ui.fixed.of.columns": "Fixed # of Columns",
   "ui.fixed.of.rows": "Fixed # of Rows",
   "ui.fixed.width": "Fixed Width",
@@ -2591,5 +2592,12 @@
   "ui.aseprite.rejection.invalid": "The file structure could not be read. Try saving it again in Aseprite.",
   "ui.aseprite.rejection.unknown": "The file failed validation.",
   "ui.image.export.worker.failed": "Could not run the image encoder worker",
-  "ui.image.export.output.unreadable": "Could not read image encoder output"
+  "ui.image.export.output.unreadable": "Could not read image encoder output",
+  "ui.ready": "Ready",
+  "ui.status.position": "Position",
+  "ui.status.selection.size": "Selection size",
+  "ui.status.cell.index": "Cell index",
+  "ui.status.distance": "Distance",
+  "ui.status.aspect.ratio": "Aspect ratio",
+  "ui.status.color.sample": "Color sample"
 }

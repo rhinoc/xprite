@@ -3,6 +3,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { EditorDialog } from "$/components/dialogs/overlay";
 import { tUi, tUiSource } from "$/i18n";
 import { DialogEffectTarget } from "$/managers/dialogs/effect-dialog-manager";
+import type { EffectDialogWindowPosition } from "$/managers/preferences/effect-dialog-preferences";
 import { FontRole, Button, isDialogPopupTarget, Checkbox, FocusRingBehavior } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
@@ -11,6 +12,8 @@ export interface EditorFilterWindowProps {
   depth?: 8 | 16 | 32;
   bodyWidth: number;
   bodyHeight?: number;
+  initialPosition?: EffectDialogWindowPosition;
+  onPositionChange?: (position: EffectDialogWindowPosition) => void;
   channels: number;
   alphaEnabled?: boolean;
   target: DialogEffectTarget;
@@ -31,6 +34,8 @@ export function EditorFilterWindow({
   depth = 32,
   bodyWidth,
   bodyHeight = 212,
+  initialPosition,
+  onPositionChange,
   channels,
   alphaEnabled = true,
   target,
@@ -46,7 +51,9 @@ export function EditorFilterWindow({
   children,
 }: EditorFilterWindowProps) {
   const host = useRef<HTMLDivElement>(null),
-    height = Math.max(bodyHeight, (tiled === undefined ? 212 : 244) + (depth === 8 ? 24 : 0));
+    height = Math.max(bodyHeight, (tiled === undefined ? 212 : 244) + (depth === 8 ? 24 : 0)),
+    dialogWidth = bodyWidth + 132,
+    dialogHeight = height + 46;
   useEffect(() => {
     host.current
       ?.querySelector<HTMLButtonElement>('button[data-label-source="OK"]')
@@ -109,9 +116,15 @@ export function EditorFilterWindow({
     >
       <EditorDialog
         open
-        centerOnOpen
+        centerOnOpen={!initialPosition}
         title={title}
-        defaultBounds={{ x: 0, y: 0, width: bodyWidth + 132, height: height + 46 }}
+        defaultBounds={{
+          x: initialPosition?.x ?? 0,
+          y: initialPosition?.y ?? 0,
+          width: dialogWidth,
+          height: dialogHeight,
+        }}
+        onBoundsChange={({ x, y }) => onPositionChange?.({ x, y })}
         onOpenChange={(open) => {
           if (!open) onCancel();
         }}
