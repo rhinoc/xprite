@@ -4,7 +4,12 @@ import type { PixelBuffer, Rgba } from "$/base/primitives";
 import { rgbaToHsla, hslaToRgba } from "$/color/color";
 import { assertPaletteAllocation } from "$/color/palette-resize";
 import type { EditorDocument } from "$/document/types";
-import { effectiveLayerVisible, layerEditable, renderTimelineFrame } from "$/timeline/timeline";
+import {
+  effectiveLayerVisible,
+  LAYER_REFERENCE,
+  layerEditable,
+  renderTimelineFrame,
+} from "$/timeline/timeline";
 
 const RGBA_CHANNELS = 4;
 /** Agent-facing palettes cap at the GIF/indexed range, not the allocation budget. */
@@ -109,7 +114,10 @@ export interface PaletteAnalysis {
   size: number;
   unusedIndices: number[];
   nearDuplicates: { a: string; b: string; deltaE: number }[];
+  /** Off-palette colors found in raw visible cel pixels (true palette violations). */
   offPaletteColors: { hex: string; pixels: number }[];
+  /** Colors introduced only after compositing blend modes or partial opacity. */
+  blendedCompositeColors: { hex: string; pixels: number }[];
   lowestContrastPair: { a: string; b: string; ratio: number } | null;
   verdict: string;
 }
@@ -266,7 +274,6 @@ export function analyzePalette(
   palette: readonly Rgba[],
 ): PaletteAnalysis {
   const usage = paletteUsageAcrossFrames(document, palette);
-  const unusedIndices = usage.filter((entry) => entry.pixels === 0).map((entry) => entry.index);
 
   const labs = palette.map((color) => rgbToLab(color));
   const nearDuplicates: PaletteAnalysis["nearDuplicates"] = [];
@@ -278,8 +285,44 @@ export function analyzePalette(
     }
 
   const onPalette = new Set(palette.map((color) => color.join(",")));
-  const offPalette = new Map<string, number>();
-  const frames = document.timeline?.frames.length ?? 1;
+  const rawUsed = new Set<string>();
+  const rawOffPalette = new Map<string, number>();
+  const scanRawBuffer = (pixels: PixelBuffer) => {
+    const data = pixels.data;
+    for (let at = 0; at < data.length; at += RGBA_CHANNELS) {
+      if (!data[at + 3]) continue;
+      const key = `${data[at]},${data[at + 1]},${data[at + 2]},${data[at + 3]}`;
+      if (onPalette.has(key)) {
+        rawUsed.add(key);
+        continue;
+      }
+      const color = toHex([data[at], data[at + 1], data[at + 2], data[at + 3]]);
+      rawOffPalette.set(color, (rawOffPalette.get(color) ?? 0) + 1);
+    }
+  };
+  const timeline = document.timeline;
+  if (timeline) {
+    for (let layerIndex = 0; layerIndex < timeline.layers.length; layerIndex++) {
+      const layer = timeline.layers[layerIndex];
+      if (
+        layer.kind === "group" ||
+        (layer.flags & LAYER_REFERENCE) !== 0 ||
+        !effectiveLayerVisible(timeline, layerIndex)
+      )
+        continue;
+      for (let frameIndex = 0; frameIndex < timeline.frames.length; frameIndex++) {
+        const cel = timeline.frames[frameIndex]?.cels[layerIndex];
+        const active = layerIndex === timeline.activeLayer && frameIndex === timeline.activeFrame;
+        const pixels = active ? document.layer.pixels : cel?.pixels;
+        if (pixels) scanRawBuffer(pixels);
+      }
+    }
+  } else {
+    scanRawBuffer(document.layer.pixels);
+  }
+
+  const blendedOffPalette = new Map<string, number>();
+  const frames = timeline?.frames.length ?? 1;
   for (let frame = 0; frame < frames; frame++) {
     const pixels = compositeDocumentFrame(document, frame);
     const data = pixels.data;
@@ -287,10 +330,19 @@ export function analyzePalette(
       if (!data[at + 3]) continue;
       if (onPalette.has(`${data[at]},${data[at + 1]},${data[at + 2]},${data[at + 3]}`)) continue;
       const color = toHex([data[at], data[at + 1], data[at + 2], data[at + 3]]);
-      offPalette.set(color, (offPalette.get(color) ?? 0) + 1);
+      if (rawOffPalette.has(color)) continue;
+      blendedOffPalette.set(color, (blendedOffPalette.get(color) ?? 0) + 1);
     }
   }
-  const offPaletteColors = [...offPalette.entries()]
+
+  const unusedIndices = usage
+    .filter((entry) => entry.pixels === 0 && !rawUsed.has(palette[entry.index].join(",")))
+    .map((entry) => entry.index);
+  const offPaletteColors = [...rawOffPalette.entries()]
+    .map(([color, pixels]) => ({ hex: color, pixels }))
+    .sort((a, b) => b.pixels - a.pixels)
+    .slice(0, OFF_PALETTE_LIMIT);
+  const blendedCompositeColors = [...blendedOffPalette.entries()]
     .map(([color, pixels]) => ({ hex: color, pixels }))
     .sort((a, b) => b.pixels - a.pixels)
     .slice(0, OFF_PALETTE_LIMIT);
@@ -319,6 +371,7 @@ export function analyzePalette(
     unusedIndices,
     nearDuplicates,
     offPaletteColors,
+    blendedCompositeColors,
     lowestContrastPair,
     verdict: problems.length === 0 ? "clean" : problems.join("; "),
   };
