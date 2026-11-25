@@ -2589,5 +2589,7 @@
   "ui.aseprite.rejection.truncated": "Файл, вероятно, неполный. Попробуйте сохранить его заново в Aseprite.",
   "ui.aseprite.rejection.unsupported": "В файле используется неподдерживаемая функция.",
   "ui.aseprite.rejection.invalid": "Не удалось прочитать структуру файла. Попробуйте сохранить его заново в Aseprite.",
-  "ui.aseprite.rejection.unknown": "Файл не прошёл проверку."
+  "ui.aseprite.rejection.unknown": "Файл не прошёл проверку.",
+  "ui.image.export.worker.failed": "Не удалось запустить рабочий поток кодировщика изображений",
+  "ui.image.export.output.unreadable": "Не удалось прочитать вывод кодировщика изображений"
 }

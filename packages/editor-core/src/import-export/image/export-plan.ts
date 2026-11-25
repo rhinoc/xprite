@@ -15,9 +15,10 @@ import { assertAnimationLoopCount } from "$/timeline/animation-loop";
 import { layerSubtree } from "$/timeline/layer-operations";
 import { renderTimelineFrame, layerAncestors } from "$/timeline/timeline";
 import {
-  CANVAS_IMAGE_LIMITS,
   imageDimensionsWithinLimits,
+  type ImageDimensionLimits,
 } from "@xprite/bedrock/common/image-dimensions";
+import type { RgbaRowSource } from "@xprite/bedrock/common/png-encode";
 
 /** Aseprite Export File settings, shared by raster, animation and sheet output. */
 export interface ExportFileOptions {
@@ -56,6 +57,12 @@ export class ImageExportLimitError extends RangeError {
   }
 }
 
+const PORTABLE_EXPORT_LIMITS: Readonly<ImageDimensionLimits> = {
+  maxWidth: MAX_IMAGE_DIMENSION,
+  maxHeight: MAX_IMAGE_DIMENSION,
+  maxPixels: MAX_IMAGE_PIXELS,
+};
+
 export function assertExportEncodingDimensions(
   width: number,
   height: number,
@@ -64,12 +71,9 @@ export function assertExportEncodingDimensions(
 ): void {
   if (/\.webp$/i.test(name.trim()))
     assertWebpDimensions(width, height, compression === WebpCompression.Lossy);
-  // PNG/JPEG use the browser canvas encoder. GIF/APNG use portable codecs;
-  // WebP has its own lossless/lossy bounds in exportGeometry and its encoder.
-  if (
-    /\.(png|jpe?g)$/i.test(name.trim()) &&
-    !imageDimensionsWithinLimits(width, height, CANVAS_IMAGE_LIMITS)
-  )
+  // PNG, JPEG, GIF, and APNG all have portable streaming encoders, so they follow
+  // editor-core's dimension and pixel budget rather than browser 2D canvas edge caps.
+  if (!imageDimensionsWithinLimits(width, height, PORTABLE_EXPORT_LIMITS))
     throw new ImageExportLimitError(width, height);
 }
 
@@ -163,9 +167,92 @@ export function exportGeometry(
   return { bounds, width, height };
 }
 
-/** Synchronous detached rendering before any browser await. Never modifies the
- * source document, timeline visibility, selection, filename, or dirty/history. */
-export function renderExport(document: EditorDocument, options: ExportFileOptions): PixelBuffer {
+const DEFAULT_JPEG_MATTE = "#ffffff";
+const RGBA_CHANNELS = 4;
+const TWITTER_OPAQUE_ALPHA = 254;
+
+export type RgbChannels = readonly [number, number, number];
+
+/** Detached unscaled export frame and target geometry for zero-materialization streaming encoders. */
+export interface ExportRasterPlan {
+  readonly source: PixelBuffer;
+  readonly bounds: Rect;
+  readonly width: number;
+  readonly height: number;
+  readonly jpegMatte?: RgbChannels;
+  readonly forTwitterOpaqueTweak?: boolean;
+}
+
+export function parseJpegMatte(matte = DEFAULT_JPEG_MATTE): RgbChannels {
+  return [
+    Number.parseInt(matte.slice(1, 3), 16),
+    Number.parseInt(matte.slice(3, 5), 16),
+    Number.parseInt(matte.slice(5, 7), 16),
+  ];
+}
+
+function sampleColumns(bounds: Rect, width: number): Int32Array {
+  return Int32Array.from(
+    { length: width },
+    (_, x) => bounds.x + Math.floor((x * bounds.width) / width),
+  );
+}
+
+export function hasNonEmptyExportPixels(
+  source: PixelBuffer,
+  bounds: Rect,
+  width: number,
+  height: number,
+): boolean {
+  const columns = sampleColumns(bounds, width);
+  let previousSy = -1;
+  for (let y = 0; y < height; y++) {
+    const sy = bounds.y + Math.floor((y * bounds.height) / height);
+    if (sy === previousSy) continue;
+    previousSy = sy;
+    if (sy < 0 || sy >= source.height) continue;
+    const rowOffset = sy * source.width;
+    for (let x = 0; x < width; x++) {
+      const sx = columns[x];
+      if (sx >= 0 && sx < source.width && source.data[(rowOffset + sx) * RGBA_CHANNELS + 3] !== 0)
+        return true;
+    }
+  }
+  return false;
+}
+
+export function isExportRasterFullyOpaque(
+  source: PixelBuffer,
+  bounds: Rect,
+  width: number,
+  height: number,
+): boolean {
+  const columns = sampleColumns(bounds, width);
+  let previousSy = -1;
+  for (let y = 0; y < height; y++) {
+    const sy = bounds.y + Math.floor((y * bounds.height) / height);
+    if (sy === previousSy) continue;
+    previousSy = sy;
+    if (sy < 0 || sy >= source.height) return false;
+    const rowOffset = sy * source.width;
+    for (let x = 0; x < width; x++) {
+      const sx = columns[x];
+      if (
+        sx < 0 ||
+        sx >= source.width ||
+        source.data[(rowOffset + sx) * RGBA_CHANNELS + 3] !== UINT8_MAX
+      )
+        return false;
+    }
+  }
+  return true;
+}
+
+/** Synchronous unscaled composite before any browser await so encoders can stream-scale rows. */
+export function renderExportSource(
+  document: EditorDocument,
+  options: ExportFileOptions,
+): ExportRasterPlan {
   const { bounds, width, height } = exportGeometry(document, options);
   const detached = { ...document, layer: { ...document.layer } };
   ensureTimeline(detached);
@@ -186,58 +273,172 @@ export function renderExport(document: EditorDocument, options: ExportFileOption
     renderTimelineFrame(timeline, document.width, document.height, options.frame, undefined, false),
     workingColorProfile(timeline),
   );
+  const jpegMatte = /\.jpe?g$/i.test(options.name.trim())
+    ? parseJpegMatte(options.jpegMatte)
+    : undefined;
+  const forTwitterOpaqueTweak =
+    Boolean(options.forTwitter && /\.png$/i.test(options.name.trim())) &&
+    isExportRasterFullyOpaque(source, bounds, width, height);
+  return {
+    source,
+    bounds,
+    width,
+    height,
+    ...(jpegMatte ? { jpegMatte } : {}),
+    ...(forTwitterOpaqueTweak ? { forTwitterOpaqueTweak } : {}),
+  };
+}
+
+/** Stream nearest-neighbor cropped/scaled RGBA rows on demand without allocating the full scaled raster. */
+export function createExportRowSource(plan: ExportRasterPlan): RgbaRowSource {
+  const { source, bounds, width, height, jpegMatte, forTwitterOpaqueTweak } = plan;
+  const rowBytes = width * RGBA_CHANNELS;
+  const identity =
+    bounds.x === 0 &&
+    bounds.y === 0 &&
+    width === source.width &&
+    height === source.height &&
+    bounds.width === width &&
+    bounds.height === height;
+  const columns = identity ? null : sampleColumns(bounds, width);
+  const inputWords =
+    source.data.byteOffset % RGBA_CHANNELS === 0
+      ? new Uint32Array(
+          source.data.buffer,
+          source.data.byteOffset,
+          Math.floor(source.data.byteLength / RGBA_CHANNELS),
+        )
+      : null;
+  const previousRow = new Uint8Array(rowBytes);
+  let previousSy = Number.NaN;
+  const matteR = jpegMatte?.[0] ?? 0;
+  const matteG = jpegMatte?.[1] ?? 0;
+  const matteB = jpegMatte?.[2] ?? 0;
+
+  return {
+    width,
+    height,
+    fillRow(y: number, target: Uint8Array): boolean {
+      const sy = identity ? y : bounds.y + Math.floor((y * bounds.height) / height);
+      const needsTwitterTweak = Boolean(forTwitterOpaqueTweak && y === height - 1);
+      if (y > 0 && sy === previousSy) {
+        target.set(previousRow, 0);
+        if (needsTwitterTweak) {
+          target[rowBytes - 1] = TWITTER_OPAQUE_ALPHA;
+          return false;
+        }
+        return true;
+      }
+
+      if (sy < 0 || sy >= source.height) {
+        if (jpegMatte) {
+          for (let offset = 0; offset < rowBytes; offset += RGBA_CHANNELS) {
+            target[offset] = matteR;
+            target[offset + 1] = matteG;
+            target[offset + 2] = matteB;
+            target[offset + 3] = UINT8_MAX;
+          }
+        } else {
+          target.fill(0, 0, rowBytes);
+        }
+      } else if (identity) {
+        const sourceOffset = sy * rowBytes;
+        target.set(source.data.subarray(sourceOffset, sourceOffset + rowBytes), 0);
+      } else if (inputWords && target.byteOffset % RGBA_CHANNELS === 0) {
+        const outputWords = new Uint32Array(target.buffer, target.byteOffset, width);
+        const sourceRow = sy * source.width;
+        for (let x = 0; x < width; x++) {
+          const sx = columns![x];
+          outputWords[x] = sx >= 0 && sx < source.width ? inputWords[sourceRow + sx] : 0;
+        }
+      } else {
+        const sourceRow = sy * source.width;
+        for (let x = 0; x < width; x++) {
+          const sx = columns![x];
+          const destOffset = x * RGBA_CHANNELS;
+          if (sx >= 0 && sx < source.width) {
+            const srcOffset = (sourceRow + sx) * RGBA_CHANNELS;
+            target[destOffset] = source.data[srcOffset];
+            target[destOffset + 1] = source.data[srcOffset + 1];
+            target[destOffset + 2] = source.data[srcOffset + 2];
+            target[destOffset + 3] = source.data[srcOffset + 3];
+          } else {
+            target[destOffset] = 0;
+            target[destOffset + 1] = 0;
+            target[destOffset + 2] = 0;
+            target[destOffset + 3] = 0;
+          }
+        }
+      }
+
+      if (jpegMatte && sy >= 0 && sy < source.height) {
+        for (let offset = 0; offset < rowBytes; offset += RGBA_CHANNELS) {
+          const alphaByte = target[offset + 3];
+          if (alphaByte < UINT8_MAX) {
+            const alpha = alphaByte / UINT8_MAX;
+            const inv = 1 - alpha;
+            target[offset] = Math.round(target[offset] * alpha + matteR * inv);
+            target[offset + 1] = Math.round(target[offset + 1] * alpha + matteG * inv);
+            target[offset + 2] = Math.round(target[offset + 2] * alpha + matteB * inv);
+            target[offset + 3] = UINT8_MAX;
+          }
+        }
+      }
+
+      previousRow.set(target.subarray(0, rowBytes), 0);
+      previousSy = sy;
+      if (needsTwitterTweak) {
+        target[rowBytes - 1] = TWITTER_OPAQUE_ALPHA;
+      }
+      return false;
+    },
+  };
+}
+
+/** Materialize an ExportRasterPlan into a contiguous PixelBuffer when a codec requires one. */
+export function materializeExportRaster(plan: ExportRasterPlan): PixelBuffer {
+  const { source, bounds, width, height, jpegMatte } = plan;
   if (
     bounds.x === 0 &&
     bounds.y === 0 &&
     width === source.width &&
     height === source.height &&
     bounds.width === width &&
-    bounds.height === height
-  )
-    return compositeJpegMatte(source, options);
-  const data = new Uint8ClampedArray(width * height * 4);
-  // Both buffers are owned, aligned RGBA allocations. Copy whole pixels without
-  // creating a temporary typed-array view for every output pixel.
-  const input = new Uint32Array(
-    source.data.buffer,
-    source.data.byteOffset,
-    source.data.byteLength / 4,
-  );
-  const output = new Uint32Array(data.buffer);
-  const columns = Int32Array.from(
-    { length: width },
-    (_, x) => bounds.x + Math.floor((x * bounds.width) / width),
-  );
-  let previousRow = -1;
-  for (let y = 0; y < height; y++) {
-    const sy = bounds.y + Math.floor((y * bounds.height) / height);
-    if (sy < 0 || sy >= source.height) continue;
-    const row = y * width;
-    if (y > 0 && sy === previousRow) {
-      output.copyWithin(row, row - width, row);
-    } else {
-      for (let x = 0; x < width; x++) {
-        const sx = columns[x];
-        if (sx >= 0 && sx < source.width) output[row + x] = input[sy * source.width + sx];
-      }
-    }
-    previousRow = sy;
+    bounds.height === height &&
+    !plan.forTwitterOpaqueTweak
+  ) {
+    return jpegMatte ? compositeJpegMatteChannels(source, jpegMatte) : source;
   }
-  return compositeJpegMatte({ width, height, data }, options);
+  const data = new Uint8ClampedArray(width * height * RGBA_CHANNELS);
+  const bytes = new Uint8Array(data.buffer);
+  const rowBytes = width * RGBA_CHANNELS;
+  const rowSource = createExportRowSource(plan);
+  for (let y = 0; y < height; y++) {
+    rowSource.fillRow(y, bytes.subarray(y * rowBytes, (y + 1) * rowBytes));
+  }
+  return { width, height, data };
 }
 
-const DEFAULT_JPEG_MATTE = "#ffffff";
-function compositeJpegMatte(pixels: PixelBuffer, options: ExportFileOptions): PixelBuffer {
-  if (!/\.jpe?g$/i.test(options.name.trim())) return pixels;
-  const matte = options.jpegMatte ?? DEFAULT_JPEG_MATTE;
-  const channels = [1, 3, 5].map((offset) => Number.parseInt(matte.slice(offset, offset + 2), 16));
-  for (let offset = 0; offset < pixels.data.length; offset += 4) {
-    const alpha = pixels.data[offset + 3] / UINT8_MAX;
-    for (let channel = 0; channel < channels.length; channel++)
-      pixels.data[offset + channel] = Math.round(
-        pixels.data[offset + channel] * alpha + channels[channel] * (1 - alpha),
-      );
-    pixels.data[offset + 3] = UINT8_MAX;
+/** Synchronous detached rendering before any browser await. Never modifies the
+ * source document, timeline visibility, selection, filename, or dirty/history. */
+export function renderExport(document: EditorDocument, options: ExportFileOptions): PixelBuffer {
+  const plan = renderExportSource(document, options);
+  return materializeExportRaster(
+    plan.forTwitterOpaqueTweak ? { ...plan, forTwitterOpaqueTweak: false } : plan,
+  );
+}
+
+function compositeJpegMatteChannels(pixels: PixelBuffer, channels: RgbChannels): PixelBuffer {
+  for (let offset = 0; offset < pixels.data.length; offset += RGBA_CHANNELS) {
+    const alphaByte = pixels.data[offset + 3];
+    if (alphaByte < UINT8_MAX) {
+      const alpha = alphaByte / UINT8_MAX;
+      const inv = 1 - alpha;
+      pixels.data[offset] = Math.round(pixels.data[offset] * alpha + channels[0] * inv);
+      pixels.data[offset + 1] = Math.round(pixels.data[offset + 1] * alpha + channels[1] * inv);
+      pixels.data[offset + 2] = Math.round(pixels.data[offset + 2] * alpha + channels[2] * inv);
+      pixels.data[offset + 3] = UINT8_MAX;
+    }
   }
   return pixels;
 }

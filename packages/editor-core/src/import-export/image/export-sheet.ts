@@ -387,6 +387,8 @@ export function renderSpriteSheet(doc: EditorDocument, o: SpriteSheetOptions): S
     for (const animation of animations) {
       const plan = {
         ...o,
+        // Intermediate sheet samples stay RGBA across all frames; JPEG flattening applies to the assembled sheet.
+        name: /\.jpe?g$/i.test(o.name.trim()) ? "sheet-sample.png" : o.name,
         layers: root === undefined ? o.layers : ("selected" as const),
         frames: animation.frames,
       };

@@ -5,7 +5,7 @@ import { SheetExporterId, normalizeSheetExportOptions } from "$/managers/files/e
 import { tilesetExportSource } from "$/managers/files/tileset-export-source";
 import { timelineTags } from "@xprite/editor-core";
 import type { PixelBuffer } from "@xprite/editor-core";
-import { INT16_MIN } from "@xprite/editor-core/base";
+import { INT16_MIN, MAX_IMAGE_DIMENSION } from "@xprite/editor-core/base";
 import {
   changeImportSpriteSheetOptions,
   defaultImportSpriteSheetOptions,
@@ -29,6 +29,7 @@ export const SpriteSheetLayoutChoice = Object.freeze({
   Packed: SheetLayout.Packed,
 });
 export const SPRITE_SHEET_ORIGIN_MIN = INT16_MIN;
+export const SPRITE_SHEET_DIMENSION_MAX = MAX_IMAGE_DIMENSION;
 export type SpriteSheetDialogOptions = SpriteSheetOptions;
 export type ImportSpriteSheetDialogOptions = ImportSpriteSheetOptions;
 export type SpriteSheetPreviewResult = SpriteSheetResult;

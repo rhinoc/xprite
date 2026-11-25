@@ -2589,5 +2589,7 @@
   "ui.aseprite.rejection.truncated": "文件似乎不完整，请尝试在 Aseprite 中重新保存。",
   "ui.aseprite.rejection.unsupported": "文件使用了尚不支持的功能。",
   "ui.aseprite.rejection.invalid": "无法读取文件结构，请尝试在 Aseprite 中重新保存。",
-  "ui.aseprite.rejection.unknown": "文件未通过校验。"
+  "ui.aseprite.rejection.unknown": "文件未通过校验。",
+  "ui.image.export.worker.failed": "无法运行图像编码器工作线程",
+  "ui.image.export.output.unreadable": "无法读取图像编码器输出"
 }

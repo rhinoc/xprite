@@ -2,6 +2,7 @@ import type { AnimalCrossingExportPort } from "$/managers/ports/animal-crossing-
 import type { ColorSamplingPort } from "$/managers/ports/color-sampling";
 import type { ExportOutputPort } from "$/managers/ports/export-output";
 import type { LocalFontsPort } from "$/managers/ports/local-fonts";
+import type { RasterExportPort } from "$/managers/ports/raster-export";
 import type { ProjectSharingPort } from "$/managers/ports/sharing";
 import type { ShortcutFilePort } from "$/managers/ports/shortcut-files";
 import type { UserPresetStoragePort } from "$/managers/ports/user-presets";
@@ -89,6 +90,7 @@ interface EditorFilePort {
   ): Promise<{ name: string; bytes: Uint8Array } | null>;
   animalCrossingExport?: AnimalCrossingExportPort;
   exportOutput?: ExportOutputPort;
+  raster?: RasterExportPort;
   sharing?: ProjectSharingPort;
   webp?: WebpExportPort;
   decodeAsepriteBlob(blob: Blob, fileName: string): Promise<SessionProject>;

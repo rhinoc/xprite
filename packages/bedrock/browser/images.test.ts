@@ -4,7 +4,13 @@ import { crc32 } from "$common/crc32";
 import { joinBytes } from "$common/join-bytes";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { decodeImageBlob, ImageDimensionError } from "$/images";
+import {
+  decodeImageBlob,
+  encodeImageBlob,
+  encodePngBlob,
+  ImageDimensionError,
+  ImageEncodingFormat,
+} from "$/images";
 
 function chunk(name: string, data: Uint8Array): Uint8Array {
   const bytes = new Uint8Array(data.length + 12);
@@ -208,5 +214,82 @@ describe("PNG browser imports", () => {
     expect((await decodeImageBlob(source)).data).toEqual(data);
     expect(decoder).toHaveBeenCalledWith(source);
     expect(close).toHaveBeenCalledOnce();
+  });
+});
+
+describe("portable streaming PNG encoder and canvas copy hygiene", () => {
+  it("encodes translucent and wide (>16384px) PNGs losslessly without touching a browser canvas", async () => {
+    vi.stubGlobal("OffscreenCanvas", undefined);
+    vi.stubGlobal("document", undefined);
+    const width = 20_480;
+    const height = 2;
+    const data = new Uint8ClampedArray(width * height * 4);
+    for (let x = 0; x < width; x++) {
+      const top = x * 4;
+      const bottom = (width + x) * 4;
+      const r = x & 0xff;
+      const g = (x >>> 3) & 0xff;
+      const b = (x >>> 6) & 0xff;
+      const a = x & 0xff;
+      data[top] = r;
+      data[top + 1] = g;
+      data[top + 2] = b;
+      data[top + 3] = a;
+      // Row 1 is identical to row 0 to exercise the all-zero Up filter path.
+      data[bottom] = r;
+      data[bottom + 1] = g;
+      data[bottom + 2] = b;
+      data[bottom + 3] = a;
+    }
+    const encoded = await encodePngBlob({ width, height, data });
+    expect(encoded.type).toBe("image/png");
+    const decoded = await decodeImageBlob(encoded, { maxDimension: 32_768 });
+    expect([decoded.width, decoded.height]).toEqual([width, height]);
+    expect(decoded.data).toEqual(data);
+    await expect(
+      encodePngBlob({ width: 32_769, height: 1, data: new Uint8ClampedArray(32_769 * 4) }),
+    ).rejects.toBeInstanceOf(ImageDimensionError);
+  });
+
+  it("wraps RGBA buffers without createImageData copy and releases canvas storage after encoding", async () => {
+    const createImageData = vi.fn(() => {
+      throw new Error("should wrap Uint8ClampedArray with ImageData instead of copying");
+    });
+    const putImageData = vi.fn();
+    const createdCanvases: { width: number; height: number }[] = [];
+    vi.stubGlobal(
+      "ImageData",
+      class FakeImageData {
+        constructor(
+          readonly data: Uint8ClampedArray,
+          readonly width: number,
+          readonly height: number,
+        ) {}
+      },
+    );
+    vi.stubGlobal(
+      "OffscreenCanvas",
+      class {
+        constructor(
+          public width: number,
+          public height: number,
+        ) {
+          createdCanvases.push(this);
+        }
+        getContext() {
+          return { createImageData, putImageData };
+        }
+        async convertToBlob({ type }: { type: string }) {
+          return new Blob(["jpg"], { type });
+        }
+      },
+    );
+    const pixels = { width: 2, height: 1, data: Uint8ClampedArray.of(1, 2, 3, 255, 4, 5, 6, 255) };
+    const encoded = await encodeImageBlob(pixels, ImageEncodingFormat.Jpeg, 0.9);
+    expect(encoded.type).toBe("image/jpeg");
+    expect(createImageData).not.toHaveBeenCalled();
+    expect(putImageData).toHaveBeenCalledOnce();
+    expect(createdCanvases[0]?.width).toBe(0);
+    expect(createdCanvases[0]?.height).toBe(0);
   });
 });
