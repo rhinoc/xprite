@@ -7,7 +7,9 @@ export {
   focusDialogContainer,
   isDialogPopupTarget,
   restoreModalFocus,
+  useModalFocus,
 } from "$/components/window/focus";
+export type { ModalFocusOptions } from "$/components/window/focus";
 export { FloatingLayer, FloatingLayerKind } from "$/components/window/floating-layer";
 export type { FloatingLayerProps } from "$/components/window/floating-layer";
 export {
@@ -20,6 +22,4 @@ export type { OverlayInteractionOptions, OverlayOwner } from "$/components/windo
 export { useWindowGesture } from "$/components/window/gesture";
 export type { WindowGestureOptions } from "$/components/window/gesture";
 export { WindowGestureEdge } from "$/components/window/gesture";
-export { useModalFocus } from "$/components/window/focus";
-export type { ModalFocusOptions } from "$/components/window/focus";
 export { windowMetrics } from "$/components/window/metrics";

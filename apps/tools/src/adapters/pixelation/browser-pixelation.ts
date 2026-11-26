@@ -11,9 +11,15 @@ import type { PixelationPort } from "$/managers/ports/pixelation";
 import { downloadBlob } from "@xprite/bedrock/browser/file-system";
 import { decodeImageBlob, encodePngBlob } from "@xprite/bedrock/browser/images";
 import { browserLocalStorage } from "@xprite/bedrock/browser/localstorage";
-import { SerialWorker } from "@xprite/bedrock/browser/worker-job";
+import {
+  DEFAULT_WORKER_STARTUP_ATTEMPTS,
+  DEFAULT_WORKER_STARTUP_RETRY_DELAY_MS,
+  ManagedSerialWorker,
+  type ManagedWorkerTransport,
+} from "@xprite/bedrock/browser/managed-worker";
 import type { PixelateOptions } from "@xprite/pixelate";
 import defaultExampleUrl from "@xprite/site-assets/tools/pixelate/girl-with-a-pearl-earring.jpg?url";
+
 const MAX_FILE_BYTES = TOOL_IMPORT_MAX_BYTES;
 const MAX_IMAGE_PIXELS = 16 * 1024 * 1024;
 const TIMEOUT_MS = 90_000;
@@ -21,6 +27,13 @@ const TIMEOUT_MS = 90_000;
 export interface PixelationPortOptions {
   exampleUrl?: string;
   exampleName?: string;
+  createWorker?: () => ManagedWorkerTransport<PixelationWorkerRequest>;
+  retryDelayMs?: number;
+  onStartupFailureExhausted?: (error: Error) => Error | void;
+}
+
+function createPixelationWorker(): Worker {
+  return new Worker(new URL("./pixelation-worker.ts", import.meta.url), { type: "module" });
 }
 
 export function createBrowserPixelationPort(options: PixelationPortOptions = {}): PixelationPort {
@@ -28,20 +41,28 @@ export function createBrowserPixelationPort(options: PixelationPortOptions = {})
   const exampleName = options.exampleName ?? "girl-with-a-pearl-earring.jpg";
   // One worker for the page: PixelOE's recent results and colour tables live in the worker, so
   // detection, the first convert and colour-only changes reuse them instead of starting cold.
-  const worker = new SerialWorker(
-    () => new Worker(new URL("./pixelation-worker.ts", import.meta.url), { type: "module" }),
-  );
+  const worker = new ManagedSerialWorker<PixelationWorkerRequest>({
+    workerFactory: options.createWorker ?? createPixelationWorker,
+    maxStartupAttempts: DEFAULT_WORKER_STARTUP_ATTEMPTS,
+    retryDelayMs: options.retryDelayMs ?? DEFAULT_WORKER_STARTUP_RETRY_DELAY_MS,
+    formatError: () => new Error("Unable to pixelate this image."),
+    onStartupFailureExhausted: options.onStartupFailureExhausted,
+  });
   function request<T>(
     message: PixelationWorkerRequest,
     readResponse: (response: PixelationWorkerResponse) => T,
   ): Promise<T> {
-    const image = { ...message.image, data: new Uint8ClampedArray(message.image.data) };
-    return worker.run<PixelationWorkerRequest, PixelationWorkerResponse, T>({
-      request: { ...message, image },
-      transfer: [image.data.buffer],
+    return worker.run<PixelationWorkerResponse, T>({
+      buildRequest: () => {
+        const image = { ...message.image, data: new Uint8ClampedArray(message.image.data) };
+        return {
+          request: { ...message, image },
+          transfer: [image.data.buffer],
+        };
+      },
       timeoutMs: TIMEOUT_MS,
       timeoutError: () => new Error("Pixelation took too long. Try a smaller image."),
-      transportError: () => new Error("Unable to pixelate this image."),
+      formatError: () => new Error("Unable to pixelate this image."),
       readResponse: (response) => {
         if ("error" in response) throw new Error(response.error);
         return readResponse(response);

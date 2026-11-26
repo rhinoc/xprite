@@ -1,16 +1,43 @@
 import type {
   WebpWorkerFrame,
+  WebpWorkerRequest,
   WebpWorkerResponse,
 } from "$/adapters/workers/webp-export-worker-types";
+import {
+  announceWorkerLoadFailure,
+  WORKER_LOAD_ATTEMPTS,
+  WORKER_LOAD_RETRY_DELAY_MS,
+  workerLoadError,
+} from "$/adapters/workers/worker-load-failure";
 import { tUi, tUiSource } from "$/i18n";
 import type { WebpExportPort } from "$/managers/ports/webp-export";
 import { encodeImageBlob, ImageEncodingFormat } from "@xprite/bedrock/browser/images";
+import {
+  runManagedWorkerJob,
+  WorkerFailureKind,
+  type ManagedWorkerTransport,
+} from "@xprite/bedrock/browser/managed-worker";
 import { WebpCompression, assembleWebpAnimation } from "@xprite/editor-core/import-export";
 
+const WORKER_LOAD_DIAGNOSTIC = "The WebP export worker script could not be loaded";
+
+export interface BrowserWebpExportOptions {
+  createWorker?: () => ManagedWorkerTransport<WebpWorkerRequest>;
+  retryDelayMs?: number;
+}
+
+function createWebpExportWorker(): Worker {
+  return new Worker(new URL("../workers/webp-export-worker.ts", import.meta.url), {
+    type: "module",
+  });
+}
+
 /** A worker exists only for the duration of one export, including all error paths. */
-export function createBrowserWebpExportPort(): WebpExportPort {
+export function createBrowserWebpExportPort(
+  portOptions: BrowserWebpExportOptions = {},
+): WebpExportPort {
   return {
-    supportsLossless: () => typeof Worker === "function",
+    supportsLossless: () => Boolean(portOptions.createWorker) || typeof Worker === "function",
     async encode(frames, options) {
       if (!frames.length) throw new Error(tUi("ui.webp.export.frames.required"));
       if (options.compression === WebpCompression.Lossy) {
@@ -34,21 +61,22 @@ export function createBrowserWebpExportPort(): WebpExportPort {
           : encoded[0].bytes;
         return new Blob([bytes.buffer as ArrayBuffer], { type: "image/webp" });
       }
-      if (typeof Worker !== "function") throw new Error(tUi("ui.webp.export.lossless.unavailable"));
-      const worker = new Worker(new URL("../workers/webp-export-worker.ts", import.meta.url), {
-        type: "module",
-      });
-      try {
-        return await new Promise<Blob>((resolve, reject) => {
-          worker.onmessage = ({ data }: MessageEvent<WebpWorkerResponse>) => {
-            if (data.ok) resolve(new Blob([data.data], { type: "image/webp" }));
-            else reject(new Error(tUiSource(data.message)));
-          };
-          worker.onerror = (event) => {
-            event.preventDefault();
-            reject(new Error(event.message || tUi("ui.webp.export.worker.failed")));
-          };
-          worker.onmessageerror = () => reject(new Error(tUi("ui.webp.export.output.unreadable")));
+      if (!portOptions.createWorker && typeof Worker !== "function")
+        throw new Error(tUi("ui.webp.export.lossless.unavailable"));
+      return runManagedWorkerJob<WebpWorkerRequest, WebpWorkerResponse, Blob>({
+        workerFactory: portOptions.createWorker ?? createWebpExportWorker,
+        maxStartupAttempts: WORKER_LOAD_ATTEMPTS,
+        retryDelayMs: portOptions.retryDelayMs ?? WORKER_LOAD_RETRY_DELAY_MS,
+        canRetry: () => frames.every((frame) => frame.pixels.data.buffer.byteLength > 0),
+        formatError: (info) => {
+          if (info.kind === WorkerFailureKind.Startup)
+            return workerLoadError(WORKER_LOAD_DIAGNOSTIC);
+          if (info.kind === WorkerFailureKind.Deserialization)
+            return new Error(tUi("ui.webp.export.output.unreadable"));
+          return new Error(info.message || tUi("ui.webp.export.worker.failed"));
+        },
+        onStartupFailureExhausted: (error) => announceWorkerLoadFailure(error),
+        buildRequest: () => {
           const transfer = new Set<ArrayBuffer>();
           const images: WebpWorkerFrame[] = frames.map((frame) => {
             const { data, width, height } = frame.pixels;
@@ -64,11 +92,13 @@ export function createBrowserWebpExportPort(): WebpExportPort {
               length: data.length,
             };
           });
-          worker.postMessage({ frames: images, options }, [...transfer]);
-        });
-      } finally {
-        worker.terminate();
-      }
+          return { request: { frames: images, options }, transfer: [...transfer] };
+        },
+        readResponse: (data) => {
+          if (data.ok) return new Blob([data.data], { type: "image/webp" });
+          throw new Error(tUiSource(data.message));
+        },
+      });
     },
   };
 }

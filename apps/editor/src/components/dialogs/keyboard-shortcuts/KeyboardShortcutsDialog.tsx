@@ -23,12 +23,13 @@ import {
   useUi,
   focusDialogContainer,
   isDialogPopupTarget,
+  useModalFocus,
   Icon,
 } from "@xprite/ui";
 import type { SurfaceBounds } from "@xprite/ui";
 import { UiPart } from "@xprite/ui/assets";
 import { DEFAULT_SURFACE_VIEWPORT, surfaceLayout } from "@xprite/ui/canvas";
-import { clientDeltaToSurface, isImeKeyboardEvent } from "@xprite/ui/utils";
+import { clientDeltaToSurface, isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/keyboard-shortcuts/keyboard-shortcuts.module.css";
 
@@ -511,19 +512,15 @@ export function KeyboardShortcutsDialog({
     return () => window.clearTimeout(timer);
   }, [searchDraft]);
 
-  useEffect(() => {
-    if (!open || suspendFocus) return;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const root = host.current;
-    const focus = (event: FocusEvent) => {
-      if (!root?.contains(event.target as Node) && !isDialogPopupTarget(root, event.target))
-        focusDialog();
-    };
-    const key = (event: KeyboardEvent) => {
-      if (isImeKeyboardEvent(event)) return;
-      if (isDialogPopupTarget(root, event.target)) return;
+  useModalFocus({
+    open,
+    rootRef: host,
+    focusableSelector:
+      'button:not(:disabled), input:not(:disabled), [role="listbox"][tabindex="0"]',
+    isSuspended: () => focusSuspended.current,
+    onKeyDown: (event) => {
       const { searchDraft: draft, query: currentQuery } = searchState.current;
-      if (event.key === "Escape" && (draft || currentQuery)) {
+      if (keyboardEventKey(event) === "Escape" && (draft || currentQuery)) {
         event.preventDefault();
         event.stopPropagation();
         setSearchDraft("");
@@ -531,33 +528,9 @@ export function KeyboardShortcutsDialog({
         setSelected(0);
         setScrollTop(0);
         focusDialog();
-        return;
       }
-      if (event.key !== "Tab") return;
-      const nodes = [
-        ...(root?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled), input:not(:disabled), [role="listbox"][tabindex="0"]',
-        ) ?? []),
-      ];
-      const index = nodes.indexOf(document.activeElement as HTMLElement);
-      if (
-        nodes.length &&
-        (index < 0 ||
-          (event.shiftKey && index === 0) ||
-          (!event.shiftKey && index === nodes.length - 1))
-      ) {
-        event.preventDefault();
-        nodes[event.shiftKey ? nodes.length - 1 : 0].focus();
-      }
-    };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key, true);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key, true);
-      if (!focusSuspended.current && previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [open, focusDialog, suspendFocus]);
+    },
+  });
 
   if (!open) return null;
 

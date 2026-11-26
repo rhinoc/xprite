@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -27,6 +28,8 @@ import {
   OverlayContentLayout,
   Text,
   TextVariant,
+  focusDialogContainer,
+  useModalFocus,
   type SurfaceBounds,
 } from "@xprite/ui";
 import { RASTER_SCALE } from "@xprite/ui/canvas";
@@ -73,10 +76,14 @@ export function SupportDialog({
 }) {
   const language = useUiLanguage();
   const scene = useSceneBounds();
+  const dialogRoot = useRef<HTMLDivElement | null>(null);
   const body = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const wechatTriggerId = useId();
   const bodySize = useElementSize(body);
   const coarsePointer = useCoarsePointer();
+  const coarsePointerRef = useRef(coarsePointer);
+  coarsePointerRef.current = coarsePointer;
   const [qrOpen, setQrOpen] = useState(false);
   const [anchor, setAnchor] = useState<SurfaceBounds | null>(null);
   const [disclosure] = useState(() => new HoverDisclosure(setQrOpen));
@@ -96,24 +103,22 @@ export function SupportDialog({
   };
   const close = () => onOpenChange(false);
 
-  // First focus lands on the primary donation option; focus never leaves the dialog and its popup.
-  useEffect(() => {
-    if (!open) return;
-    const root = body.current;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    if (!coarsePointer) root?.querySelector<HTMLElement>("[data-support-primary]")?.focus();
-    const keepFocus = (event: FocusEvent) => {
-      const target = event.target instanceof Element ? event.target : null;
-      if (!root || !target || root.closest('[role="dialog"]')?.contains(target)) return;
-      if (target.closest("[data-support-qr]")) return;
-      root.querySelector<HTMLElement>(FOCUSABLE)?.focus({ preventScroll: true });
-    };
-    document.addEventListener("focusin", keepFocus);
-    return () => {
-      document.removeEventListener("focusin", keepFocus);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [open, coarsePointer]);
+  // First focus lands on the primary donation option; focus stays within the dialog and its popup.
+  useModalFocus({
+    open,
+    rootRef: dialogRoot,
+    focusableSelector: FOCUSABLE,
+    initialFocus: (root) => {
+      if (!coarsePointerRef.current) {
+        const primary = root.querySelector<HTMLElement>("[data-support-primary]");
+        if (primary) {
+          primary.focus({ preventScroll: true });
+          return;
+        }
+      }
+      focusDialogContainer(root);
+    },
+  });
 
   // The shared popup is placed in scene coordinates just below the WeChat button.
   useEffect(() => {
@@ -158,6 +163,7 @@ export function SupportDialog({
     return (
       <div key={channel} className={styles.trigger} {...hover}>
         <Button
+          id={wechatTriggerId}
           {...(primary ? { "data-support-primary": "" } : {})}
           buttonRef={trigger}
           data-support-channel={channel}
@@ -211,6 +217,9 @@ export function SupportDialog({
         title={tUi("ui.support.title")}
         bounds={bounds}
         contentLayout={OverlayContentLayout.Flow}
+        onRootRef={(node) => {
+          dialogRoot.current = node;
+        }}
         onOpenChange={(next) => {
           if (!next) close();
         }}
@@ -238,6 +247,7 @@ export function SupportDialog({
       {qrOpen && popupBounds && (
         <EditorPopover
           open
+          triggerRef={trigger}
           onOpenChange={(next) => {
             if (!next) disclosure.close();
           }}
@@ -249,7 +259,7 @@ export function SupportDialog({
           scrollX={false}
           scrollY={false}
         >
-          <div className={styles.qr} data-support-qr="" {...hover}>
+          <div className={styles.qr} data-support-qr="" data-popup-for={wechatTriggerId} {...hover}>
             <img
               className={styles.qrImage}
               src={wechatQr}

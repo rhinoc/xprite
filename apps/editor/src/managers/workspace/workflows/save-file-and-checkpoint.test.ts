@@ -1,7 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
 
+import { SaveTarget } from "$/managers/workspace/save-target";
 import {
   saveFileAndCheckpoint,
+  saveWorkspaceDocument,
   canCloseSavedDocument,
 } from "$/managers/workspace/workflows/save-file-and-checkpoint";
 import { RasterEditor } from "@xprite/editor-core";
@@ -149,5 +151,38 @@ describe("acknowledged file output and recovery receipts", () => {
         "A",
       ),
     ).toBe(true);
+  });
+
+  it("routes saveWorkspaceDocument consistently for Browser vs FileSystem targets", async () => {
+    const { session, workspace } = fixture(async () => ({ method: "file", name: "Saved.png" }));
+    const saveInBrowser = vi.fn(async () => {});
+    const host = { ...workspace, saveInBrowser };
+    host.checkpointSavedFile.mockResolvedValue("saved");
+
+    expect(
+      await saveWorkspaceDocument(
+        session,
+        host,
+        "slot-1",
+        SessionSaveIntent.Save,
+        SaveTarget.Browser,
+      ),
+    ).toBe(SessionOutcome.Created);
+    expect(saveInBrowser).toHaveBeenCalledWith("slot-1");
+    expect(host.checkpointSavedFile).not.toHaveBeenCalled();
+
+    expect(
+      await saveWorkspaceDocument(
+        session,
+        host,
+        "slot-1",
+        SessionSaveIntent.Save,
+        SaveTarget.FileSystem,
+      ),
+    ).toBe(SessionOutcome.Created);
+    expect(host.checkpointSavedFile).toHaveBeenCalledWith("slot-1");
+    expect(host.recordFileOutputCheckpoint).toHaveBeenCalledWith("slot-1", false, "saved");
+    expect(host.linkRecentFileToWorkspaceProject).toHaveBeenCalledWith("slot-1");
+    session.dispose();
   });
 });

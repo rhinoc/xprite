@@ -139,9 +139,7 @@ describe("ExportDialog active panel mounting", () => {
                   export const Text = (props) => ({ type: "text", props });
                   export const TextVariant = { Control: "control" };
                   export const Icon = (props) => ({ type: "icon", props });
-                  export const createModalFocusScope = () => ({ isActive: () => false, dispose: () => false });
-                  export const focusDialogContainer = () => {};
-                  export const isDialogPopupTarget = () => false;
+                  export const useModalFocus = () => {};
                 `,
                 loader: "js",
               };
