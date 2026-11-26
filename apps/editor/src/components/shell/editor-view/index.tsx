@@ -260,17 +260,18 @@ function DocumentScene() {
   const compactWorkspaceLayout =
     workspaceLayoutConfiguration.panelLayout.defaultArrangement === "stacked";
   const shortcutPanelVisible = chromePreferences.showShortcutToolbar;
-  useEditorLocation(editor.tab, editor.openTab);
   const actions = useEditorActions()!;
+  const hasDocuments = actions.documentTabs.length > 0;
+  useEditorLocation(editor.tab, editor.openTab, hasDocuments);
   const name = activeDocument?.name ?? "Untitled";
   const [dropPreview, setDropPreview] = useState<WorkspaceTabDropPreview | null>(null);
   const [workspaceLayoutOpen, setWorkspaceLayoutOpen] = useState(false);
   const rootPaneId = actions.workspaceRootPaneId;
   const rootPane =
     actions.workspacePanes.find((pane) => pane.id === rootPaneId) ?? actions.workspacePanes[0];
-  const documentMode = editor.tab === "document" && !actions.recoveryOpen;
+  const documentMode = editor.tab === "document" && hasDocuments && !actions.recoveryOpen;
   const guideSelected = editor.tab === HelpDocumentTab.Guide;
-  const isHomePage = editor.tab === "home" || actions.recoveryOpen;
+  const isHomePage = !guideSelected && !documentMode;
   const documentMenuToggle = !chromePreferences.showEditorMenuBar ? (
     <EditorMenubar presentation="rail" />
   ) : undefined;
@@ -548,11 +549,11 @@ function DocumentScene() {
         )}
       </div>
       <TimelineDialogs />
-      <GridSettingsHost enabled={editor.tab === "document" && !actions.recoveryOpen} />
-      <EffectDialogsHost enabled={editor.tab === "document" && !actions.recoveryOpen} />
-      <NormalMapDialogsHost enabled={editor.tab === "document" && !actions.recoveryOpen} />
+      <GridSettingsHost enabled={documentMode} />
+      <EffectDialogsHost enabled={documentMode} />
+      <NormalMapDialogsHost enabled={documentMode} />
       <AnimationDialogsHost
-        enabled={editor.tab === "document" && !actions.recoveryOpen}
+        enabled={documentMode}
         previewOpen={editor.previewVisible}
         onPreviewOpenChange={editor.setPreviewVisible}
         timelinePosition={timelinePosition}
@@ -563,12 +564,9 @@ function DocumentScene() {
         timelineInteractionPreferences={editor.timelineInteractionPreferences}
         onTimelineInteractionPreferencesChange={editor.setTimelineInteractionPreferences}
       />
-      <LayerCommandHost
-        enabled={editor.tab === "document" && !actions.recoveryOpen}
-        onError={editor.setNotice}
-      />
-      <SelectionDialogsHost enabled={editor.tab === "document" && !actions.recoveryOpen} />
-      <DocumentFeatureDialogs enabled={editor.tab === "document" && !actions.recoveryOpen} />
+      <LayerCommandHost enabled={documentMode} onError={editor.setNotice} />
+      <SelectionDialogsHost enabled={documentMode} />
+      <DocumentFeatureDialogs enabled={documentMode} />
       {showStatusbar && (
         <EditorStatusbar
           filename={name}

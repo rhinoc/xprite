@@ -210,7 +210,7 @@ function EditorApplication({
     if (runtime.startup === "ready" && runtime.workspaceSnapshot.tabs.length === 0)
       uiStore
         .getState()
-        .setTab("home", automaticViewTransition(EditorViewChangeReason.NoDocuments));
+        .openTab("home", automaticViewTransition(EditorViewChangeReason.NoDocuments));
   }, [runtime.startup, runtime.workspaceSnapshot.tabs.length, uiStore]);
 
   const language = currentUiLanguage();

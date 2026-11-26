@@ -120,7 +120,7 @@ export function DocumentTabs({
     : documentTabs
       ? editor.tab !== "document"
         ? editor.tab
-        : (activeDocumentId ?? documentTabs[0]?.id ?? "home")
+        : activeDocumentId || documentTabs[0]?.id || "home"
       : editor.tab;
   const selectTab = (id: string) => {
     if (id === RECOVERY_TAB_ID) onRecoverySelect?.();
