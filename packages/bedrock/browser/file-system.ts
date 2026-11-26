@@ -92,19 +92,38 @@ function sharesTopLevelOrigin(): boolean {
   }
 }
 
-export function canPickOpenFiles(): boolean {
+/**
+ * Android Chrome's showOpenFilePicker relies on SAF document handles and suffers from
+ * Chromium tab-visibility aborts and provider restrictions (e.g. Gallery/Photo Picker/Downloads)
+ * that silently reject with AbortError; the standard `<input type="file">` picker handles
+ * local and gallery files reliably.
+ */
+function isAndroidPlatform(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const platform = (navigator as Navigator & { userAgentData?: { platform?: string } })
+    .userAgentData?.platform;
+  if (typeof platform === "string" && /android/i.test(platform)) return true;
+  return /android/i.test(navigator.userAgent ?? "");
+}
+
+function supportsNativeOpenFilePicker(): boolean {
   return (
     sharesTopLevelOrigin() &&
+    !isAndroidPlatform() &&
     typeof (globalThis as BrowserFilePickers).showOpenFilePicker === "function"
   );
+}
+
+export function canPickOpenFiles(): boolean {
+  return supportsNativeOpenFilePicker();
 }
 
 /** Calls the native picker immediately so the caller can preserve user activation. */
 export function pickOpenFiles(
   options?: OpenFilePickerOptions,
 ): Promise<ReadableFileHandle[]> | null {
-  const picker = (globalThis as BrowserFilePickers).showOpenFilePicker;
-  if (!(sharesTopLevelOrigin() && typeof picker === "function")) return null;
+  if (!supportsNativeOpenFilePicker()) return null;
+  const picker = (globalThis as BrowserFilePickers).showOpenFilePicker!;
   return requestNativeFilePicker(() => picker(options));
 }
 

@@ -10,8 +10,10 @@ describe("openWorkspaceFiles", () => {
     const order: string[] = [];
     const fallback: FallbackFileInput = {
       multiple: false,
+      value: "C:\\fakepath\\previous.png",
       click: vi.fn(() => {
         expect(fallback.multiple).toBe(true);
+        expect(fallback.value).toBe("");
         order.push("input.click");
       }),
     };
