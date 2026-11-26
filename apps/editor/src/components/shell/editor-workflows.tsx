@@ -194,7 +194,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
     exportDestination,
     selectExportDestination,
     exportBusy,
-    sheetFileIntent,
+    openSpriteSheetFile,
     sheetImport,
     setSheetImport,
     closingSaveBusy,
@@ -441,9 +441,7 @@ export function EditorWorkflows(props: EditorWorkflowsProps) {
               onImport={performSheetImport}
               onSelectFile={() => {
                 setSheetImport(null);
-                sheetFileIntent.current = true;
-                if (input.current) input.current.multiple = false;
-                input.current?.click();
+                openSpriteSheetFile();
               }}
             />
           </Suspense>

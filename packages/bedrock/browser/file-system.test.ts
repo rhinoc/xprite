@@ -5,6 +5,7 @@ import { afterEach, describe, it, vi } from "vitest";
 import {
   canPickOpenFiles,
   isAbortError,
+  openBrowserFileInput,
   pickOpenFiles,
   pickSaveFile,
   selectBrowserFiles,
@@ -257,6 +258,49 @@ describe("native file picker in-flight guard", () => {
       assert.equal(canPickOpenFiles(), false);
       assert.equal(pickOpenFiles({ multiple: true }), null);
       assert.equal(open.mock.calls.length, 0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("applies androidAccept only on Android and keeps iOS and desktop unrestricted", () => {
+    const accept = "image/*,video/*,.ase,.aseprite,.psd,.psb,application/octet-stream";
+    const androidInput = {
+      multiple: false,
+      accept: "",
+      value: "C:\\fakepath\\prev.png",
+      click: vi.fn(),
+    };
+    vi.stubGlobal("navigator", {
+      userAgent:
+        "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 Chrome/142.0.0.0 Mobile Safari/537.36",
+    });
+    try {
+      openBrowserFileInput(androidInput, { multiple: true, androidAccept: accept });
+      assert.equal(androidInput.multiple, true);
+      assert.equal(androidInput.accept, accept);
+      assert.equal(androidInput.value, "");
+      assert.equal(androidInput.click.mock.calls.length, 1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+
+    const iosInput = {
+      multiple: true,
+      accept: "image/*",
+      value: "prev.aseprite",
+      click: vi.fn(),
+    };
+    vi.stubGlobal("navigator", {
+      userAgent:
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1",
+    });
+    try {
+      openBrowserFileInput(iosInput, { multiple: false, androidAccept: accept });
+      assert.equal(iosInput.multiple, false);
+      assert.equal(iosInput.accept, "");
+      assert.equal(iosInput.value, "");
+      assert.equal(iosInput.click.mock.calls.length, 1);
     } finally {
       vi.unstubAllGlobals();
     }

@@ -334,7 +334,11 @@ export function FilesWindow() {
     ];
   };
   const backgroundMenu: MenuItem[] = [
-    { label: text("files.add"), disabled: inTrash, onSelect: () => picker.current?.click() },
+    {
+      label: text("files.add"),
+      disabled: inTrash,
+      onSelect: () => manager.openFilePicker(picker.current),
+    },
     { label: text("files.select.all"), onSelect: manager.selectAll },
     {
       label: text("files.view.icons"),
@@ -414,7 +418,7 @@ export function FilesWindow() {
   };
   const zoom = () => setZoomed((value) => !value);
   manager.commands = {
-    addFiles: () => picker.current?.click(),
+    addFiles: () => manager.openFilePicker(picker.current),
     openSelected: () => {
       if (focusId) openItem(focusId);
     },

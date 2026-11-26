@@ -10,9 +10,11 @@ describe("openWorkspaceFiles", () => {
     const order: string[] = [];
     const fallback: FallbackFileInput = {
       multiple: false,
+      accept: "image/*",
       value: "C:\\fakepath\\previous.png",
       click: vi.fn(() => {
         expect(fallback.multiple).toBe(true);
+        expect(fallback.accept).toBe("");
         expect(fallback.value).toBe("");
         order.push("input.click");
       }),
@@ -28,6 +30,7 @@ describe("openWorkspaceFiles", () => {
         return null;
       },
       fallbackInput: () => fallback,
+      androidAccept: "image/*,video/*,.ase,.aseprite,.psd,.psb,application/octet-stream",
       onSources: vi.fn(),
       onCancelled: vi.fn(),
       onError: vi.fn(),

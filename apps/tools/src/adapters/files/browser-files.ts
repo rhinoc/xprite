@@ -3,7 +3,7 @@ import { zipSync } from "fflate";
 import { openInEditor } from "$/adapters/editor/open-in-editor";
 import { EditorProjectReader, editorRecentId } from "$/adapters/files/editor-projects";
 import { FileEntryKind, type FileEntry, type FilesPort } from "$/managers/ports/files";
-import { downloadBlob } from "@xprite/bedrock/browser/file-system";
+import { downloadBlob, openBrowserFileInput } from "@xprite/bedrock/browser/file-system";
 import {
   LocalFileLibrary,
   readStorageEstimate,
@@ -149,6 +149,9 @@ export function createBrowserFilesPort(telemetry?: SiteTelemetryPort): FilesPort
         return;
       }
       await openInEditor(await read(entry));
+    },
+    openFileInput(input, androidAccept) {
+      openBrowserFileInput(input, { multiple: true, androidAccept });
     },
     openInTool(href, entry) {
       window.location.assign(`${href}${HANDOFF_PREFIX}${encodeURIComponent(entry.id)}`);
