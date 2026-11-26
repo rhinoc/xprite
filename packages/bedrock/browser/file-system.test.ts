@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { afterEach, describe, it, vi } from "vitest";
 
 import {
+  canPickOpenFiles,
   isAbortError,
   pickOpenFiles,
   pickSaveFile,
@@ -243,5 +244,21 @@ describe("native file picker in-flight guard", () => {
     assert.equal(open.mock.calls.length, 1);
     first.resolve([]);
     assert.deepEqual(await pending, []);
+  });
+
+  it("skips showOpenFilePicker on Android so callers fall back to file inputs", () => {
+    const open = vi.fn();
+    (globalThis as { showOpenFilePicker?: unknown }).showOpenFilePicker = open;
+    vi.stubGlobal("navigator", {
+      userAgent:
+        "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 Chrome/142.0.0.0 Mobile Safari/537.36",
+    });
+    try {
+      assert.equal(canPickOpenFiles(), false);
+      assert.equal(pickOpenFiles({ multiple: true }), null);
+      assert.equal(open.mock.calls.length, 0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
