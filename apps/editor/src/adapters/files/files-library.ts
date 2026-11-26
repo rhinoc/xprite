@@ -2,6 +2,7 @@ import { MAX_ANIMATION_SOURCE_BYTES } from "$/adapters/files/animated-images";
 import { DEFAULT_MAX_ASEPRITE_PROJECT_BYTES } from "$/adapters/files/aseprite-files";
 import { LocalFileLibrary } from "@xprite/bedrock/browser/local-file-library";
 import { OpfsByteStore, supportsOpfs } from "@xprite/bedrock/browser/opfs";
+import { EDITOR_PSD_LIMITS } from "@xprite/editor-core/import-export";
 
 /** The Files library shared with the tools on the same origin. */
 const FILES_DATABASE = "xprite.files.v1";
@@ -9,11 +10,12 @@ const FILES_CHANNEL = "xprite.files";
 const EDITOR_FOLDER = "/editor/";
 const STILL_IMAGE_MAX_BYTES = 64 * 1024 * 1024;
 const RECENT_PREFIX = "#files-recent=";
-const IMPORTABLE = /\.(?:png|gif|webp|jpe?g|ase|aseprite)$/i;
+const IMPORTABLE = /\.(?:png|gif|webp|jpe?g|ase|aseprite|psd|psb)$/i;
 
-/** Import limits reuse the editor's own: .ase, animations, then still images. */
+/** Import limits reuse the editor's own: .ase/.psd, animations, then still images. */
 function editorImportLimit(name: string): number {
   if (/\.(?:ase|aseprite)$/i.test(name)) return DEFAULT_MAX_ASEPRITE_PROJECT_BYTES;
+  if (/\.(?:psd|psb)$/i.test(name)) return EDITOR_PSD_LIMITS.maxFileBytes;
   if (/\.(?:gif|webp)$/i.test(name)) return MAX_ANIMATION_SOURCE_BYTES;
   return STILL_IMAGE_MAX_BYTES;
 }

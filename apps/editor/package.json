@@ -25,6 +25,7 @@
     "@xprite/site-assets": "workspace:*",
     "@xprite/site-shell": "workspace:*",
     "@xprite/ui": "workspace:*",
+    "ag-psd": "^34.2.3",
     "core-js": "3.50.0",
     "fflate": "^0.8.3",
     "mediabunny": "1.65.0",

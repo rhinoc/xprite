@@ -2614,5 +2614,12 @@
   "ui.status.cell.index": "Индекс ячейки",
   "ui.status.distance": "Расстояние",
   "ui.status.aspect.ratio": "Соотношение сторон",
-  "ui.status.color.sample": "Образец цвета"
+  "ui.status.color.sample": "Образец цвета",
+  "ui.psd.file.exceeds.limit": "Файл PSD превышает ограничение ресурсов браузера ({value1} байт)",
+  "ui.psd.invalid.header": "Не удалось открыть этот файл PSD. Заголовок файла повреждён или некорректен.",
+  "ui.psd.decode.failed": "Не удалось открыть этот файл PSD. {reason}",
+  "ui.psd.fetch.failed": "Не удалось загрузить ресурс PSD ({value1})",
+  "ui.psd.decode.expects.blob": "decodePsdBlob ожидает Blob",
+  "ui.psd.cannot.fetch": "Этот браузер не может загрузить ресурс PSD",
+  "ui.psd.workerOpenFailed": "Не удалось открыть файл PSD."
 }

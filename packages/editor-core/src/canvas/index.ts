@@ -1,6 +1,6 @@
 export * from "$/canvas/assistance/grid";
 export * from "$/canvas/assistance/symmetry";
-export { BLEND_MODES, blendNormalAt, blendAt, blendImageAt } from "$/canvas/blend-modes";
+export { BLEND_MODES, blendNormalAt, blendAt, blendImageAt, mulUn8 } from "$/canvas/blend-modes";
 export * from "$/canvas/document-view-preferences";
 export * from "$/canvas/frame-geometry";
 export * from "$/canvas/guides";

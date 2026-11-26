@@ -29,13 +29,17 @@ import {
 } from "@xprite/bedrock/browser/file-system";
 import { ImageDimensionError } from "@xprite/bedrock/browser/images";
 import { sha256Hex } from "@xprite/bedrock/browser/runtime-crypto";
+import { hasPngSignature } from "@xprite/bedrock/common/png";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import {
   asepriteFileName,
   ASEPRITE_SIGNATURE_BYTES,
   isAsepriteData,
   isAsepriteFileName,
+  isPsdData,
+  isPsdFileName,
   pngFileName,
+  PSD_SIGNATURE_BYTES,
 } from "@xprite/editor-core/import-export";
 import {
   SessionSaveIntent,
@@ -239,33 +243,45 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
     if (!source) throw new Error("Image source is no longer available");
     if ("loadProject" in source) return source.loadProject();
     const name = source.name;
-    const asepriteData =
-      source instanceof File &&
-      isAsepriteData(new Uint8Array(await source.slice(0, ASEPRITE_SIGNATURE_BYTES).arrayBuffer()));
-    if (!asepriteData) {
+    const probeBytes = Math.max(ASEPRITE_SIGNATURE_BYTES, PSD_SIGNATURE_BYTES, 8);
+    const header =
+      source instanceof File
+        ? new Uint8Array(await source.slice(0, probeBytes).arrayBuffer())
+        : null;
+    const asepriteData = header !== null && isAsepriteData(header);
+    const psdData = !asepriteData && header !== null && isPsdData(header);
+    let projectKind: "aseprite" | "psd" | null = asepriteData ? "aseprite" : psdData ? "psd" : null;
+    if (!projectKind) {
       const { decodeAnimatedImageSource } = await loadChunk(
         () => import("$/adapters/files/animated-images"),
       );
       const animation = await decodeAnimatedImageSource(source, name);
       if (animation) return animation;
-      // The extension also routes damaged Aseprite files to their codec's precise errors.
-      if (!isAsepriteFileName(name)) return null;
+      // The extension also routes damaged project files to their codec's precise errors,
+      // while allowing PNG bytes renamed to .psd to fall through to the raster image path.
+      if (isAsepriteFileName(name)) projectKind = "aseprite";
+      else if (isPsdFileName(name) && !(header !== null && hasPngSignature(header)))
+        projectKind = "psd";
+      else return null;
     }
-    const { decodeAsepriteSource } = await import("$/adapters/files/aseprite-files");
+    const onSourceBytes =
+      source instanceof File
+        ? (bytes: Uint8Array) => {
+            if (this.closed || this.sources.get(token) !== source) return;
+            // Start hashing the same input now; retain only its small digest promise.
+            this.sourceChecksums.set(
+              token,
+              sha256Hex(bytes).catch(() => undefined),
+            );
+          }
+        : undefined;
     try {
-      return await decodeAsepriteSource(source, name, {
-        onSourceBytes:
-          source instanceof File
-            ? (bytes) => {
-                if (this.closed || this.sources.get(token) !== source) return;
-                // Start hashing the same input now; retain only its small digest promise.
-                this.sourceChecksums.set(
-                  token,
-                  sha256Hex(bytes).catch(() => undefined),
-                );
-              }
-            : undefined,
-      });
+      if (projectKind === "psd") {
+        const { decodePsdSource } = await loadChunk(() => import("$/adapters/files/psd-files"));
+        return await decodePsdSource(source, name, { onSourceBytes });
+      }
+      const { decodeAsepriteSource } = await import("$/adapters/files/aseprite-files");
+      return await decodeAsepriteSource(source, name, { onSourceBytes });
     } catch (reason) {
       this.sourceChecksums.delete(token);
       if (reason instanceof Error) {

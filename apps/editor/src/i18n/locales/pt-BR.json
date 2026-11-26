@@ -2614,5 +2614,12 @@
   "ui.status.cell.index": "Índice da célula",
   "ui.status.distance": "Distância",
   "ui.status.aspect.ratio": "Proporção",
-  "ui.status.color.sample": "Amostra de cor"
+  "ui.status.color.sample": "Amostra de cor",
+  "ui.psd.file.exceeds.limit": "O arquivo PSD excede o limite de recursos do navegador ({value1} bytes)",
+  "ui.psd.invalid.header": "Não foi possível abrir este arquivo PSD. O cabeçalho do arquivo é inválido ou está corrompido.",
+  "ui.psd.decode.failed": "Não foi possível abrir este arquivo PSD. {reason}",
+  "ui.psd.fetch.failed": "Não foi possível obter o recurso PSD ({value1})",
+  "ui.psd.decode.expects.blob": "decodePsdBlob espera um Blob",
+  "ui.psd.cannot.fetch": "Este navegador não pode buscar um recurso PSD",
+  "ui.psd.workerOpenFailed": "Não foi possível abrir o arquivo PSD."
 }

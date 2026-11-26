@@ -2614,5 +2614,12 @@
   "ui.status.cell.index": "セル番号",
   "ui.status.distance": "距離",
   "ui.status.aspect.ratio": "縦横比",
-  "ui.status.color.sample": "カラーサンプル"
+  "ui.status.color.sample": "カラーサンプル",
+  "ui.psd.file.exceeds.limit": "PSD ファイルがブラウザのリソース上限（{value1} バイト）を超えています",
+  "ui.psd.invalid.header": "この PSD ファイルを開けませんでした。ファイルヘッダーが無効または破損しています。",
+  "ui.psd.decode.failed": "この PSD ファイルを開けませんでした。{reason}",
+  "ui.psd.fetch.failed": "PSD アセットを取得できませんでした（{value1}）",
+  "ui.psd.decode.expects.blob": "decodePsdBlob には Blob が必要です",
+  "ui.psd.cannot.fetch": "このブラウザでは PSD アセットを取得できません",
+  "ui.psd.workerOpenFailed": "PSD ファイルを開けませんでした。"
 }

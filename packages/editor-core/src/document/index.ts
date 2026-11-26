@@ -6,4 +6,4 @@ export * from "$/document/controller";
 export * from "$/document/layer-expansion";
 export * from "$/document/lifecycle-controller";
 export * from "$/document/types";
-export { assertDocumentMemoryBudget } from "$/document/memory-budget";
+export { assertDocumentMemoryBudget, assertTimelineMemoryBudget } from "$/document/memory-budget";

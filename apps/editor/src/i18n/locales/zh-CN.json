@@ -2614,5 +2614,12 @@
   "ui.status.cell.index": "网格索引",
   "ui.status.distance": "距离",
   "ui.status.aspect.ratio": "宽高比",
-  "ui.status.color.sample": "颜色样本"
+  "ui.status.color.sample": "颜色样本",
+  "ui.psd.file.exceeds.limit": "PSD 文件超出浏览器的资源限制（{value1} 字节）",
+  "ui.psd.invalid.header": "无法打开此 PSD 文件。文件头无效或已损坏。",
+  "ui.psd.decode.failed": "无法打开此 PSD 文件。{reason}",
+  "ui.psd.fetch.failed": "无法获取 PSD 资源（{value1}）",
+  "ui.psd.decode.expects.blob": "decodePsdBlob 需要 Blob 参数",
+  "ui.psd.cannot.fetch": "当前浏览器无法获取 PSD 资源",
+  "ui.psd.workerOpenFailed": "无法打开 PSD 文件。"
 }

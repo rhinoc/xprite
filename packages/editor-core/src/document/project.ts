@@ -10,6 +10,8 @@ export interface EditorProject {
   readonly image: PixelBuffer;
   readonly timeline: SpriteTimeline;
   readonly palette?: readonly Rgba[];
+  /** Multi-layer source documents (e.g. PSD) open directly without raster import classification. */
+  readonly directOpen?: boolean;
 }
 
 const immutableProjects = new WeakSet<EditorProject>();

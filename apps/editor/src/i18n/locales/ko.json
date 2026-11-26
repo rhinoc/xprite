@@ -2614,5 +2614,12 @@
   "ui.status.cell.index": "셀 인덱스",
   "ui.status.distance": "거리",
   "ui.status.aspect.ratio": "종횡비",
-  "ui.status.color.sample": "색상 샘플"
+  "ui.status.color.sample": "색상 샘플",
+  "ui.psd.file.exceeds.limit": "PSD 파일이 브라우저 리소스 제한({value1}바이트)을 초과합니다",
+  "ui.psd.invalid.header": "이 PSD 파일을 열 수 없습니다. 파일 헤더가 잘못되었거나 손상되었습니다.",
+  "ui.psd.decode.failed": "이 PSD 파일을 열 수 없습니다. {reason}",
+  "ui.psd.fetch.failed": "PSD 에셋을 가져올 수 없습니다({value1})",
+  "ui.psd.decode.expects.blob": "decodePsdBlob에는 Blob이 필요합니다",
+  "ui.psd.cannot.fetch": "이 브라우저에서는 PSD 에셋을 가져올 수 없습니다",
+  "ui.psd.workerOpenFailed": "PSD 파일을 열 수 없습니다."
 }
