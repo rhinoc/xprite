@@ -2614,5 +2614,12 @@
   "ui.status.cell.index": "Cell index",
   "ui.status.distance": "Distance",
   "ui.status.aspect.ratio": "Aspect ratio",
-  "ui.status.color.sample": "Color sample"
+  "ui.status.color.sample": "Color sample",
+  "ui.psd.file.exceeds.limit": "PSD file exceeds the browser resource limit ({value1} bytes)",
+  "ui.psd.invalid.header": "Could not open this PSD file. The file header is invalid or damaged.",
+  "ui.psd.decode.failed": "Could not open this PSD file. {reason}",
+  "ui.psd.fetch.failed": "Could not fetch PSD asset ({value1})",
+  "ui.psd.decode.expects.blob": "decodePsdBlob expects a Blob",
+  "ui.psd.cannot.fetch": "This browser cannot fetch a PSD asset",
+  "ui.psd.workerOpenFailed": "Unable to open PSD file."
 }

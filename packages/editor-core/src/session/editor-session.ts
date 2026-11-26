@@ -642,9 +642,9 @@ export class EditorSession<Source> {
     return updatePixelationSettings(options, patch, candidate.pixels);
   }
   private offerCandidate(candidate: Candidate): SessionOutcome {
-    // Real editor projects (a decoded .ase/.aseprite keeps its asepriteSource) are documents,
+    // Real editor projects (decoded .ase/.aseprite or .psd/.psb documents) are layered documents,
     // not pictures to classify: open them directly, no import dialog and no silent preference.
-    if (candidate.project?.timeline.asepriteSource)
+    if (candidate.project?.timeline.asepriteSource || candidate.project?.directOpen)
       return this.install(
         candidate.pixels,
         candidate.name,

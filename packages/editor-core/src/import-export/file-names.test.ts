@@ -20,6 +20,8 @@ describe("file-names", () => {
       ["PHOTO.JPEG", "PHOTO.png"],
       ["icon.webp", "icon.png"],
       ["sprite.aseprite", "sprite.png"],
+      ["mockup.psd", "mockup.png"],
+      ["canvas.PSB", "canvas.png"],
       ["name.v2", "name.v2.png"],
       [" original.PNG ", "original.PNG"],
       ["", "untitled.png"],

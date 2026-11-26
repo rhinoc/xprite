@@ -3,7 +3,10 @@ export function pngFileName(name: string): string {
   const trimmed = name.trim();
   if (!trimmed) return "untitled.png";
   if (/\.png$/i.test(trimmed)) return trimmed;
-  const stem = trimmed.replace(/\.(?:jpe?g|gif|bmp|webp|avif|tiff?|ico|aseprite|ase)$/i, "");
+  const stem = trimmed.replace(
+    /\.(?:jpe?g|gif|bmp|webp|avif|tiff?|ico|aseprite|ase|psd|psb)$/i,
+    "",
+  );
   return `${stem || "untitled"}.png`;
 }
 
