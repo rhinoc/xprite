@@ -147,6 +147,23 @@ function defaultAction(root: HTMLElement | null, event: KeyboardEvent): HTMLElem
   return root.querySelector<HTMLElement>(DEFAULT_ACTION_SELECTOR);
 }
 
+/**
+ * Fire the surface's default action on plain Enter after any focused field commits its draft.
+ * Re-checks the selector in the microtask so committing a value that disables or invalidates
+ * the button never clicks it.
+ */
+export function triggerDefaultAction(root: HTMLElement | null, event: KeyboardEvent): boolean {
+  if (!isUnclaimedKey(event) || isImeKeyboardEvent(event)) return false;
+  const action = defaultAction(root, event);
+  if (!action) return false;
+  event.preventDefault();
+  event.stopPropagation();
+  queueMicrotask(() => {
+    if (action.isConnected && action.matches(DEFAULT_ACTION_SELECTOR)) action.click();
+  });
+  return true;
+}
+
 /** Returns whether the window consumed the key. */
 function handleKey(registry: OverlayRegistry, event: KeyboardEvent): boolean {
   if (!isUnclaimedKey(event) || isImeKeyboardEvent(event)) return false;
@@ -157,17 +174,7 @@ function handleKey(registry: OverlayRegistry, event: KeyboardEvent): boolean {
   const escape =
     event.key === "Escape" && options.closeOnEscape !== false && !options.ignoreEscape?.(event);
   const enter = event.key === "Enter" && options.closeOnEnter;
-  if (!escape && !enter) {
-    const action = defaultAction(entry.owner.rootRef.current, event);
-    if (!action) return false;
-    event.preventDefault();
-    event.stopPropagation();
-    // Let the focused field's commit render first, so the action reads the committed value.
-    queueMicrotask(() => {
-      if (action.isConnected) action.click();
-    });
-    return true;
-  }
+  if (!escape && !enter) return triggerDefaultAction(entry.owner.rootRef.current, event);
   event.preventDefault();
   event.stopPropagation();
   dismiss(entry, escape ? OverlayDismissReason.Escape : OverlayDismissReason.Enter, event);

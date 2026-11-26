@@ -198,7 +198,7 @@ describe("one pending import pipeline", () => {
     }
   });
 
-  test("silent Pixelate waits for the detected grid and performs one conversion", async () => {
+  test("always-pixelate preference still opens the import dialog instead of auto-importing", async () => {
     const source = createBlankImage(8, 8),
       preview = createBlankImage(2, 2);
     const detection = deferred<PixelArtAnalysis>();
@@ -212,30 +212,19 @@ describe("one pending import pipeline", () => {
       getImportPreference: () => ({
         choice: "always-pixelate",
         algorithm: PixelationAlgorithm.Auto,
-        pixelation: {
-          prepass: OutlinePrepass.None,
-          colorPicker: CellColorPicker.Median,
-          reduceColors: false,
-        },
       }),
     });
     try {
       await session.requestImport({ source: "art", name: "art.png" });
       expect(analyze).toHaveBeenCalledTimes(1);
       expect(pixelate).not.toHaveBeenCalled();
-      expect(session.getSnapshot().busy).toBe(true);
+      expect(session.getSnapshot().busy).toBe(false);
+      expect(session.getSnapshot().pendingImport).not.toBeNull();
       const analysis = analysisFor(source, PixelationAlgorithm.Auto, true);
       detection.resolve(analysis);
-      await vi.waitFor(() => expect(session.getSnapshot().pendingImport).toBeNull());
-      expect(pixelate).toHaveBeenCalledExactlyOnceWith(
-        source,
-        expect.objectContaining({
-          grid: analysis.grid,
-          prepass: OutlinePrepass.None,
-          colorPicker: CellColorPicker.Median,
-        }),
-      );
-      expect(session.editor.getSnapshot().document?.layer?.pixels).toEqual(preview);
+      await vi.waitFor(() => expect(session.getSnapshot().pixelationPreview).toBe(preview));
+      expect(session.getSnapshot().pendingImport).not.toBeNull();
+      expect(session.editor.getSnapshot().document?.name).toBe("Original");
     } finally {
       session.dispose();
     }
@@ -762,55 +751,6 @@ describe("adaptive import processing", () => {
       session.dispose();
     }
   });
-
-  test.each([
-    {
-      reliable: false,
-      saved: null,
-      prepass: OutlinePrepass.PixeloeLines,
-      picker: CellColorPicker.Contrast,
-    },
-    {
-      reliable: false,
-      saved: { prepass: OutlinePrepass.None, colorPicker: CellColorPicker.Median },
-      prepass: OutlinePrepass.None,
-      picker: CellColorPicker.Median,
-    },
-    {
-      reliable: true,
-      saved: { prepass: OutlinePrepass.PixeloeLines, colorPicker: CellColorPicker.Contrast },
-      prepass: OutlinePrepass.PixeloeLines,
-      picker: CellColorPicker.Contrast,
-    },
-  ])(
-    "silent imports choose adaptive defaults unless saved settings override them: %j",
-    async ({ reliable, saved, prepass, picker }) => {
-      const source = createBlankImage(8, 8),
-        preview = createBlankImage(2, 2);
-      const pixelate = vi.fn(async () => preview);
-      const session = new EditorSession(originalEditor(), {
-        decode: async () => source,
-        analyze: async () => analysisFor(source, PixelationAlgorithm.Auto, reliable),
-        pixelate,
-        write,
-        getImportPreference: () => ({
-          choice: "always-pixelate",
-          algorithm: PixelationAlgorithm.Auto,
-          pixelation: saved,
-        }),
-      });
-      try {
-        await session.requestImport({ source: "image", name: "image.png" });
-        await vi.waitFor(() => expect(session.getSnapshot().pendingImport).toBeNull());
-        expect(pixelate).toHaveBeenCalledExactlyOnceWith(
-          source,
-          expect.objectContaining({ prepass, colorPicker: picker, paletteSnap: undefined }),
-        );
-      } finally {
-        session.dispose();
-      }
-    },
-  );
 
   test("processing overrides are scoped to one import", async () => {
     const source = createBlankImage(8, 8),

@@ -125,6 +125,7 @@ export function usePixelationBase(
         {...placement}
         aria-label={translate(axis === "width" ? "Width" : "Height")}
         editable
+        commitOnlyOnEnter
         inputMode="numeric"
         suffix="px"
         value={drafts[axis] ?? String(outputSize[axis])}
@@ -242,6 +243,7 @@ export function usePixelationBase(
           pixelWidth={NUMBER_WIDTH}
           {...placement}
           aria-label={translate("Colors")}
+          commitOnlyOnEnter
           inputMode="numeric"
           value={String(settings.maxColors)}
           min={MIN_COLORS}

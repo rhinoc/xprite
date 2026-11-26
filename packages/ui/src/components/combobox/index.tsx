@@ -62,6 +62,8 @@ interface ComboboxContentProps {
   touchActivation?: InputTouchActivation;
   /** Editable entries may select their draft on focus for quick replacement. */
   selectOnFocus?: boolean;
+  /** Enter commits the editable draft without triggering the owning dialog's default action. */
+  commitOnlyOnEnter?: boolean;
   title?: string;
   buttonLabel?: string;
   "aria-invalid"?: InputHTMLAttributes<HTMLInputElement>["aria-invalid"];
@@ -100,6 +102,7 @@ export function Combobox({
   inputMode,
   touchActivation,
   selectOnFocus,
+  commitOnlyOnEnter = false,
   title,
   buttonLabel,
   id: controlId,
@@ -651,6 +654,7 @@ export function Combobox({
             inputMode={inputMode}
             touchActivation={touchActivation}
             selectOnFocus={selectOnFocus}
+            commitOnlyOnEnter={commitOnlyOnEnter}
             suffix={suffix}
             title={displayTitle}
             aria-label={displayLabel}

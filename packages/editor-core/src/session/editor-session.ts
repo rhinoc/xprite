@@ -19,7 +19,6 @@ import {
 import type {
   EditorSessionPorts,
   EditorSessionSnapshot,
-  ImportPixelationMemory,
   SessionProject,
   SessionSource,
   SessionInitialOptions,
@@ -83,7 +82,6 @@ interface Candidate {
   classification: PixelArtClassification;
   checkpoint: Checkpoint;
   project?: SessionProject;
-  silentPixelation?: ImportPixelationMemory | null;
 }
 type Replacement<S> =
   | { kind: "source"; source: SessionSource<S> }
@@ -575,8 +573,7 @@ export class EditorSession<Source> {
     } finally {
       if (this.valid(generation)) {
         this.release(source.source);
-        // A silent import may already be waiting for this same preview to finish.
-        if (!this.state.pendingImport || !this.state.busy) this.publish({ busy: false });
+        this.publish({ busy: false });
       }
     }
   }
@@ -617,30 +614,6 @@ export class EditorSession<Source> {
       reduceColors: processing.reduceColors,
     };
   }
-  /**
-   * The silent Pixelate path repeats the pixelation the dialog last imported with (pre-pass, line
-   * guide, colour rule, colour limit and noise removal); with nothing saved it is the dialog's
-   * default. The dialog itself always opens on the default.
-   */
-  private silentOptions(candidate: Candidate, saved?: ImportPixelationMemory | null) {
-    const options = this.defaultOptions(candidate);
-    if (!saved) return options;
-    const patch: Partial<PixelationSettings> = {
-      prepass: saved.prepass,
-      lineGuide: saved.lineGuide,
-      ...(getAllColorPickers().includes(saved.colorPicker as CellColorPicker)
-        ? { colorPicker: saved.colorPicker }
-        : {}),
-      ...(typeof saved.reduceColors === "boolean" ? { reduceColors: saved.reduceColors } : {}),
-      ...(typeof saved.maxColors === "number" ? { maxColors: saved.maxColors } : {}),
-      ...(saved.dither !== undefined ? { dither: saved.dither } : {}),
-      ...(saved.paletteColorMode !== undefined ? { paletteColorMode: saved.paletteColorMode } : {}),
-      ...(typeof saved.removeNoise === "boolean" ? { removeNoise: saved.removeNoise } : {}),
-    };
-    for (const key of Object.keys(patch) as (keyof typeof patch)[])
-      if (patch[key] === undefined) delete patch[key];
-    return updatePixelationSettings(options, patch, candidate.pixels);
-  }
   private offerCandidate(candidate: Candidate): SessionOutcome {
     // Real editor projects (decoded .ase/.aseprite or .psd/.psb documents) are layered documents,
     // not pictures to classify: open them directly, no import dialog and no silent preference.
@@ -656,44 +629,17 @@ export class EditorSession<Source> {
         candidate.recentAlias ?? null,
       );
     const pref = this.ports.getImportPreference?.();
-    if (pref) {
-      if (pref.choice === "always-import-as-is")
-        return this.install(
-          candidate.pixels,
-          candidate.name,
-          true,
-          candidate.project?.palette,
-          true,
-          candidate.project,
-          candidate.recentIdentity ?? null,
-          candidate.recentAlias ?? null,
-        );
-      if (pref.choice === "always-pixelate") {
-        this.candidate = { ...candidate, silentPixelation: pref.pixelation ?? null };
-        this.publish({
-          busy: false,
-          replacement: null,
-          pendingImport: {
-            sourcePalette: candidate.sourcePalette,
-            grid: candidate.grid ?? null,
-            algorithm: this.importAlgorithm(),
-            pixels: candidate.pixels,
-            name: candidate.name,
-            width: candidate.pixels.width,
-            height: candidate.pixels.height,
-            classification: candidate.classification,
-            frameCount: candidate.project?.timeline.frames.length ?? 1,
-            previewFrame: 0,
-          },
-          pixelationOptions: this.silentOptions(candidate, pref.pixelation),
-          pixelationPreview: null,
-          pixelationPalette: [],
-          pixelationError: null,
-        });
-        void this.pixelate();
-        return SessionOutcome.Pending;
-      }
-    }
+    if (pref?.choice === "always-import-as-is")
+      return this.install(
+        candidate.pixels,
+        candidate.name,
+        true,
+        candidate.project?.palette,
+        true,
+        candidate.project,
+        candidate.recentIdentity ?? null,
+        candidate.recentAlias ?? null,
+      );
     if (
       candidate.classification === PixelArtClassification.LikelyPixelArt &&
       !candidate.grid?.reliable &&
@@ -955,13 +901,10 @@ export class EditorSession<Source> {
           pendingImport: current
             ? { ...current, grid: analysis.grid ?? null, classification: analysis.classification }
             : current,
-          pixelationOptions:
-            candidate.silentPixelation !== undefined
-              ? this.silentOptions(this.candidate, candidate.silentPixelation)
-              : this.gridOptions(
-                  this.candidate,
-                  analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
-                ),
+          pixelationOptions: this.gridOptions(
+            this.candidate,
+            analysis.grid ?? { reliable: false, cellWidth: 8, cellHeight: 8 },
+          ),
         });
       }
       if (!this.valid(generation) || version !== this.previewVersion || this.previewQueued) return;

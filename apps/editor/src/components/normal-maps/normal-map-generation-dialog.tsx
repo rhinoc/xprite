@@ -91,6 +91,7 @@ export function NormalMapGenerationDialog({ manager }: { manager: NormalMapManag
         }
       }}
       title={tUi(manager.generatingMask ? "normal.mask.generate" : "normal.generate.title")}
+      submitOnEnter={false}
       width={GENERATOR_DIALOG_WIDTH}
       height={GENERATOR_DIALOG_HEIGHT}
       scrollFields

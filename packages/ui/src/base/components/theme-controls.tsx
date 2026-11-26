@@ -466,6 +466,8 @@ interface InputContentProps extends Omit<
   onTouchTap?: () => void;
   /** Select the whole draft when the field gains focus, ready for overtyping. */
   selectOnFocus?: boolean;
+  /** Enter commits the draft without bubbling to the owning dialog's default action. */
+  commitOnlyOnEnter?: boolean;
 }
 
 export type InputProps = InputContentProps & ControlPlacement;
@@ -558,6 +560,7 @@ export function Input({
   onCompositionEnd,
   touchActivation = InputTouchActivation.SingleTap,
   selectOnFocus = false,
+  commitOnlyOnEnter = false,
   onTouchTap,
   onPointerDown,
   onPointerMove,
@@ -911,9 +914,11 @@ export function Input({
             return;
           }
           if (activation.onKeyDown(e)) return;
+          onKeyDown?.(e);
+          if (e.defaultPrevented) return;
           if (e.key === "Enter") {
             e.preventDefault();
-            markFieldKey(e.nativeEvent);
+            if (!commitOnlyOnEnter) markFieldKey(e.nativeEvent);
             commit(e.currentTarget.value);
             skipBlurCommit.current = true;
             e.currentTarget.blur();
@@ -925,7 +930,6 @@ export function Input({
             setDraft(value);
             e.currentTarget.blur();
           }
-          onKeyDown?.(e);
         }}
       />
     </span>

@@ -1,12 +1,7 @@
-import type { ImportPixelationMemory } from "@xprite/editor-core/session";
 import {
   PixelationAlgorithm,
   CellColorPicker,
-  DEFAULT_LINE_GUIDE,
-  LineGuideMode,
   OutlinePrepass,
-  PaletteColorMode,
-  PixelationDither,
   getAllColorPickers,
 } from "@xprite/pixelate";
 
@@ -58,16 +53,11 @@ export interface FilePreferences {
   recentItemLimit: number;
   /** Whether the import dialog is shown for images that could be pixelated. */
   importAsk: boolean;
-  /** What the dialog last did; applied silently when importAsk is off. */
+  /** The mode the dialog last used; silent import only applies to "import-as-is". */
   importLastAction: ImportAction;
   importPixelationAlgorithm: RememberedPixelationAlgorithm;
   /** The colour rule of the last import without a pre-pass; picking None brings it back. */
   importColorPicker: CellColorPicker;
-  /**
-   * The pixelation of the last Pixelate import from the dialog, repeated by the silent path ("Don't
-   * ask me again"). Null until the dialog has imported once; the dialog itself never opens on it.
-   */
-  importPixelation: ImportPixelationMemory | null;
 }
 export type ExportExtensionDefaults = Pick<
   FilePreferences,
@@ -83,55 +73,24 @@ export const DEFAULT_FILE_PREFERENCES: Readonly<FilePreferences> = Object.freeze
   importLastAction: "import-as-is",
   importPixelationAlgorithm: PixelationAlgorithm.Auto,
   importColorPicker: CellColorPicker.MostCommon,
-  importPixelation: null,
 });
 
 const MAX_RECENT_ITEM_LIMIT = 100;
 const LEGACY_CHOICES: Readonly<Record<string, { ask: boolean; action?: ImportAction }>> = {
   "always-ask": { ask: true },
   "always-import-as-is": { ask: false, action: "import-as-is" },
-  "always-pixelate": { ask: false, action: "pixelate" },
+  "always-pixelate": { ask: true, action: "pixelate" },
 };
 
-/** The session's view of the remembered import behaviour: ask, or silently repeat the last pick. */
-const CHOICE_BY_ACTION = {
-  "import-as-is": "always-import-as-is",
-  pixelate: "always-pixelate",
-} as const;
+/** The session's view of the remembered import behaviour: ask, or silently import originals as-is. */
 export function importPreferenceOf(prefs: FilePreferences) {
   return {
-    choice: prefs.importAsk ? "always-ask" : CHOICE_BY_ACTION[prefs.importLastAction],
+    choice:
+      !prefs.importAsk && prefs.importLastAction === "import-as-is"
+        ? ("always-import-as-is" as const)
+        : ("always-ask" as const),
     algorithm: prefs.importPixelationAlgorithm,
     colorPicker: prefs.importColorPicker,
-    pixelation: prefs.importPixelation,
-  };
-}
-
-const MAX_COLORS = 256;
-/** A saved Pixelate import, or null when it is missing or unreadable. */
-function normalizeImportPixelation(value: unknown): ImportPixelationMemory | null {
-  if (!value || typeof value !== "object") return null;
-  const saved = value as Record<string, unknown>;
-  if (!Object.values(OutlinePrepass).includes(saved.prepass as OutlinePrepass)) return null;
-  return {
-    prepass: saved.prepass as OutlinePrepass,
-    lineGuide: Object.values(LineGuideMode).includes(saved.lineGuide as LineGuideMode)
-      ? (saved.lineGuide as LineGuideMode)
-      : DEFAULT_LINE_GUIDE,
-    ...(getAllColorPickers().includes(saved.colorPicker as CellColorPicker)
-      ? { colorPicker: saved.colorPicker as CellColorPicker }
-      : {}),
-    ...(typeof saved.reduceColors === "boolean" ? { reduceColors: saved.reduceColors } : {}),
-    ...(typeof saved.maxColors === "number" && Number.isFinite(saved.maxColors)
-      ? { maxColors: Math.max(2, Math.min(MAX_COLORS, Math.round(saved.maxColors))) }
-      : {}),
-    ...(Object.values(PixelationDither).includes(saved.dither as PixelationDither)
-      ? { dither: saved.dither as PixelationDither }
-      : {}),
-    ...(Object.values(PaletteColorMode).includes(saved.paletteColorMode as PaletteColorMode)
-      ? { paletteColorMode: saved.paletteColorMode as PaletteColorMode }
-      : {}),
-    ...(typeof saved.removeNoise === "boolean" ? { removeNoise: saved.removeNoise } : {}),
   };
 }
 
@@ -158,14 +117,16 @@ export function normalizeFilePreferences(value: unknown): FilePreferences {
       : DEFAULT_FILE_PREFERENCES.recentItemLimit;
   // Older builds stored one combined choice; read it as ask + last action.
   const legacy = LEGACY_CHOICES[String(saved.importDialogChoice)];
-  const importAsk =
-    typeof saved.importAsk === "boolean"
-      ? saved.importAsk
-      : (legacy?.ask ?? DEFAULT_FILE_PREFERENCES.importAsk);
   const importLastAction: ImportAction =
     saved.importLastAction === "import-as-is" || saved.importLastAction === "pixelate"
       ? saved.importLastAction
       : (legacy?.action ?? DEFAULT_FILE_PREFERENCES.importLastAction);
+  const rawImportAsk =
+    typeof saved.importAsk === "boolean"
+      ? saved.importAsk
+      : (legacy?.ask ?? DEFAULT_FILE_PREFERENCES.importAsk);
+  // Silent import is only valid for Keep as is; pixelation always shows the dialog for tuning.
+  const importAsk = rawImportAsk || importLastAction !== "import-as-is";
   const importPixelationAlgorithm = isRememberedPixelationAlgorithm(saved.importPixelationAlgorithm)
     ? saved.importPixelationAlgorithm
     : DEFAULT_FILE_PREFERENCES.importPixelationAlgorithm;
@@ -184,7 +145,6 @@ export function normalizeFilePreferences(value: unknown): FilePreferences {
     importLastAction,
     importPixelationAlgorithm,
     importColorPicker,
-    importPixelation: normalizeImportPixelation(saved.importPixelation),
   };
 }
 

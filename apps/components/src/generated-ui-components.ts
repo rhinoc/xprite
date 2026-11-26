@@ -6416,6 +6416,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
         hostProp: false,
       },
       {
+        name: "commitOnlyOnEnter",
+        kind: "boolean",
+        required: false,
+        type: "boolean | undefined",
+        hostProp: false,
+      },
+      {
         name: "title",
         kind: "string",
         required: false,
@@ -6766,6 +6773,13 @@ export const generatedUIComponents: readonly ComponentsDefinition[] = [
       },
       {
         name: "selectOnFocus",
+        kind: "boolean",
+        required: false,
+        type: "boolean | undefined",
+        hostProp: false,
+      },
+      {
+        name: "commitOnlyOnEnter",
         kind: "boolean",
         required: false,
         type: "boolean | undefined",

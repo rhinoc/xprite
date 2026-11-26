@@ -158,13 +158,15 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
 
   if (!pending) return null;
   const showAdvanced = advanced && pixelate;
+  // Silent import only applies to unmodified originals; Pixelate and Remove background always ask.
+  const showRemember = !pixelate && !removeBg.enabled;
   const selectedAlgorithm = pending.algorithm;
   const colorPicker = workflow.pixelationOptions.colorPicker;
   const canImport =
     !workflow.busy &&
     (!pixelate || (!workflow.pixelationPreviewing && !!workflow.pixelationPreview));
 
-  /** Every confirmed pick becomes the default next time; the checkbox only turns the question off. */
+  /** Every confirmed pick becomes the default next time; the checkbox only turns the question off for Keep as is. */
   const confirm = () => {
     if (!canImport) return;
     workflow.setFilePreferences({
@@ -178,21 +180,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
       ...(workflow.pixelationOptions.prepass === OutlinePrepass.None
         ? { importColorPicker: colorPicker }
         : {}),
-      // The silent Pixelate path ("Don't ask me again") repeats this import's saved settings.
-      ...(pixelate
-        ? {
-            importPixelation: {
-              prepass: workflow.pixelationOptions.prepass,
-              lineGuide: workflow.pixelationOptions.lineGuide,
-              colorPicker,
-              reduceColors: workflow.pixelationOptions.reduceColors,
-              maxColors: workflow.pixelationOptions.maxColors,
-              dither: workflow.pixelationOptions.dither,
-              removeNoise: workflow.pixelationOptions.removeNoise,
-            },
-          }
-        : {}),
-      ...(rememberChoice ? { importAsk: false } : {}),
+      ...(showRemember && rememberChoice ? { importAsk: false } : {}),
     });
     const transform: Parameters<Workflow["acceptOriginalImport"]>[0] = removeBg.enabled
       ? (pixels) =>
@@ -221,6 +209,7 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
   const dialogHeight = computePixelationDialogHeight({
     availableHeight,
     hasMultiFrame,
+    showRemember,
     hasMessage: !!message,
     showAdvanced,
     showGridSource,
@@ -256,13 +245,12 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
         const previewHeight = computePixelationPreviewHeight(client.height, {
           showAdvanced,
           hasMultiFrame,
+          showRemember,
         });
         const frameStepperSpace = hasMultiFrame ? FRAME_STEPPER_HEIGHT + GAP : 0;
+        const footerSpace = showRemember ? FOOTER_STACK_HEIGHT : FOOTER_HEIGHT;
         const parameterTop = previewHeight + frameStepperSpace + GAP;
-        const parameterHeight = Math.max(
-          0,
-          client.height - parameterTop - FOOTER_STACK_HEIGHT - GAP,
-        );
+        const parameterHeight = Math.max(0, client.height - parameterTop - footerSpace - GAP);
         const width = parameterSize.width || Math.max(0, client.width - VERTICAL_SCROLLBAR_TRACK);
         let y = 0;
         const at = (height: number, extra = 0) => {
@@ -298,13 +286,15 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
             ? at(ROW_HEIGHT, GAP)
             : null;
         const parameterContentHeight = y;
-        const rememberRow = {
-          x: client.x,
-          y: client.y + client.height - FOOTER_STACK_HEIGHT,
-          width: client.width,
-          height: ROW_HEIGHT,
-        };
-        const footerY = rememberRow.y + ROW_HEIGHT + GAP;
+        const rememberRow = showRemember
+          ? {
+              x: client.x,
+              y: client.y + client.height - FOOTER_STACK_HEIGHT,
+              width: client.width,
+              height: ROW_HEIGHT,
+            }
+          : null;
+        const footerY = client.y + client.height - FOOTER_HEIGHT;
         const buttonWidth = Math.min(
           BUTTON_WIDTH,
           Math.max(72, Math.floor((client.width - BUTTON_GAP) / 2)),
@@ -421,7 +411,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 relativeTo={client}
                 onChange={(value) => {
                   setAction(value);
-                  if (value !== "pixelate") setAdvanced(false);
+                  if (value === "pixelate") setRememberChoice(false);
+                  else setAdvanced(false);
                 }}
               />
               {message && hintBounds && (
@@ -612,7 +603,8 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 checked={removeBg.enabled}
                 onCheckedChange={(enabled) => {
                   setRemoveBg((prev) => ({ ...prev, enabled }));
-                  if (!enabled) setPickingColor(false);
+                  if (enabled) setRememberChoice(false);
+                  else setPickingColor(false);
                 }}
                 bounds={removeBgRow}
                 relativeTo={client}
@@ -701,13 +693,15 @@ export function PixelationDialog({ workflow }: { workflow: Workflow }) {
                 />
               )}
             </ScrollArea>
-            <Checkbox
-              label={tUi("import.dialog.remember")}
-              checked={rememberChoice}
-              onCheckedChange={setRememberChoice}
-              bounds={rememberRow}
-              relativeTo={client}
-            />
+            {rememberRow && (
+              <Checkbox
+                label={tUi("import.dialog.remember")}
+                checked={rememberChoice}
+                onCheckedChange={setRememberChoice}
+                bounds={rememberRow}
+                relativeTo={client}
+              />
+            )}
             <Button
               text={tUi("import.dialog.import")}
               {...defaultActionProps()}

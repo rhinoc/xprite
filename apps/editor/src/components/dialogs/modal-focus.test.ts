@@ -201,6 +201,7 @@ vi.mock("@xprite/ui", async () => {
     TextVariant: { Control: "control", Inline: "inline", PositionedPixel: "positioned-pixel" },
     createUiPortal: (node: unknown) => node,
     defaultActionProps: () => ({}),
+    triggerDefaultAction: () => false,
     useUi: () => ({ style: { colors: {} }, translateSource: (value: string) => value }),
   };
 });
