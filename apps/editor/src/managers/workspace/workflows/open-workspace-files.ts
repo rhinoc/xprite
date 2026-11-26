@@ -2,6 +2,7 @@ import type { SessionSource } from "@xprite/editor-core/session";
 
 export interface FallbackFileInput {
   multiple: boolean;
+  value?: string;
   click(): void;
 }
 
@@ -32,6 +33,7 @@ export function openWorkspaceFiles(options: OpenWorkspaceFilesOptions): void {
     const input = options.fallbackInput();
     if (input) {
       input.multiple = true;
+      if ("value" in input) input.value = "";
       input.click();
     }
     return;

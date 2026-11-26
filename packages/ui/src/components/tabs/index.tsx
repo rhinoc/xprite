@@ -384,6 +384,7 @@ export function Tabs({
               left: 0,
               top: 0,
               width: "100%",
+              minWidth: 0,
               height: faceHeight,
               pointerEvents: "none",
             }}
