@@ -551,7 +551,7 @@
             },
             {
               "kind": "item",
-              "label": "Clean Pixels…",
+              "label": "Clean Pixels...",
               "command": "CleanPixels"
             },
             {

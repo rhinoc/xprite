@@ -1879,7 +1879,7 @@
   "ui.font.hinting.unavailable": "The browser does not expose font hinting control",
   "ui.font.ligatures.unavailable": "Ligature shaping is not supported by this text renderer",
   "ui.clean.pixels": "Clean Pixels",
-  "ui.clean.pixels.ellipsis": "Clean Pixels…",
+  "ui.clean.pixels.ellipsis": "Clean Pixels...",
   "ui.remove.orphan.pixels": "Remove orphan pixels",
   "ui.clean.doubles": "Clean doubles",
   "ui.snap.to.palette": "Snap to palette",

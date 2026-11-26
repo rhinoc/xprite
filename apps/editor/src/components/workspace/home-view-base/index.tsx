@@ -244,7 +244,6 @@ export function HomeView({
           style={{ marginTop: recentSectionOffset }}
         >
           <h2 className={styles.recentHeading}>
-            <span className={styles.visuallyHidden}>{labels.recentFilesHeading}</span>
             <Text variant={TextVariant.Inline} scale={2} ink={colors.workspace_text}>
               {labels.recentFilesHeading}
             </Text>

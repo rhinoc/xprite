@@ -11,10 +11,18 @@ import { useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { FontRole } from "$/base/theme/theme-types";
 import { composeEventHandlers } from "$/base/utils/compose-event-handlers";
-import { clientPoint, clientRect } from "$/base/utils/dom-geometry";
+import {
+  clientPoint,
+  clientRect,
+  layoutSize,
+  scrollPosition,
+  scrollSize,
+  setScrollPosition,
+} from "$/base/utils/dom-geometry";
 import { UI_SCALE_X } from "$/components/canvas-surface/geometry";
 import { UI_SCALE } from "$/components/canvas-surface/metrics";
 import { Icon } from "$/components/icon";
+import { scrollOffsetForTab } from "$/components/tabs/scroll-offset";
 import { useTabInteractions, type TabDragPoint } from "$/components/tabs/use-tab-interactions";
 import { Text, TextVariant } from "$/components/text";
 import { createUiPortal } from "$/components/theme/portal";
@@ -264,6 +272,41 @@ export function Tabs({
     );
   };
   const dragging = interactions.dragging;
+  const activeTabIndex = tabs.findIndex((tab) => tab.id === value);
+  const activeTabLeft = activeTabIndex >= 0 ? tabGeometry[activeTabIndex].x : -1;
+  const activeTabWidth = activeTabIndex >= 0 ? tabGeometry[activeTabIndex].width : 0;
+  useLayoutEffect(() => {
+    if (dragging || activeTabLeft < 0) return;
+    const node = interactions.ref.current;
+    if (!node) return;
+    const viewportWidth = layoutSize(node)?.width ?? 0;
+    const maxScroll = Math.max(0, (scrollSize(node)?.width ?? 0) - viewportWidth);
+    if (maxScroll <= 0) return;
+    const currentScroll = scrollPosition(node)?.x ?? 0;
+    const nextScroll = Math.min(
+      maxScroll,
+      scrollOffsetForTab(
+        (leadingContentWidth + activeTabLeft) * UI_SCALE_X,
+        activeTabWidth * UI_SCALE_X,
+        currentScroll,
+        viewportWidth,
+        leadingContentWidth * UI_SCALE_X,
+        trailingContentWidth * UI_SCALE_X,
+      ),
+    );
+    if (Math.abs(nextScroll - currentScroll) >= 1) {
+      setScrollPosition(node, { x: nextScroll, y: 0 });
+    }
+  }, [
+    activeTabLeft,
+    activeTabWidth,
+    dragging,
+    interactions.ref,
+    leadingContentWidth,
+    trailingContentWidth,
+    value,
+    width,
+  ]);
   const isFloating = dragging?.floating === true;
   const visibleTabs = tabs
     .map((tab, index) => ({ tab, index }))
@@ -420,7 +463,47 @@ export function Tabs({
             value === dragging.value,
           )}
       </div>
-      {trailingContent}
+      {trailingContent && (
+        <span
+          className={styles.trailingContent}
+          style={{
+            flex:
+              trailingContentWidth > 0 ? `0 0 ${trailingContentWidth * UI_SCALE_X}px` : "0 0 auto",
+            height: faceHeight + bottomHeight,
+          }}
+        >
+          <UiPart
+            part="tab_filler"
+            scale={2}
+            drawCenter
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: "100%",
+              minWidth: 0,
+              height: faceHeight,
+              pointerEvents: "none",
+            }}
+          />
+          <UiPart
+            part="tab_bottom_normal"
+            scale={2}
+            drawCenter
+            style={{
+              position: "absolute",
+              left: 0,
+              top: faceHeight,
+              width: "100%",
+              // Keep the atlas minimum width from covering an adjacent tab's corner.
+              minWidth: 0,
+              height: bottomHeight,
+              pointerEvents: "none",
+            }}
+          />
+          <span className={styles.trailingControl}>{trailingContent}</span>
+        </span>
+      )}
       <div className={styles.tabList} role="tablist" aria-label={translateSource(tabListAriaLabel)}>
         {tabs.map((tab, index) => (
           <div
