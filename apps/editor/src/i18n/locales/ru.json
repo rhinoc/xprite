@@ -1879,7 +1879,7 @@
   "ui.font.hinting.unavailable": "Браузер не даёт управлять хинтингом шрифта",
   "ui.font.ligatures.unavailable": "Этот отрисовщик текста не поддерживает лигатуры",
   "ui.clean.pixels": "Очистка пикселей",
-  "ui.clean.pixels.ellipsis": "Очистка пикселей…",
+  "ui.clean.pixels.ellipsis": "Очистка пикселей...",
   "ui.remove.orphan.pixels": "Удалить одиночные пиксели",
   "ui.clean.doubles": "Убрать двойные пиксели",
   "ui.snap.to.palette": "Привязать к палитре",

@@ -1879,7 +1879,7 @@
   "ui.font.hinting.unavailable": "El navegador no ofrece control del hinting de la fuente",
   "ui.font.ligatures.unavailable": "Este renderizador de texto no admite ligaduras",
   "ui.clean.pixels": "Limpiar píxeles",
-  "ui.clean.pixels.ellipsis": "Limpiar píxeles…",
+  "ui.clean.pixels.ellipsis": "Limpiar píxeles...",
   "ui.remove.orphan.pixels": "Eliminar píxeles aislados",
   "ui.clean.doubles": "Limpiar píxeles dobles",
   "ui.snap.to.palette": "Ajustar a la paleta",
