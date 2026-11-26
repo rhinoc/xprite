@@ -346,8 +346,17 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     setRecoverySelectedIds([]);
     if (recoveryOpen) {
       setRecoveryOpen(false);
-      if (!editor.openTabs.includes("home") && editor.openTabs.includes("document"))
+      if (
+        !editor.openTabs.includes("home") &&
+        workspaceSnapshot.tabs.length > 0 &&
+        editor.openTabs.includes("document")
+      )
         editor.setTab("document", userViewTransition(EditorViewChangeReason.RecoveryClosed));
+      else if (!editor.openTabs.includes("home") && editor.openTabs.includes(HelpDocumentTab.Guide))
+        editor.setTab(
+          HelpDocumentTab.Guide,
+          userViewTransition(EditorViewChangeReason.RecoveryClosed),
+        );
       else editor.openTab("home", userViewTransition(EditorViewChangeReason.RecoveryClosed));
     }
   };
@@ -903,7 +912,8 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       }
     }
   };
-  const documentScene = editor.tab === "document" && !recoveryOpen;
+  const documentScene =
+    editor.tab === "document" && workspaceSnapshot.tabs.length > 0 && !recoveryOpen;
   const canRunHistory = (direction: "undo" | "redo") =>
     canDispatchEditorInput() &&
     documentScene &&
@@ -1056,6 +1066,12 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
       if (!canStartInteraction()) return;
       if (editor.tab === HelpDocumentTab.Guide) {
         editor.closeTab(HelpDocumentTab.Guide);
+        if (workspaceSnapshot.tabs.length === 0) {
+          if (editor.openTabs.includes("home"))
+            editor.openTab("home", userViewTransition(EditorViewChangeReason.TabClosed));
+          else if (recoveryTabOpen) selectRecovery();
+          else editor.openTab("home", userViewTransition(EditorViewChangeReason.TabClosed));
+        }
         return;
       }
       if (recoveryOpen) {

@@ -4,6 +4,7 @@ import { useEditorActions } from "$/components/shell/editor-actions";
 import { DocumentTabs, type DocumentTab } from "$/components/workspace/document-tabs";
 import { useEditor } from "$/managers/editor/editor-state-manager";
 import type { EditorTab } from "$/managers/editor/editor-ui-store";
+import { HelpDocumentTab } from "$/managers/shell/help";
 import type { TabDragPoint } from "@xprite/ui";
 
 export function EditorDocumentTabs({
@@ -59,10 +60,29 @@ export function EditorDocumentTabs({
           editor.openTab(tab);
         },
         closeTab: (tab: EditorTab) => {
-          if (tab === "document") actions.closeDocument();
-          else {
+          if (tab === "document") {
+            actions.closeDocument();
+            return;
+          }
+          const hasDocuments = actions.documentTabs.length > 0;
+          const wasActive = editor.tab === tab && !actions.recoveryOpen;
+          if (tab === "home") {
+            const hasGuide = editor.openTabs.includes(HelpDocumentTab.Guide);
+            if (!hasDocuments && !actions.recoveryTabOpen && !hasGuide) return;
             editor.closeTab(tab);
             if (actions.recoveryOpen) editor.setTab("home");
+            else if (wasActive && !hasDocuments) {
+              if (actions.recoveryTabOpen) actions.selectRecovery?.();
+              else if (hasGuide) editor.openTab(HelpDocumentTab.Guide);
+            }
+            return;
+          }
+          editor.closeTab(tab);
+          if (actions.recoveryOpen) editor.setTab("home");
+          else if (wasActive && !hasDocuments) {
+            if (editor.openTabs.includes("home")) editor.openTab("home");
+            else if (actions.recoveryTabOpen) actions.selectRecovery?.();
+            else editor.openTab("home");
           }
         },
       }

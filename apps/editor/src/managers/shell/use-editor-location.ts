@@ -7,39 +7,87 @@ import {
 } from "$/managers/editor/editor-view-transition";
 import { useEditorPlatformPorts } from "$/managers/platform/editor-platform-context";
 import { EditorPageRoute } from "$/managers/ports/platform";
+import { HelpDocumentTab } from "$/managers/shell/help";
 
-function normalizeEditorPath(path: string): string {
+export type EditorRouteTab = "home" | "document";
+
+export function normalizeEditorPath(path: string): string {
   return path.replace(/\/+$/, "") || EditorPageRoute.Home;
 }
 
-export function useEditorLocation(tab: EditorTab, openTab: EditorUiState["openTab"]): void {
+export function resolveEditorRouteTab(
+  tab: EditorTab,
+  hasDocuments: boolean,
+): EditorRouteTab | null {
+  if (tab === HelpDocumentTab.Guide) return null;
+  return tab === "document" && hasDocuments ? "document" : "home";
+}
+
+export function resolveEditorLocationWrite(
+  currentPath: string,
+  routeTab: EditorRouteTab,
+  previousRouteTab: EditorRouteTab,
+  hasDocuments: boolean,
+): { target: EditorPageRoute; appendHistory: boolean } | null {
+  const path = normalizeEditorPath(currentPath);
+  const target = routeTab === "home" ? EditorPageRoute.Home : EditorPageRoute.Document;
+  if (path === target) return null;
+  const changed = previousRouteTab !== routeTab;
+  const appendHistory = changed && (routeTab === "document" || hasDocuments);
+  return { target, appendHistory };
+}
+
+export function resolveEditorHistoryNavigation(
+  currentPath: string,
+  currentTab: EditorTab,
+  hasDocuments: boolean,
+): { nextTab: EditorRouteTab | null; replaceRoute: EditorPageRoute | null } {
+  const path = normalizeEditorPath(currentPath);
+  if (path !== EditorPageRoute.Home && !hasDocuments) {
+    return {
+      nextTab: currentTab === "home" ? null : "home",
+      replaceRoute: EditorPageRoute.Home,
+    };
+  }
+  const targetTab: EditorRouteTab = path === EditorPageRoute.Home ? "home" : "document";
+  return {
+    nextTab: targetTab === currentTab ? null : targetTab,
+    replaceRoute: null,
+  };
+}
+
+export function useEditorLocation(
+  tab: EditorTab,
+  openTab: EditorUiState["openTab"],
+  hasDocuments: boolean,
+): void {
   const location = useEditorPlatformPorts()?.navigation.location;
-  const previousTab = useRef(tab);
+  const routeTab = resolveEditorRouteTab(tab, hasDocuments);
+  const previousRouteTab = useRef<EditorRouteTab>(routeTab ?? "home");
   const skipNextHistoryEntry = useRef(false);
   useEffect(() => {
-    if (!location) return;
-    const path = normalizeEditorPath(location.read());
-    const target = tab === "home" ? EditorPageRoute.Home : EditorPageRoute.Document;
-    const changed = previousTab.current !== tab;
-    previousTab.current = tab;
+    if (!location || routeTab === null) return;
+    const previous = previousRouteTab.current;
+    previousRouteTab.current = routeTab;
     if (skipNextHistoryEntry.current) {
       skipNextHistoryEntry.current = false;
       return;
     }
-    if (path !== target) location.write(target, changed);
-  }, [location, tab]);
+    const write = resolveEditorLocationWrite(location.read(), routeTab, previous, hasDocuments);
+    if (write) location.write(write.target, write.appendHistory);
+  }, [location, routeTab, hasDocuments]);
   useEffect(() => {
     if (!location) return;
     return location.subscribe(() => {
-      const path = normalizeEditorPath(location.read());
-      const nextTab = path === EditorPageRoute.Home ? "home" : "document";
-      if (nextTab !== tab) {
+      const navigation = resolveEditorHistoryNavigation(location.read(), tab, hasDocuments);
+      if (navigation.replaceRoute) location.write(navigation.replaceRoute, false);
+      if (navigation.nextTab) {
         skipNextHistoryEntry.current = true;
-        openTab(nextTab, {
+        openTab(navigation.nextTab, {
           trigger: EditorViewChangeTrigger.Navigation,
           reason: EditorViewChangeReason.HistoryNavigation,
         });
       }
     });
-  }, [location, tab, openTab]);
+  }, [location, tab, openTab, hasDocuments]);
 }
