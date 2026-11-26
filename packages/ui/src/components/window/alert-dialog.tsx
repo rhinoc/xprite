@@ -4,14 +4,13 @@ import { centerThemePixel, useThemeText } from "$/base/theme/text-metrics";
 import { useTheme } from "$/base/theme/theme-context";
 import { FontRole } from "$/base/theme/theme-types";
 import { layoutSize, observeResize } from "$/base/utils/dom-geometry";
-import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
 import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import { Button } from "$/components/button";
 import { type SurfaceBounds } from "$/components/canvas-surface";
 import { Text, TextVariant } from "$/components/text";
 import { wrapTooltipText } from "$/components/tooltip/text-layout";
 import { Dialog } from "$/components/window/dialog";
-import { createModalFocusScope, isDialogPopupTarget } from "$/components/window/focus";
+import { useModalFocus } from "$/components/window/focus";
 
 import styles from "$/components/window/alert.module.css";
 
@@ -126,45 +125,34 @@ export function AlertDialog({
   };
 
   useEffect(() => {
-    if (!open) {
-      setPosition(null);
-      return;
-    }
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const root = host.current;
-    if (!root) return;
-    const scope = createModalFocusScope(root);
-    const focusDefault = () => {
+    if (!open) setPosition(null);
+  }, [open]);
+
+  const focusDefault = () => {
+    const current = latest.current;
+    const preferred = buttons.current[current.defaultActionIndex];
+    (preferred && !preferred.disabled
+      ? preferred
+      : buttons.current.find((button) => button && !button.disabled)
+    )?.focus({ preventScroll: true });
+  };
+
+  useModalFocus({
+    open,
+    rootRef: host,
+    initialFocus: focusDefault,
+    reclaimFocus: focusDefault,
+    focusableSelector: "button:not(:disabled)",
+    onEscape: dismiss,
+    onKeyDown: (event) => {
       const current = latest.current;
-      const preferred = buttons.current[current.defaultActionIndex];
-      (preferred && !preferred.disabled
-        ? preferred
-        : buttons.current.find((button) => button && !button.disabled)
-      )?.focus({ preventScroll: true });
-    };
-    if (scope.isActive()) focusDefault();
-    const focus = (event: FocusEvent) => {
-      if (!scope.isActive()) return;
-      if (isDialogPopupTarget(host.current, event.target)) return;
-      if (!host.current?.contains(event.target as Node)) focusDefault();
-    };
-    const key = (event: KeyboardEvent) => {
-      if (!scope.isActive() || event.defaultPrevented || isImeKeyboardEvent(event)) return;
-      if (isDialogPopupTarget(host.current, event.target)) return;
-      const current = latest.current;
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        dismiss();
-        return;
-      }
+      const key = keyboardEventKey(event);
       if (event.altKey && !event.ctrlKey && !event.metaKey) {
         const action = current.actions.find(
           (candidate) =>
             !candidate.disabled &&
             candidate.mnemonicIndex !== undefined &&
-            candidate.label[candidate.mnemonicIndex]?.toLowerCase() ===
-              keyboardEventKey(event).toLowerCase(),
+            candidate.label[candidate.mnemonicIndex]?.toLowerCase() === key.toLowerCase(),
         );
         if (action) {
           if (event.target === event.currentTarget) event.preventDefault();
@@ -173,38 +161,16 @@ export function AlertDialog({
           return;
         }
       }
-      if (event.key === "Enter" && !(event.target instanceof HTMLButtonElement)) {
+      if (key === "Enter" && !(event.target instanceof HTMLButtonElement)) {
         const action = current.actions[current.defaultActionIndex];
         if (action && !action.disabled) {
           event.preventDefault();
           event.stopPropagation();
           action.onClick();
         }
-        return;
       }
-      if (event.key !== "Tab") return;
-      const nodes = [
-        ...(host.current?.querySelectorAll<HTMLElement>("button:not(:disabled)") ?? []),
-      ];
-      const index = nodes.indexOf(document.activeElement as HTMLElement);
-      if (
-        nodes.length &&
-        (index < 0 ||
-          (event.shiftKey && index === 0) ||
-          (!event.shiftKey && index === nodes.length - 1))
-      ) {
-        event.preventDefault();
-        nodes[event.shiftKey ? nodes.length - 1 : 0].focus();
-      }
-    };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key, true);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key, true);
-      if (scope.dispose() && previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [open]);
+    },
+  });
 
   if (!open) return null;
   if (messageSkin) {

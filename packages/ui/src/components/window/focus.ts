@@ -1,19 +1,28 @@
 import { useEffect, useRef, type RefObject } from "react";
 
 import { isImeKeyboardEvent } from "$/base/utils/is-ime-keyboard-event";
+import { keyboardEventKey } from "$/base/utils/keyboard-event-key";
 import { isOwnedOverlayTarget } from "$/components/window/interaction";
 
 const DIALOG_SELECTOR = '[role="dialog"]';
 const DIALOG_EDITABLE_SELECTOR =
   'input,textarea,[contenteditable="true"],[contenteditable="plaintext-only"]';
 
-const modalScopes = new WeakMap<Document, { root: HTMLElement }[]>();
+interface ModalFocusScopeEntry {
+  root: HTMLElement;
+  focusFallback?(root: HTMLElement): void;
+}
+
+const modalScopes = new WeakMap<Document, ModalFocusScopeEntry[]>();
 
 /** Register before initial focus so an existing modal cannot pull focus back. */
-export function createModalFocusScope(root: HTMLElement) {
+export function createModalFocusScope(
+  root: HTMLElement,
+  focusFallback?: (root: HTMLElement) => void,
+) {
   const document = root.ownerDocument;
   const scopes = modalScopes.get(document) ?? [];
-  const scope = { root };
+  const scope: ModalFocusScopeEntry = { root, focusFallback };
   modalScopes.set(document, scopes);
   // React mounts child effects first. Insert a containing modal below its
   // children without superseding a newer, unrelated modal.
@@ -41,12 +50,37 @@ export function createModalFocusScope(root: HTMLElement) {
 export function restoreModalFocus(document: Document, previous: HTMLElement | null) {
   if (previous?.isConnected) previous.focus({ preventScroll: true });
   const scopes = modalScopes.get(document);
-  const parent = scopes?.[scopes.length - 1]?.root;
-  if (parent && !parent.contains(document.activeElement)) focusDialogContainer(parent);
+  const parent = scopes?.[scopes.length - 1];
+  if (
+    parent &&
+    !parent.root.contains(document.activeElement) &&
+    !isDialogPopupTarget(parent.root, document.activeElement)
+  ) {
+    if (parent.focusFallback) parent.focusFallback(parent.root);
+    else focusDialogContainer(parent.root);
+  }
 }
 
 /** Documents whose focus is being moved to a dialog container right now. */
 const containerFocusing = new WeakSet<Document>();
+
+function withContainerFocusGuard(document: Document, focus: () => void) {
+  if (containerFocusing.has(document)) return;
+  containerFocusing.add(document);
+  try {
+    focus();
+  } finally {
+    containerFocusing.delete(document);
+  }
+}
+
+function reclaimModalFocus(root: HTMLElement, custom?: (root: HTMLElement) => void) {
+  if (!custom) {
+    focusDialogContainer(root);
+    return;
+  }
+  withContainerFocusGuard(root.ownerDocument, () => custom(root));
+}
 
 /**
  * Keep modal focus without reopening an editable control's software keyboard. A trap that
@@ -58,14 +92,7 @@ export function focusDialogContainer(root: HTMLElement | null) {
     ? root
     : root?.querySelector<HTMLElement>(DIALOG_SELECTOR);
   if (!dialog) return;
-  const document = dialog.ownerDocument;
-  if (containerFocusing.has(document)) return;
-  containerFocusing.add(document);
-  try {
-    dialog.focus({ preventScroll: true });
-  } finally {
-    containerFocusing.delete(document);
-  }
+  withContainerFocusGuard(dialog.ownerDocument, () => dialog.focus({ preventScroll: true }));
 }
 
 /** Portaled control popups handle their own focus and keyboard dismissal. */
@@ -87,40 +114,73 @@ const DEFAULT_FOCUSABLE_SELECTOR = 'button:not(:disabled), input:not(:disabled),
 
 export interface ModalFocusOptions {
   open: boolean;
+  /** Disable modal focus containment for non-modal dialogs. Defaults to true. */
+  modal?: boolean;
   rootRef: RefObject<HTMLElement | null>;
   initialFocus?(root: HTMLElement): void;
+  /** Reclaim focus when it leaves the modal and its popups. Defaults to `focusDialogContainer`. */
+  reclaimFocus?(root: HTMLElement): void;
+  /** Whether closing the active modal restores focus to its opener. Defaults to true. */
+  restoreFocus?: boolean;
   focusableSelector?: string;
+  /** Exclude hidden or zero-sized elements from Tab cycling. */
+  filterFocusable?(element: HTMLElement): boolean;
   /** Child modals temporarily own focus without restarting this modal's lifecycle. */
   isSuspended?(): boolean;
-  /** Business shortcuts run before the shared Tab handling. */
+  /** Escape handler invoked when `onKeyDown` did not already prevent default. */
+  onEscape?(event: KeyboardEvent): void;
+  /** Business shortcuts run before `onEscape` and the shared Tab handling. */
   onKeyDown?(event: KeyboardEvent): void;
 }
 
 /** Focus containment and restoration independent of modal artwork and form submission. */
 export function useModalFocus({
   open,
+  modal = true,
   rootRef,
   initialFocus,
+  reclaimFocus,
+  restoreFocus = true,
   focusableSelector = DEFAULT_FOCUSABLE_SELECTOR,
+  filterFocusable,
   isSuspended,
+  onEscape,
   onKeyDown,
 }: ModalFocusOptions) {
-  const callbacks = useRef({ initialFocus, isSuspended, onKeyDown });
-  callbacks.current = { initialFocus, isSuspended, onKeyDown };
+  const callbacks = useRef({
+    initialFocus,
+    reclaimFocus,
+    restoreFocus,
+    filterFocusable,
+    isSuspended,
+    onEscape,
+    onKeyDown,
+  });
+  callbacks.current = {
+    initialFocus,
+    reclaimFocus,
+    restoreFocus,
+    filterFocusable,
+    isSuspended,
+    onEscape,
+    onKeyDown,
+  };
   useEffect(() => {
     const root = rootRef.current;
-    if (!open || !root) return;
+    if (!open || !modal || !root) return;
     const document = root.ownerDocument;
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const scope = createModalFocusScope(root);
-    if (scope.isActive()) {
+    const scope = createModalFocusScope(root, (node) =>
+      reclaimModalFocus(node, callbacks.current.reclaimFocus),
+    );
+    if (scope.isActive() && !callbacks.current.isSuspended?.()) {
       if (callbacks.current.initialFocus) callbacks.current.initialFocus(root);
       else focusDialogContainer(root);
     }
     const focus = (event: FocusEvent) => {
       if (!scope.isActive() || callbacks.current.isSuspended?.()) return;
       if (!root.contains(event.target as Node) && !isDialogPopupTarget(root, event.target)) {
-        focusDialogContainer(root);
+        reclaimModalFocus(root, callbacks.current.reclaimFocus);
       }
     };
     const key = (event: KeyboardEvent) => {
@@ -132,13 +192,22 @@ export function useModalFocus({
         isDialogPopupTarget(root, event.target)
       )
         return;
+      const eventKey = keyboardEventKey(event);
       callbacks.current.onKeyDown?.(event);
-      if (event.defaultPrevented || callbacks.current.isSuspended?.() || event.key !== "Tab")
+      if (event.defaultPrevented || callbacks.current.isSuspended?.()) return;
+      if (eventKey === "Escape" && callbacks.current.onEscape) {
+        event.preventDefault();
+        event.stopPropagation();
+        callbacks.current.onEscape(event);
         return;
-      const nodes = [...root.querySelectorAll<HTMLElement>(focusableSelector)];
+      }
+      if (eventKey !== "Tab") return;
+      const candidates = [...root.querySelectorAll<HTMLElement>(focusableSelector)];
+      const filter = callbacks.current.filterFocusable;
+      const nodes = filter ? candidates.filter(filter) : candidates;
       if (!nodes.length) {
         event.preventDefault();
-        focusDialogContainer(root);
+        reclaimModalFocus(root, callbacks.current.reclaimFocus);
         return;
       }
       const current = nodes.indexOf(document.activeElement as HTMLElement);
@@ -156,9 +225,11 @@ export function useModalFocus({
     return () => {
       document.removeEventListener("focusin", focus);
       document.removeEventListener("keydown", key, true);
-      if (scope.dispose()) restoreModalFocus(document, previous);
+      if (scope.dispose() && callbacks.current.restoreFocus) {
+        restoreModalFocus(document, previous);
+      }
     };
-  }, [open, rootRef, focusableSelector]);
+  }, [open, modal, rootRef, focusableSelector]);
 }
 
 /** Clicking modal chrome dismisses the editable control's software keyboard. */

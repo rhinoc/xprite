@@ -4,26 +4,27 @@ import {
   WORKER_LOAD_ERROR_NAME,
   type ChunkLoadFailureDetail,
 } from "$/managers/ports/chunk-load";
+import {
+  DEFAULT_WORKER_STARTUP_ATTEMPTS,
+  DEFAULT_WORKER_STARTUP_RETRY_DELAY_MS,
+  importWithRetry as importModuleWithRetry,
+} from "@xprite/bedrock/browser/managed-worker";
 
 /**
  * Wait before starting a worker again after its script failed to load. Safari cancels loads that
  * a page starts while it hands a file to its download manager or begins to unload, and reports
  * them the same way as a missing script. A retry inside that window fails again.
  */
-export const WORKER_LOAD_RETRY_DELAY_MS = 1_000;
+export const WORKER_LOAD_RETRY_DELAY_MS = DEFAULT_WORKER_STARTUP_RETRY_DELAY_MS;
 
 /** A worker whose script failed to load is started this many times before the page gives up. */
-export const WORKER_LOAD_ATTEMPTS = 2;
+export const WORKER_LOAD_ATTEMPTS = DEFAULT_WORKER_STARTUP_ATTEMPTS;
 
 /** The diagnostic error for a worker that never started. It is not announced. */
 export function workerLoadError(diagnosticMessage: string): Error {
   const error = new Error(diagnosticMessage);
   error.name = WORKER_LOAD_ERROR_NAME;
   return error;
-}
-
-export function isWorkerLoadError(error: unknown): error is Error {
-  return error instanceof Error && error.name === WORKER_LOAD_ERROR_NAME;
 }
 
 /**
@@ -44,40 +45,10 @@ export function announceWorkerLoadFailure(report: Error): Error {
   return error;
 }
 
-/** A worker without a retry path: announce the failed load immediately. */
-export function workerLoadFailed(diagnosticMessage: string): Error {
-  return announceWorkerLoadFailure(workerLoadError(diagnosticMessage));
-}
-
-/** Resolve after the retry delay; reject with AbortError when the signal aborts first. */
-export function waitBeforeWorkerRetry(delayMs: number, signal?: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const cancelled = () => new DOMException("Cancelled", "AbortError");
-    if (signal?.aborted) {
-      reject(cancelled());
-      return;
-    }
-    const abort = () => {
-      clearTimeout(timer);
-      reject(cancelled());
-    };
-    const timer = setTimeout(() => {
-      signal?.removeEventListener("abort", abort);
-      resolve();
-    }, delayMs);
-    signal?.addEventListener("abort", abort, { once: true });
-  });
-}
-
 /**
  * Load a module the in-process fallback needs. One failed attempt is retried after the delay,
  * for the same reason as a worker script.
  */
-export async function importWithRetry<T>(load: () => Promise<T>, delayMs: number): Promise<T> {
-  try {
-    return await load();
-  } catch {
-    await waitBeforeWorkerRetry(delayMs);
-    return load();
-  }
+export function importWithRetry<T>(load: () => Promise<T>, delayMs: number): Promise<T> {
+  return importModuleWithRetry(load, { attempts: WORKER_LOAD_ATTEMPTS, retryDelayMs: delayMs });
 }

@@ -21,7 +21,7 @@ import {
   type AgentToolResponse,
 } from "$/managers/ports/agent-tools";
 import type { DocumentSlot, DocumentWorkspace } from "$/managers/workspace/document-workspace";
-import { SaveTarget } from "$/managers/workspace/save-target";
+import { saveWorkspaceDocument } from "$/managers/workspace/workflows/save-file-and-checkpoint";
 import {
   BATCH_EDIT_LIMITS,
   BatchEditError,
@@ -33,7 +33,6 @@ import {
   assertExportPixelBudget,
   blendNormalAt,
   buildPaletteRamp,
-  compositeDocumentFrame,
   effectiveLayerVisible,
   isBackgroundLayer,
   layerEditable,
@@ -41,7 +40,6 @@ import {
   paletteColorHex,
   paletteUsageAcrossFrames,
   PixelCleanupPass,
-  quantizePalette,
   renderTimelineFrame,
   snapDocumentToPalette,
   timelineTags,
@@ -55,9 +53,7 @@ import {
 } from "@xprite/editor-core";
 import { convertPixelsToSrgb, hexToRgba, workingColorProfile } from "@xprite/editor-core/color";
 import {
-  asepriteFromProject,
   decodeGifAnimation,
-  encodeAseprite,
   encodeGif,
   isGifData,
   renderExportAnimation,
@@ -66,7 +62,19 @@ import {
   ImageExportLimitError,
   type ExportFileOptions,
 } from "@xprite/editor-core/import-export";
-import { SessionOutcome, SessionSaveIntent } from "@xprite/editor-core/session";
+import {
+  clipOverlayToCanvas,
+  compositeOverlayRegion,
+  computeAlphaBounds,
+  encodeEditorDocumentAseprite,
+  extractDocumentFramesPalette,
+  extractPixelBufferRegion,
+  isReadablePixelLayerKind,
+  isSessionDocumentBusy,
+  resolveDocumentLayerPixels,
+  SessionOutcome,
+  SessionSaveIntent,
+} from "@xprite/editor-core/session";
 
 const MAX_READ_PIXELS = 65536;
 const MAX_DOCUMENT_SIDE = 2048;
@@ -118,27 +126,6 @@ function agentDocPath(input: unknown): string {
   if (!band)
     throw new BatchEditError(BatchEditErrorCode.InvalidInput, `Unknown doc band "${id[0]}"`);
   return `${band}/${id}.md`;
-}
-
-/** Bounding box of non-transparent pixels inside one buffer, or null. */
-function alphaBounds(pixels: PixelBuffer): Rect | null {
-  let minX = -1,
-    minY = -1,
-    maxX = -1,
-    maxY = -1;
-  const data = pixels.data,
-    channels = BATCH_EDIT_LIMITS.rgbaChannels;
-  for (let y = 0; y < pixels.height; y++) {
-    const row = y * pixels.width * channels;
-    for (let x = 0; x < pixels.width; x++)
-      if (data[row + x * channels + 3] !== 0) {
-        if (minX < 0 || x < minX) minX = x;
-        if (x > maxX) maxX = x;
-        if (minY < 0) minY = y;
-        maxY = y;
-      }
-  }
-  return minX < 0 ? null : { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
 }
 
 /** Alpha-composite `source` over `target` at sprite offset, opacity 0–255. */
@@ -386,13 +373,7 @@ export class AgentToolsManager {
       this.slots().some(
         (view) =>
           view.documentId === slot.documentId &&
-          (view.session.getSnapshot().busy ||
-            view.session.getSnapshot().pendingImport ||
-            view.session.getSnapshot().replacement ||
-            view.core.hasPendingDocumentEdit() ||
-            view.core.getSnapshot().inlineText ||
-            view.core.imageEditing.getEffectPreview() ||
-            view.core.importExport.getSpriteSheetPreview()),
+          isSessionDocumentBusy(view.core, view.session.getSnapshot()),
       )
     )
       throw new BatchEditError(BatchEditErrorCode.Busy, "Finish the pending document edit first");
@@ -420,14 +401,7 @@ export class AgentToolsManager {
         state.dirty,
       canUndo: state.canUndo,
       canRedo: state.canRedo,
-      busy:
-        slot.session.getSnapshot().busy ||
-        !!slot.session.getSnapshot().pendingImport ||
-        !!slot.session.getSnapshot().replacement ||
-        slot.core.hasPendingDocumentEdit() ||
-        !!state.inlineText ||
-        !!slot.core.imageEditing.getEffectPreview() ||
-        !!slot.core.importExport.getSpriteSheetPreview(),
+      busy: isSessionDocumentBusy(slot.core, slot.session.getSnapshot()),
       colorDepth: t.colorDepth ?? 32,
       activeLayerId: t.layers[t.activeLayer].id,
       activeFrameIndex: t.activeFrame,
@@ -435,21 +409,16 @@ export class AgentToolsManager {
         let inkBounds: Rect | null = null;
         if (
           input.includeInkBounds &&
-          (!layer.kind || layer.kind === "image") &&
+          isReadablePixelLayerKind(layer.kind) &&
           effectiveLayerVisible(t, index)
         ) {
-          const cel = t.frames[t.activeFrame].cels[index];
-          const active = index === t.activeLayer;
-          const source = active ? doc.layer.pixels : cel?.pixels;
-          if (source) {
-            const origin = active
-              ? { x: doc.layer.x, y: doc.layer.y }
-              : { x: cel?.x ?? 0, y: cel?.y ?? 0 };
-            const bounds = alphaBounds(source);
+          const resolved = resolveDocumentLayerPixels(doc, t.activeFrame, index);
+          if (resolved) {
+            const bounds = computeAlphaBounds(resolved.pixels);
             if (bounds)
               inkBounds = {
-                x: bounds.x + origin.x,
-                y: bounds.y + origin.y,
+                x: bounds.x + resolved.origin.x,
+                y: bounds.y + resolved.origin.y,
                 width: bounds.width,
                 height: bounds.height,
               };
@@ -533,35 +502,16 @@ export class AgentToolsManager {
       const id = name(input.layerId, "layerId"),
         index = t.layers.findIndex((layer) => layer.id === id);
       if (index < 0) throw new BatchEditError(BatchEditErrorCode.NotFound, "Layer does not exist");
-      const layerKind = t.layers[index].kind;
-      if (layerKind && layerKind !== "image" && layerKind !== "tilemap")
+      if (!isReadablePixelLayerKind(t.layers[index].kind))
         throw new BatchEditError(
           BatchEditErrorCode.Unsupported,
           "Read image or tilemap layer pixels, or omit layerId for the composite",
         );
-      const cel = t.frames[frameIndex].cels[index];
-      const active = frameIndex === t.activeFrame && index === t.activeLayer;
-      source = active ? doc.layer.pixels : cel?.pixels;
-      origin = active ? { x: doc.layer.x, y: doc.layer.y } : { x: cel?.x ?? 0, y: cel?.y ?? 0 };
+      const resolved = resolveDocumentLayerPixels(doc, frameIndex, index);
+      source = resolved?.pixels;
+      origin = resolved ? { x: resolved.origin.x, y: resolved.origin.y } : { x: 0, y: 0 };
     }
-    const pixels: PixelBuffer = {
-      width: rect.width,
-      height: rect.height,
-      data: new Uint8ClampedArray(rect.width * rect.height * BATCH_EDIT_LIMITS.rgbaChannels),
-    };
-    if (source)
-      for (let y = 0; y < rect.height; y++)
-        for (let x = 0; x < rect.width; x++) {
-          const sx = rect.x + x - origin.x,
-            sy = rect.y + y - origin.y;
-          if (sx >= 0 && sy >= 0 && sx < source.width && sy < source.height) {
-            const at = (sy * source.width + sx) * BATCH_EDIT_LIMITS.rgbaChannels;
-            pixels.data.set(
-              source.data.subarray(at, at + BATCH_EDIT_LIMITS.rgbaChannels),
-              (y * rect.width + x) * BATCH_EDIT_LIMITS.rgbaChannels,
-            );
-          }
-        }
+    const pixels = extractPixelBufferRegion(source, origin, rect);
     return {
       pixels,
       rect,
@@ -848,14 +798,9 @@ export class AgentToolsManager {
         blendPixels(output, renderTimelineFrame(t, doc.width, doc.height, index), 0, 0, opacity);
         return;
       }
-      const cel = t.frames[index].cels[layerIndex],
-        active = index === t.activeFrame && layerIndex === t.activeLayer;
-      const source = active ? doc.layer.pixels : cel?.pixels;
-      if (!source) return;
-      const origin = active
-        ? { x: doc.layer.x, y: doc.layer.y }
-        : { x: cel?.x ?? 0, y: cel?.y ?? 0 };
-      blendPixels(output, source, origin.x, origin.y, opacity);
+      const resolved = resolveDocumentLayerPixels(doc, index, layerIndex);
+      if (!resolved) return;
+      blendPixels(output, resolved.pixels, resolved.origin.x, resolved.origin.y, opacity);
     };
     for (const ghost of ghosts) draw(ghost, alpha);
     draw(frameIndex, 255);
@@ -897,7 +842,7 @@ export class AgentToolsManager {
       .sort((a, b) => b.pixels - a.pixels)
       .slice(0, STATS_HISTOGRAM_LIMIT)
       .map(({ hex, pixels }) => ({ hex, pixels }));
-    const bounds = alphaBounds(read.pixels);
+    const bounds = computeAlphaBounds(read.pixels);
     const state = slot.core.getSnapshot(),
       doc = state.document!,
       t = doc.timeline!;
@@ -1016,17 +961,7 @@ export class AgentToolsManager {
     }
     if (op === "extract") {
       const maxColors = integer(input.maxColors ?? 16, "maxColors", 2, 256);
-      const frames = timeline?.frames.length ?? 1;
-      const pixels = Array.from({ length: frames }, (_, frame) =>
-        compositeDocumentFrame(doc, frame),
-      );
-      const generated = quantizePalette(
-        pixels,
-        maxColors,
-        true,
-        undefined,
-        timeline?.transparentIndex ?? -1,
-      );
+      const generated = extractDocumentFramesPalette(doc, maxColors);
       assertAgentPaletteSize(generated.length);
       slot.core.color.setPalette(generated);
       return {
@@ -1241,19 +1176,9 @@ export class AgentToolsManager {
       );
       bytes = await this.port.encodePng(convertPixelsToSrgb(read.pixels, read.profile));
     } else {
-      const snapshot = slot.core.getPersistenceSnapshot()!,
-        persisted = snapshot.document;
-      bytes = await encodeAseprite(
-        asepriteFromProject(
-          {
-            image: { width: persisted.width, height: persisted.height },
-            timeline: persisted.timeline!,
-            palette: persisted.palette,
-          },
-          { preserveGroupMetadata: true },
-        ),
-        { compress: true, deflate: (celBytes) => zlibSync(celBytes) },
-      );
+      bytes = await encodeEditorDocumentAseprite(slot.core, {
+        deflate: (celBytes) => zlibSync(celBytes),
+      });
     }
     return {
       ok: true,
@@ -1371,62 +1296,27 @@ export class AgentToolsManager {
           frameIndex: target,
           duration: frame.durationMs,
         });
-      const rect: Rect = {
-        x: Math.max(positionX, 0),
-        y: Math.max(positionY, 0),
-        width: Math.min(
-          frame.pixels.width + Math.min(positionX, 0),
-          doc.width - Math.max(positionX, 0),
-        ),
-        height: Math.min(
-          frame.pixels.height + Math.min(positionY, 0),
-          doc.height - Math.max(positionY, 0),
-        ),
-      };
-      if (rect.width <= 0 || rect.height <= 0) continue;
-      const offsetX = rect.x - positionX,
-        offsetY = rect.y - positionY;
-      const clipped = new Uint8ClampedArray(rect.width * rect.height * 4);
-      for (let row = 0; row < rect.height; row++)
-        clipped.set(
-          frame.pixels.data.subarray(
-            ((offsetY + row) * frame.pixels.width + offsetX) * 4,
-            ((offsetY + row) * frame.pixels.width + offsetX + rect.width) * 4,
-          ),
-          row * rect.width * 4,
-        );
+      const rect = clipOverlayToCanvas(frame.pixels, { x: positionX, y: positionY }, doc);
+      if (!rect) continue;
       // The op writes raw RGBA, so composite transparent and semi-transparent
       // source pixels over the destination here; opaque pixels pass through.
       // Frames appended past the timeline end land on empty cels — nothing to
       // composite against — and a brand-new layer starts empty too.
       const targetIsNew =
         (input.layerId === undefined && newLayer) || target > timeline.frames.length - 1;
-      if (!targetIsNew) {
-        const base = this.pixels(
-          slot,
-          { layerId, frameIndex: target, rect },
-          MAX_IMPORT_SIDE * MAX_IMPORT_SIDE,
-        ).pixels;
-        for (let at = 0; at < clipped.length; at += 4) {
-          const alpha = clipped[at + 3];
-          if (alpha === 0) {
-            clipped.set(base.data.subarray(at, at + 4), at);
-            continue;
-          }
-          if (alpha === 255) continue;
-          const inverse = 255 - alpha,
-            baseAlpha = base.data[at + 3],
-            outAlpha = alpha + (baseAlpha * inverse) / 255;
-          if (outAlpha === 0) continue;
-          for (let channel = 0; channel < 3; channel++)
-            clipped[at + channel] = Math.round(
-              (clipped[at + channel] * alpha +
-                base.data[at + channel] * ((baseAlpha * inverse) / 255)) /
-                outAlpha,
-            );
-          clipped[at + 3] = Math.round(outAlpha);
-        }
-      }
+      const base = targetIsNew
+        ? undefined
+        : this.pixels(
+            slot,
+            { layerId, frameIndex: target, rect },
+            MAX_IMPORT_SIDE * MAX_IMPORT_SIDE,
+          ).pixels;
+      const clipped = compositeOverlayRegion(
+        frame.pixels,
+        { x: positionX, y: positionY },
+        rect,
+        base,
+      );
       operations.push({
         type: BatchEditKind.Pixels,
         layerId,
@@ -1481,18 +1371,18 @@ export class AgentToolsManager {
     if (op === "save") {
       if (!slot.session.canSave())
         throw new BatchEditError(BatchEditErrorCode.Busy, "Document cannot be saved right now");
-      if (this.workspace.getSaveTarget(slot.id) === SaveTarget.Browser) {
-        await this.workspace.saveInBrowser(slot.id);
-      } else {
-        const outcome = await slot.session.save(SessionSaveIntent.Save);
-        if (outcome !== SessionOutcome.Created)
-          throw new BatchEditError(
-            BatchEditErrorCode.Busy,
-            `Save was ${outcome === SessionOutcome.Cancelled ? "cancelled" : "ignored"}`,
-          );
-        await this.workspace.saveLocally(slot.id);
-        this.workspace.linkRecentFileToWorkspaceProject(slot.id);
-      }
+      const outcome = await saveWorkspaceDocument(
+        slot.session,
+        this.workspace,
+        slot.id,
+        SessionSaveIntent.Save,
+        this.workspace.getSaveTarget(slot.id),
+      );
+      if (outcome !== SessionOutcome.Created)
+        throw new BatchEditError(
+          BatchEditErrorCode.Busy,
+          `Save was ${outcome === SessionOutcome.Cancelled ? "cancelled" : "ignored"}`,
+        );
       const doc = slot.core.getSnapshot().document;
       return {
         ok: true,

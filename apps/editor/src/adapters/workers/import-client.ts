@@ -4,18 +4,33 @@ import type {
   ImportWorkerResponse,
 } from "$/adapters/workers/import-worker";
 import { ImportWorkerOperation } from "$/adapters/workers/import-worker-types";
-import { workerLoadFailed } from "$/adapters/workers/worker-load-failure";
 import {
-  WorkerRequestChannel,
-  type WorkerRequestTransport,
-} from "@xprite/bedrock/browser/worker-request-channel";
+  announceWorkerLoadFailure,
+  WORKER_LOAD_ATTEMPTS,
+  WORKER_LOAD_RETRY_DELAY_MS,
+  workerLoadError,
+} from "$/adapters/workers/worker-load-failure";
+import {
+  ManagedWorkerClient,
+  WorkerFailureKind,
+  type ManagedWorkerTransport,
+} from "@xprite/bedrock/browser/managed-worker";
 import type { PixelBuffer } from "@xprite/editor-core/base";
 import type { PixelArtAnalysis, PixelArtAnalysisOptions, PixelateOptions } from "@xprite/pixelate";
 
+const WORKER_LOAD_DIAGNOSTIC = "The image import worker script could not be loaded";
+
 export interface ImportWorkerClientOptions {
-  worker?: WorkerRequestTransport<ImportWorkerRequest>;
-  workerFactory?: () => WorkerRequestTransport<ImportWorkerRequest>;
+  worker?: ManagedWorkerTransport<ImportWorkerRequest>;
+  workerFactory?: () => ManagedWorkerTransport<ImportWorkerRequest>;
   onFatalError?: (error: Error) => void;
+  retryDelayMs?: number;
+}
+
+function createImportWorker(): Worker {
+  return new Worker(new URL("./import-worker", import.meta.url), {
+    type: "module",
+  });
 }
 
 function copyImage(image: PixelBuffer): ImportWorkerRequest["image"] {
@@ -34,38 +49,35 @@ function workerError(error: ImportWorkerError): Error {
 
 /** Promise client for the optional image-import worker; it has no React dependency. */
 export class ImageImportWorkerClient {
-  private readonly channel: WorkerRequestChannel<ImportWorkerRequest, ImportWorkerResponse>;
+  private readonly client: ManagedWorkerClient<ImportWorkerRequest, ImportWorkerResponse>;
+
   get isFailed(): boolean {
-    return this.channel.isFailed;
+    return this.client.isFailed;
   }
+
   constructor(options: ImportWorkerClientOptions = {}) {
     if (options.worker && options.workerFactory)
       throw new RangeError("Provide worker or workerFactory, not both");
-    let worker: WorkerRequestTransport<ImportWorkerRequest>;
-    if (options.worker) {
-      worker = options.worker;
-    } else if (options.workerFactory) {
-      worker = options.workerFactory();
-    } else {
-      if (typeof Worker === "undefined")
-        throw new Error("Worker is unavailable; provide workerFactory in this environment");
-      worker = new Worker(new URL("./import-worker", import.meta.url), {
-        type: "module",
-      });
+    if (!options.worker && !options.workerFactory && typeof Worker === "undefined") {
+      throw new Error("Worker is unavailable; provide workerFactory in this environment");
     }
-    this.channel = new WorkerRequestChannel(worker, {
+    this.client = new ManagedWorkerClient<ImportWorkerRequest, ImportWorkerResponse>({
+      worker: options.worker,
+      workerFactory: options.worker ? undefined : (options.workerFactory ?? createImportWorker),
+      lazy: true,
+      maxStartupAttempts: WORKER_LOAD_ATTEMPTS,
+      retryDelayMs: options.retryDelayMs ?? WORKER_LOAD_RETRY_DELAY_MS,
       closedError: () => new Error("Image import worker client is closed"),
-      transportError: (event, failure) => {
-        if (failure.startup)
-          return workerLoadFailed("The image import worker script could not be loaded");
-        if (event.type === "messageerror")
+      formatError: (info) => {
+        if (info.kind === WorkerFailureKind.Startup) return workerLoadError(WORKER_LOAD_DIAGNOSTIC);
+        if (info.kind === WorkerFailureKind.Deserialization)
           return new Error("Image import worker could not deserialize a request");
-        const error = event as ErrorEvent;
-        return error.error instanceof Error
-          ? error.error
-          : new Error(error.message || "Image import worker failed");
+        return info.cause instanceof Error
+          ? info.cause
+          : new Error(info.message || "Image import worker failed");
       },
-      onFatalError: options.onFatalError,
+      onStartupFailureExhausted: (error) => announceWorkerLoadFailure(error),
+      onFatalError: (error) => options.onFatalError?.(error),
     });
   }
 
@@ -82,30 +94,31 @@ export class ImageImportWorkerClient {
     image: PixelBuffer,
     options?: PixelArtAnalysisOptions | PixelateOptions,
   ): Promise<unknown> {
-    if (this.channel.isClosed)
-      return Promise.reject(new Error("Image import worker client is closed"));
-    const id = this.channel.nextRequestId();
-    const request: ImportWorkerRequest = {
-      id,
-      operation,
-      image: copyImage(image),
-      options,
-    };
-    return this.channel.request(
-      request,
-      (response) => {
+    return this.client.request({
+      buildRequest: (id) => {
+        const copied = copyImage(image);
+        return {
+          request: {
+            id,
+            operation,
+            image: copied,
+            options,
+          },
+          transfer: [copied.data],
+        };
+      },
+      readResponse: (response) => {
         if (!response.ok) throw workerError(response.error);
         return response.result;
       },
-      [request.image.data],
-    );
+    });
   }
 
   cancel(id: number): boolean {
-    return this.channel.cancel(id, new Error("Image import request cancelled"));
+    return this.client.cancel(id, new Error("Image import request cancelled"));
   }
 
   close(): void {
-    this.channel.close(new Error("Image import worker client closed"));
+    this.client.close(new Error("Image import worker client closed"));
   }
 }

@@ -16,8 +16,7 @@ import {
   Combobox,
   Divider,
   Input,
-  focusDialogContainer,
-  isDialogPopupTarget,
+  useModalFocus,
   type SurfaceBounds,
   Text,
   TextAlignment,
@@ -142,55 +141,18 @@ export function NewSpriteDialog({
       setAspectRatio(null);
     }
     wasOpen.current = true;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const first = () => {
-      initializeFocus(host.current, {
+  }, [open, width, height]);
+
+  useModalFocus({
+    open,
+    rootRef: host,
+    initialFocus: (root) =>
+      initializeFocus(root, {
         selector: 'input[data-label-source="File name"]',
         selectText: true,
-      });
-    };
-    first();
-    const focus = (event: FocusEvent) => {
-      if (
-        !host.current?.contains(event.target as Node) &&
-        !isDialogPopupTarget(host.current, event.target)
-      )
-        focusDialogContainer(host.current);
-    };
-    const key = (event: KeyboardEvent) => {
-      if (isImeKeyboardEvent(event)) return;
-      if (isDialogPopupTarget(host.current, event.target)) return;
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        latest.current(false);
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const nodes = [
-        ...(host.current?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled), input:not(:disabled), [tabindex="0"]',
-        ) ?? []),
-      ];
-      const index = nodes.indexOf(document.activeElement as HTMLElement);
-      if (
-        nodes.length &&
-        (index < 0 ||
-          (event.shiftKey && index === 0) ||
-          (!event.shiftKey && index === nodes.length - 1))
-      ) {
-        event.preventDefault();
-        nodes[event.shiftKey ? nodes.length - 1 : 0].focus();
-      }
-    };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key, true);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [open, width, height, initializeFocus]);
+      }),
+    onEscape: () => latest.current(false),
+  });
   if (!open) return null;
   const bounds = {
     x: position?.x ?? centerUiPixel(clientBounds.x, clientBounds.width, dialogWidth),

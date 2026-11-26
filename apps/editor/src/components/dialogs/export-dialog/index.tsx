@@ -22,13 +22,11 @@ import {
   Text,
   TextVariant,
   Icon,
-  createModalFocusScope,
-  focusDialogContainer,
-  isDialogPopupTarget,
+  useModalFocus,
 } from "@xprite/ui";
 import { centerUiPixel, measureUiText, useUiAssets } from "@xprite/ui/assets";
 import { RASTER_SCALE } from "@xprite/ui/canvas";
-import { clientRect, dropdownArrowOffsetY, isImeKeyboardEvent } from "@xprite/ui/utils";
+import { clientRect, dropdownArrowOffsetY } from "@xprite/ui/utils";
 
 import styles from "$/components/dialogs/export-dialog/export-dialog.module.css";
 
@@ -125,58 +123,15 @@ export function ExportDialog(props: ExportDialogProps) {
   const root = useRef<HTMLDivElement | null>(null);
   const current = useRef(props);
   current.current = props;
-  useEffect(() => {
-    if (!root.current) return;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const scope = createModalFocusScope(root.current);
-    if (scope.isActive()) focusDialogContainer(root.current);
-    const focus = (event: FocusEvent) => {
-      if (!scope.isActive()) return;
-      if (
-        !root.current?.contains(event.target as Node) &&
-        !isDialogPopupTarget(root.current, event.target)
-      )
-        focusDialogContainer(root.current);
-    };
-    const key = (event: KeyboardEvent) => {
-      if (
-        !scope.isActive() ||
-        event.defaultPrevented ||
-        isImeKeyboardEvent(event) ||
-        isDialogPopupTarget(root.current, event.target)
-      )
-        return;
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        current.current.onClose();
-      }
-      if (event.key !== "Tab") return;
-      const nodes = [...(root.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])].filter(
-        (node) =>
-          !node.closest("[hidden]") && clientRect(node).width > 0 && clientRect(node).height > 0,
-      );
-      const index = nodes.indexOf(document.activeElement as HTMLElement);
-      if (
-        !nodes.length ||
-        index < 0 ||
-        (event.shiftKey && index === 0) ||
-        (!event.shiftKey && index === nodes.length - 1)
-      ) {
-        event.preventDefault();
-        if (nodes.length) nodes[event.shiftKey ? nodes.length - 1 : 0].focus();
-        else focusDialogContainer(root.current);
-      }
-    };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key);
-      if (scope.dispose() && previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, []);
   const selected = props.registry.get(props.destination);
+  useModalFocus({
+    open: !!selected,
+    rootRef: root,
+    focusableSelector: FOCUSABLE,
+    filterFocusable: (node) =>
+      !node.closest("[hidden]") && clientRect(node).width > 0 && clientRect(node).height > 0,
+    onEscape: () => current.current.onClose(),
+  });
   if (!selected) return null;
   const itemFor = (entry: RegisteredExporter, choice?: ExporterChoice): MenuItem => ({
     label: choice ? tUi(choice.label) : entry.label(),

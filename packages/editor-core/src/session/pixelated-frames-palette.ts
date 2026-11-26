@@ -69,3 +69,17 @@ export function extractPixelatedFramesPalette(
     0,
   );
 }
+
+/**
+ * Resolve the final palette for a pixelated multi-frame project: honor an explicit
+ * target palette when color reduction is enabled, otherwise extract across every frame.
+ */
+export function resolvePixelatedProjectPalette(
+  frames: readonly PixelBuffer[],
+  options: { reduceColors?: boolean; palette?: readonly Rgba[] | null },
+  maxColors = MAX_PIXELATED_PROJECT_PALETTE_COLORS,
+): Rgba[] {
+  if (options.reduceColors && options.palette?.length)
+    return options.palette.map((color) => [...color] as Rgba);
+  return extractPixelatedFramesPalette(frames, maxColors);
+}

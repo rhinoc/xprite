@@ -36,6 +36,8 @@ const groups = {
     "package-imports": node("scripts/check/check-package-import-policy.mjs"),
     "package-architecture": node("scripts/check/check-package-architecture.mjs"),
     "dom-geometry": node("scripts/check/check-dom-geometry.mjs"),
+    "worker-lifecycle": node("scripts/check/check-worker-lifecycle.mjs"),
+    "dialog-focus": node("scripts/check/check-dialog-focus.mjs"),
     "ui-editor-usage": node("scripts/check/check-ui-editor-usage.mjs"),
     "ui-control-placement": node("scripts/check/check-ui-control-placement.mjs"),
     "global-css": node("scripts/check/check-global-css.mjs"),

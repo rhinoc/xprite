@@ -10,7 +10,7 @@ import {
 import { RasterEditor } from "$/editor/RasterEditor";
 import type { EditorSnapshot } from "$/editor/types";
 import { defaultImportPixelationSettings, rasterAnimationProject } from "$/import-export/image";
-import { extractPixelatedFramesPalette } from "$/session/pixelated-frames-palette";
+import { resolvePixelatedProjectPalette } from "$/session/pixelated-frames-palette";
 import {
   RecentImageStore,
   createBlankImage,
@@ -1148,10 +1148,10 @@ export class EditorSession<Source> {
       frames.push({ pixels: transform?.(pixels) ?? pixels, durationMs: frame.duration });
     }
     if (this.disposed || !frames.length) return project;
-    const palette =
-      settings.reduceColors && settings.palette?.length
-        ? settings.palette.map((color) => [...color] as Rgba)
-        : extractPixelatedFramesPalette(frames.map((frame) => frame.pixels));
+    const palette = resolvePixelatedProjectPalette(
+      frames.map((frame) => frame.pixels),
+      settings,
+    );
     return {
       ...rasterAnimationProject({
         ...(timeline.loopCount === undefined ? {} : { loopCount: timeline.loopCount }),

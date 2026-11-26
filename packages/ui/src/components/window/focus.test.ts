@@ -15,17 +15,26 @@ vi.mock("$/components/window/interaction", () => ({ isOwnedOverlayTarget: () => 
 import {
   createModalFocusScope,
   focusDialogContainer,
+  isDialogPopupTarget,
   useModalFocus,
+  type ModalFocusOptions,
 } from "$/components/window/focus";
 
 class FocusDocument extends EventTarget {
   activeElement: FocusElement | null = null;
   focusChanges = 0;
+  elementsById = new Map<string, FocusElement>();
+  getElementById(id: string) {
+    return this.elementsById.get(id) ?? null;
+  }
 }
 
 class FocusElement {
   isConnected = true;
   disabled = false;
+  hidden = false;
+  id = "";
+  popupFor: string | null = null;
   children: FocusElement[] = [];
   constructor(readonly ownerDocument: FocusDocument) {}
   contains(target: unknown): boolean {
@@ -34,7 +43,13 @@ class FocusElement {
   matches() {
     return true;
   }
-  closest() {
+  closest(selector: string) {
+    if (selector === "[data-popup-for]" && this.popupFor) return this;
+    if (selector === "[hidden]" && this.hidden) return this;
+    return null;
+  }
+  getAttribute(name: string) {
+    if (name === "data-popup-for") return this.popupFor;
     return null;
   }
   querySelectorAll(selector: string) {
@@ -52,17 +67,23 @@ class FocusElement {
   }
 }
 
-function mount(root: FocusElement, onKeyDown = vi.fn(), isSuspended?: () => boolean) {
+function mount(
+  root: FocusElement,
+  onKeyDown = vi.fn(),
+  isSuspended?: () => boolean,
+  extra: Partial<ModalFocusOptions> = {},
+) {
   useModalFocus({
     open: true,
     rootRef: { current: root as unknown as HTMLElement },
     onKeyDown,
     isSuspended,
+    ...extra,
   });
   return onKeyDown;
 }
 
-function key(document: FocusDocument, value: string, shiftKey = false) {
+function key(document: FocusDocument, value: string | undefined, shiftKey = false) {
   const event = new Event("keydown", { cancelable: true });
   Object.defineProperties(event, {
     key: { value },
@@ -208,11 +229,109 @@ describe("modal focus ownership", () => {
   it("isolates documents and gates business shortcuts while suspended", () => {
     const document = browser();
     const otherDocument = new FocusDocument();
-    const suspendedKeys = mount(new FocusElement(document), vi.fn(), () => true);
+    const opener = new FocusElement(document);
+    opener.focus();
+    const suspended = new FocusElement(document);
+    const suspendedKeys = mount(suspended, vi.fn(), () => true);
+    assert.equal(document.activeElement, opener);
     const activeKeys = mount(new FocusElement(otherDocument));
     key(document, "Escape");
     key(otherDocument, "Escape");
     assert.equal(suspendedKeys.mock.calls.length, 0);
     assert.equal(activeKeys.mock.calls.length, 1);
+  });
+
+  it("disables trapping when modal is false and skips restoration when restoreFocus is false", () => {
+    const document = browser();
+    const opener = new FocusElement(document);
+    opener.focus();
+    const nonModal = new FocusElement(document);
+    const onEscape = vi.fn();
+    mount(nonModal, vi.fn(), undefined, { modal: false, onEscape });
+    assert.equal(document.activeElement, opener);
+    key(document, "Escape");
+    assert.equal(onEscape.mock.calls.length, 0);
+
+    const noRestore = new FocusElement(document);
+    mount(noRestore, vi.fn(), undefined, { restoreFocus: false });
+    assert.equal(document.activeElement, noRestore);
+    effects.pop()!();
+    assert.equal(document.activeElement, noRestore);
+  });
+
+  it("runs onEscape after onKeyDown unless prevented and handles missing event.key safely", () => {
+    const document = browser();
+    const dialog = new FocusElement(document);
+    const onEscape = vi.fn();
+    let consumeEscape = true;
+    mount(
+      dialog,
+      (event) => {
+        if (consumeEscape && event.key === "Escape") event.preventDefault();
+      },
+      undefined,
+      { onEscape },
+    );
+    assert.doesNotThrow(() => key(document, undefined));
+    assert.equal(onEscape.mock.calls.length, 0);
+
+    key(document, "Escape");
+    assert.equal(onEscape.mock.calls.length, 0);
+
+    consumeEscape = false;
+    const escaped = key(document, "Escape");
+    assert.equal(escaped.defaultPrevented, true);
+    assert.equal(onEscape.mock.calls.length, 1);
+  });
+
+  it("filters hidden controls during Tab cycling and reclaims focus via custom reclaimFocus", () => {
+    const document = browser();
+    const dialog = new FocusElement(document);
+    const visibleFirst = new FocusElement(document);
+    const hiddenMiddle = new FocusElement(document);
+    hiddenMiddle.hidden = true;
+    const visibleLast = new FocusElement(document);
+    dialog.children = [visibleFirst, hiddenMiddle, visibleLast];
+    mount(dialog, vi.fn(), undefined, {
+      filterFocusable: (node) => !node.closest("[hidden]"),
+    });
+    visibleLast.focus();
+    key(document, "Tab");
+    assert.equal(document.activeElement, visibleFirst);
+    key(document, "Tab", true);
+    assert.equal(document.activeElement, visibleLast);
+
+    // Custom reclaimFocus (used by AlertDialog) reclaims outside focus and restores parent fallback.
+    const alert = new FocusElement(document);
+    const okButton = new FocusElement(document);
+    alert.children = [okButton];
+    const focusOk = () => okButton.focus();
+    mount(alert, vi.fn(), undefined, {
+      initialFocus: focusOk,
+      reclaimFocus: focusOk,
+    });
+    assert.equal(document.activeElement, okButton);
+    const outside = new FocusElement(document);
+    outside.focus();
+    assert.equal(document.activeElement, okButton);
+  });
+
+  it("allows focus inside portaled popups linked via data-popup-for", () => {
+    const document = browser();
+    const dialog = new FocusElement(document);
+    const trigger = new FocusElement(document);
+    trigger.id = "wechat-trigger";
+    document.elementsById.set(trigger.id, trigger);
+    dialog.children = [trigger];
+    mount(dialog);
+
+    const popup = new FocusElement(document);
+    popup.popupFor = trigger.id;
+    assert.equal(
+      isDialogPopupTarget(dialog as unknown as HTMLElement, popup as unknown as Node),
+      true,
+    );
+    popup.focus();
+    assert.equal(document.activeElement, popup);
   });
 });

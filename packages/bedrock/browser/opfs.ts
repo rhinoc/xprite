@@ -1,3 +1,12 @@
+import {
+  DEFAULT_WORKER_STARTUP_ATTEMPTS,
+  DEFAULT_WORKER_STARTUP_RETRY_DELAY_MS,
+  ManagedWorkerClient,
+  waitForWorkerRetry,
+  WorkerFailureKind,
+  type ManagedWorkerTransport,
+  type WorkerFailureInfo,
+} from "$/managed-worker";
 import type { OpfsRequest, OpfsResponse } from "$/opfs-worker";
 import { BrowserStorageError, BrowserStorageErrorCode } from "$/storage-error";
 
@@ -63,17 +72,10 @@ function toOpfsError(name: string, message: string): Error {
   return error;
 }
 
-const OPFS_OPERATION_ATTEMPTS = 2;
-const OPFS_RETRY_DELAY_MS = 1000;
+const OPFS_OPERATION_ATTEMPTS = DEFAULT_WORKER_STARTUP_ATTEMPTS;
+const OPFS_RETRY_DELAY_MS = DEFAULT_WORKER_STARTUP_RETRY_DELAY_MS;
 const OPFS_NOT_READABLE_ERROR = "NotReadableError";
-
-enum OpfsWorkerFailureStage {
-  Construction = "construction",
-  PostMessage = "post-message",
-  Error = "error",
-  MessageError = "messageerror",
-  ReadResponse = "read-response",
-}
+const OPFS_READ_RESPONSE_STAGE = "read-response";
 
 /** The worker answered, but its newly obtained file snapshot could not be read. */
 class OpfsReadFailure extends Error {
@@ -83,7 +85,7 @@ class OpfsReadFailure extends Error {
     this.name = OPFS_NOT_READABLE_ERROR;
     this.diagnosticDetails = {
       opfs: {
-        stage: OpfsWorkerFailureStage.ReadResponse,
+        stage: OPFS_READ_RESPONSE_STAGE,
         operation: "read",
         workerAnswered: true,
         requestId,
@@ -92,177 +94,101 @@ class OpfsReadFailure extends Error {
   }
 }
 
-/**
- * The worker script never started, so the request cannot have run. Construction never
- * creates a worker. An opaque `error` event with no message, file or error object is
- * how browsers report a module worker that never loaded; terminating it drops any
- * queued message. After a worker has answered, or after a script error that names a
- * file, a write may already have reached disk — those stay I/O failures.
- */
-function isNeverExecutedWorkerLoad(details: Readonly<Record<string, unknown>>): boolean {
-  if (details.stage === OpfsWorkerFailureStage.Construction) return true;
-  return (
-    details.stage === OpfsWorkerFailureStage.Error &&
-    details.workerAnswered === false &&
-    !details.message &&
-    !details.filename
-  );
-}
-
-function isNeverExecutedWorkerLoadError(error: unknown): error is OpfsWorkerFailure {
-  return (
-    error instanceof OpfsWorkerFailure &&
-    isNeverExecutedWorkerLoad(
-      (error.diagnosticDetails?.opfs ?? {}) as Readonly<Record<string, unknown>>,
-    )
-  );
-}
-
-/** A broken worker transport; a worker that never loaded may be started again. */
+/** A broken worker transport; a worker that never loaded is classified as Unavailable. */
 class OpfsWorkerFailure extends BrowserStorageError {
-  constructor(cause: unknown, details: Readonly<Record<string, unknown>>) {
+  readonly failureKind: WorkerFailureKind;
+  constructor(info: WorkerFailureInfo, operation?: OpfsRequest["operation"], requestId?: number) {
     super(
-      isNeverExecutedWorkerLoad(details)
+      info.kind === WorkerFailureKind.Startup
         ? BrowserStorageErrorCode.Unavailable
         : BrowserStorageErrorCode.Io,
       "OPFS worker failed",
       {
-        cause,
-        diagnosticDetails: { opfs: details },
+        cause: info.cause,
+        diagnosticDetails: {
+          opfs: {
+            stage: info.stage,
+            workerAnswered: info.workerAnswered,
+            message: info.message,
+            filename: info.filename,
+            line: info.line,
+            column: info.column,
+            ...(operation !== undefined ? { operation } : {}),
+            ...(requestId !== undefined ? { requestId } : {}),
+          },
+        },
       },
     );
+    this.failureKind = info.kind;
   }
 }
 
-function waitBeforeRetry(delayMs: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, delayMs));
+function createOpfsWorker(): Worker {
+  return new Worker(new URL("./opfs-worker", import.meta.url), { type: "module" });
+}
+
+function closedOpfsError(): BrowserStorageError {
+  return new BrowserStorageError(BrowserStorageErrorCode.Closed, "OPFS store is closed");
 }
 
 /** Stores opaque byte values in OPFS through a dedicated module worker. */
 export class OpfsByteStore implements ByteStore {
-  private worker?: Worker;
-  private closed = false;
-  private workerAnswered = false;
-  private nextId = 1;
-  private pending = new Map<
-    number,
-    {
-      operation: OpfsRequest["operation"];
-      resolve: (bytes?: ArrayBuffer) => void;
-      reject: (error: Error) => void;
-    }
-  >();
+  private readonly client: ManagedWorkerClient<OpfsRequest, OpfsResponse>;
+  private readonly closeController = new AbortController();
 
   constructor(
     private readonly namespace = "bedrock-opfs",
-    private readonly workerFactory = () =>
-      new Worker(new URL("./opfs-worker", import.meta.url), { type: "module" }),
-  ) {}
-
-  private getWorker(): Worker {
-    if (this.worker) return this.worker;
-    const worker = this.workerFactory();
-    this.workerAnswered = false;
-    worker.onmessage = (event: MessageEvent<OpfsResponse>) => {
-      if (this.worker !== worker) return;
-      this.workerAnswered = true;
-      const response = event.data;
-      const pending = this.pending.get(response.id);
-      if (!pending) return;
-      this.pending.delete(response.id);
-      if (response.ok) pending.resolve(response.bytes);
-      else {
-        const error =
-          pending.operation === "read" && response.name === OPFS_NOT_READABLE_ERROR
-            ? new OpfsReadFailure(response.message, response.id)
-            : toOpfsError(response.name, response.message);
-        pending.reject(error);
-      }
-    };
-    worker.onerror = (event) => this.failWorker(worker, event, OpfsWorkerFailureStage.Error);
-    worker.onmessageerror = (event) =>
-      this.failWorker(worker, event, OpfsWorkerFailureStage.MessageError);
-    this.worker = worker;
-    return worker;
+    workerFactory: () => ManagedWorkerTransport<OpfsRequest> = createOpfsWorker,
+  ) {
+    this.client = new ManagedWorkerClient<OpfsRequest, OpfsResponse>({
+      workerFactory,
+      lazy: true,
+      maxStartupAttempts: OPFS_OPERATION_ATTEMPTS,
+      retryDelayMs: OPFS_RETRY_DELAY_MS,
+      retryConstructionFailure: true,
+      recreateAfterRuntimeFailure: true,
+      closedError: closedOpfsError,
+      formatError: (info, requestId) => new OpfsWorkerFailure(info, undefined, requestId),
+    });
   }
 
-  private detachWorker(worker: Worker) {
-    worker.onmessage = null;
-    worker.onerror = null;
-    worker.onmessageerror = null;
-    if (this.worker === worker) this.worker = undefined;
-    worker.terminate();
-  }
-
-  private failWorker(worker: Worker, cause: unknown, stage: OpfsWorkerFailureStage) {
-    if (this.worker !== worker) return;
-    const event = cause as Partial<ErrorEvent> | undefined;
-    const details = {
-      stage,
-      workerAnswered: this.workerAnswered,
-      message: typeof event?.message === "string" ? event.message : undefined,
-      filename:
-        typeof event?.filename === "string" ? event.filename.split(/[?#]/, 1)[0] : undefined,
-      line: event?.lineno,
-      column: event?.colno,
-    };
-    const pending = [...this.pending.entries()];
-    this.pending.clear();
-    this.detachWorker(worker);
-    for (const [requestId, request] of pending)
-      request.reject(
-        new OpfsWorkerFailure(event?.error ?? cause, {
-          ...details,
-          operation: request.operation,
-          requestId,
-        }),
-      );
-  }
-
-  private request(
+  private send(
     operation: OpfsRequest["operation"],
     key: string,
-    bytes?: ArrayBuffer,
+    getBytes?: () => ArrayBuffer,
   ): Promise<ArrayBuffer | undefined> {
-    if (this.closed)
-      return Promise.reject(
-        new BrowserStorageError(BrowserStorageErrorCode.Closed, "OPFS store is closed"),
-      );
-    return new Promise((resolve, reject) => {
-      const id = this.nextId++;
-      let worker: Worker | undefined;
-      try {
-        worker = this.getWorker();
-        this.pending.set(id, { operation, resolve, reject });
-        worker.postMessage(
-          { id, operation, key, bytes, namespace: this.namespace } satisfies OpfsRequest,
-          bytes ? [bytes] : [],
-        );
-      } catch (error) {
-        if (worker) this.failWorker(worker, error, OpfsWorkerFailureStage.PostMessage);
-        else
-          reject(
-            new OpfsWorkerFailure(error, {
-              stage: OpfsWorkerFailureStage.Construction,
-              workerAnswered: false,
-              operation,
-              requestId: id,
-            }),
-          );
-      }
+    return this.client.request<ArrayBuffer | undefined>({
+      buildRequest: (id) => {
+        const bytes = getBytes?.();
+        return {
+          request: {
+            id,
+            operation,
+            key,
+            bytes,
+            namespace: this.namespace,
+          } satisfies OpfsRequest,
+          transfer: bytes ? [bytes] : [],
+        };
+      },
+      formatError: (info, requestId) => new OpfsWorkerFailure(info, operation, requestId),
+      readResponse: (response) => {
+        if (response.ok) return response.bytes;
+        throw operation === "read" && response.name === OPFS_NOT_READABLE_ERROR
+          ? new OpfsReadFailure(response.message, response.id)
+          : toOpfsError(response.name, response.message);
+      },
     });
   }
 
   async write(key: string, bytes: Uint8Array): Promise<void> {
-    await this.requestWithStartupRetry(() =>
-      this.request("write", key, new Uint8Array(bytes).buffer),
-    );
+    await this.send("write", key, () => new Uint8Array(bytes).buffer);
   }
 
   async read(key: string): Promise<Uint8Array> {
     for (let attempt = 0; ; attempt++) {
       try {
-        const bytes = await this.request("read", key);
+        const bytes = await this.send("read", key);
         if (!bytes)
           throw new BrowserStorageError(
             BrowserStorageErrorCode.Corrupt,
@@ -270,53 +196,37 @@ export class OpfsByteStore implements ByteStore {
           );
         return new Uint8Array(bytes);
       } catch (error) {
+        if (this.client.isClosed) throw closedOpfsError();
+        // Startup failures were already bounded and retried by ManagedWorkerClient.
+        if (error instanceof OpfsWorkerFailure && error.failureKind === WorkerFailureKind.Startup) {
+          throw error;
+        }
         if (
           !(error instanceof OpfsWorkerFailure || error instanceof OpfsReadFailure) ||
-          attempt + 1 >= OPFS_OPERATION_ATTEMPTS ||
-          this.closed
-        )
+          attempt + 1 >= OPFS_OPERATION_ATTEMPTS
+        ) {
           throw error;
-        if (error instanceof OpfsReadFailure || isNeverExecutedWorkerLoadError(error)) {
-          // Let a cancelled script load or a transient snapshot failure settle.
-          // A replacement worker is started only after the previous one is detached.
-          await waitBeforeRetry(OPFS_RETRY_DELAY_MS);
+        }
+        if (error instanceof OpfsReadFailure) {
+          // Let a transient snapshot read failure settle before reissuing on the same worker.
+          try {
+            await waitForWorkerRetry(OPFS_RETRY_DELAY_MS, this.closeController.signal);
+          } catch {
+            throw closedOpfsError();
+          }
+          if (this.client.isClosed) throw closedOpfsError();
         }
       }
     }
   }
 
   async remove(key: string): Promise<void> {
-    await this.requestWithStartupRetry(() => this.request("remove", key));
-  }
-
-  /**
-   * Retry only when the worker script never ran. Writes and deletes that may already
-   * have reached the worker are not replayed.
-   */
-  private async requestWithStartupRetry<T>(run: () => Promise<T>): Promise<T> {
-    for (let attempt = 0; ; attempt++) {
-      try {
-        return await run();
-      } catch (error) {
-        if (
-          !isNeverExecutedWorkerLoadError(error) ||
-          attempt + 1 >= OPFS_OPERATION_ATTEMPTS ||
-          this.closed
-        )
-          throw error;
-        await waitBeforeRetry(OPFS_RETRY_DELAY_MS);
-      }
-    }
+    await this.send("remove", key);
   }
 
   close(): void {
-    if (this.closed) return;
-    this.closed = true;
-    if (this.worker) this.detachWorker(this.worker);
-    for (const pending of this.pending.values())
-      pending.reject(
-        new BrowserStorageError(BrowserStorageErrorCode.Closed, "OPFS store is closed"),
-      );
-    this.pending.clear();
+    if (this.client.isClosed) return;
+    this.closeController.abort();
+    this.client.close(closedOpfsError());
   }
 }

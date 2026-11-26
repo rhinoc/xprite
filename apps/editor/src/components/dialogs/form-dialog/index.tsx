@@ -28,10 +28,8 @@ import {
   Combobox,
   Divider,
   Input,
-  createModalFocusScope,
-  focusDialogContainer,
   isDialogPopupTarget,
-  restoreModalFocus,
+  useModalFocus,
   type ButtonProps,
   type SurfaceBounds,
   type ControlPlacement,
@@ -41,7 +39,7 @@ import {
 } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
 import { measurePopoverAnchor } from "@xprite/ui/popover";
-import { isImeKeyboardEvent } from "@xprite/ui/utils";
+import { isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 
 type FieldBase = { key: string; label: string; disabled?: boolean; row?: string };
 export type FormField = FieldBase &
@@ -301,50 +299,36 @@ export function FormDialog({
       : null,
   );
   useEffect(() => {
-    if (embedded) return;
-    if (!open) {
-      setPosition(null);
-      setColorFieldKey(null);
-      setFlowHeight(null);
-      return;
-    }
-    if (!modal) return;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const root = host.current;
-    if (!root) return;
-    const scope = createModalFocusScope(root);
-    const ownedPopup = (target: EventTarget | null) => isDialogPopupTarget(root, target);
-    const first = () => {
+    if (embedded || open) return;
+    setPosition(null);
+    setColorFieldKey(null);
+    setFlowHeight(null);
+  }, [open, embedded]);
+
+  useModalFocus({
+    open: open && !embedded && Boolean(portalTarget),
+    modal,
+    rootRef: host,
+    focusableSelector: focusable,
+    initialFocus: (root) => {
       const target =
         (layout?.initialFocusAction
-          ? root?.querySelector<HTMLElement>(
+          ? root.querySelector<HTMLElement>(
               `button[data-ui-form-action="${layout.initialFocusAction}"]:not(:disabled)`,
             )
           : null) ??
-        root?.querySelector<HTMLElement>("input:not(:disabled)") ??
-        root?.querySelector<HTMLElement>(focusable) ??
-        root?.querySelector<HTMLElement>('[role="dialog"]');
+        root.querySelector<HTMLElement>("input:not(:disabled)") ??
+        root.querySelector<HTMLElement>(focusable) ??
+        root.querySelector<HTMLElement>('[role="dialog"]');
       if (target instanceof HTMLInputElement)
         initializeFocus(root, { selectText: selectInitialInput, typing });
       else target?.focus({ preventScroll: true });
-    };
-    if (scope.isActive()) first();
-    const focus = (event: FocusEvent) => {
-      if (!scope.isActive()) return;
-      if (!root?.contains(event.target as Node) && !ownedPopup(event.target))
-        focusDialogContainer(root);
-    };
-    const key = (event: KeyboardEvent) => {
-      if (!scope.isActive() || event.defaultPrevented || isImeKeyboardEvent(event)) return;
-      if (ownedPopup(event.target as Node)) return;
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        close.current(false);
-      }
+    },
+    onEscape: () => close.current(false),
+    onKeyDown: (event) => {
       if (
         submitOnEnter &&
-        event.key === "Enter" &&
+        keyboardEventKey(event) === "Enter" &&
         event.target instanceof HTMLInputElement &&
         event.target.getAttribute("role") !== "combobox"
       ) {
@@ -354,43 +338,9 @@ export function FormDialog({
           event.stopPropagation();
           action.onClick();
         }
-        return;
       }
-      if (event.key !== "Tab") return;
-      const nodes = [...(root?.querySelectorAll<HTMLElement>(focusable) ?? [])];
-      if (!nodes.length) {
-        event.preventDefault();
-        focusDialogContainer(root);
-        return;
-      }
-      const current = nodes.indexOf(document.activeElement as HTMLElement);
-      if (
-        current < 0 ||
-        (event.shiftKey && current === 0) ||
-        (!event.shiftKey && current === nodes.length - 1)
-      ) {
-        event.preventDefault();
-        nodes[event.shiftKey ? nodes.length - 1 : 0].focus();
-      }
-    };
-    document.addEventListener("focusin", focus);
-    document.addEventListener("keydown", key, true);
-    return () => {
-      document.removeEventListener("focusin", focus);
-      document.removeEventListener("keydown", key, true);
-      if (scope.dispose()) restoreModalFocus(document, previous);
-    };
-  }, [
-    open,
-    embedded,
-    modal,
-    submitOnEnter,
-    portalTarget,
-    layout?.initialFocusAction,
-    selectInitialInput,
-    initializeFocus,
-    typing,
-  ]);
+    },
+  });
   const bounds = {
     x: position?.x ?? Math.round((scene.width - dialogWidth) / 2),
     y: position?.y ?? Math.max(0, Math.round((scene.height - height) / 2)),

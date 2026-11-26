@@ -2,16 +2,26 @@ import assert from "node:assert/strict";
 
 import { afterEach, describe, it } from "vitest";
 
+import { createBrowserRasterExportPort } from "$/adapters/files/raster-export";
+import { openVideoImport } from "$/adapters/files/video-import";
+import { createBrowserWebpExportPort } from "$/adapters/files/webp-export";
+import { createBrowserProjectSharing } from "$/adapters/sharing/browser-project-sharing";
+import { ShareOperation } from "$/adapters/sharing/share-protocol";
 import { importAsepriteInWorker } from "$/adapters/workers/aseprite-import-client";
 import { ImageImportWorkerClient } from "$/adapters/workers/import-client";
+import { createBrowserNormalMapProcessor } from "$/adapters/workers/normal-map-client";
+import { importPsdInWorker } from "$/adapters/workers/psd-import-client";
 import { RecoveryCodecClient } from "$/adapters/workers/recovery-codec-client";
 import type { RecoveryCodecRequest } from "$/adapters/workers/recovery-codec-worker";
+import { VideoImportOperation } from "$/adapters/workers/video-import-protocol";
 import { importWithRetry } from "$/adapters/workers/worker-load-failure";
 import {
   CHUNK_LOAD_FAILED_EVENT,
   WORKER_LOAD_ERROR_NAME,
   type ChunkLoadFailureDetail,
 } from "$/managers/ports/chunk-load";
+import { NormalMapProcessingOperation } from "$/managers/ports/normal-map-processing";
+import { WebpCompression } from "@xprite/editor-core/import-export";
 
 class SilentWorker extends EventTarget {
   readonly posted: unknown[] = [];
@@ -310,6 +320,262 @@ describe("Aseprite import worker", () => {
     controller.abort();
     await assert.rejects(pending, (error: Error) => error.name === "AbortError");
     assert.equal(workers.length, 1);
+  });
+});
+
+describe("migrated editor workers bounded startup retry", () => {
+  it("retries ImageImportWorkerClient startup once before announcing", async () => {
+    const announced = listenForChunkFailures();
+    const workers: AnsweringWorker[] = [];
+    const client = new ImageImportWorkerClient({
+      workerFactory: () => {
+        const worker = new AnsweringWorker(workers.length > 0);
+        workers.push(worker);
+        return worker as never;
+      },
+      retryDelayMs: 1,
+    });
+    const result = await client.analyze({ width: 1, height: 1, data: new Uint8ClampedArray(4) });
+    assert.ok(result);
+    assert.equal(workers.length, 2);
+    assert.equal(workers[0].terminated, true);
+    assert.equal(announced.length, 0);
+    client.close();
+  });
+
+  it("retries PSD import worker once and announces on exhaustion", async () => {
+    const announced = listenForChunkFailures();
+    const workers: JobWorker[] = [];
+    const createWorker = () => {
+      const worker = new JobWorker(false);
+      workers.push(worker);
+      return worker as unknown as Worker;
+    };
+    await assert.rejects(
+      importPsdInWorker(
+        { bytes: new Uint8Array(8), fileName: "a.psd", limits: {} as never },
+        undefined,
+        { createWorker, retryDelayMs: 1 },
+      )!,
+      (error: Error) => error.name === WORKER_LOAD_ERROR_NAME,
+    );
+    assert.equal(workers.length, 2);
+    assert.equal(announced.length, 1);
+    assert.match((announced[0] as Error).message, /PSD import worker script/);
+  });
+
+  it("retries normal map worker and resends textures after worker reset", async () => {
+    const announced = listenForChunkFailures();
+    const workers: SilentWorker[] = [];
+    const processor = createBrowserNormalMapProcessor({
+      workerFactory: () => {
+        const index = workers.length;
+        const worker = new (class extends SilentWorker {
+          override postMessage(request: unknown): void {
+            super.postMessage(request);
+            queueMicrotask(() => {
+              if (index === 0) {
+                this.dispatchEvent(new Event("error"));
+              } else {
+                const req = request as { id: number };
+                this.dispatchEvent(
+                  new MessageEvent("message", {
+                    data: {
+                      id: req.id,
+                      pixels: { width: 1, height: 1, data: new Uint8ClampedArray(4) },
+                    },
+                  }),
+                );
+              }
+            });
+          }
+        })();
+        workers.push(worker);
+        return worker as never;
+      },
+      retryDelayMs: 1,
+    });
+    const source = { width: 1, height: 1, data: new Uint8ClampedArray([10, 20, 30, 255]) };
+    const result = await processor.process({
+      operation: NormalMapProcessingOperation.Light,
+      source,
+      normals: null,
+      mask: null,
+      options: {} as never,
+    });
+    assert.equal(result.pixels.width, 1);
+    assert.equal(workers.length, 2);
+    assert.ok(
+      (workers[1].posted[0] as { textures?: unknown }).textures,
+      "resends textures on retry",
+    );
+    assert.equal(announced.length, 0);
+    processor.dispose();
+  });
+
+  it("falls back to in-process PNG encoding and announces once when raster export worker fails to load", async () => {
+    const announced = listenForChunkFailures();
+    const workers: JobWorker[] = [];
+    const port = createBrowserRasterExportPort({
+      createWorker: () => {
+        const worker = new JobWorker(false);
+        workers.push(worker);
+        return worker as unknown as Worker;
+      },
+      retryDelayMs: 1,
+    });
+    const pixels = { width: 1, height: 1, data: new Uint8ClampedArray([255, 0, 0, 255]) };
+    const blob = await port.encodePngBuffer(pixels);
+    assert.equal(blob.type, "image/png");
+    assert.ok(blob.size > 0);
+    assert.equal(workers.length, 2);
+    assert.equal(announced.length, 1);
+    assert.match((announced[0] as Error).message, /raster export worker script/);
+  });
+
+  it("retries WebP export worker startup and announces on exhaustion", async () => {
+    const announced = listenForChunkFailures();
+    const workers: JobWorker[] = [];
+    const port = createBrowserWebpExportPort({
+      createWorker: () => {
+        const worker = new JobWorker(false);
+        workers.push(worker);
+        return worker as unknown as Worker;
+      },
+      retryDelayMs: 1,
+    });
+    await assert.rejects(
+      port.encode(
+        [
+          {
+            sourceFrame: 0,
+            duration: 50,
+            pixels: { width: 1, height: 1, data: new Uint8ClampedArray(4) },
+          },
+        ],
+        {
+          compression: WebpCompression.Lossless,
+          qualityPercent: 90,
+          animated: false,
+          loopCount: 0,
+        },
+      ),
+      (error: Error) => error.name === WORKER_LOAD_ERROR_NAME,
+    );
+    assert.equal(workers.length, 2);
+    assert.equal(announced.length, 1);
+    assert.match((announced[0] as Error).message, /WebP export worker script/);
+  });
+
+  it("retries video import worker on Open startup failure and forwards streaming progress", async () => {
+    const announced = listenForChunkFailures();
+    const workers: SilentWorker[] = [];
+    const progressValues: number[] = [];
+    const handle = await openVideoImport(
+      new File(["video"], "clip.mp4", { type: "video/mp4" }),
+      new AbortController().signal,
+      (progress) => progressValues.push(progress.fraction),
+      {
+        workerFactory: () => {
+          const index = workers.length;
+          const worker = new (class extends SilentWorker {
+            override postMessage(request: unknown): void {
+              super.postMessage(request);
+              const req = request as { id: number };
+              queueMicrotask(() => {
+                if (index === 0) {
+                  this.dispatchEvent(new Event("error"));
+                } else {
+                  this.dispatchEvent(
+                    new MessageEvent("message", {
+                      data: {
+                        id: req.id,
+                        progress: { phase: "reading", completed: 1, total: 2, fraction: 0.5 },
+                      },
+                    }),
+                  );
+                  this.dispatchEvent(
+                    new MessageEvent("message", {
+                      data: {
+                        id: req.id,
+                        ok: true,
+                        result: {
+                          operation: VideoImportOperation.Open,
+                          metadata: {
+                            width: 16,
+                            height: 16,
+                            durationSeconds: 1,
+                            frameRate: 12,
+                            codec: "avc1",
+                            grid: {},
+                          },
+                        },
+                      },
+                    }),
+                  );
+                }
+              });
+            }
+          })();
+          workers.push(worker);
+          return worker as never;
+        },
+        retryDelayMs: 1,
+      },
+    );
+    assert.equal(handle.metadata.width, 16);
+    assert.deepEqual(progressValues, [0.5]);
+    assert.equal(workers.length, 2);
+    assert.equal(announced.length, 0);
+    handle.dispose();
+  });
+
+  it("retries project sharing worker startup and resolves on second attempt", async () => {
+    const announced = listenForChunkFailures();
+    (globalThis as { window?: unknown }).window = Object.assign(new EventTarget(), {
+      location: { origin: "https://xprite.cc" },
+    });
+    const workers: SilentWorker[] = [];
+    const sharing = createBrowserProjectSharing({
+      createWorker: () => {
+        const index = workers.length;
+        const worker = new (class extends SilentWorker {
+          override postMessage(request: unknown): void {
+            super.postMessage(request);
+            queueMicrotask(() => {
+              if (index === 0) {
+                this.dispatchEvent(new Event("error"));
+              } else {
+                this.dispatchEvent(
+                  new MessageEvent("message", {
+                    data: {
+                      operation: ShareOperation.Encode,
+                      url: "https://xprite.cc/editor#s=abc",
+                      urlCharacters: 30,
+                      frameCount: 1,
+                      layerCount: 1,
+                      qr: null,
+                    },
+                  }),
+                );
+              }
+            });
+          }
+        })();
+        workers.push(worker);
+        return worker as never;
+      },
+      retryDelayMs: 1,
+    });
+    const artifact = await sharing.create(
+      {} as never,
+      { maxUrlCharacters: 1024, maxProjectBytes: 1024 } as never,
+      new AbortController().signal,
+    );
+    assert.equal(artifact.url, "https://xprite.cc/editor#s=abc");
+    assert.equal(workers.length, 2);
+    assert.equal(workers[0].terminated, true);
+    assert.equal(announced.length, 0);
   });
 });
 
