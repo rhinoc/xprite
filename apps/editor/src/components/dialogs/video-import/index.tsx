@@ -181,6 +181,7 @@ export function VideoImportDialog({
         if (!open) onCancel();
       }}
       title={`${tUi("video.import.title")} — ${state.name}`}
+      submitOnEnter={false}
       width={metadata ? DIALOG_WIDTH : LOADING_DIALOG_WIDTH}
       height={DIALOG_HEIGHT}
       scrollFields={!!metadata}

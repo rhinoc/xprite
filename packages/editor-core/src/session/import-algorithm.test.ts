@@ -6,12 +6,11 @@ import { RasterEditor } from "$/editor/RasterEditor";
 import { rasterAnimationProject } from "$/import-export/image/animation";
 import { EditorSession } from "$/session/editor-session";
 import { createBlankImage } from "$/session/recent-images";
-import type { EditorSessionPorts, ImportPixelationMemory } from "$/session/types";
+import type { EditorSessionPorts } from "$/session/types";
 import {
   pixelateImage,
   detectWithAlgorithm,
   CellColorPicker,
-  LineGuideMode,
   OutlinePrepass,
   PixelArtClassification,
   PixelationAlgorithm,
@@ -380,22 +379,18 @@ describe("import dialog algorithm switching", () => {
   });
 });
 
-describe("silent Pixelate import (Don't ask me again)", () => {
+describe("import dialog preference", () => {
   const art = sprite(32);
   const upscaled = upscaleNearest(art, 4);
-  function silentSession(choice: string, pixelation?: ImportPixelationMemory | null) {
-    const results: PixelBuffer[] = [];
-    const session = new EditorSession(new RasterEditor(createBlankImage(2, 2), "Original"), {
+  function sessionWithChoice(choice: string) {
+    const editor = new RasterEditor(createBlankImage(2, 2), "Original");
+    const session = new EditorSession(editor, {
       decode: async () => upscaled,
       analyze: async (pixels, options) => ({
         classification: PixelArtClassification.LikelyPixelArt,
         grid: fixtureGrid(pixels, options?.algorithm),
       }),
-      pixelate: async (pixels, options) => {
-        const out = pixelateImage(pixels, options);
-        results.push(out);
-        return out;
-      },
+      pixelate: async (pixels, options) => pixelateImage(pixels, options),
       write: async (_pixels, name) => ({ method: "download", name }),
       releaseSource: () => {},
       dispose: () => {},
@@ -403,69 +398,19 @@ describe("silent Pixelate import (Don't ask me again)", () => {
         choice,
         algorithm: Auto,
         colorPicker: CellColorPicker.MostCommon,
-        pixelation,
       }),
     } as EditorSessionPorts<string>);
-    return { session, results };
+    return { editor, session };
   }
-  async function importSilently(pixelation?: ImportPixelationMemory | null) {
-    const { session, results } = silentSession("always-pixelate", pixelation);
+  test("always-import-as-is installs the original directly without opening the dialog", async () => {
+    const { editor, session } = sessionWithChoice("always-import-as-is");
     await session.requestImport({ source: "art", name: "art.png" });
-    for (let i = 0; i < 50 && session.getSnapshot().pendingImport; i++)
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    return { session, imported: results.at(-1)! };
-  }
-  test("a saved None import repeats the exact grid recovery", async () => {
-    const { session, imported } = await importSilently({
-      prepass: OutlinePrepass.None,
-      lineGuide: LineGuideMode.Union,
-      colorPicker: CellColorPicker.MostCommon,
-      reduceColors: false,
-      maxColors: 16,
-    });
     expect(session.getSnapshot().pendingImport).toBeNull();
-    expect(imported).toEqual(art);
+    expect(editor.getSnapshot().document?.layer?.pixels).toEqual(upscaled);
     session.dispose();
   });
-  test("with nothing saved the silent import uses plain recovery without a color limit", async () => {
-    const { session, imported } = await importSilently(null);
-    expect(session.getSnapshot().pixelationOptions).toMatchObject({
-      prepass: OutlinePrepass.None,
-      colorPicker: CellColorPicker.MostCommon,
-      reduceColors: false,
-    });
-    expect(imported).toEqual(art);
-    session.dispose();
-  });
-  test("a saved Add to outlines import keeps Add to outlines", async () => {
-    const { session, imported } = await importSilently({
-      prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Union,
-      colorPicker: CellColorPicker.Contrast,
-      reduceColors: false,
-      maxColors: 16,
-    });
-    expect(session.getSnapshot().pixelationOptions).toMatchObject({
-      prepass: OutlinePrepass.PixeloeLines,
-      lineGuide: LineGuideMode.Union,
-    });
-    expect(imported).toEqual(
-      pixelateImage(upscaled, {
-        mode: PixelationMode.RecoverGrid,
-        grid: detectWithAlgorithm(upscaled, Auto),
-        prepass: OutlinePrepass.PixeloeLines,
-        lineGuide: LineGuideMode.Union,
-        colorPicker: CellColorPicker.Contrast,
-      }),
-    );
-    session.dispose();
-  });
-  test("the dialog uses plain defaults when the silent path has saved outline settings", async () => {
-    const { session } = silentSession("always-ask", {
-      prepass: OutlinePrepass.PixeloeLines,
-      colorPicker: CellColorPicker.Contrast,
-      reduceColors: true,
-    });
+  test("always-pixelate still opens the dialog on plain defaults instead of auto-closing", async () => {
+    const { editor, session } = sessionWithChoice("always-pixelate");
     await session.requestImport({ source: "art", name: "art.png" });
     await settle(session);
     expect(session.getSnapshot().pendingImport).not.toBeNull();
@@ -474,6 +419,7 @@ describe("silent Pixelate import (Don't ask me again)", () => {
       colorPicker: CellColorPicker.MostCommon,
       reduceColors: false,
     });
+    expect(editor.getSnapshot().document?.name).toBe("Original");
     session.dispose();
   });
 });

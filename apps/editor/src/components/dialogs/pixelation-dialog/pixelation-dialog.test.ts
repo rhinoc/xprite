@@ -13,7 +13,7 @@ import {
   computePixelationPreviewHeight,
   DIALOG_CHROME_HEIGHT,
   DIALOG_HEIGHT,
-  FOOTER_STACK_HEIGHT,
+  FOOTER_HEIGHT,
   FRAME_STEPPER_HEIGHT,
   GAP,
   VIEWPORT_VERTICAL_MARGIN,
@@ -88,7 +88,7 @@ describe("pixelation dialog layout", () => {
       showAdvanced: true,
       hasMultiFrame: false,
     });
-    const parameterHeight = clientHeight - previewHeight - GAP - FOOTER_STACK_HEIGHT - GAP;
+    const parameterHeight = clientHeight - previewHeight - GAP - FOOTER_HEIGHT - GAP;
     assert.ok(
       parameterHeight >= computePixelationParameterHeight(flags),
       `expected parameterHeight (${parameterHeight}) >= content height (${computePixelationParameterHeight(flags)})`,
@@ -195,5 +195,60 @@ describe("pixelation dialog rendering", () => {
     const sliderTag = multiFrameHtml.match(/<div\b[^>]*role="slider"[^>]*>/)?.[0];
     assert.ok(sliderTag, "expected split comparison slider inside dialog");
     assert.match(sliderTag, /aria-label="(?:Compare slider|对比滑块)"/);
+  });
+
+  it("shows the Don't ask me again checkbox only for Keep as is and hides it for Pixelate", async () => {
+    const initialTheme = await loadUiThemeSnapshot(UiColorScheme.Light, asepriteTheme);
+    const renderMode = (importLastAction: "import-as-is" | "pixelate") => {
+      const pixels = makePixels(32, 32);
+      const workflow: Parameters<typeof PixelationDialog>[0]["workflow"] = {
+        pending: {
+          sourcePalette: [],
+          grid: null,
+          algorithm: PixelationAlgorithm.Auto,
+          pixels,
+          name: "sprite.png",
+          width: 32,
+          height: 32,
+          classification: PixelArtClassification.LikelyPixelArt,
+          frameCount: 1,
+          previewFrame: 0,
+        },
+        pixelationOptions: defaultPixelationSettings({ width: 32, height: 32 }),
+        pixelationPreview: pixels,
+        pixelationPreviewing: false,
+        pixelationError: null,
+        setPixelationOptions() {},
+        setImportAlgorithm() {},
+        setImportPreviewFrame() {},
+        setFilePreferences() {},
+        getFilePreferences: () => ({ ...DEFAULT_FILE_PREFERENCES, importLastAction }),
+        busy: false,
+        discardEmptyImport() {},
+        acceptOriginalImport() {},
+        acceptPixelatedImport() {},
+      };
+      return renderToString(
+        React.createElement(
+          EditorPlatformProvider,
+          { ports: TEST_PLATFORM_PORTS },
+          React.createElement(
+            UIProvider,
+            { theme: asepriteTheme, initialTheme, translateKey: (key: string) => key },
+            React.createElement(
+              SceneBoundsContext.Provider,
+              { value: { x: 0, y: 0, width: 1280, height: 900 } },
+              React.createElement(PixelationDialog, { workflow }),
+            ),
+          ),
+        ),
+      );
+    };
+
+    const pixelateHtml = renderMode("pixelate");
+    assert.doesNotMatch(pixelateHtml, /Don(?:&#x27;|')t ask me again|不再询问/);
+
+    const keepAsIsHtml = renderMode("import-as-is");
+    assert.match(keepAsIsHtml, /Don(?:&#x27;|')t ask me again|不再询问/);
   });
 });

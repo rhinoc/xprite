@@ -17,7 +17,7 @@ import { EditorColorButton } from "$/components/tools/editor-color-button";
 import { WorkspaceLink, WorkspaceLinkVariant } from "$/components/workspace/workspace-link";
 import { tUiSource, useUiLanguage, tUi } from "$/i18n";
 import type { FormLayout } from "$/managers/dialogs/form-layout";
-import { createUiPortal, defaultActionProps } from "@xprite/ui";
+import { createUiPortal, defaultActionProps, triggerDefaultAction } from "@xprite/ui";
 import {
   Button,
   ButtonVariant,
@@ -39,7 +39,6 @@ import {
 } from "@xprite/ui";
 import { measureUiText } from "@xprite/ui/assets";
 import { measurePopoverAnchor } from "@xprite/ui/popover";
-import { isImeKeyboardEvent, keyboardEventKey } from "@xprite/ui/utils";
 
 type FieldBase = { key: string; label: string; disabled?: boolean; row?: string };
 export type FormField = FieldBase &
@@ -206,8 +205,6 @@ export function FormDialog({
   const [colorAnchor, setColorAnchor] = useState<SurfaceBounds>();
   const colorTrigger = useRef<HTMLElement | null>(null);
   const [flowHeight, setFlowHeight] = useState<number | null>(null);
-  const currentActions = useRef(actions);
-  currentActions.current = actions;
   const close = useRef(onOpenChange);
   close.current = onOpenChange;
   useEffect(() => {
@@ -325,21 +322,6 @@ export function FormDialog({
       else target?.focus({ preventScroll: true });
     },
     onEscape: () => close.current(false),
-    onKeyDown: (event) => {
-      if (
-        submitOnEnter &&
-        keyboardEventKey(event) === "Enter" &&
-        event.target instanceof HTMLInputElement &&
-        event.target.getAttribute("role") !== "combobox"
-      ) {
-        const action = currentActions.current.find((action) => !action.disabled);
-        if (action) {
-          event.preventDefault();
-          event.stopPropagation();
-          action.onClick();
-        }
-      }
-    },
   });
   const bounds = {
     x: position?.x ?? Math.round((scene.width - dialogWidth) / 2),
@@ -796,23 +778,10 @@ export function FormDialog({
         }}
         style={{ position: "relative", ...embeddedSize }}
         onKeyDown={(event) => {
-          if (
-            isImeKeyboardEvent(event.nativeEvent) ||
-            isDialogPopupTarget(host.current, event.target)
-          )
-            return;
-          if (
-            submitOnEnter &&
-            event.key === "Enter" &&
-            event.target instanceof HTMLInputElement &&
-            event.target.getAttribute("role") !== "combobox"
-          ) {
-            const action = actions.find((action) => !action.disabled);
-            if (action) {
-              event.preventDefault();
-              event.stopPropagation();
-              action.onClick();
-            }
+          if (isDialogPopupTarget(host.current, event.target)) return;
+          if (submitOnEnter && triggerDefaultAction(host.current, event.nativeEvent)) {
+            event.preventDefault();
+            event.stopPropagation();
           }
         }}
       >

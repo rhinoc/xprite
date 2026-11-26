@@ -236,14 +236,19 @@ export function FilesPreferences({
       />
       {combo("Keep closed sprite on memory for", 321, 15, intervals, true, noop, 452)}
 
-      {/* The only import setting: whether to be asked. Last picks are remembered automatically. */}
+      {/* The only import setting: whether to ask, or open original images directly as-is. */}
       <PreferencesCheckbox
         label={tUi("import.preferences.ask")}
         checked={filePreferences.importAsk}
         bounds={narrowLayout ? box(358, 476, 333, 16) : box(358, 345, 333, 16)}
         relativeTo={client}
         disabled={!filePreferencesEnabled}
-        onCheckedChange={(importAsk) => onFilePreferencesChange({ importAsk })}
+        onCheckedChange={(importAsk) =>
+          onFilePreferencesChange({
+            importAsk,
+            ...(importAsk ? {} : { importLastAction: "import-as-is" }),
+          })
+        }
       />
     </>
   );

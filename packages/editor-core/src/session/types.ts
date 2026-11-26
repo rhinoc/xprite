@@ -9,20 +9,6 @@ import type {
   PixelateOptions,
   PixelationSettings,
 } from "@xprite/pixelate";
-/** What the import dialog remembers of its last Pixelate import for the silent path. */
-export type ImportPixelationMemory = Partial<
-  Pick<
-    PixelationSettings,
-    | "prepass"
-    | "lineGuide"
-    | "colorPicker"
-    | "reduceColors"
-    | "maxColors"
-    | "dither"
-    | "paletteColorMode"
-    | "removeNoise"
-  >
->;
 export interface SessionSource<Source> {
   readonly palette?: readonly Rgba[];
   readonly source: Source;
@@ -104,8 +90,6 @@ export interface EditorSessionPorts<Source> {
     choice: string;
     algorithm: string;
     colorPicker?: string;
-    /** The pixelation the dialog last imported with; the silent Pixelate path repeats it. */
-    pixelation?: ImportPixelationMemory | null;
   };
   releaseSource?(source: Source): void;
   dispose?(): void;

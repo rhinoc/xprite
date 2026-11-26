@@ -38,6 +38,7 @@ export interface PixelationParameterFlags {
 export interface PixelationDialogHeightInput extends PixelationParameterFlags {
   availableHeight: number;
   hasMultiFrame: boolean;
+  showRemember?: boolean;
 }
 
 export function computePixelationParameterHeight({
@@ -79,6 +80,7 @@ export function computePixelationDialogHeight(input: PixelationDialogHeightInput
   }
   const parameterContentHeight = computePixelationParameterHeight(input);
   const preferredPreview = input.showAdvanced ? PREVIEW_EXPANDED_MAX : PREVIEW_MAX;
+  const footerSpace = input.showRemember ? FOOTER_STACK_HEIGHT : FOOTER_HEIGHT;
   const neededHeight =
     DIALOG_CHROME_HEIGHT +
     preferredPreview +
@@ -86,15 +88,20 @@ export function computePixelationDialogHeight(input: PixelationDialogHeightInput
     GAP +
     parameterContentHeight +
     GAP +
-    FOOTER_STACK_HEIGHT;
+    footerSpace;
   return Math.min(Math.max(baseHeight, neededHeight), maxHeight);
 }
 
 export function computePixelationPreviewHeight(
   clientHeight: number,
-  { showAdvanced, hasMultiFrame }: { showAdvanced: boolean; hasMultiFrame: boolean },
+  {
+    showAdvanced,
+    hasMultiFrame,
+    showRemember = false,
+  }: { showAdvanced: boolean; hasMultiFrame: boolean; showRemember?: boolean },
 ): number {
   const frameStepperSpace = hasMultiFrame ? FRAME_STEPPER_HEIGHT + GAP : 0;
+  const footerSpace = showRemember ? FOOTER_STACK_HEIGHT : FOOTER_HEIGHT;
   const maxPreview = showAdvanced ? PREVIEW_EXPANDED_MAX : PREVIEW_MAX;
   const share = showAdvanced ? PREVIEW_EXPANDED_SHARE : PREVIEW_SHARE;
   return Math.max(
@@ -102,7 +109,7 @@ export function computePixelationPreviewHeight(
     Math.min(
       maxPreview,
       Math.round(clientHeight * share),
-      clientHeight - FOOTER_STACK_HEIGHT - PARAMETER_MIN_HEIGHT - frameStepperSpace - GAP * 2,
+      clientHeight - footerSpace - PARAMETER_MIN_HEIGHT - frameStepperSpace - GAP * 2,
     ),
   );
 }
