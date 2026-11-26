@@ -550,7 +550,7 @@ export function useEditorWorkflows(managerOptions: EditorWorkflowOptions) {
     textSize: preferencesAndText.textSize,
     setTextSize: preferencesAndText.setTextSize,
     ...output,
-    sheetFileIntent: fileImport.sheetFileIntent,
+    openSpriteSheetFile: fileImport.openSpriteSheetFile,
     recoveryOpen: recovery.recoveryOpen,
     setRecoveryOpen: recovery.setRecoveryOpen,
     recoveryItems: recovery.recoveryItems,

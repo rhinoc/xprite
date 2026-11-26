@@ -30,6 +30,13 @@ export interface FilesStorageEstimate {
   persisted: boolean;
 }
 
+export interface FilesInputElement {
+  multiple: boolean;
+  accept: string;
+  value: string;
+  click(): void;
+}
+
 /** Browser storage, navigation and download capabilities for Files. Never uploads. */
 export interface FilesPort {
   list(): Promise<FileEntry[]>;
@@ -47,6 +54,8 @@ export interface FilesPort {
   estimate(): Promise<FilesStorageEstimate | null>;
   persist(): Promise<boolean>;
   download(files: readonly File[], archiveName: string): Promise<void>;
+  /** Configure and open a file input without triggering Android's audio permission prompt. */
+  openFileInput?(input: FilesInputElement, androidAccept: string): void;
   openInEditor(entry: FileEntry, file?: File): Promise<void>;
   /** Navigate to another tool page, which loads the item through takeHandoff. */
   openInTool(href: string, entry: FileEntry): void;

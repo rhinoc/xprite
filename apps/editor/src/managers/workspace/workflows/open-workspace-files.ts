@@ -1,7 +1,9 @@
+import { openBrowserFileInput } from "@xprite/bedrock/browser/file-system";
 import type { SessionSource } from "@xprite/editor-core/session";
 
 export interface FallbackFileInput {
   multiple: boolean;
+  accept?: string;
   value?: string;
   click(): void;
 }
@@ -13,6 +15,7 @@ export interface OpenWorkspaceFilesOptions {
   onRequested(): void;
   pickFiles(): Promise<readonly SessionSource<string>[]> | null;
   fallbackInput(): FallbackFileInput | null;
+  androidAccept?: string;
   onSources(sources: readonly SessionSource<string>[]): void;
   onCancelled(): void;
   onError(reason: unknown): void;
@@ -32,9 +35,7 @@ export function openWorkspaceFiles(options: OpenWorkspaceFilesOptions): void {
   if (!picking) {
     const input = options.fallbackInput();
     if (input) {
-      input.multiple = true;
-      if ("value" in input) input.value = "";
-      input.click();
+      openBrowserFileInput(input, { multiple: true, androidAccept: options.androidAccept });
     }
     return;
   }

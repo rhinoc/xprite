@@ -18,6 +18,7 @@ import type { FilesTextKey } from "$/managers/locale/files-text";
 import {
   FileEntryKind,
   type FileEntry,
+  type FilesInputElement,
   type FilesPort,
   type FilesStorageEstimate,
 } from "$/managers/ports/files";
@@ -100,6 +101,9 @@ function storageCategory(reason: unknown): string {
   return "io";
 }
 
+const FILES_ANDROID_FILE_ACCEPT =
+  "image/*,video/*,.ase,.aseprite,.psd,.psb,application/octet-stream";
+
 /** Owns the Files window, its selection and every file operation. Bytes stay in the browser. */
 export class FilesManager {
   private state: FilesSnapshot = INITIAL;
@@ -116,6 +120,17 @@ export class FilesManager {
 
   /** Registered by the open Files window; menu bar items call these. */
   commands: FilesCommands = {};
+
+  /** Open the local file picker with a non-audio Android accept list so Chrome skips RECORD_AUDIO. */
+  openFilePicker(input: FilesInputElement | null): void {
+    if (!input) return;
+    if (this.port.openFileInput) {
+      this.port.openFileInput(input, FILES_ANDROID_FILE_ACCEPT);
+      return;
+    }
+    input.value = "";
+    input.click();
+  }
 
   getSnapshot = () => this.state;
   subscribe = (listener: () => void) => {

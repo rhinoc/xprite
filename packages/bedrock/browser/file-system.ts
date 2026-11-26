@@ -133,6 +133,32 @@ export interface BrowserFileSelectionOptions extends OpenFilePickerOptions {
   signal?: AbortSignal;
 }
 
+export interface OpenFileInputElement {
+  multiple: boolean;
+  accept?: string;
+  value?: string;
+  click(): void;
+}
+
+/**
+ * Configures and clicks an `<input type="file">` synchronously inside user activation.
+ * On Android Chrome, an empty `accept` enters `SelectFileDialog`'s wildcard media chooser
+ * and prompts for audio permissions (`RECORD_AUDIO`). Passing `androidAccept` applies a
+ * non-audio filter only on Android while leaving iOS and desktop unrestricted so custom
+ * extensions like `.aseprite` stay selectable in iOS Files and desktop dialogs.
+ */
+export function openBrowserFileInput(
+  input: OpenFileInputElement,
+  options: { multiple?: boolean; androidAccept?: string } = {},
+): void {
+  if (options.multiple !== undefined) input.multiple = options.multiple;
+  if (options.androidAccept !== undefined && "accept" in input) {
+    input.accept = isAndroidPlatform() ? options.androidAccept : "";
+  }
+  if ("value" in input) input.value = "";
+  input.click();
+}
+
 /** Select files with one cancellation and cleanup lifecycle for native and input pickers. */
 export async function selectBrowserFiles({
   accept = "",

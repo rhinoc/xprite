@@ -20,6 +20,7 @@ import {
   type NumberedPngGroup,
 } from "$/managers/workspace/file-import-plan";
 import { openWorkspaceFiles } from "$/managers/workspace/workflows/open-workspace-files";
+import { openBrowserFileInput } from "@xprite/bedrock/browser/file-system";
 import {
   projectFromClipboardImage,
   type ClipboardImage,
@@ -37,6 +38,9 @@ import { readBundledPalettePresets } from "@xprite/editor-ui/palette-presets";
 import { PalettePresetKind } from "@xprite/editor-ui/palette/model";
 
 const NEW_SPRITE_FILE_EXTENSION = ".aseprite";
+/** Non-audio accept list applied only on Android so Chrome does not request RECORD_AUDIO. */
+const EDITOR_ANDROID_FILE_ACCEPT =
+  "image/*,video/*,.ase,.aseprite,.psd,.psb,application/octet-stream";
 
 /** Clamp user-entered PNG sequence frame duration to valid Aseprite millisecond bounds. */
 export function clampSequenceFrameDuration(duration: number): number {
@@ -234,10 +238,21 @@ export function useFileImportWorkflows(options: FileImportWorkflowOptions) {
       onRequested: () => telemetry.documentOpenRequested(DocumentOpenMethod.Import),
       pickFiles: () => workspace.ports.pickFiles(),
       fallbackInput: () => input.current,
+      androidAccept: EDITOR_ANDROID_FILE_ACCEPT,
       onSources: requestSources,
       onCancelled: () => telemetry.documentOpenCancelled(DocumentOpenMethod.Import),
       onError: (reason) => session.reportError(reason, SessionOperation.Import),
     });
+  };
+
+  const openSpriteSheetFile = () => {
+    sheetFileIntent.current = true;
+    if (input.current) {
+      openBrowserFileInput(input.current, {
+        multiple: false,
+        androidAccept: EDITOR_ANDROID_FILE_ACCEPT,
+      });
+    }
   };
 
   const openFromClipboard = () => {
@@ -327,7 +342,7 @@ export function useFileImportWorkflows(options: FileImportWorkflowOptions) {
 
   return {
     input,
-    sheetFileIntent,
+    openSpriteSheetFile,
     sequenceImport,
     sequenceDuration,
     setSequenceDuration,

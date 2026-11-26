@@ -212,7 +212,11 @@ export function PaletteActions() {
       mnemonic: "o",
       separator: true,
       disabled: busy,
-      onSelect: () => picker.current?.click(),
+      onSelect: () => {
+        if (!picker.current) return;
+        picker.current.value = "";
+        picker.current.click();
+      },
     },
     {
       label: "Load Default Palette",
