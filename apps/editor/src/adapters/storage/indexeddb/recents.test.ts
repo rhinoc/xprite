@@ -141,6 +141,52 @@ describe("indexeddb-recents", () => {
     a.close();
     b.close();
     recreated.close();
+    const staleTab = new IndexedDbRecentImages({ factory, databaseName: "retry-cross-tab" });
+    const newerTab = new IndexedDbRecentImages({ factory, databaseName: "retry-cross-tab" });
+    await staleTab.save([first]);
+    const staleSnapshot = await loadRecents(staleTab);
+    await newerTab.save([second]);
+    await assert.rejects(
+      staleTab.save(staleSnapshot, { retry: true }),
+      /changed in another tab/,
+      "retry must not delete another tab's new record or resurrect its removed record",
+    );
+    assert.deepEqual(
+      (await newerTab.list()).map((item) => item.id),
+      [second.id],
+    );
+    await staleTab.save([first]);
+    const oldPixels = await loadRecents(staleTab);
+    await newerTab.save([{ ...first, name: "Newer.png", image: second.image }]);
+    await assert.rejects(staleTab.save(oldPixels, { retry: true }), /changed in another tab/);
+    assert.equal((await loadRecents(newerTab))[0].name, "Newer.png");
+    const getCodec = staleTab.getCodec;
+    staleTab.getCodec = () => ({
+      packRecent: async () => {
+        throw new Error("Injected packing disconnect");
+      },
+    });
+    try {
+      await assert.rejects(
+        staleTab.save([{ ...oldPixels[0], contentVersion: {} }]),
+        /Injected packing disconnect/,
+      );
+    } finally {
+      staleTab.getCodec = getCodec;
+    }
+    await assert.rejects(
+      staleTab.save(oldPixels, { retry: true }),
+      /changed in another tab/,
+      "a failed normal write cannot adopt another tab's newer catalog as its retry baseline",
+    );
+    const unknownBaseline = new IndexedDbRecentImages({ factory, databaseName: "retry-cross-tab" });
+    await assert.rejects(
+      unknownBaseline.save(oldPixels, { retry: true }),
+      /changed in another tab/,
+    );
+    staleTab.close();
+    newerTab.close();
+    unknownBaseline.close();
     console.log(
       "IndexedDB recent-file checks passed, including reload bytes, typed-array offsets, ordering, persisted clear, atomic invalid-write protection and database isolation.",
     );
@@ -280,7 +326,7 @@ describe("indexeddb-recents", () => {
         "an aborted payload write cannot publish new list metadata",
       );
       puts.length = 0;
-      await adapter.save([updated, loaded[0]]);
+      await adapter.save([updated, loaded[0]], { retry: true });
       assert.equal(
         puts.filter((name) => name === "images").length,
         1,

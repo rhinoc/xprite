@@ -64,7 +64,16 @@ export interface RecentIdentityPort {
 export interface EditorSessionPorts<Source> {
   listRecentImages?(): Promise<readonly SessionRecentMetadata[]>;
   readRecentImage?(id: string): Promise<SessionRecentImage | null>;
-  saveRecentImages?(images: readonly SessionRecentEntry[]): Promise<void>;
+  saveRecentImages?(
+    images: readonly SessionRecentEntry[],
+    options?: { retry: boolean },
+  ): Promise<void>;
+  /** Platform scheduling and classification for bounded recent-snapshot recovery. */
+  recentPersistenceRetry?: {
+    shouldRetry(reason: unknown): boolean;
+    schedule(callback: () => void, delayMs: number): unknown;
+    cancel(handle: unknown): void;
+  };
   /** Probe a source before single-image decoding. Return null for static images;
    * throw when a recognized project or animation is unsupported or malformed. */
   decodeProject?(source: Source): Promise<SessionProject | null>;

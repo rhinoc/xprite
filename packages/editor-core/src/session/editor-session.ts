@@ -109,6 +109,8 @@ const messageOf = (reason: unknown): string =>
 const cancelled = (reason: unknown) =>
   typeof reason === "object" && reason !== null && "name" in reason && reason.name === "AbortError";
 
+const RECENT_PERSISTENCE_RETRY_DELAYS_MS = [1_000, 3_000] as const;
+
 /** Application use cases with injected IO. Construction has no effects; snapshots
  * expose immutable pixel buffers for pending previews; no React, DOM, File, Worker or ambient timer enters this layer. */
 export class EditorSession<Source> {
@@ -133,6 +135,8 @@ export class EditorSession<Source> {
   private pendingPersistence = 0;
   private persistenceVersion = 0;
   private persistenceAvailable = true;
+  private persistenceRetryTimer: { handle: unknown } | null = null;
+  private persistenceRetryError: EditorSessionSnapshot["error"] = null;
   private activeRecentId: string | null = null;
   private lastSaveMethod: Exclude<SessionWriteResult, { cancelled: true }>["method"] | null = null;
   private recentHydrated = false;
@@ -314,6 +318,7 @@ export class EditorSession<Source> {
   }
   /** An explicit clear is authoritative, including an empty persisted list. */
   clearRecentFiles() {
+    this.cancelRecentPersistenceRetry();
     this.recentClearGeneration++;
     this.recentHydrated = true;
     this.recent.clear();
@@ -321,6 +326,7 @@ export class EditorSession<Source> {
   }
   /** The workspace persists selective removal after draining all shared writers. */
   removeRecentFiles(ids: readonly string[]) {
+    this.cancelRecentPersistenceRetry();
     this.recentClearGeneration++;
     this.recentHydrated = true;
     for (const id of ids) this.recent.remove(id);
@@ -383,20 +389,50 @@ export class EditorSession<Source> {
   flushPersistence(): Promise<void> {
     return this.persistence;
   }
-  private persistRecent() {
-    if (!this.ports.saveRecentImages || !this.persistenceAvailable) return;
-    const images = this.recent.getPersistenceSnapshot();
+  /** A workspace catalog replacement must invalidate delayed writes before it is queued. */
+  cancelRecentPersistenceRetry() {
+    this.cancelPersistenceRetry();
+    this.persistenceVersion++;
+  }
+  private cancelPersistenceRetry() {
+    if (this.persistenceRetryTimer) {
+      this.ports.recentPersistenceRetry?.cancel(this.persistenceRetryTimer.handle);
+      this.persistenceRetryTimer = null;
+    }
+  }
+  private persistRecent(retryAttempt = 0) {
+    this.cancelPersistenceRetry();
+    if (this.disposed || !this.ports.saveRecentImages || !this.persistenceAvailable) return;
+    const capturedImages = this.recent.getPersistenceSnapshot();
     const version = ++this.persistenceVersion;
     this.pendingPersistence++;
     this.publish({ persisting: true });
     this.persistence = this.persistence
       .then(async () => {
-        await this.ports.saveRecentImages!(images);
+        if (retryAttempt > 0 && (this.disposed || version !== this.persistenceVersion)) return;
+        const images = retryAttempt > 0 ? this.recent.getPersistenceSnapshot() : capturedImages;
+        await this.ports.saveRecentImages!(images, { retry: retryAttempt > 0 });
         this.recent.confirmPersistence(images);
+        if (version === this.persistenceVersion && this.persistenceRetryError) {
+          if (this.state.error === this.persistenceRetryError) this.clearError();
+          this.persistenceRetryError = null;
+        }
       })
       .catch((reason) => {
-        if (!this.disposed && version === this.persistenceVersion)
-          this.reportError(reason, SessionOperation.Recent);
+        if (this.disposed || version !== this.persistenceVersion) return;
+        this.reportError(reason, SessionOperation.Recent);
+        this.persistenceRetryError = this.state.error;
+        const retry = this.ports.recentPersistenceRetry;
+        const delay = RECENT_PERSISTENCE_RETRY_DELAYS_MS[retryAttempt];
+        if (!retry || delay === undefined || !retry.shouldRetry(reason)) return;
+        this.persistenceRetryTimer = {
+          handle: retry.schedule(() => {
+            if (this.disposed || version !== this.persistenceVersion) return;
+            this.persistenceRetryTimer = null;
+            // Capture the shared catalog again: another document may have saved meanwhile.
+            this.persistRecent(retryAttempt + 1);
+          }, delay),
+        };
       })
       .finally(() => {
         this.pendingPersistence--;
@@ -1407,6 +1443,7 @@ export class EditorSession<Source> {
   dispose() {
     if (this.disposed) return;
     this.disposed = true;
+    this.cancelPersistenceRetry();
     ++this.generation;
     this.importAnalyses.clear();
     this.previewQueued = false;

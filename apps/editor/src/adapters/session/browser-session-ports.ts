@@ -85,8 +85,16 @@ export class BrowserSessionPorts implements EditorSessionPorts<string> {
   }
   listRecentImages = () => this.recents.list();
   readRecentImage = (id: string) => this.recents.read(id);
-  saveRecentImages = (images: Parameters<IndexedDbRecentImages["save"]>[0]) =>
-    this.recents.save(images);
+  saveRecentImages = (...args: Parameters<IndexedDbRecentImages["save"]>) =>
+    this.recents.save(...args);
+  readonly recentPersistenceRetry = {
+    shouldRetry: (reason: unknown) =>
+      reason instanceof DOMException &&
+      reason.name === "UnknownError" &&
+      /connection to indexed database server lost/i.test(reason.message),
+    schedule: (callback: () => void, delayMs: number) => globalThis.setTimeout(callback, delayMs),
+    cancel: (handle: unknown) => globalThis.clearTimeout(handle as ReturnType<typeof setTimeout>),
+  };
   private nextId = 1;
   private readonly sources = new Map<string, BrowserSessionSource>();
   private readonly sourceChecksums = new Map<string, Promise<string | undefined>>();

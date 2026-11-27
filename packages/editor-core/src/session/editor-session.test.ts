@@ -16,6 +16,7 @@ describe("editor-session", () => {
     });
     const {
       EditorSession,
+      RecentImageStore,
       RasterEditor,
       createBlankImage,
       decodeAsepriteSync,
@@ -63,7 +64,7 @@ describe("editor-session", () => {
       new Uint8Array(fs.readFileSync("apps/editor/assets/examples/xprite/xprite.ase")),
       { inflate: (bytes) => new Uint8Array(inflateSync(bytes)) },
     );
-    function harness(overrides = {}, options) {
+    function harness(overrides = {}, options, sharedRecent) {
       const core = new RasterEditor(image(), "Original");
       const calls = [],
         released = [];
@@ -89,7 +90,7 @@ describe("editor-session", () => {
         dispose: () => disposed++,
         ...overrides,
       };
-      const session = new EditorSession(core, ports, options);
+      const session = new EditorSession(core, ports, options, sharedRecent);
       return {
         core,
         session,
@@ -1016,6 +1017,135 @@ describe("editor-session", () => {
       assert.equal(writes, 0);
       assert.equal(h.core.getSnapshot().document.name, "Imported");
       assert.equal(h.session.getSnapshot().error.message, "Storage blocked");
+    });
+    const retryHarness = (failures = 1, retryable = true, sharedRecent) => {
+      const timers = new Map();
+      const writes = [];
+      const disconnect = new Error("Connection to Indexed Database server lost");
+      const h = harness(
+        {
+          getImportPreference: () => ({ choice: "always-import-as-is" }),
+          listRecentImages: async () => [],
+          saveRecentImages: async (items) => {
+            writes.push(items.map((item) => item.name));
+            if (writes.length <= failures) throw disconnect;
+          },
+          recentPersistenceRetry: {
+            shouldRetry: (reason) => retryable && reason === disconnect,
+            schedule: (callback, delay) => {
+              const handle = {};
+              timers.set(handle, { callback, delay });
+              return handle;
+            },
+            cancel: (handle) => timers.delete(handle),
+          },
+        },
+        undefined,
+        sharedRecent,
+      );
+      const tick = async () => {
+        assert.equal(timers.size, 1);
+        const [handle, timer] = timers.entries().next().value;
+        timers.delete(handle);
+        timer.callback();
+        await h.session.flushPersistence();
+        return timer.delay;
+      };
+      return { ...h, timers, writes, tick };
+    };
+    await test("recent snapshots retry while idle and clear only their recovered warning", async () => {
+      const h = retryHarness();
+      await h.session.requestImport(source("A"));
+      await h.session.flushPersistence();
+      assert.equal(h.session.getSnapshot().error.operation, "recent");
+      assert.equal(h.writes.length, 1);
+      assert.equal(await h.tick(), 1000);
+      assert.deepEqual(h.writes, [["A"], ["A"]]);
+      assert.equal(h.session.getSnapshot().error, null);
+      assert.equal(h.timers.size, 0);
+      h.session.dispose();
+      const other = retryHarness();
+      await other.session.requestImport(source("A"));
+      await other.session.flushPersistence();
+      other.session.reportError(new Error("Unrelated error"));
+      await other.tick();
+      assert.equal(other.session.getSnapshot().error.message, "Unrelated error");
+      other.session.dispose();
+    });
+    await test("recent retries stop after two attempts and skip permanent failures", async () => {
+      const h = retryHarness(Infinity);
+      await h.session.requestImport(source("A"));
+      await h.session.flushPersistence();
+      assert.equal(await h.tick(), 1000);
+      assert.equal(await h.tick(), 3000);
+      assert.equal(h.writes.length, 3);
+      assert.equal(h.timers.size, 0);
+      assert.equal(h.session.getSnapshot().error.operation, "recent");
+      h.session.dispose();
+      const permanent = retryHarness(Infinity, false);
+      await permanent.session.requestImport(source("A"));
+      await permanent.session.flushPersistence();
+      assert.equal(permanent.writes.length, 1);
+      assert.equal(permanent.timers.size, 0);
+      permanent.session.dispose();
+    });
+    await test("newer recent snapshots supersede a delayed retry", async () => {
+      const h = retryHarness(2);
+      await h.session.requestImport(source("A"));
+      await h.session.flushPersistence();
+      const staleCallback = h.timers.values().next().value.callback;
+      await h.session.requestImport(source("B"));
+      await h.session.flushPersistence();
+      staleCallback();
+      await h.session.flushPersistence();
+      assert.equal(h.writes.length, 2, "a cancelled callback cannot publish old content");
+      await h.tick();
+      assert.deepEqual(h.writes.at(-1), ["B", "A"]);
+      assert.equal(h.timers.size, 0);
+      h.session.dispose();
+    });
+    await test("idle retry captures the latest shared catalog from another session", async () => {
+      const recent = new RecentImageStore();
+      const first = retryHarness(1, true, recent);
+      await first.session.requestImport(source("A"));
+      await first.session.flushPersistence();
+      const second = retryHarness(0, true, recent);
+      await second.session.requestImport(source("B"));
+      await second.session.flushPersistence();
+      await first.tick();
+      assert.deepEqual(first.writes.at(-1), ["B", "A"]);
+      first.session.dispose();
+      second.session.dispose();
+    });
+    await test("workspace replacement cancels a retry already queued for execution", async () => {
+      const h = retryHarness();
+      await h.session.requestImport(source("A"));
+      await h.session.flushPersistence();
+      const timer = h.timers.values().next().value;
+      h.timers.clear();
+      timer.callback();
+      h.session.cancelRecentPersistenceRetry();
+      await h.session.flushPersistence();
+      assert.equal(h.writes.length, 1);
+      assert.equal(h.timers.size, 0);
+      h.session.dispose();
+    });
+    await test("clear, removal and disposal cancel idle recent retries", async () => {
+      for (const action of ["clear", "remove", "dispose"]) {
+        const h = retryHarness();
+        await h.session.requestImport(source("A"));
+        await h.session.flushPersistence();
+        const staleCallback = h.timers.values().next().value.callback;
+        if (action === "clear") h.session.clearRecentFiles();
+        else if (action === "remove")
+          h.session.removeRecentFiles([h.session.getSnapshot().recentFiles[0].id]);
+        else h.session.dispose();
+        assert.equal(h.timers.size, 0);
+        staleCallback();
+        await h.session.flushPersistence();
+        assert.equal(h.writes.length, 1);
+        h.session.dispose();
+      }
     });
     await test("durable writes serialize and remain queued after UI disposal", async () => {
       const firstWrite = deferred();
